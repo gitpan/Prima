@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: StdDlg.pm,v 1.22 2002/09/16 07:01:14 dk Exp $
+#  $Id: StdDlg.pm,v 1.24 2004/01/28 16:30:47 dk Exp $
 
 
 
@@ -88,6 +88,38 @@ sub AUTOLOAD
    delete ${Prima::ChDirDialog::}{AUTOLOAD};
    eval "use Prima::FileDialog"; die "$@\n" if $@;
    shift->$method(@_);
+}
+
+package Prima;
+
+my ($openFileDlg, $saveFileDlg);
+   
+my @fileDlgProps = qw( defaultExt fileName filter filterIndex
+directory createPrompt multiSelect noReadOnly noTestFileCreate overwritePrompt
+pathMustExist fileMustExist sorted showDotFiles);
+
+sub open_file
+{
+   my %profile = @_;
+   $openFileDlg = Prima::OpenDialog-> create( 
+      system => exists($profile{system}) ? $profile{system} : 1,
+      onDestroy => sub { undef $openFileDlg},
+   ) unless $openFileDlg;
+   my %a = %{$openFileDlg-> profile_default};
+   $openFileDlg-> set(( map { $_ => $a{$_}} @fileDlgProps), %profile);
+   return $openFileDlg-> execute;
+}
+
+sub save_file
+{
+   my %profile = @_;
+   $saveFileDlg = Prima::SaveDialog-> create( 
+      system => exists($profile{system}) ? $profile{system} : 1,
+      onDestroy => sub { undef $saveFileDlg},
+   ) unless $saveFileDlg;
+   my %a = %{$openFileDlg-> profile_default};
+   $saveFileDlg-> set(( map { $_ => $a{$_}} @fileDlgProps), %profile);
+   return $saveFileDlg-> execute;
 }
 
 package Prima::ChDirDialog;
@@ -178,8 +210,13 @@ no need to C<use> the corresponding module explicitly.
 =head1 SYNOPSIS
 
    use Prima::StdDlg;
+   
    Prima::FileDialog-> create-> execute;
    Prima::FontDialog-> create-> execute;
+  
+   # open standard file open dialog
+   my $file = Prima::open_file;
+   print "You've selected: $file\n" if defined $file;
 
 =head1 API
 
@@ -187,7 +224,17 @@ The module accesses the following dialog classes:
 
 =over
 
-=item  Prima::OpenDialog
+=item Prima::open_file 
+
+Invokes standard file open dialog and return the selected file(s).
+Uses system-specific standard file open dialog, if available.
+
+=item Prima::save_file 
+
+Invokes standard file save dialog and return the selected file(s).
+Uses system-specific standard file save dialog, if available.
+
+=item Prima::OpenDialog
 
 File open dialog.
 

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: xft.c,v 1.7 2003/11/10 17:04:49 dk Exp $
+ * $Id: xft.c,v 1.9 2003/11/26 18:41:26 dk Exp $
  */
 
 /*********************************/
@@ -384,6 +384,7 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
    
    key. width = 0;
    if ( hash_fetch( mismatch, &key, sizeof( FontKey))) {
+      Fdebug("xft: refuse\n");
       return false;
    }
    key. width = f. width;
@@ -467,6 +468,7 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
    /* match best font - must return something useful; the match is statically allocated */
    match = XftFontMatch( DISP, SCREEN, request, &res);
    if ( !match) {
+      Fdebug("xft: XftFontMatch error\n");
       FcPatternDestroy( request);
       return false;
    }
@@ -489,6 +491,7 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
          xft_build_font_key( &key, &f, by_size);
          key. width = 0;
          hash_store( mismatch, &key, sizeof( FontKey), (void*)1);
+	 Fdebug("xft: charset mismatch\n");
          return false;
       }
    }
@@ -501,6 +504,7 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
          xft_build_font_key( &key, &f, by_size);
          key. width = 0;
          hash_store( mismatch, &key, sizeof( FontKey), (void*)1);
+	 Fdebug("xft: refuse bitmapped font\n");
          return false;
       }
    }
@@ -529,6 +533,7 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
          xft_build_font_key( &key, &f, by_size);
          key. width = 0;
          hash_store( mismatch, &key, sizeof( FontKey), (void*)1);
+	 Fdebug("xft: name mismatch\n");
          return false;
       }
    }
@@ -539,6 +544,7 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
       xft_build_font_key( &key, &f, by_size);
       key. width = 0;
       hash_store( mismatch, &key, sizeof( FontKey), (void*)1);
+      Fdebug("xft: XftFontOpenPattern error\n");
       return false;
    }
    if ( kf_base) {
@@ -597,6 +603,7 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
                if (( kf = malloc( sizeof( CachedFont)))) {
                   bzero( kf, sizeof( CachedFont));
                   memcpy( &kf-> font, &f1, sizeof( Font));
+         	  kf-> font. style &= ~(fsUnderlined|fsOutline|fsStruckOut);
                   kf-> xft = kf-> xft_base = xf;
                   hash_store( guts. font_hash, &key, sizeof( FontKey), kf);
                   Fdebug("xft:store %x:%d.%d.%d.%d.%s\n", kf->xft, key.height, key. width, key.style, key.pitch, key.name);
@@ -640,6 +647,7 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
       if (( kf = malloc( sizeof( CachedFont)))) {
          bzero( kf, sizeof( CachedFont));
          memcpy( &kf-> font, &f1, sizeof( Font));
+         kf-> font. style &= ~(fsUnderlined|fsOutline|fsStruckOut);
          kf-> xft = xf;
          kf-> xft_base = kf_base ? kf_base-> xft : xf;
          hash_store( guts. font_hash, &key, sizeof( FontKey), kf);
@@ -654,6 +662,7 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
          if (( kf = malloc( sizeof( CachedFont)))) {
             bzero( kf, sizeof( CachedFont));
             memcpy( &kf-> font, &f1, sizeof( Font));
+            kf-> font. style &= ~(fsUnderlined|fsOutline|fsStruckOut);
             kf-> xft = xf;
             kf-> xft_base = kf_base ? kf_base-> xft : xf;
             hash_store( guts. font_hash, &key, sizeof( FontKey), kf);

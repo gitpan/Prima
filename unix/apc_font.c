@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_font.c,v 1.72 2003/11/11 15:04:30 dk Exp $
+ * $Id: apc_font.c,v 1.79 2003/11/27 21:26:02 dk Exp $
  */
 
 /***********************************************************/
@@ -36,9 +36,21 @@
 #include <locale.h>
 
 static PHash xfontCache = nil;
-static void detail_font_info( PFontInfo f, PFont font, Bool addToCache, Bool bySize);
 static Bool have_vector_fonts = false;
 static PHash encodings = nil;
+static char **ignore_encodings;
+static int n_ignore_encodings;
+static char *s_ignore_encodings;
+
+/* these are freed right after use */
+static char * do_default_font = nil;
+static char * do_caption_font = nil;
+static char * do_msg_font = nil;
+static char * do_menu_font = nil;
+static char * do_widget_font = nil;
+static Bool   do_xft = true;
+
+static void detail_font_info( PFontInfo f, PFont font, Bool addToCache, Bool bySize);
 
 static void
 strlwr( char *d, const char *s)
@@ -61,6 +73,12 @@ fill_default_font( Font * font )
    font-> pitch = fpDefault;
 }
 
+/* Extracts font name, charset, foundry etc from X properties, if available.
+   Usually it is when X server can access its internal font files directly.
+   This means two things:
+   - X properties values are not the same as XLFD, and are precise font descriptors
+   - alias fonts ( defined via fonts.alias ) don't have X properties
+ */
 static void
 font_query_name( XFontStruct * s, PFontInfo f)
 {
@@ -186,10 +204,6 @@ font_query_name( XFontStruct * s, PFontInfo f)
       f-> flags. name = true;
    }
 }   
-
-static char **ignore_encodings;
-static int n_ignore_encodings;
-static char *s_ignore_encodings;
 
 static Bool
 xlfd_parse_font( char * xlfd_name, PFontInfo info, Bool do_vector_fonts)
@@ -489,13 +503,6 @@ skip_font:
    return conformant;
 }
 
-static char * do_default_font = nil;
-static char * do_caption_font = nil;
-static char * do_msg_font = nil;
-static char * do_menu_font = nil;
-static char * do_widget_font = nil;
-static Bool   do_xft = true;
-
 Bool
 prima_init_font_subsystem( void)
 {
@@ -649,6 +656,8 @@ prima_init_font_subsystem( void)
       }
    }
    guts. default_font_ok = 1;
+#define DEBUG_FONT(font) font.height,font.width,font.size,font.name,font.encoding
+   Fdebug("default font: %d.[w=%d,s=%d].%s.%s\n", DEBUG_FONT(guts.default_font));
    if ( do_menu_font) {
       prima_font_pp2font( do_menu_font, &guts. default_menu_font);
       free( do_menu_font);
@@ -657,6 +666,7 @@ prima_init_font_subsystem( void)
                              nilHandle, frFont, &guts. default_menu_font)) {
       memcpy( &guts. default_menu_font, &guts. default_font, sizeof( Font));
    }
+   Fdebug("menu font: %d.[w=%d,s=%d].%s.%s\n", DEBUG_FONT(guts.default_menu_font));
    
    if ( do_widget_font) {
       prima_font_pp2font( do_widget_font, &guts. default_widget_font);
@@ -666,6 +676,7 @@ prima_init_font_subsystem( void)
                              nilHandle, frFont, &guts. default_widget_font)) {
       memcpy( &guts. default_widget_font, &guts. default_font, sizeof( Font));
    }
+   Fdebug("widget font: %d.[w=%d,s=%d].%s.%s\n", DEBUG_FONT(guts.default_widget_font));
    
    if ( do_msg_font) {
       prima_font_pp2font( do_msg_font, &guts. default_msg_font);
@@ -675,6 +686,7 @@ prima_init_font_subsystem( void)
                              nilHandle, frFont, &guts. default_msg_font)) {
       memcpy( &guts. default_msg_font, &guts. default_font, sizeof( Font));
    }
+   Fdebug("msg font: %d.[w=%d,s=%d].%s.%s\n", DEBUG_FONT(guts.default_msg_font));
    
    if ( do_caption_font) {
       prima_font_pp2font( do_caption_font, &guts. default_caption_font);
@@ -684,6 +696,7 @@ prima_init_font_subsystem( void)
 				    nilHandle, frFont, &guts. default_caption_font)) {
       memcpy( &guts. default_caption_font, &guts. default_font, sizeof( Font));
    }
+   Fdebug("caption font: %d.[w=%d,s=%d].%s.%s\n", DEBUG_FONT(guts.default_caption_font));
 
    return true;
 }
@@ -698,31 +711,31 @@ prima_font_subsystem_set_option( char * option, char * value)
    } else
    if ( strcmp( option, "font") == 0) {
       free( do_default_font);
-      do_default_font = duplicate_string( do_default_font);
+      do_default_font = duplicate_string( value);
       Mdebug( "set default font: %s\n", do_default_font);
       return true;
    } else 
    if ( strcmp( option, "menu-font") == 0) {
       free( do_menu_font);
-      do_menu_font = duplicate_string( do_menu_font);
+      do_menu_font = duplicate_string( value);
       Mdebug( "set menu font: %s\n", do_menu_font);
       return true;
    } else 
    if ( strcmp( option, "widget-font") == 0) {
       free( do_widget_font);
-      do_widget_font = duplicate_string( do_widget_font);
+      do_widget_font = duplicate_string( value);
       Mdebug( "set menu font: %s\n", do_widget_font);
       return true;
    } else 
    if ( strcmp( option, "msg-font") == 0) {
       free( do_msg_font);
-      do_msg_font = duplicate_string( do_msg_font);
+      do_msg_font = duplicate_string( value);
       Mdebug( "set msg font: %s\n", do_msg_font);
       return true;
    } else 
    if ( strcmp( option, "caption-font") == 0) {
       free( do_caption_font);
-      do_caption_font = duplicate_string( do_caption_font);
+      do_caption_font = duplicate_string( value);
       Mdebug( "set caption font: %s\n", do_caption_font);
       return true;
    }  
@@ -732,15 +745,30 @@ prima_font_subsystem_set_option( char * option, char * value)
 void
 prima_font_pp2font( char * ppFontNameSize, PFont font)
 {
-   int i, newEntry = 0, detail;
+   int i, newEntry = 0, len, dash = 0;
    FontInfo fi;
    XFontStruct * xf;
    Font dummy, def_dummy, *def;
+   char buf[512], *p;
 
    if ( !font) font = &dummy;
    
-   memset( font, 0, sizeof( Font));
 
+   /* check if font is XLFD and ends in -*-*, so we can replace it with $LANG */
+   len = strlen( ppFontNameSize);
+   for ( i = 0, p = ppFontNameSize; i < len; i++, p++)
+      if ( *p == '-') dash++;
+   if (( dash == 14) && guts. locale[0] && (strcmp( ppFontNameSize + len - 4, "-*-*") == 0)) {
+      memcpy( buf, ppFontNameSize, len - 3);
+      buf[ len - 3] = 0;
+      strncat( buf, guts. locale, 512);
+      buf[511] = 0;
+      ppFontNameSize = buf;
+      len = strlen( ppFontNameSize);
+   }
+
+   /* check if the parsed font already present */
+   memset( font, 0, sizeof( Font));
    for ( i = 0; i < guts. n_fonts; i++) {
       if ( strcmp( guts. font_info[i]. xname, ppFontNameSize) == 0) {
          *font = guts. font_info[i]. font;
@@ -748,11 +776,12 @@ prima_font_pp2font( char * ppFontNameSize, PFont font)
       }
    }
    
-   xf = ( XFontStruct * ) hash_fetch( xfontCache, ppFontNameSize, strlen(ppFontNameSize));
+   xf = ( XFontStruct * ) hash_fetch( xfontCache, ppFontNameSize, len);
 
    if ( !xf ) {
       xf = XLoadQueryFont( DISP, ppFontNameSize);
       if ( !xf) {
+         Fdebug("font: cannot load %s\n", ppFontNameSize);
          if ( !guts. default_font_ok) {
             fill_default_font( font);
             apc_font_pick( application, font, font);
@@ -765,16 +794,16 @@ prima_font_pp2font( char * ppFontNameSize, PFont font)
                *font = guts. default_font;
          return;
       }
-      hash_store( xfontCache, ppFontNameSize, strlen( ppFontNameSize), xf);
+      hash_store( xfontCache, ppFontNameSize, len, xf);
       newEntry = 1;
    }
   
    bzero( &fi, sizeof( fi));
    fi. flags. sloppy = true;
    fi. xname = ppFontNameSize;
-   detail = xlfd_parse_font( ppFontNameSize, &fi, false);
+   xlfd_parse_font( ppFontNameSize, &fi, false);
    font_query_name( xf, &fi);
-   if ( !detail) detail_font_info( &fi, font, false, false);
+   detail_font_info( &fi, font, false, false);
    *font = fi. font;
    if ( guts. default_font_ok) {
       def = &guts. default_font;
@@ -800,6 +829,8 @@ prima_font_pp2font( char * ppFontNameSize, PFont font)
          guts. font_info[ guts. n_fonts++] = fi;
       }
    }
+   Fdebug("font: %s%s parsed to: %d.[w=%d,s=%d].%s.%s\n", 
+	  newEntry ? "new " : "", ppFontNameSize, DEBUG_FONT((*font)));
 }
 
 void
@@ -938,6 +969,7 @@ add_font_to_cache( PFontKey key, PFontInfo f, const char *name, XFontStruct *s, 
    kf-> id = s-> fid;
    kf-> fs = s;
    memcpy( &kf-> font, &f-> font, sizeof( Font));
+   kf-> font. style &= ~(fsUnderlined|fsOutline|fsStruckOut);
    kf-> flags = f-> flags;
    kf-> underlinePos = uPos;
    kf-> underlineThickness = uThinkness;
@@ -1043,10 +1075,10 @@ detail_font_info( PFontInfo f, PFont font, Bool addToCache, Bool bySize)
       if ( bySize)
          size = font-> size * 10;
       else {
-         size = font-> height * 10;
-         prima_init_try_height( &hgs, size, f-> flags. heights_cache ? f-> heights_cache[0] : size);
+         height = font-> height * 10;
+         prima_init_try_height( &hgs, height, f-> flags. heights_cache ? f-> heights_cache[0] : height);
          if ( f-> flags. heights_cache)
-            size = prima_try_height( &hgs, f-> heights_cache[1]);
+            height = prima_try_height( &hgs, f-> heights_cache[1]);
       }
    }
 
@@ -1059,11 +1091,12 @@ AGAIN:
 
       if ( f-> flags. bad_vector) {
          /* three fields */
-         sprintf( name, f-> vecname, height, size, font-> width * 10);
+         sprintf( name, f-> vecname, height / 10, size, font-> width * 10);
       } else {
          /* five fields */
-         sprintf( name, f-> vecname, height, size, 0, 0, font-> width * 10);
+         sprintf( name, f-> vecname, height / 10, size, 0, 0, font-> width * 10);
       }
+      Fdebug("font: construct h=%g, s=%d\n", (float)height/10, size);
    } else {
       strcpy( name, f-> xname);
    }
@@ -1102,7 +1135,7 @@ AGAIN:
                of-> heights_cache[0] = font-> height * 10;
                of-> heights_cache[1] = f-> font. height;
             }
-            size = h;
+            height = h;
             goto AGAIN;
          } 
       }

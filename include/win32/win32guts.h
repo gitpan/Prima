@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: win32guts.h,v 1.59 2003/07/28 09:27:33 dk Exp $ */
+/* $Id: win32guts.h,v 1.61 2004/01/21 22:53:10 dk Exp $ */
 
 #ifndef _WIN32_H_
 #define _WIN32_H_
@@ -41,6 +41,12 @@ extern "C" {
 
 #define SEVERE_DEBUG
 typedef HANDLE WINHANDLE;
+
+#ifdef __CYGWIN__
+typedef int SOCKETHANDLE;
+#else
+typedef HANDLE SOCKETHANDLE;
+#endif
 
 #define IS_NT      (BOOL)( guts. version < 0x80000000)
 #define IS_WIN32S  (BOOL)(!(IS_NT) && (LOBYTE(LOWORD(guts. version))<4))
@@ -200,6 +206,7 @@ typedef struct _WinGuts
     int            topWindows;         // count of top-level windows in app
     Bool           focSysDisabled;     // focus system disabled
     Bool           focSysGranted;      // SetFocus() was called inside apc_widget_set_focused
+    Bool           focSysDialog;       // system dialog is in action
     UINT           errorMode;          // SetErrorMode() result
     DWORD          version;            // GetVersion() cached result
     Point          smDblClk;           // cached SM_CxDOUBLECLK values
@@ -237,8 +244,8 @@ typedef struct _TimerData
 
 typedef struct _FileData
 {
-   HANDLE object;
-   int    type;
+   SOCKETHANDLE object;
+   int          type;
 } FileData;
 
 typedef struct _PrinterData

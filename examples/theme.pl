@@ -25,9 +25,9 @@
 #
 #  Created by Dmitry Karasik <dmitry@karasik.eu.org>
 #
-#  $Id: theme.pl,v 1.2 2003/11/15 08:50:10 dk Exp $
+#  $Id: theme.pl,v 1.3 2004/02/04 20:12:13 dk Exp $
 
-use Prima qw(Application ScrollBar Buttons InputLine ExtLists Themes);
+use Prima qw(Application ScrollBar Buttons InputLine ExtLists Themes Notebooks);
 
 =pod 
 =item NAME
@@ -55,9 +55,10 @@ sub test
 		}
 	}
 	Prima::Themes::select( @themes);
-	$t = $playground-> insert( Widget => 
+	$t = $playground-> insert( TabbedNotebook => 
 		pack => { fill => 'both', expand => 1},
 		packPropagate => 0,
+		tabs => ['Tab'],
 	);
 
 	$t-> insert( ScrollBar => 

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Image.c,v 1.114 2003/08/18 15:48:35 dk Exp $
+ * $Id: Image.c,v 1.116 2004/02/11 16:22:50 dk Exp $
  */
 
 #include "img.h"
@@ -666,7 +666,7 @@ Image_update_change( Handle self)
 double
 Image_stats( Handle self, Bool set, int index, double value)
 {
-   if ( index < 0 || index > isMaxIndex) return NAN;
+   if ( index < 0 || index > isMaxIndex) return 0;
    if ( set) {
       var-> stats[ index] = value;
       var-> statsCache |= 1 << index;
@@ -699,7 +699,7 @@ Image_stats( Handle self, Bool set, int index, double value)
          case imLong:    gather_stats(int32_t);   break;
          case imFloat:   gather_stats(float);  break;
          case imDouble:  gather_stats(double); break;
-         default:        return NAN;
+         default:        return 0;
       }
       if ( var->w * var->h > 0)
       {
@@ -1005,6 +1005,7 @@ Handle
 Image_bitmap( Handle self)
 {
    Handle h;
+   Point s;
    HV * profile = newHV();
 
    pset_H( owner,        var->owner);
@@ -1014,7 +1015,8 @@ Image_bitmap( Handle self)
    pset_i( monochrome,   (var-> type & imBPP) == 1);
    h = Object_create( "Prima::DeviceBitmap", profile);
    sv_free(( SV *) profile);
-   CDrawable( h)-> put_image( h, 0, 0, self);
+   s = CDrawable( h)-> get_size( h);
+   CDrawable( h)-> put_image_indirect( h, self, 0, 0, 0, 0, s.x, s.y, s.x, s.y, ropCopyPut);
    --SvREFCNT( SvRV( PDrawable( h)-> mate));
    return h;
 }
@@ -1303,36 +1305,6 @@ Image_codecs( SV * dummy)
    }  
    plist_destroy( p);
    return newRV_noinc(( SV *) av); 
-}
-
-Bool
-Image_put_image( Handle self, int x , int y , Handle image )
-{
-   Bool ret;
-   Point size;
-   if ( is_opt( optInDrawInfo)) return false;
-   if ( image == nilHandle) return false;
-   if ( is_opt( optInDraw))
-      return inherited put_image( self, x, y, image);
-   if ( !kind_of( image, CImage)) return false;
-   size = ((( PDrawable) image)-> self)-> get_size( image);
-   ret = img_put( self, image, x, y, 0, 0, size.x, size.y, size.x, size.y, my-> get_rop( self));
-   my-> update_change( self);
-   return ret;
-}
-
-Bool
-Image_stretch_image(Handle self, int x, int y, int xDest, int yDest, Handle image)
-{
-   Bool ret;
-   if ( is_opt( optInDrawInfo)) return false;
-   if ( image == nilHandle) return false;
-   if ( is_opt( optInDraw))
-      return inherited stretch_image( self, x, y, xDest, yDest, image);
-   if ( !kind_of( image, CImage)) return false;
-   ret = img_put( self, image, x, y, 0, 0, xDest, yDest, PImage(image)-> w, PImage(image)-> h, my-> get_rop( self));
-   my-> update_change( self);
-   return ret;
 }
 
 Bool

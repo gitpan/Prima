@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_win.c,v 1.77 2003/11/13 14:53:14 dk Exp $
+ * $Id: apc_win.c,v 1.78 2004/02/11 08:41:56 dk Exp $
  */
 
 /***********************************************************/
@@ -1080,7 +1080,7 @@ apc_window_set_window_state( Handle self, int state)
       XX-> flags. zoomed = 1;
       did_net_zoom = 1;
       sync = 0;
-   FALL_THROUGH:
+   FALL_THROUGH:;
    }
 
    if ( !XX-> flags. withdrawn) {

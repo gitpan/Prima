@@ -29,7 +29,7 @@
 #  Modifications by:
 #     David Scott <dscott@dgt.com>
 #
-#  $Id: FileDialog.pm,v 1.29 2003/06/20 09:35:13 dk Exp $
+#  $Id: FileDialog.pm,v 1.31 2004/01/28 16:30:47 dk Exp $
 
 use strict;
 use Prima::Classes;
@@ -664,10 +664,27 @@ sub profile_default
       showDotFiles       => 0,
 
       openMode           => 1,
+      system             => 0,
    }
 }
 
-my $unix = (Prima::Application-> get_system_info->{apc} == apc::Unix) || ($^O =~ /cygwin/);
+my $unix  = ($^O =~ /cygwin/) || (Prima::Application-> get_system_info->{apc} == apc::Unix);
+my $win32 = (Prima::Application-> get_system_info->{apc} == apc::Win32);
+
+sub create
+{
+   my ( $class, %params) = @_;
+   if ( $params{system} && $win32) {
+      if ( $class =~ /^Prima::(Open|Save|File)Dialog$/) {
+	 undef $@;
+	 eval "use Prima::sys::win32::FileDialog";
+	 die $@ if $@;
+         $class =~ s/(Prima)/$1::sys::win32/;
+	 return $class-> create(%params);
+      }
+   }
+   return $class->SUPER::create(%params);
+}
 
 sub canonize_mask
 {
@@ -1350,7 +1367,9 @@ sub noTestFileCreate { ($#_)? $_[0]->{noTestFileCreate}   = ($_[1])  : return $_
 sub overwritePrompt  { ($#_)? $_[0]->{overwritePrompt}   = ($_[1])  : return $_[0]->{overwritePrompt} };
 sub pathMustExist    { ($#_)? $_[0]->{pathMustExist}     = ($_[1])  : return $_[0]->{pathMustExist} };
 sub fileMustExist    { ($#_)? $_[0]->{fileMustExist}   = ($_[1])  : return $_[0]->{fileMustExist} };
+sub defaultExt       { ($#_)? $_[0]->{defaultExt}   = ($_[1])  : return $_[0]->{defaultExt} };
 sub showHelp         { ($#_)? shift->raise_ro('showHelp')  : return $_[0]->{showHelp} };
+sub openMode         { $_[0]->{openMode} }
 
 package Prima::OpenDialog;
 use vars qw( @ISA);
@@ -1779,6 +1798,16 @@ Default value: 1
 Selects whether the file list appears sorted by name ( 1 ) or not ( 0 ).
 
 Default value : 1
+
+=item system BOOLEAN
+
+Create-only property. If set to 1, C<Prima::FileDialog> returns
+instance of C<Prima::sys::XXX::FileDialog> system-specific file dialog, 
+if available for the I<XXX> platform.
+
+C<system> knows only how to map C<FileDialog>, C<OpenDialog>, and C<SaveDialog>
+classes onto the system-specific file dialog classes; the inherited classes 
+are not affected.
 
 =back
 

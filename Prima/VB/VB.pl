@@ -22,7 +22,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: VB.pl,v 1.75 2003/07/07 15:08:30 dk Exp $
+# $Id: VB.pl,v 1.77 2004/01/09 18:53:07 dk Exp $
 use strict;
 use Prima qw(StdDlg Notebooks MsgBox ComboBox ColorDialog IniFile Utils);
 use Prima::VB::VBLoader;
@@ -75,6 +75,7 @@ sub open_dialog
    $openFileDlg = Prima::OpenDialog-> create( 
       icon => $VB::ico, 
       directory => $VB::main-> {ini}-> {OpenPath},
+      system => 1,
    ) unless $openFileDlg;
    $openFileDlg-> set( %profile);
    return $openFileDlg;
@@ -86,6 +87,7 @@ sub save_dialog
    $saveFileDlg = Prima::SaveDialog-> create( 
       icon => $VB::ico,
       directory => $VB::main-> {ini}-> {SavePath},
+      system => 1,
    ) unless $saveFileDlg;
    $saveFileDlg-> set( %profile);
    return $saveFileDlg;
@@ -1901,7 +1903,7 @@ $VB::code
 
 package ${main}Window;
 use vars qw(\@ISA);
-\@ISA = qw(Prima::Window);
+\@ISA = qw(Prima::MainWindow);
 
 sub profile_default
 {
@@ -2031,11 +2033,6 @@ AGAIN:
 $c .= <<POSTHEAD;
    \$self-> unlock;
    return \%profile;
-}
-
-sub on_destroy
-{
-   \$::application-> close;
 }
 
 package ${main}Auto;

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Component.c,v 1.56 2003/07/17 08:28:10 dk Exp $
+ * $Id: Component.c,v 1.57 2004/01/13 08:57:21 dk Exp $
  */
 
 #include "apricot.h"
@@ -53,7 +53,8 @@ Component_init( Handle self, HV * profile)
    inherited init( self, profile);
    if ( !my-> validate_owner( self, &var-> owner, profile)) {
       var-> stage = csDeadInInit;
-      croak( "Illegal 'owner' reference passed to %s::%s", my-> className, "init");
+      croak( "Illegal 'owner' reference passed to %s::%s%s", my-> className, "init",
+	     application ? "" : ". Probably you forgot to include 'use Prima::Application' in your code. Error");
    }
    if ( var-> owner)
       ((( PComponent) var-> owner)-> self)-> attach( var-> owner, self);

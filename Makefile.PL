@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Makefile.PL,v 1.157 2003/10/24 14:03:17 dk Exp $
+#  $Id: Makefile.PL,v 1.162 2004/02/12 12:21:42 dk Exp $
 #
 
 BEGIN {
@@ -138,6 +138,7 @@ use vars qw(
     @executables
     $install_manuals
     $packlist
+    %cache_find_files
 );
 
 my $extramsg = "(see makefile.log for details)";
@@ -818,7 +819,7 @@ sub setup_variables
     
     if ( $cygwin) {
        $Config{libperl} =~ s/^lib(.*)\.a$/$1/i;
-       push @libs, qw(gdi32 mpr winspool); # add more when appropriate
+       push @libs, qw(gdi32 mpr winspool comdlg32); # add more when appropriate
     }
 
 # here starts lot of execs...
@@ -917,6 +918,7 @@ sub setup_variables
     setvar('WITH_ICONV', $unix);
     setvar('WITH_XFT', $unix);
     $install_manuals = $cygwin || (!$Win32 && !$OS2);
+    $install_manuals = 0 if !length( $INSTALL_MAN1) || !length($INSTALL_MAN3);
 
     @Prima_exports = qw(
 apc_application_begin_paint
@@ -1348,49 +1350,68 @@ sub setup_xft
 
 	print "Checking for presence of freetype/freetype.h... ";
 	my $incpath = find_header( qd("freetype/freetype.h"), "",
+				   qd("/usr/include/freetype2"),
 				   qd("/usr/X11R6/include/freetype2"),
 				   qd("/usr/X11/include/freetype2"),
 				   qd("/usr/X/include/freetype2"),
 				   qd("/usr/openwin/include/freetype2"),
-				   qd("/usr/local/include/freetype2"));
+				   qd("/usr/local/include/freetype2"),
+				   qd("/usr/gnu/include/freetype2"),
+				   qd("/usr/freeware/include/freetype2"),
+				   qd("/usr/opt/include/freetype2")
+				   );
 	if (defined $incpath) {
 	    print "yes";
 	    print ", in $incpath" if $incpath;
 	    print "\n";
 	    push @INCPATH, $incpath if $incpath;
+	    print "Checking for presence of libfreetype... ";
 	    if ( defined find_lib( 'freetype', '', '')) {
 		push @LIBS, 'freetype';
 		$HAVE_XFT++;
+		print "yes\n";
 	    } else {
+		print "no\n";
 		$DEFINES{HAVE_FREETYPE_FREETYPE_H} = undef;
 	    }
+	} else {
+	    print "no\n";
 	}
 
 	if ( have_header( "fontconfig/fontconfig.h")) {
+	    print "Checking for presence of libfontconfig... ";
 	    if ( defined find_lib( 'fontconfig', '', '')) {
 		push @LIBS, 'fontconfig';
 		$HAVE_XFT++;
+		print "yes\n";
 	    } else {
 		$DEFINES{HAVE_FONTCONFIG_FONTCONFIG_H} = undef;
+		print "no\n";
 	    }
 	}
 
 	if ( have_header( "X11/extensions/Xrender.h", "X11/X.h", 
 			  "X11/Xlib.h", "X11/extensions/Xext.h")) {
+	    print "Checking for presence of libXrender... ";
 	    if ( defined find_lib( 'Xrender', '', '')) {
 		push @LIBS, 'Xrender';
 		$HAVE_XFT++;
+		print "yes\n";
 	    } else {
 		$DEFINES{HAVE_X11_EXTENSIONS_XRENDER_H} = undef;
+		print "no\n";
 	    }
 	}
 
 	if ( have_header( "X11/Xft/Xft.h", "X11/X.h", "X11/Xlib.h", 
 			  "X11/extensions/Xext.h", "X11/extensions/Xrender.h")) {
+	    print "Checking for presence of libXft... ";
 	    if ( defined find_lib( 'Xft', '', '')) {
+		print "yes\n";
 		push @LIBS, 'Xft';
 		$HAVE_XFT++;
 	    } else {
+		print "no\n";
 		$DEFINES{HAVE_X11_XFT_XFT_H} = undef;
 	    }
 	}
@@ -1401,15 +1422,21 @@ sub setup_xft
 
     $WITH_ICONV = 0 unless $WITH_XFT; # iconv is used for xft only
     if ( $WITH_ICONV && have_header( "iconv.h")) {
+	print "Checking for presence of libiconv... ";
 	if ( defined find_lib( 'iconv', '', '')) {
 	    push @LIBS, 'iconv';
+            print "yes\n";
 	} else {
 	    $DEFINES{HAVE_ICONV_H} = undef;
 	    $WITH_ICONV = 0;
+            print "no\n";
 	}
     } else {
 	$WITH_ICONV = 0;
     }
+    
+    print "Using Xft library\n" if $WITH_XFT;
+    print "Using iconv library\n" if $WITH_ICONV;
 }       
 
 sub generate_win32_def
@@ -1684,8 +1711,17 @@ sub process_commandline
 sub find_file
 {
     my ( $fname, $dir) = @_;
+    $fname =~ s/\\/\//g;
     my $pathname = qd( "$dir/$fname");
+    if ( exists $cache_find_files{$pathname}) {
+       if ($cache_find_files{$pathname}) {
+       	   return ( $pathname, 1);
+       } else {
+       	   return ( $fname, 0);
+       }
+    }
     if ( -e $pathname) {
+        $cache_find_files{$pathname} = 1;
         return ( $pathname, 1);
     }
     opendir D, $dir or die "Cannot open dir $dir: $!";
@@ -1694,8 +1730,11 @@ sub find_file
     my $found;
     foreach my $entry ( @entries) {
         ( $pathname, $found) = find_file( $fname, $entry);
-        return ( $pathname, 1) if $found;
+	next unless $found;
+        $cache_find_files{$pathname} = 1;
+        return ( $pathname, 1);
     }
+    $cache_find_files{$pathname} = 0;
     return ( $fname, 0);
 }
 
@@ -2137,7 +2176,10 @@ FOOTER
    my @dirs;
    my @files;
    finddepth( sub {
-      return if $_ eq '.' || $_ eq 'Makefile' || $_ eq 'makefile.log' || $_ eq '.packlist';
+      return if $_ eq '.' || 
+                ($_ eq 'Makefile' && $File::Find::dir eq $cwd) || 
+		$_ eq 'makefile.log' || 
+		$_ eq '.packlist';
       return if /\.(pdb|ncb|opt|dsp|dsw)$/i; # M$VC
       my $f = "$File::Find::dir/$_";
       return if $f =~ /include.generic|CVS/;
@@ -2166,7 +2208,7 @@ FOOTER
    for ( @files) {
       my $f = $_;
       $f =~ s/^$cwd/$distname/;
-      cleanup("") unless copy $_, $f;
+      cleanup("Error copying $_ to $_") unless copy $_, $f;
    }
 
    if ( $type eq 'bin') {

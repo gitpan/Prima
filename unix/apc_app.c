@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_app.c,v 1.97 2003/11/12 23:15:24 dk Exp $
+ * $Id: apc_app.c,v 1.99 2004/02/10 22:18:06 dk Exp $
  */
 
 /***********************************************************/
@@ -207,7 +207,8 @@ init_x11( void)
       "_MOTIF_WM_HINTS",
       "_NET_WM_STATE_MODAL",
       "_NET_SUPPORTED",
-      "_NET_WM_STATE_MAXIMIZED_HORIZ"
+      "_NET_WM_STATE_MAXIMIZED_HORIZ",
+      "text/plain;charset=UTF-8"
    };
    char hostname_buf[256], *hostname = hostname_buf;
 
@@ -606,8 +607,8 @@ apc_application_create( Handle self)
    XX-> flags. sync_paint = 0;
 
    apc_component_fullname_changed_notify( self);
-   guts. mouse_wheel_down = unix_rm_get_int( self, guts.qWheeldown, guts.qwheeldown, 0);
-   guts. mouse_wheel_up = unix_rm_get_int( self, guts.qWheelup, guts.qwheelup, 0);
+   guts. mouse_wheel_down = unix_rm_get_int( self, guts.qWheeldown, guts.qwheeldown, 5);
+   guts. mouse_wheel_up = unix_rm_get_int( self, guts.qWheelup, guts.qwheelup, 4);
    guts. click_time_frame = unix_rm_get_int( self, guts.qClicktimeframe, guts.qclicktimeframe, guts. click_time_frame);
    guts. double_click_time_frame = unix_rm_get_int( self, guts.qDoubleclicktimeframe, guts.qdoubleclicktimeframe, guts. double_click_time_frame);
    guts. visible_timeout = unix_rm_get_int( self, guts.qBlinkvisibletime, guts.qblinkvisibletime, guts. visible_timeout);

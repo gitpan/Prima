@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: apricot.h,v 1.166 2003/08/27 18:59:25 dk Exp $ */
+/* $Id: apricot.h,v 1.167 2004/02/11 16:22:51 dk Exp $ */
 
 #ifndef _APRICOT_H_
 #define _APRICOT_H_
@@ -52,17 +52,9 @@
    #define stricmp               _stricmp
    #define HAVE_SNPRINTF         1
    #define HAVE_STRICMP          1
-   extern double                 NAN;
 #elif defined( __BORLANDC__)
    #define BROKEN_PERL_PLATFORM  1
    #define BROKEN_COMPILER       1
-   extern double                 NAN;
-#endif
-
-#if PRIMA_PLATFORM == 3 || defined(__CYGWIN__)
-#ifndef NAN
-   extern double NAN;
-#endif
 #endif
 
 #ifdef WORD

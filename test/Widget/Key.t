@@ -1,4 +1,4 @@
-# $Id: Key.t,v 1.2 2000/10/18 11:58:23 tobez Exp $
+# $Id: Key.t,v 1.3 2004/02/11 15:05:04 dk Exp $
 print "1..3 send,post,simulation\n";
 
 $dong = 0;
@@ -22,7 +22,7 @@ ok( $ww && scalar @keydata);
 @keydata = ();
 
 $c-> key_event( cm::KeyUp, 0, kb::Down, km::Ctrl|km::Shift, 1, 0);
-@keydata = grep { scalar @$_ == 5 && $$_[3] == kb::Down && $$_[4] == km::Ctrl|km::Shift } @keydata;
+@keydata = grep { scalar @$_ == 5 && $$_[3] == kb::Down && $$_[4] == (km::Ctrl|km::Shift) } @keydata;
 ok($dong && scalar @keydata);
 @keydata = ();
 

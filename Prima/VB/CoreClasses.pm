@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: CoreClasses.pm,v 1.33 2003/07/17 11:05:07 dk Exp $
+# $Id: CoreClasses.pm,v 1.35 2004/01/12 23:19:16 dk Exp $
 package Prima::VB::CoreClasses;
 use strict;
 
@@ -229,12 +229,6 @@ sub classes
           RTModule => 'Prima::Grids',
           class  => 'Prima::VB::Grid',
           page   => 'General',
-          icon   => 'VB::classes.gif:33',
-      },
-      'Prima::AbstractGrid' => {
-          RTModule => 'Prima::Grids',
-          class  => 'Prima::VB::AbstractGrid',
-          page   => 'Abstract',
           icon   => 'VB::classes.gif:33',
       },
    );
@@ -795,6 +789,7 @@ sub prf_types
       string     => ['text'],
       items      => ['items'],
    );
+   $_[0]-> prf_types_delete( $pt, qw(text));
    $_[0]-> prf_types_add( $pt, \%de);
    return $pt;
 }
@@ -926,7 +921,7 @@ sub prf_types
             persistentBlock readOnly syntaxHilite wantTabs wantReturns wordWrap
             autoHScroll autoVScroll
          )],
-      uiv     => [qw(borderWidth tabIndent)],
+      uiv     => [qw(borderWidth tabIndent undoLimit)],
       editBlockType => ['blockType',],
       color   => [qw(hiliteNumbers hiliteQStrings hiliteQQStrings hiliteIDs hiliteChars hiliteREs)],
       string  => ['wordDelimiters',],
@@ -1931,6 +1926,7 @@ sub prf_types
       string => ['headerClass'],
       bool   => ['clickable', 'dragable', 'vertical', 'scalable'],
    );
+   $_[0]-> prf_types_delete( $pt, qw(items)); 
    $_[0]-> prf_types_add( $pt, \%de);
    return $pt;
 }
@@ -2141,9 +2137,5 @@ sub prf_cells
 
 sub prf_columns { $_[0]-> prf_cells( $_[0]-> prf('cells')); }
 sub prf_rows    { $_[0]-> prf_cells( $_[0]-> prf('cells')); }
-
-package Prima::VB::AbstractGrid;
-use vars qw(@ISA);
-@ISA = qw(Prima::VB::Grid);
 
 1;

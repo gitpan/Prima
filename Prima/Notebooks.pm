@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Notebooks.pm,v 1.24 2003/09/28 19:52:20 dk Exp $
+#  $Id: Notebooks.pm,v 1.25 2004/01/07 19:56:46 dk Exp $
 use strict;
 use Prima::Const;
 use Prima::Classes;
@@ -714,11 +714,10 @@ sub widgets_from_page
    return @r;
 }
 
-sub detach
+sub on_childleave
 {
-   my ( $self, $widget, $killFlag) = @_;
+   my ( $self, $widget) = @_;
    $self-> detach_from_page( $widget);
-   $self->SUPER::detach( $widget, $killFlag);
 }
 
 sub detach_from_page

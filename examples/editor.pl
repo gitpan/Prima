@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: editor.pl,v 1.10 2002/07/09 15:17:11 dk Exp $
+#  $Id: editor.pl,v 1.12 2004/01/11 10:25:00 dk Exp $
 #
 
 =pod 
@@ -159,6 +159,9 @@ sub profile_default
             ['~Find...' => 'Esc'      => kb::Esc   , q(find)],
             ['~Replace...'=> 'Ctrl+S' => '^S'      , q(replace)],
             ['Find ~next' => 'Ctrl+L' => '^L'      , q(find_next)],
+            [],
+            ['~Undo' => 'Alt+Backspace' => kb::NoKey   , sub {$_[0]->{editor}->undo}],
+            ['~Redo' => 'Ctrl+R'        => kb::NoKey   , sub {$_[0]->{editor}->redo}],
         ]],
         ['~Options' => [
             [ 'syx' => '~Syntax hilite' => sub{ $_[0]->{editor}-> syntaxHilite( $_[0]->menu-> syx-> toggle)}],
@@ -251,18 +254,16 @@ sub new_window
    return $ww;
 }
 
-my $opd;
-
 sub open_file
 {
    my $self = $_[0];
-   $opd = Prima::OpenDialog-> create unless $opd;
-   if ( $opd-> execute) {
+   my $f = Prima::open_file;
+   if ( defined $f) {
       my $ww = EditorWindow-> create(
          size     => [$self-> size],
          left     => $self-> left + 10,
          bottom   => $self-> bottom - 10,
-         fileName => $opd-> fileName,
+         fileName => $f,
          font     => $self-> font,
       );
       $ww-> {editor}->focus;
@@ -294,16 +295,12 @@ sub save_file
    return 0;
 }
 
-
-my $svd;
-
 sub save_as
 {
    my $self = $_[0];
-   $svd = Prima::SaveDialog-> create unless $svd;
+   my $fn = Prima::save_file;
    my $ret = 0;
-   if ( $svd-> execute) {
-   my $fn = $svd-> fileName;
+   if ( defined $fn) {
 SAVE: while(1){
          next SAVE unless open FILE, ">$fn";
          my $cap = $self->{editor}->text;

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_menu.c,v 1.41 2003/11/13 15:04:59 dk Exp $
+ * $Id: apc_menu.c,v 1.42 2003/11/21 12:03:46 dk Exp $
  */
 
 /***********************************************************/
@@ -888,7 +888,7 @@ prima_handle_menu_event( XEvent *ev, XWindow win, Handle self)
                   ul = prima_utf8_length( m-> accel);
                else
                   ul = strlen( m-> accel);
-               if (( ul * 4 + 4) < sz) {
+               if (( ul * 4 + 4) > sz) {
                   free(s); 
                   if ( !( s = malloc( sz = (ul * 4 + 4)))) goto EXIT;
                }

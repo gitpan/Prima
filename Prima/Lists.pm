@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Anton Berezin  <tobez@tobez.org>
 #
-#  $Id: Lists.pm,v 1.43 2003/06/04 11:18:39 dk Exp $
+#  $Id: Lists.pm,v 1.44 2004/02/11 15:09:43 dk Exp $
 package Prima::Lists;
 
 # contains:
@@ -339,8 +339,8 @@ sub on_keydown
          if ( $key == kb::PgUp) { $newItem -= $mc ? $self->{rows} * $cols : $pgStep};
          $doSelect = $mod & km::Shift;
       }
-      if ( $mod & km::Ctrl ||
-         (( $mod & ( km::Shift|km::Ctrl)==(km::Shift|km::Ctrl)) && $self->{ extendedSelect}))
+      if (( $mod & km::Ctrl) ||
+         ((( $mod & ( km::Shift|km::Ctrl))==(km::Shift|km::Ctrl)) && $self->{ extendedSelect}))
       {
          if ( $key == kb::PgUp || $key == kb::Home) { $newItem = 0};
          if ( $key == kb::PgDn || $key == kb::End)  { $newItem = $self->{count} - 1};
