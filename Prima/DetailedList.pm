@@ -26,7 +26,7 @@
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #  Modifications by Anton Berezin <tobez@tobez.org>
 #
-#  $Id: DetailedList.pm,v 1.19 2004/02/26 12:09:38 dk Exp $
+#  $Id: DetailedList.pm,v 1.20 2004/12/17 12:29:51 dk Exp $
 
 
 package Prima::DetailedList;
@@ -454,19 +454,6 @@ __DATA__
 Prima::DetailedList - a multi-column list viewer with controlling 
 header widget.
 
-=head1 DESCRIPTION
-
-Prima::DetailedList is a descendant of Prima::ListViewer, and as such provides
-a certain level of abstraction. It overloads format of L<items> in order to
-support multi-column ( 2D ) cell span. It also inserts L<Prima::Header> widget
-on top of the list, so the user can interactively move, resize and sort the content
-of the list. The sorting mechanism is realized inside the package; it is
-activated by the mouse click on a header tab.
-
-Since the class inherits Prima::ListViewer, some functionality, like 'item search by
-key', or C<get_item_text> method can not operate on 2D lists. Therefore, L<mainColumn>
-property is introduced, that selects the column representing all the data.
-
 =head1 SYNOPSIS
 
   use Prima::DetailedList;
@@ -480,6 +467,19 @@ property is introduced, that selects the column representing all the data.
         ],
   );
   $l-> sort(1);
+
+=head1 DESCRIPTION
+
+Prima::DetailedList is a descendant of Prima::ListViewer, and as such provides
+a certain level of abstraction. It overloads format of L<items> in order to
+support multi-column ( 2D ) cell span. It also inserts L<Prima::Header> widget
+on top of the list, so the user can interactively move, resize and sort the content
+of the list. The sorting mechanism is realized inside the package; it is
+activated by the mouse click on a header tab.
+
+Since the class inherits Prima::ListViewer, some functionality, like 'item search by
+key', or C<get_item_text> method can not operate on 2D lists. Therefore, L<mainColumn>
+property is introduced, that selects the column representing all the data.
 
 =head1 API
 

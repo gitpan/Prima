@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_font.c,v 1.86 2004/05/07 10:03:24 dk Exp $
+ * $Id: apc_font.c,v 1.88 2004/12/13 15:54:17 dk Exp $
  */
 
 /***********************************************************/
@@ -517,7 +517,7 @@ prima_init_font_subsystem( char * error_buf)
 
    info = malloc( sizeof( FontInfo) * count);
    if ( !info) {
-      sprintf( error_buf, "No memory (%d bytes)", sizeof(FontInfo)*count);
+      sprintf( error_buf, "No memory (%d bytes)", (int)sizeof(FontInfo)*count);
       return false;
    }   
    bzero( info,  sizeof( FontInfo) * count);
@@ -1755,7 +1755,7 @@ apc_gp_set_font( Handle self, PFont font)
    kf = prima_find_known_font( font, false, false);
    if ( !kf || !kf-> id) {
       dump_font( font);
-      if ( DISP) warn( "UAF_007: internal error (kf:%08x)", (IV)kf); /* the font was not cached, can't be */
+      if ( DISP) warn( "UAF_007: internal error (kf:%08x)", PTR2UV(kf)); /* the font was not cached, can't be */
       return false;
    }
 
@@ -1800,7 +1800,7 @@ apc_menu_set_font( Handle self, PFont font)
       kf = prima_find_known_font( font, false, false);
       if ( !kf || !kf-> id) {
          dump_font( font);
-         warn( "UAF_010: internal error (kf:%08x)", (IV)kf); /* the font was not cached, can't be */
+         warn( "UAF_010: internal error (kf:%08x)", PTR2UV(kf)); /* the font was not cached, can't be */
          return false;
       }
    }

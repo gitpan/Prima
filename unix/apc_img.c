@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_img.c,v 1.85 2004/05/27 12:14:42 dk Exp $
+ * $Id: apc_img.c,v 1.86 2004/10/05 17:27:37 dk Exp $
  */
 /*
  * System dependent image routines (unix, x11)
@@ -1920,7 +1920,7 @@ do_stretch( Handle self, PrimaXImage *cache,
       Byte * dstData = data;
       Bool   xshrink = dst_w < 0 ? -dst_w < src_w : dst_w < src_w;
       Bool   yshrink = dst_h < 0 ? -dst_h < src_h : dst_h < src_h;
-      mStretchProc * proc = nil;
+      mStretchProc * proc = ( mStretchProc*) nil;
       int targetwidth  = xclipsize;
       int targetheight = yclipsize;
       int copyBytes = tls > sls ? sls : tls;

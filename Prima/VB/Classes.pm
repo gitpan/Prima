@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Classes.pm,v 1.73 2004/09/03 15:04:31 dk Exp $
+# $Id: Classes.pm,v 1.74 2004/12/15 13:48:03 dk Exp $
 use strict;
 package Prima::VB::Classes;
 
@@ -1164,7 +1164,7 @@ sub prf_types
         'menuBackColor', 'menuHiliteBackColor','menuDisabledBackColor',
         'menuLight3DColor', 'menuDark3DColor'],
       font          => ['menuFont'],
-      bool          => ['modalHorizon', 'taskListed', 'ownerIcon'],
+      bool          => ['modalHorizon', 'taskListed', 'ownerIcon', 'onTop'],
       uiv           => ['modalResult'],
    );
    $_[0]-> prf_types_add( $pt, \%de);

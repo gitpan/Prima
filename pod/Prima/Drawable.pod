@@ -1,8 +1,18 @@
-=for rcs $Id: Drawable.pod,v 1.22 2004/08/19 22:04:58 dk Exp $
+=for rcs $Id: Drawable.pod,v 1.23 2004/12/15 16:11:03 dk Exp $
 
 =head1 NAME
 
 Prima::Drawable - 2-D graphic interface
+
+=head1 SYNOPSIS
+
+   if ( $object-> isa('Prima::Drawable')) {
+        $object-> begin_paint;
+	$object-> color( cl::Black);
+	$object-> line( 100, 100, 200, 200);
+	$object-> ellipse( 100, 100, 200, 200);
+        $object-> end_paint;
+   }
 
 =head1 DESCRIPTION
 

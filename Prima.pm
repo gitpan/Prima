@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Prima.pm,v 1.70 2004/10/03 13:54:30 dk Exp $
+#  $Id: Prima.pm,v 1.72 2005/01/25 16:00:16 dk Exp $
 
 package Prima;
 
@@ -34,7 +34,7 @@ require DynaLoader;
 use vars qw($VERSION @ISA $__import);
 @ISA = qw(DynaLoader);
 sub dl_load_flags { 0x00 }
-$VERSION = '1.16';
+$VERSION = '1.17';
 bootstrap Prima $VERSION;
 unless ( UNIVERSAL::can('Prima', 'init')) {
    $::application = 0;
@@ -264,6 +264,10 @@ subjects, and the information can
 be found in the following files:
 
 =over
+
+=item Tutorials
+
+L<Prima::tutorial> - introductory tutorial
 
 =item Core toolkit classes
 

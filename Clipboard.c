@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Clipboard.c,v 1.41 2004/05/04 21:07:12 dk Exp $
+ * $Id: Clipboard.c,v 1.42 2004/10/05 16:57:22 dk Exp $
  */
 
 #include "apricot.h"
@@ -416,7 +416,7 @@ utf8_server( Handle self, PClipboardFormatReg instance, int function, SV * data)
 
    case cefFetch:
       if ( apc_clipboard_get_data( self, cfUTF8, &c)) {
-         data = newSVpv( c. data, c. length);
+         data = newSVpv(( char*) c. data, c. length);
          SvUTF8_on( data);
          free( c. data);
          return data;
@@ -424,7 +424,7 @@ utf8_server( Handle self, PClipboardFormatReg instance, int function, SV * data)
       break;
 
    case cefStore:
-      c. data = SvPV( data, c. length);
+      c. data = ( Byte*) SvPV( data, c. length);
       instance-> written = apc_clipboard_set_data( self, cfUTF8, &c);
       break;
    }

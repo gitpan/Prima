@@ -1,4 +1,4 @@
-# $Id: EventHook.pm,v 1.3 2004/07/05 14:36:40 dk Exp $
+# $Id: EventHook.pm,v 1.4 2004/12/17 12:29:51 dk Exp $
 #
 #  Copyright (c) 1997-2004 Dmitry Karasik
 #  All rights reserved.
@@ -26,7 +26,7 @@
 #
 #  Created by Dmitry Karasik <dmitry@karasik.eu.org>
 #
-#  $Id: EventHook.pm,v 1.3 2004/07/05 14:36:40 dk Exp $
+#  $Id: EventHook.pm,v 1.4 2004/12/17 12:29:51 dk Exp $
 use strict;
 
 package Prima::EventHook;
@@ -122,17 +122,6 @@ __DATA__
 
 Prima::EventHook - event filtering
 
-=head1 DESCRIPTION
-
-Prima dispatches events by calling notifications registered
-on one or more objects interested in the events. Also, one 
-event hook can be installed that would receive all events occurred on
-all objects. C<Prima::EventHook> provides multiplex access to
-the core event hook and introduces set of dispatching rules so 
-the user hook subs receive only a defined subset of events.
-
-The filtering criteria are event names and object hierarchy.
-
 =head1 SYNOPSIS
 
    use Prima::EventHook;
@@ -154,6 +143,17 @@ The filtering criteria are event names and object hierarchy.
    );
 
    Prima::EventHook::deinstall(\&hook);
+
+=head1 DESCRIPTION
+
+Prima dispatches events by calling notifications registered
+on one or more objects interested in the events. Also, one 
+event hook can be installed that would receive all events occurred on
+all objects. C<Prima::EventHook> provides multiplex access to
+the core event hook and introduces set of dispatching rules so 
+the user hook subs receive only a defined subset of events.
+
+The filtering criteria are event names and object hierarchy.
 
 =head1 API
 

@@ -1,8 +1,37 @@
-=for rcs $Id: Object.pod,v 1.12 2004/08/19 22:04:58 dk Exp $
+=for rcs $Id: Object.pod,v 1.13 2004/12/15 16:11:03 dk Exp $
 
 =head1 NAME
 
 Prima::Object - Prima toolkit base classes
+
+=head1 SYNOPSIS
+
+    if ( $obj-> isa('Prima::Component')) {
+    
+        # set and get a property
+	my $name = $obj-> name;
+	$obj->name( 'an object' );
+
+	# set a notification callback
+	$obj-> onPostMessage( sub { 
+	    shift;
+	    print "hey! I've received this: @_\n";
+	});
+
+	# can set multiple properties. note, that 'name' and 'owner',
+	# replace the old values, while onPostMessage are aggregated.
+	$obj-> set(
+	    name => 'AnObject',
+	    owner => $new_owner,
+	    onPostMessage => sub {
+	       shift;
+	       print "hey! me too!\n";
+	    },
+	);
+
+        # de-reference by name
+	$new_owner-> AnObject-> post_message(1,2);
+    }
 
 =head1 DESCRIPTION
 

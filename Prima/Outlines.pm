@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Outlines.pm,v 1.41 2004/07/07 09:49:19 dk Exp $
+#  $Id: Outlines.pm,v 1.42 2004/12/17 12:29:51 dk Exp $
 
 # contains:
 #   OutlineViewer
@@ -1733,14 +1733,9 @@ __DATA__
 
 Prima::Outlines - tree view widgets
 
-=head1 DESCRIPTION
-
-The module provides a set of widget classes, designed to display a tree-like
-hierarchy of items. C<Prima::OutlineViewer> presents a generic class that
-contains basic functionality and defines the interface for the descendants, which are
-C<Prima::StringOutline>, C<Prima::Outline>, and C<Prima::DirectoryOutline>.
-
 =head1 SYNOPSIS
+
+  use Prima::Outlines;
 
   my $outline = Prima::StringOutline-> create(
     items => [
@@ -1750,6 +1745,14 @@ C<Prima::StringOutline>, C<Prima::Outline>, and C<Prima::DirectoryOutline>.
     ],
   );
   $outline-> expand_all;
+
+
+=head1 DESCRIPTION
+
+The module provides a set of widget classes, designed to display a tree-like
+hierarchy of items. C<Prima::OutlineViewer> presents a generic class that
+contains basic functionality and defines the interface for the descendants, which are
+C<Prima::StringOutline>, C<Prima::Outline>, and C<Prima::DirectoryOutline>.
 
 =head1 Prima::OutlineViewer
 

@@ -1,8 +1,23 @@
-=for rcs $Id: Window.pod,v 1.7 2003/08/01 10:05:26 dk Exp $
+=for rcs $Id: Window.pod,v 1.9 2004/12/15 16:11:03 dk Exp $
 
 =head1 NAME
 
 Prima::Window - top-level window management
+
+=head1 SYNOPSIS
+
+   use Prima;
+   use Prima::Application;
+
+   # this window, when closed, terminated the application
+   my $main = Prima::MainWindow-> new( text => 'Hello world' );
+
+   # this is a modal window
+   my $dialog = Prima::Dialog->create( size => [ 100, 100 ]);
+   my $result = $dialog-> execute;
+   $dialog-> destroy;
+
+   run Prima;
 
 =head1 DESCRIPTION 
 
@@ -376,6 +391,12 @@ integer value can be used. The most useful C<mb::> constants are:
 NB: These constants are defined so they can be bitwise-or'ed,
 and I<Prima::MsgBox> package uses this feature, where one
 of its functions parameters is a combination of C<mb::> constants.
+
+=item onTop BOOLEAN
+
+If set, the window is hinted to stay on top of all other windows.
+
+Default value: 0
 
 =item ownerIcon BOOLEAN
 

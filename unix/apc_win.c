@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_win.c,v 1.79 2004/06/04 16:09:53 dk Exp $
+ * $Id: apc_win.c,v 1.84 2004/12/14 13:11:58 dk Exp $
  */
 
 /***********************************************************/
@@ -44,7 +44,7 @@
     params - -1 - don't touch, 0 - clear, 1 - set
  */
 static void
-set_net_hints( XWindow window, int task_listed, int modal, int zoom)
+set_net_hints( XWindow window, int task_listed, int modal, int zoom, int on_top)
 {
    Atom data[40], type, * prop;
    int count = 0, format;
@@ -61,6 +61,7 @@ set_net_hints( XWindow window, int task_listed, int modal, int zoom)
          for ( i = 0; i < n; i++) {
             if (( prop[i] != NET_WM_STATE_SKIP_TASKBAR || task_listed < 0) && 
                 ( prop[i] != NET_WM_STATE_MODAL || modal < 0) && 
+                ( prop[i] != NET_WM_STATE_STAYS_ON_TOP || on_top < 0) && 
                 (( prop[i] != NET_WM_STATE_MAXIMIZED_VERT && 
                    prop[i] != NET_WM_STATE_MAXIMIZED_HORZ) || ( zoom < 0)))
                data[ count++] = prop[i];
@@ -103,6 +104,12 @@ set_net_hints( XWindow window, int task_listed, int modal, int zoom)
       ev. data. l[2] = ( long) NET_WM_STATE_MAXIMIZED_HORZ;
       XSendEvent( DISP, guts. root, false, 0, (XEvent*)&ev);
    }
+   
+   if ( on_top >= 0) {
+      ev. data. l[0] = ( on_top > 0) ? 1 : 0;
+      ev. data. l[1] = ( long) NET_WM_STATE_STAYS_ON_TOP;
+      XSendEvent( DISP, guts. root, false, 0, (XEvent*)&ev);
+   }
 
    /* finally reset the list of properties */
    if ( task_listed == 0) data[ count++] = NET_WM_STATE_SKIP_TASKBAR;
@@ -111,6 +118,7 @@ set_net_hints( XWindow window, int task_listed, int modal, int zoom)
       data[ count++] = NET_WM_STATE_MAXIMIZED_VERT;
       data[ count++] = NET_WM_STATE_MAXIMIZED_HORZ;
    }
+   if ( on_top > 0) data[ count++] = NET_WM_STATE_STAYS_ON_TOP;
    XChangeProperty( DISP, window, NET_WM_STATE, XA_ATOM, 32,
        PropModeReplace, ( unsigned char *) data, count);
 } 
@@ -178,43 +186,124 @@ apc_window_task_listed( Handle self, Bool task_list)
 {
    DEFXX;
    XX-> flags. task_listed = ( task_list ? 1 : 0);
-   set_net_hints( X_WINDOW, XX-> flags.task_listed, -1, -1);
+   set_net_hints( X_WINDOW, XX-> flags.task_listed, -1, -1, -1);
 } 
+
+/* Motif window hints */
+#define MWM_HINTS_FUNCTIONS           (1L << 0)
+#define MWM_HINTS_DECORATIONS         (1L << 1)
+
+/* bit definitions for MwmHints.functions */
+#define MWM_FUNC_ALL            (1L << 0)
+#define MWM_FUNC_RESIZE         (1L << 1)
+#define MWM_FUNC_MOVE           (1L << 2)
+#define MWM_FUNC_MINIMIZE       (1L << 3)
+#define MWM_FUNC_MAXIMIZE       (1L << 4)
+#define MWM_FUNC_CLOSE          (1L << 5)
+
+/* bit definitions for MwmHints.decorations */
+#define MWM_DECOR_ALL                 (1L << 0)
+#define MWM_DECOR_BORDER              (1L << 1)
+#define MWM_DECOR_RESIZEH             (1L << 2)
+#define MWM_DECOR_TITLE               (1L << 3)
+#define MWM_DECOR_MENU                (1L << 4)
+#define MWM_DECOR_MINIMIZE            (1L << 5)
+#define MWM_DECOR_MAXIMIZE            (1L << 6)
 
 static void
 set_motif_hints( XWindow window, int border_style, int border_icons)
 {
+/*
+   32-bit properties on some Xlibs are treated as longs.
+   This gives certain paint on 64-bit machines, and this
+   situation we are trying to detect here. First, we
+   use longs, because these are larger than 32 bytes,
+   and see if these work.  */
+   Bool check_if_long_is_ok = false;
+   struct {
+     unsigned long flags, functions, decorations;
+     long  input_mode;
+     unsigned long status;
+   } mwmhints_long;
    struct {
      uint32_t flags, functions, decorations;
      int32_t  input_mode;
      uint32_t status;
-   } mwmhints;
+   } mwmhints_int32;
+
+   if ( guts.X_bug_32_bit_property_is_long == 0) {
+        if ( sizeof(long) <= sizeof(int32_t)) {
+            guts.X_bug_32_bit_property_is_long = -1; /* use int32 */
+        } else {
+            guts.X_bug_32_bit_property_is_long = 1; /* use long */
+            check_if_long_is_ok = true;
+        }
+   }
+
+#define MWMHINT_OR(field,value) ((guts.X_bug_32_bit_property_is_long > 0 ) ? \
+                                  (mwmhints_long.field |= (value)):\
+                                  (mwmhints_int32.field |= (value))) 
+#define MWMHINTS ((guts.X_bug_32_bit_property_is_long > 0) ? \
+                                  (void*)&mwmhints_long : \
+                                  (void*)&mwmhints_int32)
+#define MWMHINTS_SIZE ((guts.X_bug_32_bit_property_is_long > 0) ? \
+                                  sizeof(mwmhints_long) : \
+                                  sizeof(mwmhints_int32))
 
    if ( guts. icccm_only) return;
 
-   bzero( &mwmhints, sizeof(mwmhints));
-   mwmhints.flags |= (1L << 1); /*  MWM_HINTS_DECORATIONS */
+   bzero( MWMHINTS, MWMHINTS_SIZE);
+   MWMHINT_OR( flags, MWM_HINTS_DECORATIONS);
+   MWMHINT_OR( flags, MWM_HINTS_FUNCTIONS);
    if ( border_style == bsSizeable) {
-      mwmhints.decorations |= (1L << 1); /* MWM_DECOR_BORDER */
-        mwmhints.decorations |= (1L << 2); /* MWM_DECOR_RESIZEH */
+      MWMHINT_OR( decorations, MWM_DECOR_BORDER);
+      MWMHINT_OR( decorations, MWM_DECOR_RESIZEH);
+      MWMHINT_OR( functions, MWM_FUNC_RESIZE);
    }
+   MWMHINT_OR( functions, MWM_FUNC_MOVE);
+   MWMHINT_OR( functions, MWM_FUNC_CLOSE);
    if ( border_icons & biTitleBar)
-      mwmhints.decorations |= (1L << 3); /* MWM_DECOR_TITLE */
+      MWMHINT_OR( decorations, MWM_DECOR_TITLE);
    if ( border_icons & biSystemMenu)
-      mwmhints.decorations |= (1L << 4); /* MWM_DECOR_MENU */
-   if ( border_icons & biMinimize)
-      mwmhints.decorations |= (1L << 5); /* MWM_DECOR_MINIMIZE */
-   if (( border_icons & biMaximize) && ( border_style == bsSizeable))
-      mwmhints.decorations |= (1L << 6); /* MWM_DECOR_MAXIMIZE */
+      MWMHINT_OR( decorations, MWM_DECOR_MENU);
+   if ( border_icons & biMinimize) {
+      MWMHINT_OR( decorations, MWM_DECOR_MINIMIZE);
+      MWMHINT_OR( functions, MWM_FUNC_MINIMIZE);
+   }
+   if (( border_icons & biMaximize) && ( border_style == bsSizeable)) {
+      MWMHINT_OR( decorations, MWM_DECOR_MAXIMIZE);
+      MWMHINT_OR( functions, MWM_FUNC_MAXIMIZE);
+   }
 
    XChangeProperty(DISP, window, XA_MOTIF_WM_HINTS, XA_MOTIF_WM_HINTS, 32,
-       PropModeReplace, (unsigned char *) &mwmhints, 5);
+       PropModeReplace, (unsigned char *) MWMHINTS, 5);
+
+   if ( check_if_long_is_ok) {
+      Atom type;
+      uint32_t *prop = (uint32_t*)0;
+      int format;
+      unsigned long n, left;
+      if ( XGetWindowProperty( DISP, window, XA_MOTIF_WM_HINTS, 0, 5, false, XA_MOTIF_WM_HINTS,
+             &type, &format, &n, &left, (unsigned char**)&prop) == Success) {
+         if ( prop && n == 5) {
+            if ( memcmp( prop, MWMHINTS, 5 * sizeof(int32_t)) != 0) {
+               /* long is NOT ok */ 
+               guts. X_bug_32_bit_property_is_long = -1;
+               set_motif_hints( window, border_style, border_icons);
+            }
+         } else {
+            warn("error in XGetWindowProperty(XA_MOTIF_WM_HINTS)");
+         }
+         if ( prop)
+            XFree(( unsigned char *) prop);
+      }
+   }
 }
 
 Bool
 apc_window_create( Handle self, Handle owner, Bool sync_paint, int border_icons,
-		   int border_style, Bool task_list,
-		   int window_state, Bool use_origin, Bool use_size)
+		   int border_style, Bool task_list, int window_state, 
+		   int on_top, Bool use_origin, Bool use_size)
 {
    DEFXX;
    Handle real_owner;
@@ -230,16 +319,38 @@ apc_window_create( Handle self, Handle owner, Bool sync_paint, int border_icons,
    border_icons &= biAll;
 
    if ( X_WINDOW) { /* recreate request */
-      if (
+      Bool destructive_motif_hints = 0; /* KDE 3.1: setting motif hints kills net_wm hints */
+      if ( !guts.icccm_only && (
            ( border_style != ( XX-> flags. sizeable ? bsSizeable : bsDialog)) ||
-           ( border_icons != XX-> borderIcons)
-         ) {
-         set_motif_hints( X_WINDOW, border_style, border_icons);
+           ( border_icons != XX-> borderIcons) || 
+	   ( on_top >= 0)
+         )) {
+	 Bool visible = XX-> flags. mapped;
+	 if (
+           ( border_style != ( XX-> flags. sizeable ? bsSizeable : bsDialog)) ||
+           ( border_icons != XX-> borderIcons))
+	    destructive_motif_hints = 1;
+	 if ( destructive_motif_hints && on_top < 0)
+	    on_top = apc_window_get_on_top( self);
+	 if ( visible) {
+	    XUnmapWindow( DISP, X_WINDOW);
+            prima_wm_sync( self, UnmapNotify);
+	 }
+         if ( destructive_motif_hints)
+            set_motif_hints( X_WINDOW, border_style, border_icons);
+	 if ( on_top >= 0)
+	    set_net_hints( X_WINDOW, -1, -1, -1, on_top);
+	 if ( visible) { 
+	    XMapWindow( DISP, X_WINDOW);
+            prima_wm_sync( self, MapNotify);
+	 }
          XX-> borderIcons = border_icons;
+         XX-> flags. sizeable = ( border_style == bsSizeable) ? 1 : 0;
       }
-      XX-> flags. sizeable = ( border_style == bsSizeable) ? 1 : 0;
-      apc_widget_set_size_bounds( self, PWidget(self)-> sizeMin, PWidget(self)-> sizeMax);
-      if (( task_list ? 1 : 0) != ( XX-> flags. task_listed ? 1 : 0))
+      if (
+            (( task_list ? 1 : 0) != ( XX-> flags. task_listed ? 1 : 0)) 
+	    || destructive_motif_hints
+	 )
          apc_window_task_listed( self, task_list);
       return true; 
    }   
@@ -395,6 +506,7 @@ apc_window_create( Handle self, Handle owner, Bool sync_paint, int border_icons,
    XX-> owner = real_owner;
    apc_component_fullname_changed_notify( self);
    prima_send_create_event( X_WINDOW);
+   if ( on_top > 0) set_net_hints( X_WINDOW, -1, -1, -1, 1);
    apc_window_task_listed( self, task_list);
    if ( border_style == bsSizeable) XX-> flags. sizeable = 1;
 
@@ -407,7 +519,7 @@ apc_window_create( Handle self, Handle owner, Bool sync_paint, int border_icons,
       XX-> size. y *= 0.75;
    } else {
       XX-> flags. zoomed = 1;
-      set_net_hints( X_WINDOW, -1, -1, 1);
+      set_net_hints( X_WINDOW, -1, -1, 1, -1);
       if ( net_supports_maximization()) {
          XX-> zoomRect. right = XX-> size. x;
          XX-> zoomRect. top   = XX-> size. y;
@@ -1059,7 +1171,7 @@ apc_window_set_window_state( Handle self, int state)
 	    nothing bad if we lose - heuristic maximization works fine also, after all. */
 	 XSync( DISP, false);
       }
-      set_net_hints( X_WINDOW, -1, -1, 1);
+      set_net_hints( X_WINDOW, -1, -1, 1, -1);
       zoomRect. left   = XX-> origin.x;
       zoomRect. bottom = XX-> origin.y;
       zoomRect. right  = XX-> size.x;
@@ -1108,7 +1220,7 @@ apc_window_set_window_state( Handle self, int state)
    }
 
    if ( XX-> flags. zoomed && state != wsMaximized) {
-      set_net_hints( X_WINDOW, -1, -1, 0);
+      set_net_hints( X_WINDOW, -1, -1, 0, -1);
       apc_window_set_rect( self, XX-> zoomRect. left, XX-> zoomRect. bottom, 
          XX-> zoomRect. right, XX-> zoomRect. top);
       if ( XX-> flags. zoomed) sync = ConfigureNotify;
@@ -1149,7 +1261,7 @@ apc_window_execute( Handle self, Handle insert_before)
 {
    DEFXX;
    XX-> flags.modal = true;
-   set_net_hints( X_WINDOW, -1, XX-> flags.modal, -1);
+   set_net_hints( X_WINDOW, -1, XX-> flags.modal, -1, -1);
    if ( !window_start_modal( self, false, insert_before))
       return false;
    if (!application) return false;
@@ -1159,7 +1271,7 @@ apc_window_execute( Handle self, Handle insert_before)
    XSync( DISP, false);
    while ( prima_one_loop_round( true, true) && XX && XX-> flags.modal)
       ;
-   if ( XX) set_net_hints( X_WINDOW, -1, XX-> flags.modal, -1);
+   if ( XX) set_net_hints( X_WINDOW, -1, XX-> flags.modal, -1, -1);
    unprotect_object( self);
    return true;
 }
@@ -1192,4 +1304,30 @@ apc_window_end_modal( Handle self)
    if ( guts. modal_count > 0)
       guts. modal_count--;
    return true;
+}
+
+Bool
+apc_window_get_on_top( Handle self)
+{
+   Atom type, * prop;
+   int format;
+   unsigned long i, n, left;
+   Bool on_top = 0;
+   
+   if ( guts. icccm_only) return false;
+   
+   if ( XGetWindowProperty( DISP, X_WINDOW, NET_WM_STATE, 0, 32, false, XA_ATOM,
+          &type, &format, &n, &left, (unsigned char**)&prop) == Success) {
+     if ( prop) {
+         for ( i = 0; i < n; i++) {
+            if ( prop[i] == NET_WM_STATE_STAYS_ON_TOP) {
+	       on_top = 1;
+	       break;
+	    }
+         }
+         XFree(( unsigned char *) prop);
+      }
+   }
+
+   return on_top;
 }

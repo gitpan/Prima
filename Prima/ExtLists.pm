@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ExtLists.pm,v 1.20 2003/11/15 08:45:32 dk Exp $
+#  $Id: ExtLists.pm,v 1.21 2004/12/17 12:29:51 dk Exp $
 
 # contains:
 #   CheckList
@@ -195,6 +195,17 @@ __DATA__
 =head1 NAME
 
 Prima::ExtLists - extended functionality for list boxes
+
+=head1 SYNOPSIS
+
+   use Prima::ExtLists;
+
+   my $vec = '';
+   vec( $vec, 0, 8) = 0x55;
+   Prima::CheckList-> new(
+      items  => [1..10],
+      vector => $vec,
+   );
 
 =head1 DESCRIPTION 
 

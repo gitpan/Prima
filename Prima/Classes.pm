@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Classes.pm,v 1.90 2004/07/08 20:08:12 dk Exp $
+#  $Id: Classes.pm,v 1.91 2004/12/14 11:13:09 dk Exp $
 use Prima;
 use Prima::Const;
 
@@ -1091,6 +1091,7 @@ sub profile_default
       menuFont              => $_[ 0]-> get_default_menu_font,
       modalResult           => mb::Cancel,
       modalHorizon          => 1,
+      onTop                 => 0,
       ownerIcon             => 1,
       originDontCare        => 1,
       sizeDontCare          => 1,

@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: ms_install.pl,v 1.7 2004/04/02 09:32:01 dk Exp $
+#  $Id: ms_install.pl,v 1.8 2004/11/07 22:46:28 dk Exp $
 #
 
 BEGIN {
@@ -222,11 +222,11 @@ D
 
    my $found;
    $ibin = lc $ibin;
-   $ibin =~ s/\\/\//;
+   $ibin =~ s/\\/\//g;
    $ibin =~ s/[\/]*$//;
    for ( split ( $Config{ path_sep}, $ENV{PATH})) {
       my $path = lc;
-      $path =~ s/\\/\//;
+      $path =~ s/\\/\//g;
       $path =~ s/[\/]*$//;
       next if $path ne $ibin;
       $found = 1;

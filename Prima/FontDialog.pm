@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: FontDialog.pm,v 1.18 2002/07/22 09:30:51 dk Exp $
+#  $Id: FontDialog.pm,v 1.19 2004/12/17 12:29:51 dk Exp $
 
 package Prima::FontDialog;
 
@@ -393,11 +393,6 @@ __DATA__
 
 Prima::FontDialog - standard font dialog
 
-=head1 DESCRIPTION
-
-The dialog provides selection of font by name, style, size, and encoding.
-The font selected is returned by L<logFont> property.
-
 =head1 SYNOPSIS
 
    use Prima::FontDialog;
@@ -405,6 +400,11 @@ The font selected is returned by L<logFont> property.
    return unless $f-> execute == mb::OK;
    $f = $f-> logFont;
    print "$_:$f->{$_}\n" for sort keys %$f;
+
+=head1 DESCRIPTION
+
+The dialog provides selection of font by name, style, size, and encoding.
+The font selected is returned by L<logFont> property.
 
 =head1 API
 

@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Application.pm,v 1.26 2004/05/04 21:07:12 dk Exp $
+#  $Id: Application.pm,v 1.27 2004/12/17 12:29:51 dk Exp $
 
 package main;
 
@@ -60,8 +60,20 @@ by their top-level parental relationship to Prima::Application
 object. There can be only one instance of Prima::Application
 class at a time.
 
-=head1 USAGE
+=head1 SYNOPSIS
 
+   use Prima;
+   use Prima::Application;
+
+      or 
+
+   use Prima qw(Application);
+
+   Prima::MainWindow-> create();
+
+   run Prima;
+
+=head1 USAGE
 
 Prima::Application class, and its only instance are 
 treated specially throughout the toolkit. The object

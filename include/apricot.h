@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: apricot.h,v 1.172 2004/05/27 08:24:54 dk Exp $ */
+/* $Id: apricot.h,v 1.173 2004/12/14 11:13:09 dk Exp $ */
 
 #ifndef _APRICOT_H_
 #define _APRICOT_H_
@@ -1889,7 +1889,7 @@ apc_component_fullname_changed_notify( Handle self);
 /* Window */
 extern Bool
 apc_window_create( Handle self, Handle owner, Bool syncPaint, int borderIcons, int borderStyle,
-                   Bool taskList, int windowState, Bool useOrigin, Bool useSize);
+                   Bool taskList, int windowState, int onTop, Bool useOrigin, Bool useSize);
 
 extern Bool
 apc_window_activate( Handle self);
@@ -1917,6 +1917,9 @@ apc_window_get_client_size( Handle self);
 
 extern Bool
 apc_window_get_icon( Handle self, Handle icon);
+
+extern Bool
+apc_window_get_on_top( Handle self);
 
 extern int
 apc_window_get_window_state( Handle self);

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: clip.c,v 1.33 2004/05/04 19:15:15 dk Exp $
+ * $Id: clip.c,v 1.34 2004/10/03 15:17:47 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -169,7 +169,7 @@ apc_clipboard_get_data( Handle self, long id, PClipboardDataRec c)
                 for ( i = 0; i < len; i++, p++) {
                    if ( *p == '\r') continue;
                    if ( c-> length > size - 8) {
-                      int dt = utf - c-> data;
+                      int dt = utf - (char*)c-> data;
                       char * d = malloc( size *= 2);
                       if ( !d) goto CLEAR;
                       memcpy( d, c-> data, c-> length);
@@ -259,7 +259,6 @@ apc_clipboard_set_data( Handle self, long id, PClipboardDataRec c)
             int ulen = utf8_length(( char*) c-> data, ( char*) c-> data + c-> length);
             int i, cr = 0;
             void *ptr = nil;
-            char *dst;
             HGLOBAL glob;
 
             for ( i = 0; i < c-> length; i++) 
@@ -311,7 +310,6 @@ apc_clipboard_set_data( Handle self, long id, PClipboardDataRec c)
                if ( !SetClipboardData( CF_OEMTEXT, oemglob)) apiErr;
             } else {
                apiErr;
-            FAIL:
                if ( ptr) GlobalUnlock( ptr);
                if ( oemptr) GlobalUnlock( oemptr);
                if ( glob) GlobalFree( glob);

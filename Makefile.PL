@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Makefile.PL,v 1.171 2004/06/07 13:45:58 dk Exp $
+#  $Id: Makefile.PL,v 1.173 2005/01/26 08:47:54 dk Exp $
 #
 
 BEGIN {
@@ -1185,6 +1185,7 @@ apc_window_get_border_style
 apc_window_get_client_pos
 apc_window_get_client_size
 apc_window_get_icon
+apc_window_get_on_top
 apc_window_get_task_listed
 apc_window_get_window_state
 apc_window_is_active
@@ -2454,6 +2455,7 @@ $PrimaTarget: @allojects $extralibs
 \t${ \eval{ return join ' ', ld_command_line( $PrimaTarget, @allojects)}}
 
 test: all
+\t\@echo Testing Prima v$DEFINES{PRIMA_VERSION}.$DEFINES{PRIMA_SUBVERSION}
 \t\@$^X -w test/Tester.pl
 
 ppd:

@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: win32guts.h,v 1.62 2004/05/27 08:24:55 dk Exp $ */
+/* $Id: win32guts.h,v 1.63 2004/12/14 11:13:09 dk Exp $ */
 
 #ifndef _WIN32_H_
 #define _WIN32_H_
@@ -175,6 +175,7 @@ typedef struct _HandleOptions_ {
    unsigned aptTextOpaque           : 1;       // gp text drawing flag
    unsigned aptTextOutBaseline      : 1;       // gp text drawing flag
    unsigned aptWinPosDetermined     : 1;       // 0 when size is set, but position is not
+   unsigned aptOnTop                : 1;       // HWND_TOPMOST is set
 } HandleOptions;
 
 typedef struct _WinGuts

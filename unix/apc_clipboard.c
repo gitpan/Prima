@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_clipboard.c,v 1.24 2004/05/19 13:44:26 dk Exp $
+ * $Id: apc_clipboard.c,v 1.27 2004/12/13 15:54:17 dk Exp $
  */
 
 #include "unix/guts.h"
@@ -196,15 +196,15 @@ delete_xfer( PClipboardSysData cc, ClipboardXfer * xfer)
    ClipboardXferKey key;
    CLIPBOARD_XFER_KEY( key, xfer-> requestor, xfer-> property);
    if ( guts. clipboard_xfers) {
-      int refcnt;
+      IV refcnt;
       hash_delete( guts. clipboard_xfers, key, sizeof( key), false);
-      refcnt = ( int) hash_fetch( guts. clipboard_xfers, &xfer-> requestor, sizeof(XWindow));
+      refcnt = PTR2IV( hash_fetch( guts. clipboard_xfers, &xfer-> requestor, sizeof(XWindow)));
       if ( --refcnt == 0) {
          XSelectInput( DISP, xfer-> requestor, 0);
          hash_delete( guts. clipboard_xfers, &xfer-> requestor, sizeof(XWindow), false);
       } else {
          if ( refcnt < 0) refcnt = 0;
-         hash_store( guts. clipboard_xfers, &xfer-> requestor, sizeof(XWindow), (void*) refcnt);
+         hash_store( guts. clipboard_xfers, &xfer-> requestor, sizeof(XWindow), INT2PTR(void*, refcnt));
       }
    }
    if ( cc-> xfers) 
@@ -264,7 +264,7 @@ apc_clipboard_close( Handle self)
    if ( XX-> need_write &&
 	XX-> internal[cfUTF8]. size > 0 &&
 	XX-> internal[cfText]. size == 0) {
-      char * src = XX-> internal[cfUTF8]. data;
+      Byte * src = XX-> internal[cfUTF8]. data;
       int len    = utf8_length( src, src + XX-> internal[cfUTF8]. size);
       if (( XX-> internal[cfText]. data = malloc( len))) {
 	  STRLEN charlen;
@@ -272,7 +272,7 @@ apc_clipboard_close( Handle self)
 	  dst = XX-> internal[cfText]. data;
           XX-> internal[cfText]. size = len;
 	  while ( len--) {
-             register UV u = utf8_to_uvchr(( U8*) src, &charlen);
+             register UV u = utf8_to_uvchr( src, &charlen);
 	     *(dst++) = ( u < 0x7f) ? u : '?'; /* XXX employ $LANG and iconv() */
 	     src += charlen;
 	  }
@@ -912,7 +912,7 @@ prima_handle_selection_event( XEvent *ev, XWindow win, Handle self)
                if ( CC-> xfers && guts. clipboard_xfers) {
                   ClipboardXfer * x = malloc( sizeof( ClipboardXfer));
                   if ( x) {
-                     int refcnt;
+                     IV refcnt;
                      ClipboardXferKey key;
                      
                      bzero( x, sizeof( ClipboardXfer));
@@ -930,10 +930,10 @@ prima_handle_selection_event( XEvent *ev, XWindow win, Handle self)
 
                      CLIPBOARD_XFER_KEY( key, x-> requestor, x-> property);
                      hash_store( guts. clipboard_xfers, key, sizeof(key), (void*) x);
-                     refcnt = (int) hash_fetch( guts. clipboard_xfers, &x-> requestor, sizeof( XWindow));
+                     refcnt = PTR2IV( hash_fetch( guts. clipboard_xfers, &x-> requestor, sizeof( XWindow)));
                      if ( refcnt++ == 0)
                         XSelectInput( DISP, x-> requestor, PropertyChangeMask|StructureNotifyMask); 
-                     hash_store( guts. clipboard_xfers, &x-> requestor, sizeof(XWindow), (void*) refcnt);
+                     hash_store( guts. clipboard_xfers, &x-> requestor, sizeof(XWindow), INT2PTR( void*, refcnt));
 
                      format = 32;
                      size = 1;

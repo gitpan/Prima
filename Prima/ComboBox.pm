@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ComboBox.pm,v 1.33 2004/09/02 19:41:00 dk Exp $
+#  $Id: ComboBox.pm,v 1.34 2004/12/17 12:29:51 dk Exp $
 
 # combo styles
 package cs;
@@ -609,6 +609,14 @@ __DATA__
 
 Prima::ComboBox - standard combo box widget
 
+=head1 SYNOPSIS
+
+   use Prima::ComboBox;
+
+   my $combo = Prima::ComboBox-> create( style => cs::DropDown, items => [ 1 .. 10 ]);
+   $combo-> style( cs::DropDownList );
+   print $combo-> text;
+
 =head1 DESCRIPTION
 
 Provides a combo box widget which consists of an input line, list box of possible
@@ -627,14 +635,6 @@ The list of exported names is stored in package variables %listProps, %editProps
 and %listDynas. These also described in L<Exported names> section.
 
 The module defines C<cs::> package for the constants used by L<style> property.
-
-=head1 SYNOPSIS
-
-   use Prima::ComboBox;
-
-   my $combo = Prima::ComboBox-> create( style => cs::DropDown, items => [ 1 .. 10 ]);
-   $combo-> style( cs::DropDownList );
-   print $combo-> text;
 
 =head1 API
 

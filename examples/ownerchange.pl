@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: ownerchange.pl,v 1.8 2003/08/01 09:45:30 dk Exp $
+#  $Id: ownerchange.pl,v 1.9 2004/12/13 15:54:17 dk Exp $
 #
 =pod 
 =item NAME
@@ -52,6 +52,10 @@ my $w = Prima::Window-> create(
    popupItems => [["Change owner"=> sub { $_[0]-> popup-> owner (( $_[0]-> name eq "D1") ? $::application-> D2 : $::application-> D1); }]],
    menuItems  => [["Change owner"=> sub { $_[0]-> menu-> owner (( $_[0]-> name eq "D1") ? $::application-> D2 : $::application-> D1); }]],
    onTimer    => sub { $_[0]->backColor(($_[0]->backColor == cl::Green) ? cl::LightGreen : cl::Green)},
+   onMouseDown => sub {
+    my ( $self, $btn, @k) = @_;
+	$_[0]-> borderStyle( ($btn  == mb::Left) ? bs::Dialog : bs::Sizeable);
+   },
 );
 
 my $w2 = Prima::Window-> create(

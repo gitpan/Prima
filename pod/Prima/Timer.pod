@@ -1,8 +1,19 @@
-=for rcs $Id: Timer.pod,v 1.4 2002/09/25 13:31:21 dk Exp $
+=for rcs $Id: Timer.pod,v 1.5 2004/12/15 16:11:03 dk Exp $
 
 =head1 NAME
 
 Prima::Timer - programmable periodical events
+
+=head1 SYNOPSIS
+
+    my $timer = Prima::Timer-> create(
+        timeout => 1000, # milliseconds
+        onTick  => sub {
+           print "tick!\n";
+        },
+    );
+
+    $timer-> start;
 
 =head1 DESCRIPTION
 

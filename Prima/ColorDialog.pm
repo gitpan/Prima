@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ColorDialog.pm,v 1.28 2002/07/22 09:21:46 dk Exp $
+#  $Id: ColorDialog.pm,v 1.29 2004/12/17 12:29:51 dk Exp $
 
 # contains:
 #    ColorDialog
@@ -883,6 +883,15 @@ __DATA__
 =head1 NAME
 
 Prima::ColorDialog - standard color selection facilities
+
+=head1 SYNOPSIS
+
+   use Prima qw(StdDlg Application);
+   
+   my $p = Prima::ColorDialog-> create(
+       quality => 1,
+   );
+   printf "color: %06x", $p-> value if $p-> execute == mb::OK;
 
 =head1 DESCRIPTION
 

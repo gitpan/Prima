@@ -25,7 +25,7 @@
  
  Created by Dmitry Karasik <dk@plab.ku.dk> 
 
- $Id: codec_Xpm.c,v 1.5 2003/09/17 10:24:40 dk Exp $
+ $Id: codec_Xpm.c,v 1.7 2004/12/13 15:54:17 dk Exp $
 
  */
 
@@ -107,7 +107,7 @@ typedef struct _LoadRec {
    Byte     xpalette;
 } LoadRec;
 
-#define outcm(dd) snprintf( fi-> errbuf, 256, "No enough memory (%d bytes)", (int)dd)
+#define outcm(dd) snprintf( fi-> errbuf, 256, "No enough memory (%d bytes)", (int)(dd))
 #define outc(x)   strncpy( fi-> errbuf, x, 256)
 
 static void * 
@@ -383,7 +383,7 @@ static Bool
 prepare_xpm_color( void * value, int keyLen, Color * color_ptr, CalcData * cd)
 {
    Color color = *color_ptr;
-   int v = (int)value - 1, cpp = cd-> image-> cpp, lpp = 6;
+   IV v = PTR2IV(value) - 1, cpp = cd-> image-> cpp, lpp = 6;
    char * c;
 
    c = cd-> image-> colorTable[ v]. c_color = 
@@ -464,7 +464,7 @@ save( PImgCodec instance, PImgSaveFileInstance fi)
                 if ( transcolor < 0) {
                    Color key = clInvalid;
                    transcolor = hash_count( hash);
-                   hash_store( hash, &key, sizeof(key), (void*)(transcolor + 1));
+                   hash_store( hash, &key, sizeof(key), INT2PTR(void*, transcolor + 1));
                 }
                 *(dest++) = transcolor;
              }
@@ -531,11 +531,11 @@ save( PImgCodec instance, PImgSaveFileInstance fi)
        cd. image = &image;
        for ( x = 0; x < ncolors; x++) {
           Color c = ARGB(i-> palette[x].r,i-> palette[x].g,i-> palette[x].b);
-          prepare_xpm_color((void*)(x+1), 0, &c, &cd);
+          prepare_xpm_color(INT2PTR(void*,x+1), 0, &c, &cd);
        }
        if ( icon) {
           Color c = clInvalid;
-          prepare_xpm_color((void*)(transcolor+1), 0, &c, &cd);
+          prepare_xpm_color( INT2PTR(void*,transcolor+1), 0, &c, &cd);
        }
    }
 

@@ -26,7 +26,7 @@
  * Created by Dmitry Karasik <dmitry@karasik.eu.org> with great help
  * of tiff2png.c by Willem van Schaik and Greg Roelofs
  *
- * $Id: codec_tiff.c,v 1.3 2003/06/18 16:40:44 dk Exp $
+ * $Id: codec_tiff.c,v 1.4 2004/11/25 15:11:56 dk Exp $
  */
 
 #include "img.h"
@@ -583,7 +583,7 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
          return false;
       }
       if ( tile_width < 1) {
-         sprintf( fi-> errbuf, "Invalid TILEWIDTH=%ld", tile_width);
+         sprintf( fi-> errbuf, "Invalid TILEWIDTH=%ld", (long)tile_width);
          return false;
       }
       if ( !TIFFGetField(tiff, TIFFTAG_TILELENGTH, &tile_height)) {
@@ -591,7 +591,7 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
          return false;
       }
       if ( tile_height < 1) {
-         sprintf( fi-> errbuf, "Invalid TILELENGTH=%ld", tile_height);
+         sprintf( fi-> errbuf, "Invalid TILELENGTH=%ld", (long)tile_height);
          return false;
       }
       num_tilesX = (w + tile_width - 1) / tile_width;

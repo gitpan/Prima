@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Buttons.pm,v 1.39 2004/07/06 12:56:12 dk Exp $
+#  $Id: Buttons.pm,v 1.40 2004/12/17 12:29:51 dk Exp $
 
 # contains:
 #   Button
@@ -1139,6 +1139,23 @@ __DATA__
 =head1 NAME
 
 Prima::Buttons - button widgets and grouping widgets.
+
+=head1 SYNOPSIS
+
+   use Prima qw(Application Buttons StdBitmap);
+
+   my $window = Prima::MainWindow-> create;
+   Prima::Button-> new(
+   	owner => $window,
+	text  => 'Simple button',
+	pack  => {},
+   );
+   $window-> insert( 'Prima::SpeedButton' , 
+   	pack => {},
+	image => Prima::StdBitmap::icon(0),
+   );
+
+   run Prima;
 
 =head1 DESCRIPTION
 

@@ -25,7 +25,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: PodView.pm,v 1.34 2004/08/20 12:57:29 dk Exp $
+#  $Id: PodView.pm,v 1.35 2004/12/17 12:29:51 dk Exp $
 
 use strict;
 use Prima;
@@ -1512,6 +1512,21 @@ __END__
 =head1 NAME 
 
 Prima::PodView - POD browser widget
+
+=head1 SYNOPSIS
+
+   use Prima qw(Application);
+   use Prima::PodView;
+
+   my $window = Prima::MainWindow-> create;
+   my $podview = $window-> insert( 'Prima::PodView',
+      pack => { fill => 'both', expand => 1 }
+   );
+   $podview-> open_read;
+   $podview-> read("=head1 NAME\n\nI'm also a pod!\n\n");
+   $podview-> close_read;
+
+   run Prima;
 
 =head1 DESCRIPTION
 

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: xft.c,v 1.16 2004/05/19 13:44:26 dk Exp $
+ * $Id: xft.c,v 1.18 2004/11/25 15:11:56 dk Exp $
  */
 
 /*********************************/
@@ -139,13 +139,14 @@ void
 prima_xft_init(void)
 {
    CharSetInfo *csi;
-   unsigned char in[128], *iptr;
-   uint32_t *optr;
-   int i, j;
-   size_t ibl, obl;
+   int i;
    FcCharSet * fcs_ascii;
 #ifdef HAVE_ICONV_H
    iconv_t ii;
+   unsigned char in[128], *iptr;
+   size_t ibl, obl;
+   uint32_t *optr;
+   int j;
 #endif  
 
 #ifdef HAVE_X11_EXTENSIONS_XRENDER_H
@@ -181,7 +182,7 @@ prima_xft_init(void)
       memset( std_charsets[i]. map, 0, sizeof(std_charsets[i]. map));
 
       ii = iconv_open("UCS-4-INTERNAL", std_charsets[i]. name);
-      if ((int) ii < 0) continue;
+      if ( ii == (iconv_t)(-1)) continue;
 
       std_charsets[i]. fcs = FcCharSetUnion( fcs_ascii, fcs_ascii);
       for ( j = 0; j < 128; j++) in[j] = j + 128;

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Widget.c,v 1.132 2004/03/16 13:03:07 dk Exp $
+ * $Id: Widget.c,v 1.134 2004/12/13 15:54:17 dk Exp $
  */
 
 #include "apricot.h"
@@ -384,7 +384,7 @@ Widget_custom_paint( Handle self)
    if ( var-> eventIDs == nil) return false;
    ret = hash_fetch( var-> eventIDs, "Paint", 5);
    if ( ret == nil) return false;
-   list = var-> events + ( IV) ret - 1;
+   list = var-> events + PTR2UV( ret) - 1;
    return list-> count > 0;
 }
 
@@ -2008,7 +2008,7 @@ prima_read_point( SV *rv_av, int * pt, int number, char * error)
 static Bool
 auto_enable_children( Handle self, Handle child, void * enable)
 {
-   apc_widget_set_enabled( child, ( Bool) enable);
+   apc_widget_set_enabled( child, PTR2UV( enable));
    return false;
 }
 /* properties section */
@@ -2241,7 +2241,7 @@ Widget_enabled( Handle self, Bool set, Bool enabled)
    if ( !apc_widget_set_enabled( self, enabled)) 
       return false;
    if ( is_opt( optAutoEnableChildren)) 
-      CWidget(self)-> first_that( self, (void*)auto_enable_children, (void*) enabled);
+      CWidget(self)-> first_that( self, (void*)auto_enable_children, INT2PTR(void*,enabled));
    return true;
 }
 

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_misc.c,v 1.98 2004/05/19 13:44:26 dk Exp $
+ * $Id: apc_misc.c,v 1.99 2004/10/05 17:27:37 dk Exp $
  */
 
 /***********************************************************/
@@ -1165,7 +1165,6 @@ apc_sys_get_value( int v)  /* XXX one big XXX */
    default:
       return -1;
    }
-   return 0;
 }
 
 Bool

@@ -29,7 +29,7 @@
 #  Modifications by:
 #     David Scott <dscott@dgt.com>
 #
-#  $Id: FileDialog.pm,v 1.31 2004/01/28 16:30:47 dk Exp $
+#  $Id: FileDialog.pm,v 1.32 2004/12/17 12:29:51 dk Exp $
 
 use strict;
 use Prima::Classes;
@@ -1572,6 +1572,30 @@ __DATA__
 =head1 NAME
 
 Prima::FileDialog - File system related widgets and dialogs.
+
+=head1 SYNOPSIS
+
+# open a file
+   use Prima qw(Application);
+   use Prima::StdDlg;
+
+   my $open = Prima::OpenDialog-> new(
+   	filter => [
+		['Perl modules' => '*.pm'],
+		['All' => '*']
+	]
+   );
+   print $open-> fileName, " is to be opened\n" if $open-> execute;
+  
+   # save a file
+   my $save = Prima::SaveDialog-> new(
+   	fileName => $open-> fileName,
+   );
+   print $save-> fileName, " is to be saved\n" if $save-> execute;
+
+   # open several files
+   $open-> multiSelect(1);
+   print $open-> fileName, " are to be opened\n" if $open-> execute;
 
 =head1 DESCRIPTION 
 

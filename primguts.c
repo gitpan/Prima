@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: primguts.c,v 1.104 2004/05/27 08:24:52 dk Exp $
+ * $Id: primguts.c,v 1.105 2004/12/13 15:54:17 dk Exp $
  */
 /* Guts library, main file */
 
@@ -334,7 +334,7 @@ create_mate( SV *perlObject)
    else
    {
       /* another scheme, uses hash slot */
-      hv_store( (HV*)SvRV( perlObject), "__CMATE__", 9, newSViv((IV)object), 0);
+      hv_store( (HV*)SvRV( perlObject), "__CMATE__", 9, newSViv( PTR2IV(object)), 0);
    }
 
    /* extra check */

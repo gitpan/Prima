@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
-/* $Id: codec_png.c,v 1.8 2002/11/05 17:35:59 dk Exp $ */
+/* $Id: codec_png.c,v 1.9 2004/11/25 15:11:56 dk Exp $ */
 
 #ifdef HAVE_CONFIG_H
 #include <generic/config.h>
@@ -221,7 +221,7 @@ init( PImgCodecInfo * info, void * param)
 
 
 #define outc(x){ strncpy( fi-> errbuf, x, 256); return false;}
-#define outcm(dd){ snprintf( fi-> errbuf, 256, "No enough memory (%d bytes)", (int)dd); return false;}
+#define outcm(dd){ snprintf( fi-> errbuf, 256, "No enough memory (%d bytes)", (int)(dd)); return false;}
 
 #define ALPHA_OPT_BLEND 2
 #define ALPHA_OPT_SPLIT 1
