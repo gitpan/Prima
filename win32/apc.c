@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc.c,v 1.112 2004/01/21 22:53:10 dk Exp $
+ * $Id: apc.c,v 1.113 2004/03/13 20:59:21 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -2592,6 +2592,7 @@ apc_menu_item_set_enabled( Handle self, PMenuItemReg m)
    objCheck false;
    res = EnableMenuItem(( HMENU) var handle,
       m-> id + MENU_ID_AUTOSTART, MF_BYCOMMAND | ( m-> flags. disabled ? MF_GRAYED : MF_ENABLED));
+   DrawMenuBar( DHANDLE( var owner));
    return res != 0xFFFFFFFF;
 }
 

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_app.c,v 1.99 2004/02/10 22:18:06 dk Exp $
+ * $Id: apc_app.c,v 1.104 2004/04/02 13:17:56 dk Exp $
  */
 
 /***********************************************************/
@@ -328,8 +328,8 @@ init_x11( void)
    guts. ximages = hash_create();
    gcv. graphics_exposures = false;
    guts. menugc = XCreateGC( DISP, guts. root, GCGraphicsExposures, &gcv);
-   guts. resolution. x = 25.4 * guts. displaySize. x / DisplayWidthMM( DISP, SCREEN);
-   guts. resolution. y = 25.4 * DisplayHeight( DISP, SCREEN) / DisplayHeightMM( DISP, SCREEN);
+   guts. resolution. x = 25.4 * guts. displaySize. x / DisplayWidthMM( DISP, SCREEN) + .5;
+   guts. resolution. y = 25.4 * DisplayHeight( DISP, SCREEN) / DisplayHeightMM( DISP, SCREEN) + .5;
    guts. depth = DefaultDepth( DISP, SCREEN);
    guts. idepth = get_idepth();
    if ( guts.depth == 1) guts. qdepth = 1; else
@@ -383,7 +383,14 @@ window_subsystem_init( void)
    guts. icccm_only = do_icccm_only;
    Mdebug("init x11:%d, debug:%x, sync:%d, display:%s\n", do_x11, guts.debug, 
 	  do_sync, do_display ? do_display : "(default)");
-   if ( do_x11) return init_x11();
+   if ( do_x11) {
+      Bool ret = init_x11();
+      if ( !ret && DISP) {
+	 XCloseDisplay(DISP);
+	 DISP = nil;
+      }
+      return ret;
+   }
    return true;
 }
 
@@ -417,7 +424,9 @@ window_subsystem_get_options( int * argc, char *** argv)
 	    " X(XRDB),"\
 	    " A(all together)",
 #ifdef USE_XFT
-   "no-xft", "do not use XFT",
+   "no-xft",        "do not use XFT",
+   "no-aa",         "do not anti-alias XFT fonts",
+   "font-priority", "match unknown fonts against: 'xft' (default) or 'core'",
 #endif   
    "font", 
 #ifdef USE_XFT
@@ -429,6 +438,7 @@ window_subsystem_get_options( int * argc, char *** argv)
    "msg-font", "default message box font",
    "widget-font", "default widget font",
    "caption-font", "MDI caption font",
+   "noscaled", "do not use scaled instances of fonts",
    "fg", "default foreground color",
    "bg", "default background color",
    "hilite-fg", "default highlight foreground color",

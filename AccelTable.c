@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: AccelTable.c,v 1.17 2003/06/05 18:47:00 dk Exp $
+ * $Id: AccelTable.c,v 1.18 2004/03/13 20:59:21 dk Exp $
  */
 
 #include "apricot.h"
@@ -52,10 +52,9 @@ AccelTable_init( Handle self, HV * profile)
 void
 AccelTable_set_items( Handle self, SV * menuItems)
 {
-   int subCount = 0, autoEnum = 0;
    if ( var-> stage > csFrozen) return;
    my-> dispose_menu( self, var->  tree);
-   var-> tree = ( PMenuItemReg) my-> new_menu( self, menuItems, 0, &subCount, &autoEnum);
+   var-> tree = ( PMenuItemReg) my-> new_menu( self, menuItems, 0);
 }
 
 Bool

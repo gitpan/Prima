@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2004/02/07 23:44:54 dk Exp $
+# $Id: Makefile,v 1.2 2004/02/12 15:02:43 dk Exp $
 all: Prima.dvi Prima.pdf
 
 Prima.dvi: Prima.tex
@@ -18,7 +18,7 @@ clean:
 	rm -f Prima.ps Prima.dvi Prima.pdf Prima.tex Prima.log Prima.cache.tex Prima.ind Prima.aux Prima.idx Prima.toc texput.log out.tex *.eps
 
 view: Prima.dvi
-	xvdi Prima.dvi
+	xdvi Prima.dvi
 
 pdfview: Prima.pdf
 	acroread Prima.pdf

@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: apricot.h,v 1.167 2004/02/11 16:22:51 dk Exp $ */
+/* $Id: apricot.h,v 1.170 2004/02/23 19:03:09 dk Exp $ */
 
 #ifndef _APRICOT_H_
 #define _APRICOT_H_
@@ -50,8 +50,10 @@
    #define snprintf              _snprintf
    #define vsnprintf             _vsnprintf
    #define stricmp               _stricmp
+   #define strnicmp              _strnicmp
    #define HAVE_SNPRINTF         1
    #define HAVE_STRICMP          1
+   #define HAVE_STRNICMP         1
 #elif defined( __BORLANDC__)
    #define BROKEN_PERL_PLATFORM  1
    #define BROKEN_COMPILER       1
@@ -263,6 +265,23 @@ extern void bzero(void*,size_t);
 extern int
 stricmp(const char *s1, const char *s2);
 #endif
+#ifdef HAVE_STRNICMP
+#ifndef HAVE_STRNCASECMP
+#define strncasecmp(a,b,c) strnicmp((a),(b),(c))
+#endif
+#else
+#ifdef HAVE_STRNCASECMP
+#define strnicmp(a,b,c) strncasecmp((a),(b),(c))
+#else
+#define strncasecmp(a,b) strnicmp((a),(b))
+#define PRIMA_NEED_OWN_STRNICMP 1
+extern int
+strnicmp(const char *s1, const char *s2, size_t count);
+#endif
+#endif
+#endif
+#ifndef HAVE_STRCASESTR
+char * strcasestr( const char * s, const char * find);
 #endif
 #ifndef HAVE_REALLOCF
 extern void *
@@ -690,7 +709,7 @@ CM(WindowState)
 CM(Timer)
 #define cmClick          0x0000001D                /* common click */
 CM(Click)
-#define cmCalcBounds     0x0000001E                /* query on change size */
+#define cmCalcBounds    (0x0000001E|ctPassThrough) /* query on change size */
 CM(CalcBounds)
 #define cmPost           0x0000001F                /* posted message */
 CM(Post)

@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: ms_install.pl,v 1.5 2003/08/21 20:17:58 dk Exp $
+#  $Id: ms_install.pl,v 1.7 2004/04/02 09:32:01 dk Exp $
 #
 
 BEGIN {
@@ -123,8 +123,8 @@ if ( $install) {
          $destdir = $iarc . $destdir;
       }
 
-      return if -d $_ && m/(utils|pod|test|win32|os2|unix|img|CVS|include|scripts)$/i;
-      return if $File::Find::dir =~ /test|CVS|include|win32|os2|unix|bsd|scripts/i;
+      return if -d $_ && m/(utils|pod|test|os2|unix|img|CVS|include|scripts)$/i;
+      return if $File::Find::dir =~ /test|CVS|include|os2|unix|bsd|scripts/i;
       return if m/ms_install|Makefile|\.(pdb|opt|pal|obj|log|dsp|dsw|ncb|c|cls|h|inc|def|tml|o)/;
 
       if ( -d $_) {
@@ -171,12 +171,13 @@ ENDP
          close SRCPL;
          close DSTPL;
       } elsif ( $mswin32) {
-         my $i = system("pl2bat $src");
-         $src =~ s/pl$//i;
-         $src .= 'bat';
-         abort "Error: pl2bat $src failed\n" unless -f $src;
          print "Installing $dst ...\n";
+	 $dst =~ s/bat$/pl/;
          abort "Error:$!\n" unless copy $src, $dst;
+         my $i = system("pl2bat $dst");
+	 $src = $dst;
+	 $dst =~ s/pl$/bat/;
+         abort "Error: pl2bat $dst failed\n" unless -f $dst;
          unlink $src;
       } else {
          open SRCPL, "<$src" or abort "Cannot open $src: $!";
@@ -195,10 +196,13 @@ ENDP
       }
    }
 
-   open F, "> install.log";
-   print F "f:$_\n" for @instfiles;
-   print F "d:$_\n" for @instdir;
-   close F;
+   if ( open F, "> install.log") {
+      print F "f:$_\n" for @instfiles;
+      print F "d:$_\n" for @instdir;
+      close F;
+   } else {
+      print "(!) Unable to write 'install.log' ($!), uninstall will be unavailable\n";
+   }
 
    print <<D;
 

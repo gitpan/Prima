@@ -25,7 +25,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: PodView.pm,v 1.27 2003/07/31 09:10:53 dk Exp $
+#  $Id: PodView.pm,v 1.28 2004/03/16 13:25:17 dk Exp $
 
 use strict;
 use Prima;
@@ -306,7 +306,10 @@ sub load_link
 
    unless ( defined $t) { # page / section / item
       my ( $page, $section, $item, $lead_slash) = ( '', undef, 1, '');
-      if ( $s =~ /^([^\/]*)(\/)(.*)$/) {
+
+      if ( $s =~ /^file:\/\/(.*)$/) {
+         $page = $1;
+      } elsif ( $s =~ /^([^\/]*)(\/)(.*)$/) {
          ( $page, $lead_slash, $section) = ( $1, $2, $3);
       } else {
          $section = $s;

@@ -26,7 +26,7 @@
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #  Modifications by Anton Berezin <tobez@tobez.org>
 #
-#  $Id: Header.pm,v 1.12 2002/10/17 20:30:51 dk Exp $
+#  $Id: Header.pm,v 1.14 2004/03/05 12:12:28 tobez Exp $
 
 package Prima::Header;
 
@@ -279,7 +279,7 @@ sub on_mouseup
    $self-> capture(0);
    if ( $self-> {transaction} == 1) {
       my @a = $self-> tab2rect( $self-> {tabId});
-      if ( $x >= $a[0] && $x < $a[2] & $y >= $a[1] && $y < $a[3]) {
+      if ( $x >= $a[0] && $x < $a[2] && $y >= $a[1] && $y < $a[3]) {
          $self-> notify(q(Click), $self-> {tabId}) if $self-> {clickAllowed};
       }
       $self-> pressed(-1);
@@ -310,7 +310,7 @@ sub on_mousemove
    if ( $self-> {transaction} == 1) {
       my @a = $self-> tab2rect( $self-> {tabId});
       $self-> pressed(
-         ( $x >= $a[0] && $x < $a[2] & $y >= $a[1] && $y < $a[3]) ?
+         ( $x >= $a[0] && $x < $a[2] && $y >= $a[1] && $y < $a[3]) ?
          $self->{tabId} : -1
       );
       return unless $self-> {dragable};

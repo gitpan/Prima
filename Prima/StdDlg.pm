@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: StdDlg.pm,v 1.24 2004/01/28 16:30:47 dk Exp $
+#  $Id: StdDlg.pm,v 1.25 2004/04/15 21:12:10 dk Exp $
 
 
 
@@ -117,7 +117,7 @@ sub save_file
       system => exists($profile{system}) ? $profile{system} : 1,
       onDestroy => sub { undef $saveFileDlg},
    ) unless $saveFileDlg;
-   my %a = %{$openFileDlg-> profile_default};
+   my %a = %{$saveFileDlg-> profile_default};
    $saveFileDlg-> set(( map { $_ => $a{$_}} @fileDlgProps), %profile);
    return $saveFileDlg-> execute;
 }

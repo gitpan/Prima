@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_menu.c,v 1.42 2003/11/21 12:03:46 dk Exp $
+ * $Id: apc_menu.c,v 1.45 2004/03/16 13:03:08 dk Exp $
  */
 
 /***********************************************************/
@@ -522,7 +522,7 @@ send_cmMenu( Handle self, PMenuItemReg m)
     bzero( &ev, sizeof( ev));
     ev. cmd = cmMenu;
     ev. gen. H = self;
-    ev. gen. p = m ? m-> variable : ""; 
+    ev. gen. i = m ? m-> id : 0; 
     CComponent(owner)-> message( owner, &ev);
     if ( PComponent( owner)-> stage == csDead ||
          PComponent( self)->  stage == csDead) return false;
@@ -1596,6 +1596,16 @@ menu_reconfigure( Handle self)
    prima_handle_menu_event( &ev, PMenu(self)-> handle, self);
 }
 
+static void
+menubar_repaint( Handle self)
+{
+   DEFMM;
+   if ( !XT_IS_POPUP(XX) && XX-> w == &XX-> wstatic && PMenu(self)-> handle) {
+      XClearArea( DISP, X_WINDOW, 0, 0, XX-> w-> sz.x, XX-> w-> sz.y, true);
+      XX-> paint_pending = true;
+   }
+}
+
 Bool
 apc_menu_update( Handle self, PMenuItemReg oldBranch, PMenuItemReg newBranch)
 {
@@ -1650,6 +1660,7 @@ Bool
 apc_menu_item_set_enabled( Handle self, PMenuItemReg m)
 {
    menu_touch( self, m, false);
+   menubar_repaint( self);
    return true;
 }
 
@@ -1657,6 +1668,7 @@ Bool
 apc_menu_item_set_image( Handle self, PMenuItemReg m)
 {
    menu_touch( self, m, false);
+   menubar_repaint( self);
    return true;
 }
 
@@ -1671,6 +1683,7 @@ Bool
 apc_menu_item_set_text( Handle self, PMenuItemReg m)
 {
    menu_touch( self, m, false);
+   menubar_repaint( self);
    return true;
 }
 

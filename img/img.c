@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * $Id: img.c,v 1.20 2003/03/20 13:38:00 dk Exp $
+ * $Id: img.c,v 1.21 2004/03/28 13:41:09 dk Exp $
  *
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
@@ -819,6 +819,8 @@ apc_img_save( Handle self, char * fileName, HV * profile, char * error)
          obj = self;
          if ( !kind_of( obj, CImage))
             out("Not a Prima::Image descendant passed"); 
+	 if ( PImage(obj)-> w == 0 || PImage(obj)-> h == 0)
+            out("Cannot save a null image"); 
       } else if ( images) {
          SV ** holder = av_fetch( images, i - xself, 0);
          if ( !holder) outd("Array panic on 'images[%d]' property", i - xself);
@@ -827,6 +829,8 @@ apc_img_save( Handle self, char * fileName, HV * profile, char * error)
             outd("Invalid object reference passed in 'images[%d]'", i - xself);
          if ( !kind_of( obj, CImage))
             outd("Not a Prima::Image descendant passed in 'images[%d]'", i - xself);
+	 if ( PImage(obj)-> w == 0 || PImage(obj)-> h == 0)
+            out("Cannot save a null image"); 
       } else
          out("Logic error");
       fi. frameMap[ i] = obj;

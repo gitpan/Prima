@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Component.cls,v 1.17 2002/10/31 22:34:21 dk Exp $
+# $Id: Component.cls,v 1.18 2004/03/26 13:34:07 dk Exp $
 
 object Prima::Component( Prima::Object)
 {
@@ -51,6 +51,7 @@ object Prima::Component( Prima::Object)
     public   void      get_notification( char * name, int index);
     c_only   void      handle_event ( PEvent event);
     method   void      init( HV * profile);
+    method   int       is_owner( Handle objectHandle);
     c_only   Bool      message( PEvent event);
     c_only   Bool      migrate( Handle attachTo);
     import   SV *      notification_types();

@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: guts.h,v 1.127 2004/02/10 22:18:06 dk Exp $ */
+/* $Id: guts.h,v 1.132 2004/04/30 11:44:47 dk Exp $ */
 
 #ifndef _UNIX_GUTS_H_
 #define _UNIX_GUTS_H_
@@ -173,8 +173,6 @@ typedef struct _FontFlags {
 typedef struct _FontInfo {
    FontFlags    flags;
    Font         font;
-   char         lc_family[256];
-   char         lc_name[256];
    char        *vecname;
    char        *xname;
    short int    name_offset;
@@ -561,7 +559,7 @@ typedef struct _UnixGuts
    int                          mouse_buttons;
    int                          mouse_wheel_down;
    int                          mouse_wheel_up;
-   NPoint                       resolution;
+   Point                        resolution;
    RequestInformation           ri[REQUEST_RING_SIZE];
    int                          ri_head;
    int                          ri_tail;
@@ -573,8 +571,10 @@ typedef struct _UnixGuts
    int                          shared_image_completion_event;
    Bool                         xshmattach_failed;
    int                          use_xft;
+   Bool                         xft_priority;
    Bool                         xft_disable_large_fonts;
    int                          xft_xrender_major_opcode;
+   Bool                         xft_no_antialias;
    struct MsgDlg               *message_boxes;
    XWindow                      grab_redirect;
    Handle                       grab_widget;
@@ -661,7 +661,7 @@ typedef struct _drawable_sys_data
    XDrawable udrawable;
    XDrawable gdrawable;
    XWindow parent;
-   NPoint resolution;
+   Point resolution;
    Point origin, size, bsize;
    Point transform, gtransform, btransform;
    Point ackOrigin, ackSize, ackFrameSize;   
@@ -1204,6 +1204,6 @@ extern Bool
 prima_xft_parse( char * ppFontNameSize, Font * font);
 
 extern void
-prima_xft_set_region( Handle self, Region region);
+prima_xft_update_region( Handle self);
 
 

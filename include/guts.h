@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: guts.h,v 1.16 2003/11/10 17:04:47 dk Exp $ */
+/* $Id: guts.h,v 1.17 2004/03/26 13:34:08 dk Exp $ */
 #ifndef _GUTS_H_
 #define _GUTS_H_
 
@@ -55,6 +55,7 @@ extern long   apcError;
 extern List   postDestroys;
 extern int    recursiveCall;
 extern PHash  primaObjects;
+extern SV *   eventHook;
 
 #define CORE_INIT_TRANSIENT(cls) ((PObject)self)->transient_class = (void*)C##cls
 

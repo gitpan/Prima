@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: global.c,v 1.84 2004/01/09 18:53:08 dk Exp $
+ * $Id: global.c,v 1.85 2004/03/16 13:03:08 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -681,7 +681,7 @@ AGAIN:
             hiStage    = true;
             ev. cmd    = cmMenu;
             ev. gen. H = mwd-> menu;
-            ev. gen. p = m ? m-> variable : "";
+            ev. gen. i = m ? m-> id : 0;
          }
          if (( msg == WM_INITMENUPOPUP) && ( m == nil))
             ev. cmd = 0;

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: xft.c,v 1.9 2003/11/26 18:41:26 dk Exp $
+ * $Id: xft.c,v 1.14 2004/04/30 14:36:38 dk Exp $
  */
 
 /*********************************/
@@ -219,7 +219,7 @@ prima_xft_init(void)
       hash_store( encodings, upcase, length, (void*) (std_charsets + i));
       hash_store( encodings, std_charsets[i]. name, length, (void*) (std_charsets + i));
    }
-
+ 
    locale = hash_fetch( encodings, guts. locale, strlen( guts.locale));
    if ( !locale) locale = std_charsets;
 }
@@ -277,8 +277,13 @@ fcpattern2font( FcPattern * pattern, PFont font)
    FcPatternGetBool( pattern, FC_SCALABLE, 0, &font-> vector);
    FcPatternGetDouble( pattern, FC_ASPECT, 0, &d);
    font-> xDeviceRes = font-> yDeviceRes * d;
-   if ( FcPatternGetInteger( pattern, FC_SIZE, 0, &font-> size) != FcResultMatch)
+   if ( 
+         (FcPatternGetInteger( pattern, FC_SIZE, 0, &font-> size) != FcResultMatch) &&
+         (font-> height != C_NUMERIC_UNDEF)
+      ) {
       font-> size = font-> height * 72.27 / font-> yDeviceRes + .5;
+      Fdebug("xft:size calculated:%d\n", font-> size);
+   }
 
    font-> firstChar = 32; font-> lastChar = 255;
    font-> breakChar = 32; font-> defaultChar = 32;
@@ -440,7 +445,8 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
    
    /* create FcPattern request */
    if ( !( request = FcPatternCreate())) return false;
-   FcPatternAddString( request, FC_FAMILY, ( FcChar8*) f. name);
+   if ( strcmp( f. name, "Default") != 0) 
+      FcPatternAddString( request, FC_FAMILY, ( FcChar8*) f. name);
    if ( by_size) {
       if ( size)
          FcPatternAddDouble( request, FC_SIZE, *size);
@@ -464,6 +470,8 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
       FcPatternAddMatrix( request, FC_MATRIX, &mat);
    }
 
+   if ( guts. xft_no_antialias)
+      FcPatternAddBool( request, FC_ANTIALIAS, 0);
 
    /* match best font - must return something useful; the match is statically allocated */
    match = XftFontMatch( DISP, SCREEN, request, &res);
@@ -523,18 +531,39 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
    }
 
 
-   /* XXX local hack - give up if name mismatches, otherwise all native X fonts are disabled,
-          and names mix, which leads to horrible mismatches. Need to find a more sure way
-          to tell that the font is visualised best by xft, not the core */
+   /* check name match */
    {
       FcChar8 * s = nil;
       FcPatternGetString( match, FC_FAMILY, 0, &s);
       if ( !s || strcmp(( const char*) s, f. name) != 0) {
-         xft_build_font_key( &key, &f, by_size);
-         key. width = 0;
-         hash_store( mismatch, &key, sizeof( FontKey), (void*)1);
-	 Fdebug("xft: name mismatch\n");
-         return false;
+	 int i, n = guts. n_fonts;
+         PFontInfo info = guts. font_info;
+
+	 if ( !guts. xft_priority) {
+	    Fdebug("xft: name mismatch\n");
+	 NAME_MISMATCH:
+	    xft_build_font_key( &key, &f, by_size);
+	    key. width = 0;
+	    hash_store( mismatch, &key, sizeof( FontKey), (void*)1);
+	    return false;
+	 }
+	 
+         /* check if core has cached face name */
+	 if ( prima_find_known_font( &f, false, by_size)) {
+	    Fdebug("xft: pass to cached core\n");
+	    goto NAME_MISMATCH;
+	 }
+
+         /* check if core has non-cached face name */
+         for ( i = 0; i < n; i++) {
+            if ( 
+		  info[i]. flags. disabled || 
+		  !info[i].flags.name ||
+	          (strcmp( info[i].font.name, f.name) != 0) 
+	       ) continue;
+	    Fdebug("xft: pass to core\n");
+	    goto NAME_MISMATCH;
+         }
       }
    }
   
@@ -996,7 +1025,14 @@ prima_xft_text_out( Handle self, const char * text, int x, int y, int len, Bool 
       xftcolor.pixel       = XX-> fore. primary;
       rop = ropCopyPut;
    }
-   xftcolor.color.alpha = 0xffff;
+
+   if ( XX-> type. bitmap) {
+      xftcolor.color.alpha = 
+	 ((xftcolor.color.red/3 + xftcolor.color.green/3 + xftcolor.color.blue/3) > (0xff00 / 2)) ?
+	    0xffff : 0;
+   } else {
+      xftcolor.color.alpha = 0xffff;
+   }
 
    /* paint background if opaque */
    if ( XX-> flags. paint_opaque) {
@@ -1080,8 +1116,12 @@ prima_xft_text_out( Handle self, const char * text, int x, int y, int len, Bool 
       }
       XFillRectangle( DISP, canvas, gc, 0, 0, width, height);
       XftDrawChange( XX-> xft_drawable, canvas);
+      if ( XX-> flags. xft_clip)
+         XftDrawSetClip( XX-> xft_drawable, 0);
       XftDrawString32( XX-> xft_drawable, &xftcolor, XX-> font-> xft, dx, height - dy, ucs4, len);
       XftDrawChange( XX-> xft_drawable, XX-> gdrawable);
+      if ( XX-> flags. xft_clip)
+         XftDrawSetClip( XX-> xft_drawable, XX-> current_region);
       XCHECKPOINT;
       XCopyArea( DISP, canvas, XX-> gdrawable, XX-> gc, 0, 0, width, height, x - dx, REVERT( y - dy + height));
       XFreeGC( DISP, gc);
@@ -1286,11 +1326,11 @@ prima_xft_parse( char * ppFontNameSize, Font * font)
 }
 
 void
-prima_xft_set_region( Handle self, Region region)
+prima_xft_update_region( Handle self)
 {
    DEFXX;
    if ( XX-> xft_drawable) {
-      XftDrawSetClip( XX-> xft_drawable, region);
+      XftDrawSetClip( XX-> xft_drawable, XX-> current_region);
       XX-> flags. xft_clip = 1;
    }
 }

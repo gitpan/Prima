@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Widget.c,v 1.130 2003/11/15 08:44:53 dk Exp $
+ * $Id: Widget.c,v 1.132 2004/03/16 13:03:07 dk Exp $
  */
 
 #include "apricot.h"
@@ -508,8 +508,8 @@ void Widget_handle_event( Handle self, PEvent event)
       case cmCalcBounds:
         {
            Point min, max;
-           min = my-> get_sizeMin( self);
-           max = my-> get_sizeMax( self);
+           min = var-> sizeMin;
+           max = var-> sizeMax;
            if (( min. x > 0) && ( min. x > event-> gen. R. right  )) event-> gen. R. right  = min. x;
            if (( min. y > 0) && ( min. y > event-> gen. R. top    )) event-> gen. R. top    = min. y;
            if (( max. x > 0) && ( max. x < event-> gen. R. right  )) event-> gen. R. right  = max. x;
@@ -586,7 +586,11 @@ void Widget_handle_event( Handle self, PEvent event)
            apc_menu_get_font( event-> gen. source, &var-> popupFont);
         break;
       case cmMenu:
-         my-> notify( self, "<sHs", "Menu", event-> gen. H, event-> gen. p);
+	 if ( event-> gen. H) {
+	     char buffer[16], *context;
+             context = ((( PAbstractMenu) event-> gen. H)-> self)-> make_id_context( event-> gen. H, event-> gen. i, buffer);
+             my-> notify( self, "<sHs", "Menu", event-> gen. H, context);
+	 }
          break;
       case cmMouseClick:
          my-> notify( self, "<siiPi", "MouseClick",

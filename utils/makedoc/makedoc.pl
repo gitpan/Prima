@@ -1,4 +1,4 @@
-# $Id: makedoc.pl,v 1.1 2004/02/07 23:44:54 dk Exp $
+# $Id: makedoc.pl,v 1.2 2004/04/29 20:09:01 dk Exp $
 use strict;
 use Config;
 
@@ -144,7 +144,8 @@ if ( $build) {
       }
    
       unlink 'out.tex';
-      system "pod2latex -full -modify -sections '!SEE ALSO|AUTHOR|AUTHORS|COPYRIGHT' -out out.tex $ffn";
+      my $q = ($^O =~ /win32/i) ? '"' : "'";
+      system "pod2latex -full -modify -sections $q!SEE ALSO|AUTHOR|AUTHORS|COPYRIGHT$q -out out.tex $ffn";
 
       unlink 'tmp.pm' if $cow;
 

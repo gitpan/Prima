@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Sliders.pm,v 1.33 2003/10/15 10:43:15 dk Exp $
+#  $Id: Sliders.pm,v 1.34 2004/04/29 08:16:12 dk Exp $
 
 # contains:
 #   SpinButton
@@ -2067,7 +2067,7 @@ visual feedback. If 0, the shaft is painted with single default background color
 
 Default value: 0
 
-=item shaftBreath INTEGER
+=item shaftBreadth INTEGER
 
 Breadth of the shaft in pixels.
 

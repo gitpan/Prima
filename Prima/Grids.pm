@@ -26,7 +26,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Grids.pm,v 1.4 2004/01/12 23:15:00 dk Exp $
+#  $Id: Grids.pm,v 1.5 2004/04/01 08:40:39 dk Exp $
 
 use strict;
 use Prima;
@@ -830,7 +830,7 @@ sub on_size
 
 sub on_disable { $_[0]-> repaint; }
 sub on_enable  { $_[0]-> repaint; }
-sub on_enter   { $_[0]-> repaint; }
+sub on_enter   { $_[0]-> redraw_cell( $_[0]-> focusedCell); }
 
 sub on_keydown
 {
@@ -900,7 +900,7 @@ sub on_leave
       $self-> capture(0) if $self->{mouseTransaction};
       $self->{mouseTransaction} = undef;
    }
-   $self-> repaint;
+   $self-> redraw_cell( $self-> focusedCell);
 }
 
 sub on_mouseclick

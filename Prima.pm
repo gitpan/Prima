@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Prima.pm,v 1.61 2004/02/12 12:04:31 dk Exp $
+#  $Id: Prima.pm,v 1.63 2004/05/04 18:53:13 dk Exp $
 
 package Prima;
 
@@ -34,7 +34,7 @@ require DynaLoader;
 use vars qw($VERSION @ISA $__import);
 @ISA = qw(DynaLoader);
 sub dl_load_flags { 0x00 }
-$VERSION = '1.14';
+$VERSION = '1.15';
 bootstrap Prima $VERSION;
 unless ( UNIVERSAL::can('Prima', 'init')) {
    $::application = 0;
@@ -310,6 +310,8 @@ L<Prima::DockManager> - advanced dockable widgets
 L<Prima::Docks> - dockable widgets
 
 L<Prima::Edit> - text editor widget
+
+L<Prima::EventHook> - event filtering
 
 L<Prima::ExtLists> - listbox with checkboxes
 

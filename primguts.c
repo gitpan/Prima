@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: primguts.c,v 1.98 2004/02/11 16:22:51 dk Exp $
+ * $Id: primguts.c,v 1.102 2004/04/30 13:19:48 dk Exp $
  */
 /* Guts library, main file */
 
@@ -84,7 +84,7 @@ long   apcError = 0;
 List   postDestroys;
 int    recursiveCall = 0;
 PHash  primaObjects = nil;
-Bool   wantUnicodeInput = 0;
+SV *   eventHook = nil;
 
 char *
 duplicate_string( const char *s)
@@ -154,6 +154,44 @@ stricmp(const char *s1, const char *s2)
    return (tolower(*u1) - tolower(*--u2));
 }
 #endif
+
+#ifdef PRIMA_NEED_OWN_STRNICMP
+int
+strnicmp(const char *s1, const char *s2, size_t count)
+{
+   const unsigned char *u1 = (const unsigned char *)s1;
+   const unsigned char *u2 = (const unsigned char *)s2;
+   if ( count == 0) return 0;
+   while (tolower(*u1) == tolower(*u2++)) 
+      if (--count == 0 || *u1++ == '\0')
+         return 0;
+   return (tolower(*u1) - tolower(*--u2));
+}
+#endif
+    
+#ifndef HAVE_STRCASESTR
+/* Code was taken from FreeBSD 4.8 /usr/src/lib/libc/string/strcasestr.c */
+char *
+strcasestr( register const char * s,  register const char * find)
+{
+        register char c, sc;
+        register size_t len;
+
+        if ((c = *find++) != 0) {
+                c = tolower((unsigned char)c);
+                len = strlen(find);
+                do {
+                        do {
+                                if ((sc = *s++) == 0)
+                                        return (NULL);
+                        } while ((char)tolower((unsigned char)sc) != c);
+                } while (strnicmp(s, find, len) != 0);
+                s--;
+        }
+        return ((char *)s);
+}
+#endif
+
 
 #ifndef HAVE_REALLOCF
 /*
@@ -1243,6 +1281,7 @@ register_constants( void)
 }
 
 XS( Object_alive_FROMPERL);
+XS( Component_event_hook_FROMPERL);
 
 XS( boot_Prima)
 {
@@ -1287,6 +1326,7 @@ XS( boot_Prima)
    newXS( "Prima::Object::create",  create_from_Perl, "Prima::Object");
    newXS( "Prima::Object::destroy", destroy_from_Perl, "Prima::Object");
    newXS( "Prima::Object::alive", Object_alive_FROMPERL, "Prima::Object");
+   newXS( "Prima::Component::event_hook", Component_event_hook_FROMPERL, "Prima::Component");
    newXS( "Prima::message", Prima_message_FROMPERL, "Prima");
    newXS( "Prima::dl_export", Prima_dl_export, "Prima");
    register_constants();

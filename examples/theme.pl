@@ -25,9 +25,9 @@
 #
 #  Created by Dmitry Karasik <dmitry@karasik.eu.org>
 #
-#  $Id: theme.pl,v 1.3 2004/02/04 20:12:13 dk Exp $
+#  $Id: theme.pl,v 1.4 2004/02/22 18:25:54 dk Exp $
 
-use Prima qw(Application ScrollBar Buttons InputLine ExtLists Themes Notebooks);
+use Prima qw(Application Themes ScrollBar Buttons InputLine ExtLists Notebooks);
 
 =pod 
 =item NAME
@@ -55,6 +55,8 @@ sub test
 		}
 	}
 	Prima::Themes::select( @themes);
+	my $failed = join(',', grep { ! Prima::Themes::active $_ } @themes);
+	Prima::message("Theme(s) $failed failed to load") if length $failed;
 	$t = $playground-> insert( TabbedNotebook => 
 		pack => { fill => 'both', expand => 1},
 		packPropagate => 0,

@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Makefile.PL,v 1.162 2004/02/12 12:21:42 dk Exp $
+#  $Id: Makefile.PL,v 1.166 2004/03/26 16:31:13 voland Exp $
 #
 
 BEGIN {
@@ -320,13 +320,15 @@ EOF
 sub find_header
 {
     my $header = shift;
+    my $options = ref($_[0]) eq 'HASH' ? shift : {};
     my ( $incpath, $present);
     foreach $incpath ( @_) {
         local @INCPATH = @INCPATH;
         push @INCPATH, $incpath if $incpath;
-        $present = compile( <<EOF, 1);
+	my $code = $options->{Code} || <<EOF;
 #include <$header>
 EOF
+        $present = compile( $code, 1);
         return $incpath if $present;
     }
     return undef;
@@ -1318,7 +1320,10 @@ sub setup_defines
     }
 
     have_funcs_in( 'string.h', 'strcasecmp');
+    have_funcs_in( 'string.h', 'strncasecmp');
+    have_funcs_in( 'string.h', 'strcasestr');
     have_funcs_in( 'strings.h', 'stricmp');
+    have_funcs_in( 'strings.h', 'strnicmp');
     have_funcs_in( 'stdio.h', 'snprintf');
     have_funcs_in( 'stdio.h', '_snprintf');
     have_funcs_in( 'stdlib.h', 'reallocf');
@@ -1348,18 +1353,35 @@ sub setup_xft
 	my $NEED_XFT = 4;
 	my @pre_xft_libs = @LIBS;
 
+	my @ft_incpaths = ( "",
+			    qd("/usr/include/freetype2"),
+			    qd("/usr/X11R6/include/freetype2"),
+			    qd("/usr/X11/include/freetype2"),
+			    qd("/usr/X/include/freetype2"),
+			    qd("/usr/openwin/include/freetype2"),
+			    qd("/usr/local/include/freetype2"),
+			    qd("/usr/gnu/include/freetype2"),
+			    qd("/usr/freeware/include/freetype2"),
+			    qd("/usr/opt/include/freetype2")
+	);
+	my $have_ft2build_h = find_header( qd("ft2build.h"), @ft_incpaths );
+
 	print "Checking for presence of freetype/freetype.h... ";
-	my $incpath = find_header( qd("freetype/freetype.h"), "",
-				   qd("/usr/include/freetype2"),
-				   qd("/usr/X11R6/include/freetype2"),
-				   qd("/usr/X11/include/freetype2"),
-				   qd("/usr/X/include/freetype2"),
-				   qd("/usr/openwin/include/freetype2"),
-				   qd("/usr/local/include/freetype2"),
-				   qd("/usr/gnu/include/freetype2"),
-				   qd("/usr/freeware/include/freetype2"),
-				   qd("/usr/opt/include/freetype2")
-				   );
+	my $incpath;
+	if ($have_ft2build_h) {
+	    $DEFINES{HAVE_FT2BUILD_H} = undef;
+	    $incpath = find_header( qd("freetype/freetype.h"),
+					{
+					    Code => <<EOF,
+#include "ft2build.h"
+#include FT_FREETYPE_H
+EOF
+					},
+					@ft_incpaths,
+					);
+	} else {
+	    $incpath = find_header( qd("freetype/freetype.h"), @ft_incpaths);
+	}
 	if (defined $incpath) {
 	    print "yes";
 	    print ", in $incpath" if $incpath;
@@ -1708,34 +1730,30 @@ sub process_commandline
     }
 }
 
-sub find_file
+sub _find_file
 {
     my ( $fname, $dir) = @_;
-    $fname =~ s/\\/\//g;
-    my $pathname = qd( "$dir/$fname");
-    if ( exists $cache_find_files{$pathname}) {
-       if ($cache_find_files{$pathname}) {
-       	   return ( $pathname, 1);
-       } else {
-       	   return ( $fname, 0);
-       }
-    }
-    if ( -e $pathname) {
-        $cache_find_files{$pathname} = 1;
-        return ( $pathname, 1);
-    }
+    my ( $pathname, $found);
+    $pathname = qd( "$dir/$fname");
+    return $pathname if -e $pathname;
     opendir D, $dir or die "Cannot open dir $dir: $!";
     my @entries = map { qd( "$dir/$_")} grep { /^[^.]/ && -d qd( "$dir/$_")} readdir D;
     closedir D;
-    my $found;
     foreach my $entry ( @entries) {
-        ( $pathname, $found) = find_file( $fname, $entry);
-	next unless $found;
-        $cache_find_files{$pathname} = 1;
-        return ( $pathname, 1);
+        $pathname = _find_file( $fname, $entry);
+	next unless defined $pathname;
+        return $pathname;
     }
-    $cache_find_files{$pathname} = 0;
-    return ( $fname, 0);
+    return undef;
+}
+
+sub find_file
+{
+    my ( $fname) = @_;
+    $fname =~ s/\\/\//g;
+    $fname = qd($fname);
+    return $cache_find_files{$fname} if exists $cache_find_files{$fname};
+    return $cache_find_files{$fname} = _find_file( $fname, '.');
 }
 
 sub canon_name
@@ -1767,9 +1785,8 @@ sub find_cdeps
         chomp;
         next unless /^\s*\#\s*include\s+"([^\"]+)"/;
         my $incfile = $1;
-        my $found = 0;
-        ( $incfile, $found) = find_file( $incfile, ".");
-        $incfile = qd( "include/generic/$incfile") unless $found;
+        my $i = find_file( $incfile);
+        $incfile = defined($i) ? $i : qd( "include/generic/$incfile");
         $incfile = canon_name( $incfile);
         unless ( exists $included->{ $incfile}) {
             push @{ $alldeps{ $cfile}}, $incfile;
@@ -2506,9 +2523,11 @@ EOF
        print MAKE "\n\t\@echo Installing man pages...\n";
        print MAKE "\t\@\$(MD) $INSTALL_MAN1 $INSTALL_MAN3\n";
        while ( scalar @allman ) {
-          push @man_to_remove, $allman[1];
-          $allman[1] =~ m/\.(\d+)$/;
-          printf MAKE $cmd, $1, splice( @allman, 0, 2);
+          my ( $src, $dest) = splice( @allman, 0, 2);
+          push @man_to_remove, $dest;
+          $dest =~ m/([^\/]+)\.(\d+)$/;
+	  print  MAKE "\t\@echo $1.$2\n";
+          printf MAKE $cmd, $2, $src, $dest;
        }
        if ( length $Config{gzip}) { s/$/.gz/ for @man_to_remove }
     }

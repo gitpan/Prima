@@ -26,7 +26,7 @@
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #  Modifications by Anton Berezin <tobez@tobez.org>
 #
-#  $Id: DetailedList.pm,v 1.17 2003/08/27 12:54:09 dk Exp $
+#  $Id: DetailedList.pm,v 1.19 2004/02/26 12:09:38 dk Exp $
 
 
 package Prima::DetailedList;
@@ -85,7 +85,9 @@ sub init
 {
    my ( $self, %profile) = @_;
    $self->{noHeader} = 1;
-   $self->{header} = bless [], q\Prima::DetailList::DummyHeader\;
+   $self->{header} = bless {
+      maxWidth => 0,
+   }, q\Prima::DetailList::DummyHeader\;
    $self-> {$_} = 0 for qw( mainColumn);
    %profile = $self-> SUPER::init( %profile);
 
@@ -112,7 +114,12 @@ sub init
    my $x = $self-> {header}->items;
    $self-> {umap} = [ 0 .. $#$x];
    $self-> $_( $profile{$_}) for qw( columns mainColumn);
-   $self-> autowidths unless scalar @{$profile{widths}};
+   if ( scalar @{$profile{widths}}) {
+      $self-> {itemWidth} = $self-> {header}-> {maxWidth} - 1;
+      $self-> reset_scrolls;
+   } else {
+      $self-> autowidths;
+   }
    return %profile;
 }
 

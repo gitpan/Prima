@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Anton Berezin  <tobez@tobez.org>
 #
-#  $Id: Lists.pm,v 1.44 2004/02/11 15:09:43 dk Exp $
+#  $Id: Lists.pm,v 1.46 2004/04/28 21:09:47 dk Exp $
 package Prima::Lists;
 
 # contains:
@@ -297,7 +297,7 @@ sub is_default_selection
 
 sub on_enable  { $_[0]-> repaint; }
 sub on_disable { $_[0]-> repaint; }
-sub on_enter   { $_[0]-> repaint; }
+sub on_enter   { $_[0]-> redraw_items( $_[0]-> focusedItem); }
 
 sub on_keydown
 {
@@ -383,9 +383,8 @@ sub on_leave
       $self-> capture(0) if $self->{mouseTransaction};
       $self->{mouseTransaction} = undef;
    }
-   $self-> repaint;
+   $self-> redraw_items( $self-> focusedItem);
 }
-
 
 sub point2item
 {
@@ -1334,6 +1333,44 @@ sub insert_items
    $self-> repaint if scalar @shifters;
 }
 
+sub replace_items
+{
+   my ( $self, $where) = ( shift, shift);
+   return if $where < 0;
+   my ( $is, $iw) = ( $self-> {items}, $self-> {widths});
+   my $new;
+   if (@_ == 1 and ref($_[0]) eq q(ARRAY)) {
+      return unless scalar @{$_[0]};
+      $new = [@{$_[0]}];
+   } else {
+      return unless scalar @_;
+      $new = [@_];
+   }
+   my $num = scalar @$new;
+   if ( $num + $where >= $self-> {count}) {
+      $num = $self->{count} - $where;
+      return if $num <= 0;
+      splice @$new, $num;
+   }
+   $self->{items} = $new;
+   $self->{widths} = [];
+   $self-> recalc_widths;
+   splice( @{$is}, $where, $num, @{$self->{items}});
+   splice( @{$iw}, $where, $num, @{$self->{widths}});
+   ( $self->{items}, $self->{widths}) = ( $is, $iw);
+   if ( $self->{autoWidth}) {
+      my $mw = 0;
+      for (@{$iw}) {
+	 $mw = $_ if $mw < $_;
+      }
+      $self-> itemWidth( $self->{maxWidth} = $mw);
+      $self-> offset( $self-> offset);
+   }
+   if ( $where <= $self-> {lastItem} && $where + $num >= $self-> {topItem}) {
+      $self-> redraw_items( $where .. $where + $num);
+   }
+}
+
 sub add_items { shift-> insert_items( -1, @_); }
 
 sub delete_items
@@ -1890,6 +1927,14 @@ call is naturally usable only for single item retrieval.
 Inserts array of items at OFFSET index in the list.
 Offset must be a valid index; to insert items at the end of
 the list use C<add_items> method.
+
+ITEMS can be either an array, or a reference to an array of 
+item indices.
+
+=item replace_items OFFSET, ITEMS
+
+Replaces existing items at OFFSET index in the list.
+Offset must be a valid index.
 
 ITEMS can be either an array, or a reference to an array of 
 item indices.

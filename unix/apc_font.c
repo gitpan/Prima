@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_font.c,v 1.79 2003/11/27 21:26:02 dk Exp $
+ * $Id: apc_font.c,v 1.85 2004/04/02 18:28:13 dk Exp $
  */
 
 /***********************************************************/
@@ -49,6 +49,9 @@ static char * do_msg_font = nil;
 static char * do_menu_font = nil;
 static char * do_widget_font = nil;
 static Bool   do_xft = true;
+static Bool   do_xft_no_antialias = false;
+static Bool   do_xft_priority = true;
+static Bool   do_no_scaled_fonts = false;
 
 static void detail_font_info( PFontInfo f, PFont font, Bool addToCache, Bool bySize);
 
@@ -65,7 +68,7 @@ static void
 fill_default_font( Font * font )
 {
    bzero( font, sizeof( Font));
-   strcpy( font-> name, "Helvetica");
+   strcpy( font-> name, "Default");
    font-> height = C_NUMERIC_UNDEF;
    font-> size = 12;
    font-> width = C_NUMERIC_UNDEF;
@@ -126,8 +129,7 @@ font_query_name( XFontStruct * s, PFontInfo f)
       if ( c) {
          f-> flags. family = true;
          strncpy( f-> font. family, c, 255);  f-> font. family[255] = '\0';
-         strlwr( f-> lc_family, f-> font. family);
-         strcpy( f-> font. family, f-> lc_family);
+         strlwr( f-> font. family, f-> font. family);
          XFree( c);
       }
    } 
@@ -140,8 +142,7 @@ font_query_name( XFontStruct * s, PFontInfo f)
       if ( c) {
          f-> flags. name = true;
          strncpy( f-> font. name, c, 255);  f-> font. name[255] = '\0';
-         strlwr( f-> lc_name, f-> font. name);
-         strcpy( f-> font. name, f-> lc_name);
+         strlwr( f-> font. name, f-> font. name);
          XFree( c);
       } 
    }
@@ -190,17 +191,15 @@ font_query_name( XFontStruct * s, PFontInfo f)
             strcpy( f-> font. name, c);
          }
       }
-      strlwr( f-> lc_family, f-> font. family);
-      strlwr( f-> lc_name, f-> font. name);
+      strlwr( f-> font. family, f-> font. family);
+      strlwr( f-> font. name, f-> font. name);
       f-> flags. name = true;
       f-> flags. family = true;
    } else if ( ! f-> flags. family ) {
-      strcpy( f-> font. family, f-> font. name);
-      strlwr( f-> lc_family, f-> font. family);
+      strlwr( f-> font. family, f-> font. name);
       f-> flags. name = true;
    } else if ( ! f-> flags. name ) {
-      strcpy( f-> font. name, f-> font. family);
-      strlwr( f-> lc_name, f-> font. name);
+      strlwr( f-> font. name, f-> font. family);
       f-> flags. name = true;
    }
 }   
@@ -255,16 +254,16 @@ xlfd_parse_font( char * xlfd_name, PFontInfo info, Bool do_vector_fonts)
             Font xf;
             int noname =  ( b[0] == '*' && b[1] == 0);
             int nofamily = ( info-> font.family[0] == '*' && info-> font.family[1] == 0);
-            fill_default_font( &xf);
+            if ( guts. default_font_ok)
+	       xf = guts. default_font;
+	    else
+               fill_default_font( &xf);
             if ( !nofamily) strcpy( xf. family, info-> font. family);
             if ( !noname)   strcpy( xf. name, info-> font. name);
             prima_core_font_pick( nilHandle, &xf, &xf);
             if ( noname)   strcpy( info-> font. name,   xf. name);
             if ( nofamily) strcpy( info-> font. family, xf. family);
          }
-         
-         strlwr( info-> lc_family, info-> font. family);
-         strlwr( info-> lc_name, info-> font. name);
       }
 
       if ( *c == '-') {
@@ -514,7 +513,7 @@ prima_init_font_subsystem( void)
    if ( !names) {
       warn( "UAF_001: no X memory");
       return false;
-   }   
+   }
 
    info = malloc( sizeof( FontInfo) * count);
    if ( !info) {
@@ -560,7 +559,8 @@ prima_init_font_subsystem( void)
    encodings = hash_create();
 
    apc_fetch_resource( "Prima", "", "Noscaledfonts", "noscaledfonts", 
-      nilHandle, frUnix_int, &guts. no_scaled_fonts); 
+      nilHandle, frUnix_int, &guts. no_scaled_fonts);
+   if ( do_no_scaled_fonts) guts. no_scaled_fonts = 1;
 
    for ( i = 0, j = 0; i < count; i++) {
       if ( xlfd_parse_font( names[i], info + j, true)) {
@@ -577,7 +577,6 @@ prima_init_font_subsystem( void)
 
    guts. font_hash = hash_create();
    xfontCache      = hash_create();
-   prima_font_pp2font( "fixed", nil);
 
    /* locale */
    {
@@ -608,9 +607,12 @@ prima_init_font_subsystem( void)
    }
    
 #ifdef USE_XFT
+   guts. xft_no_antialias = do_xft_no_antialias;
+   guts. xft_priority     = do_xft_priority;
    if ( do_xft) prima_xft_init();
 #endif
 
+   prima_font_pp2font( "fixed", nil);
    Fdebug("font: init\n");
    if ( do_default_font) {
       prima_font_pp2font( do_default_font, &guts. default_font);
@@ -624,7 +626,7 @@ prima_init_font_subsystem( void)
       /*
           Although apc_font_pick() does respect $LANG, it does not always picks
           up a font with the correct encoding here, because we use a hard-coded
-          string "Helvetica". Whereas users can set an alias for "Helvetica",
+          string "Default". Whereas users can set an alias for "Default",
           or set the default font via XRDB:Prima.font option, it is not done by
           default, so here we pick such a font that contains the user-specified
           encoding, and has more or less reasonable metrics.
@@ -707,6 +709,29 @@ prima_font_subsystem_set_option( char * option, char * value)
    if ( strcmp( option, "no-xft") == 0) {
       if ( value) warn("`--no-xft' option has no parameters");
       do_xft = false;
+      return true;
+   } else
+   if ( strcmp( option, "no-aa") == 0) {
+      if ( value) warn("`--no-antialias' option has no parameters");
+      do_xft_no_antialias = true;
+      return true;
+   } else
+   if ( strcmp( option, "font-priority") == 0) {
+      if ( !value) {
+	 warn("`--font-priority' must be given parameters, either 'core' or 'xft'");
+         return false;
+      }
+      if ( strcmp( value, "core") == 0)
+	   do_xft_priority = false;
+      else if ( strcmp( value, "xft") == 0)
+	   do_xft_priority = true;
+      else
+         warn("Invalid value '%s' to `--font-priority' option. Valid are 'core' and 'xft'", value);
+      return true;
+   } else
+   if ( strcmp( option, "noscaled") == 0) {
+      if ( value) warn("`--noscaled' option has no parameters");
+      do_no_scaled_fonts = true;
       return true;
    } else
    if ( strcmp( option, "font") == 0) {
@@ -817,8 +842,8 @@ prima_font_pp2font( char * ppFontNameSize, PFont font)
    if ( strlen( font-> family) == 0) strcpy( font-> family, def-> family);
    apc_font_pick( application, font, font);
    if (
-       ( stricmp( font-> family, fi. lc_family) == 0) &&
-       ( stricmp( font-> name, fi. lc_name) == 0)
+       ( stricmp( font-> family, fi. font. family) == 0) &&
+       ( stricmp( font-> name, fi. font. name) == 0)
       ) newEntry = 0;
    
    if ( newEntry ) {
@@ -1338,15 +1363,15 @@ query_diff( PFontInfo fi, PFont f, char * lcname, int selector)
       diff += 10000.0;  /* 2/3 of the worst case */
    }
    
-   if ( fi-> flags. name && strcmp( lcname, fi-> lc_name) == 0) {
+   if ( fi-> flags. name && stricmp( lcname, fi-> font. name) == 0) {
       diff += 0.0;
-   } else if ( fi-> flags. family && strcmp( lcname, fi-> lc_family) == 0) {
+   } else if ( fi-> flags. family && stricmp( lcname, fi-> font. family) == 0) {
       diff += 1000.0;
-   } else if ( fi-> flags. family && strstr( fi-> lc_family, lcname)) {
+   } else if ( fi-> flags. family && strcasestr( fi-> font. family, lcname)) {
       diff += 2000.0;
    } else if ( !fi-> flags. family) {
       diff += 8000.0;
-   } else if ( fi-> flags. name && strstr( fi->  lc_name, lcname)) {
+   } else if ( fi-> flags. name && strcasestr( fi-> font. name, lcname)) {
       diff += 7000.0;
    } else {
       diff += 10000.0;
@@ -1402,15 +1427,15 @@ query_diff( PFontInfo fi, PFont f, char * lcname, int selector)
    
    if ( fi->  flags. xDeviceRes && fi-> flags. yDeviceRes) {
       diff += 30.0 * (int)fabs( 0.5 +
-         ( 100.0 * guts. resolution. y / guts. resolution. x) -
-         ( 100.0 * fi->  font. yDeviceRes / fi->  font. xDeviceRes));
+         (float)( 100.0 * guts. resolution. y / guts. resolution. x) -
+         (float)( 100.0 * fi->  font. yDeviceRes / fi->  font. xDeviceRes));
    }
 
    if ( fi->  flags. yDeviceRes) {
-      diff += 1.0 * (int)fabs( guts. resolution. y - fi->  font. yDeviceRes + 0.5);
+      diff += 1.0 * abs( guts. resolution. y - fi->  font. yDeviceRes);
    }
    if ( fi->  flags. xDeviceRes) {
-      diff += 1.0 * (int)fabs( guts. resolution. x - fi->  font. xDeviceRes + 0.5);
+      diff += 1.0 * abs( guts. resolution. x - fi->  font. xDeviceRes);
    }
 
    if ( fi-> flags. style && ( f-> style & ~(fsUnderlined|fsOutline|fsStruckOut))== fi->  font. style) {
@@ -1441,6 +1466,9 @@ prima_core_font_pick( Handle self, PFont source, PFont dest)
    HeightGuessStack hgs;
 
    if ( n == 0) return false;
+
+   if ( strcmp( dest-> name, "Default") == 0)
+      strcpy( dest-> name, "helvetica");
  
    if ( prima_find_known_font( dest, true, by_size)) {
       if ( underlined) dest-> style |= fsUnderlined;

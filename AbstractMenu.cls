@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: AbstractMenu.cls,v 1.19 2002/10/31 22:34:21 dk Exp $
+# $Id: AbstractMenu.cls,v 1.21 2004/03/16 13:03:07 dk Exp $
 
 object Prima::AbstractMenu ( Prima::Component)
 {
@@ -59,9 +59,12 @@ object Prima::AbstractMenu ( Prima::Component)
 #  private
    Bool   anchored;
    Bool   system;
+   unsigned int autoEnum;
    c_only void   dispose_menu( void * menu);
-   c_only void * new_menu( SV * sv, int level, int * subCount, int * autoEnum);
+   c_only void * new_menu( SV * sv, int level);
    c_only Bool   sub_call( PMenuItemReg m);
    c_only Bool   sub_call_id ( int sysId);
    c_only Bool   sub_call_key ( int key);
+   c_only char * make_var_context( PMenuItemReg m, char * buffer);
+   c_only char * make_id_context( int id, char * buffer);
 }

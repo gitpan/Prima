@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: notebk.pl,v 1.9 2003/08/08 11:43:57 dk Exp $
+#  $Id: notebk.pl,v 1.10 2004/04/29 07:11:22 dk Exp $
 #
 
 =pod 
@@ -70,6 +70,23 @@ sub init
       [ Button => origin => [ 110, 70], ],
       [ Button => origin => [ 110,100], ],
    );
+   $n->insert_transparent('Button',
+      name   => 'TopMostButton',
+      text   => 'Toggle Orientation',
+      origin => [0,30],
+      size   => [200,20],
+      growMode => gm::XCenter,
+      onClick => sub { $n->orientation($n->orientation ? 0 : 1) },
+   );
+   
+   $n->insert_transparent('Button',
+      name   => 'StyleButton',
+      text   => 'Toggle Style',
+      origin => [0,5],
+      size   => [200,20],
+      growMode => gm::XCenter,
+      onClick => sub { $n->style($n->style ? 0 : 1) },
+   );
    return %profile;
 }
 
@@ -82,6 +99,5 @@ my $w = Bla-> create(
   y_centered  => 1,
  # current  => 1,
 );
-
 
 run Prima;
