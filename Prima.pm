@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Prima.pm,v 1.42 2002/09/25 14:05:14 dk Exp $
+#  $Id: Prima.pm,v 1.48 2002/11/18 14:03:33 dk Exp $
 
 package Prima;
 
@@ -33,17 +33,8 @@ use strict;
 require DynaLoader;
 use vars qw($VERSION @ISA $__import);
 @ISA = qw(DynaLoader);
-
-BEGIN {
-    if ( $^O =~ /freebsd/i) {
-	( my $ver = `/usr/bin/uname -r`) =~ s/^(\d+\.\d+).*$/$1/;
-	if ( $ver >= 3.4) {
-	    eval "sub dl_load_flags { 0x01 }";
-	}
-    }
-}
-
-$VERSION = '1.07';
+sub dl_load_flags { 0x00 }
+$VERSION = '1.08';
 bootstrap Prima $VERSION;
 unless ( UNIVERSAL::can('Prima', 'init')) {
    $::application = 0;
@@ -88,7 +79,10 @@ sub import
       next if $module eq 'Prima' || $module eq '';
       $module = "Prima::$module" unless $module =~ /^Prima::/;
       $__import = caller;
-      eval "use $module \%parameters;" if $module;
+      if ( $module) {
+         eval "use $module \%parameters;";
+         die $@ if $@;
+      }
       $__import = 0;
    }
 }
@@ -147,7 +141,7 @@ Prima - a perl graphic toolkit
 
 The toolkit is combined from two basic set of classes - core and external. The
 core classes are coded in C and form a base line for every Prima object 
-written in perl. The usage of C is possible together with the toolkit, however 
+written in perl. The usage of C is possible together with the toolkit; however,
 its full power is revealed in the perl domain. The external classes present 
 easily expandable set of widgets, written completely in perl and communicating 
 with the system using Prima library calls. 
@@ -186,10 +180,10 @@ A basic construct for a program written with Prima obviously requires
 
   use Prima;
 
-code. However, the effective programming requires usage of the other
+code; however, the effective programming requires usage of the other
 modules, for example, C<Prima::Buttons>, which contains set of
 button widgets. C<Prima.pm> module can be
-invoked with a list of such modules, what makes the construction
+invoked with a list of such modules, which makes the construction
 
   use Prima;
   use Prima::Application;
@@ -203,7 +197,7 @@ Another basic issue is the event loop, which is called by
 
    run Prima;
 
-sentence and requires a C<Prima::Application> object to be created before.
+sentence and requires a C<Prima::Application> object to be created beforehand.
 Invoking C<Prima::Application> standard module is one of the possible ways to 
 create an application object. The program usually terminates after the event loop
 is finished.
@@ -242,10 +236,10 @@ of two integers and C<onClick> - a sub.
 
 onXxxx are special properties that form a class of I<events>, 
 which share the C<create> syntax, and are additive when 
-the regular properties are substitutive ( read more in L<Prima::Object> ). 
+the regular properties are substitutive (read more in L<Prima::Object>). 
 Events are called in the object context when a specific condition occurs. 
 The C<onClick> event here, for example, is called when the 
-user presses ( or otherwise activates ) the button.
+user presses (or otherwise activates) the button.
 
 =head1 API
 
@@ -271,13 +265,19 @@ If called with no parameters, returns path to a directory,
 usually F<~/.prima>, that can be used to contain the user settings
 of a toolkit module or a program. If FILE is specified, appends
 it to the path and returns the full file name. In the latter case 
-the path is automatically created by C<File::Path::mkpath> unless
+the path is automatically created by C<File::Path::mkpath> unless it
 already exists.
 
 =item run
 
 Enters the program event loop. The loop is ended when C<Prima::Application>'s C<destroy>
 or C<close> method is called.
+
+=item want_unicode_input [ BOOLEAN ]
+
+Selects if the system is allowed to generate key codes in unicode. 
+Returns the effective state of the unicode input flag, which cannot be
+changed if perl or system do not support UTF8.
 
 =back
 
@@ -429,7 +429,7 @@ L<Prima::StdBitmap> - shared access to the standard toolkit bitmaps
 
 L<Prima::Stress> - stress test module
 
-L<Prima::Utils> - miscellanneous routines
+L<Prima::Utils> - miscellaneous routines
 
 L<Prima::Widgets> - miscellaneous widget classes
 

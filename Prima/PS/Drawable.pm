@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Drawable.pm,v 1.13 2002/09/23 11:14:26 dk Exp $
+#  $Id: Drawable.pm,v 1.16 2002/11/18 13:04:23 dk Exp $
 #
 use strict;
 use Prima;
@@ -45,8 +45,8 @@ Prima::PS::Drawable -  PostScript interface to Prima::Drawable
    use Prima::PS::Drawable;
 
    my $x = Prima::PS::Drawable-> create( onSpool => sub {
-      open F, "> ./test.ps";
-      print F ($_, "\n") for @{$_[1]};
+      open F, ">> ./test.ps";
+      print F $_[1];
       close F;
    });
    $x-> begin_doc;
@@ -100,12 +100,12 @@ if 1, a 90 degrees rotated document layout is assumed
 along with Prima::Drawable::translate provide PS-specific
 transformation matrix manipulations. ::rotate is number,
 measured in degrees, counter-clockwise. ::scale is array of
-two numbers, respecively x- and y-scale. 1 is 100%, 2 is 200% 
+two numbers, respectively x- and y-scale. 1 is 100%, 2 is 200% 
 etc.
 
 =item ::useDeviceFonts
 
-1 by default; optimizes greatly text operaions, but takes the risk
+1 by default; optimizes greatly text operations, but takes the risk
 that a character could be drawn incorrectly or not drawn at all -
 this behavior depends on a particular PS interpreter.
 
@@ -214,7 +214,12 @@ Can be called for direct PostScript code injection. Example:
 sub emit
 {
    my $self = $_[0];
-   push( @{$self-> {psData}}, $_[1]) if $self-> {canDraw};
+   return unless $self-> {canDraw};
+   $self-> {psData} .= $_[1] . "\n";
+   if ( length($self->{psData}) > 10240) {
+      $self-> abort_doc unless $self-> spool( $self->{psData});
+      $self->{psData} = '';
+   }
 }
 
 sub save_state
@@ -437,7 +442,7 @@ sub begin_doc
 {
    my ( $self, $docName) = @_;
    return 0 if $self-> get_paint_state;
-   $self-> {psData}  = [];
+   $self-> {psData}  = '';
    $self-> {canDraw} = 1;
 
    $docName = $::application ? $::application-> name : "Prima::PS::Drawable"
@@ -509,7 +514,6 @@ REV
 
    $self-> {changed} = { map { $_ => 0 } qw(fill lineEnd linePattern lineWidth font)};
    $self-> {docFontMap} = {};
-   $self-> {setupEmitIndex} = scalar @{$self->{psData}} - 1;
    
    $self-> SUPER::begin_paint;
    $self-> save_state;
@@ -559,14 +563,13 @@ PSFOOTER
       
    }
    
+   $self-> spool( $self-> {psData});
    $self-> {canDraw} = 0; 
    $self-> SUPER::end_paint;
    $self-> restore_state;
-   my $p = $self-> {psData};
    delete $self-> {$_} for 
       qw (saveState localeData changed fontLocaleData psData pagePrefix);
    $self-> {plate}-> destroy, $self-> {plate} = undef if $self-> {plate};
-   $self-> spool( $p);
 }
 
 # Prima::Drawable interface
@@ -617,9 +620,10 @@ Prima::PS::Printer handles spooling logic.
 sub spool
 {
    shift-> notify( 'Spool', @_);
+   return 1;
  #  my $p = $_[1];
- #  open F, "> ./test.ps";
- #  print F ($_, "\n") for @{$p};
+ #  open F, ">> ./test.ps";
+ #  print F $p;
  #  close F;
 }   
 
@@ -1570,6 +1574,12 @@ sub get_font_abc
       push( @ret, map { $_ * $wmul } @$cd[1..3]);
    }
    return \@ret;
+}
+
+sub get_font_ranges
+{
+   my $self = $_[0];
+   return [ $self-> {font}-> {firstChar}, $self-> {font}-> {lastChar}];
 }
 
 sub get_text_width

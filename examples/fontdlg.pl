@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: fontdlg.pl,v 1.15 2002/05/14 13:22:26 dk Exp $
+#  $Id: fontdlg.pl,v 1.18 2002/11/06 21:48:28 dk Exp $
 #
 package fontdlg;
 
@@ -276,32 +276,32 @@ $w-> insert( Button =>
   font   => { height => 28, style => fs::Bold, name => "Tms Rmn"},
   onClick   => sub {
      my $f = $w-> Example-> font;
-     Prima::Window-> create(
-        size => [ 500, 500],
+     my $ww = Prima::Window-> create(
+        size => [ 500, $f-> height * 3 + $f-> externalLeading + $f-> descent + 450 ],
         font => $f,
         text => $f-> size.'.['.$f->height.'x'.$f->width.']'.$f-> name,
         onPaint => sub {
            my ( $self, $p) = @_;
            my @size = $p-> size;
-           $p-> color( cl::White);
-           $p-> bar( 0, 0, @size);
-           $p-> color( cl::Black);
-
+           $p-> clear;
            $p-> font-> direction(0);
 
            my $m = $p-> get_font;
+           my $xtext = ( $m-> {firstChar} < 128) ? "ÁMg" : 
+                       join('', map { chr($_+$m-> {firstChar})} 51,52,0x430,0x431,0x440);
            my $s = $size[1] - $m->{height} - $m->{externalLeading} - 20;
-           my $w = $p-> get_text_width("ÁMg") + 66;
+           my $w = $p-> get_text_width($xtext) + 66;
            $p-> textOutBaseline(1);
-           $p-> text_out("ÁMg", 20, $s);
+           $p-> text_out($xtext, 20, $s);
 
            my $cachedFacename = $p-> font-> name;
            my $hsf = $p-> font-> height / 6;
            $hsf = 10 if $hsf < 10;
            $p-> font-> set(
-              height => $hsf,
-              style  => fs::Italic,
-              name   => '',
+              height   => $hsf,
+              style    => fs::Italic,
+              name     => '',
+              encoding => '',
            );
 
            $p-> line( 2, $s, $w, $s);
@@ -366,7 +366,66 @@ $w-> insert( Button =>
            $p-> text_out( 'family              : '.$m->{family   }, 2, $sd); $sd -= $fh;
            $p-> text_out( 'face name           : '.$cachedFacename, 2, $sd); $sd -= $fh;
         },
-     )-> select;
+     );
+     my @ranges = ([]);
+     for ( @{$w-> Example-> get_font_ranges}) {
+        ( 2 > scalar @{$ranges[-1]}) ?
+            push @{$ranges[-1]}, $_ :
+            push @ranges, [$_];
+     }
+     my $count = 0;
+     $count += $$_[1] - $$_[0] for @ranges;
+     my $ih = int($f-> height * 1.5);
+     my $l = $ww-> insert( AbstractListViewer => 
+        origin => [0,0],
+        size   => [$ww-> width, $ww-> height - $f-> height - $f-> externalLeading - $f-> descent - 360],
+        growMode => gm::Client,
+        font     => $f,
+        multiColumn => 1,
+        itemWidth   => $ih,
+        itemHeight  => $ih,
+        gridColor   => cl::Back,
+        hScroll     => 1,
+        onSelectItem => sub {
+           my ( $self, $item, $sel) = @_;
+           $item = $item->[0];
+           for ( @ranges) {
+              my $d = $$_[1] - $$_[0];
+              if ( $item < $d) {
+                 my $c = $$_[0] + $item;
+                 $self-> hint( sprintf( "0x%x", $c));
+                 $self-> hintVisible(1);
+                 last;
+              } else {
+                 $item -= $d;
+              }
+           }
+        },
+        onDrawItem => sub {
+           my ($self, $canvas, $itemIndex, $x, $y, $x2, $y2, $selected, $focused) = @_;
+           $canvas-> line( $x, $y, $x2, $y);
+           $canvas-> line( $x2+1, $y, $x2+1, $y2);
+           my @cs;
+           if ( $focused) {
+              @cs = ( $canvas-> color, $canvas-> backColor);
+              $canvas-> set( color => $canvas-> hiliteColor, backColor => $canvas-> hiliteBackColor);
+           }
+           $canvas-> clear( $x, $y + 1, $x2, $y2);
+           for ( @ranges) {
+              my $d = $$_[1] - $$_[0];
+              if ( $itemIndex < $d) {
+                 my $c = chr($$_[0] + $itemIndex);
+                 $canvas-> text_out( $c, $x + $ih / 4, $y + $ih / 4);
+                 last;
+              } else {
+                 $itemIndex -= $d;
+              }
+           }
+           $canvas-> set( color => $cs[0], backColor => $cs[1]) if $focused;
+        },
+     );
+     $l-> count( $count);
+     $ww-> select;
   },
 );
 
@@ -460,8 +519,10 @@ $w-> insert( Widget =>
       $_[1]-> color( $back);
       $_[1]-> bar( 0, 0, $x, $y);
       $_[1]-> color( $fore);
-      my $probe = "AaBbCcZz";
-      $probe = $_[1]-> font-> size.".".$_[1]-> font-> name;
+      my $m = $_[1]-> get_font;
+      my $probe = $_[1]-> font-> size.".".$_[1]-> font-> name;
+      $probe = join('', map { chr($_+$m-> {firstChar})} 51,52,0x430,0x431,0x440) 
+        if $m-> {firstChar} > 127;
       my @box = @{$_[1]-> get_text_box( $probe)};
       pop @box;
       pop @box;

@@ -29,7 +29,7 @@
 #  Modifications by:
 #     David Scott <dscott@dgt.com>
 #
-#  $Id: FileDialog.pm,v 1.21 2002/09/24 22:20:17 dk Exp $
+#  $Id: FileDialog.pm,v 1.23 2002/10/17 20:30:51 dk Exp $
 
 use strict;
 use Prima::Classes;
@@ -502,6 +502,7 @@ sub init
 sub on_change
 {
    my $self = shift;
+   return unless scalar @{$self-> {drives}};
    $self-> {driveTransaction} = 1;
    $self-> drive( $self-> {drives}-> [$self-> List-> focusedItem]);
    $self-> {driveTransaction} = undef;
@@ -1358,7 +1359,7 @@ dialogs.
 
 =head1 Prima::DirectoryListBox
 
-A direstory listing list box. Shows the list of 
+A directory listing list box. Shows the list of 
 subdirectories and upper directories, hierarchy-mapped,
 with the folder images and outlines.
 

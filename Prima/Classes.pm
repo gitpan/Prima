@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Classes.pm,v 1.70 2002/07/15 07:03:03 dk Exp $
+#  $Id: Classes.pm,v 1.72 2002/11/05 15:53:10 dk Exp $
 use Prima;
 use Prima::Const;
 
@@ -478,7 +478,7 @@ sub profile_default
 {
    my $def = $_[ 0]-> SUPER::profile_default;
    my %prf = (
-      conversion    => ict::Halftone,
+      conversion    => ict::Optimized,
       height        => 0,
       palette       => [0,0,0,0xFF,0xFF,0xFF],
       preserveType  => 0,
@@ -901,6 +901,37 @@ sub insert
       push @e, $cl-> create(@_, owner=> $self);
    }
    return wantarray ? @e : $e[0];
+}
+
+#  The help context string is a pod-styled link ( see perlpod ) :
+#  "file/section". If the widget's helpContext begins with /,
+#  it's clearly a sub-topic, and the leading content is to be
+#  extracted up from the hierarchy. When a grouping widget 
+#  does not have any help file related to, and does not wish that
+#  its childrens' helpContext would be combined with the upper
+#  helpContext, an empty string " " can be set
+
+sub help
+{
+   my $self = $_[0];
+   my $ht = $self-> helpContext;
+   return 0 if $ht =~ /^\s+$/;
+   if ( length($ht) && $ht !~ m[^/]) {
+      $::application-> open_help( $ht);
+      return 1;
+   }
+   my $file;
+   while ( $self = $self-> owner) {
+      my $ho = $self-> helpContext; 
+      return 0 if $ho =~ /^\s+$/;   
+      if ( length($ht) && $ht !~ /^\//) {
+         $file = $ht;
+         last;
+      }
+   }
+   return 0 unless defined $file;
+   $file .= '/' unless $file =~ /\/$/;
+   $::application-> open_help( $file . $ht);
 }
 
 sub pointer

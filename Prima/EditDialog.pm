@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: EditDialog.pm,v 1.8 2002/07/16 13:13:25 dk Exp $
+#  $Id: EditDialog.pm,v 1.10 2002/10/17 20:30:51 dk Exp $
 
 #  contains:
 #      FindDialog
@@ -257,7 +257,7 @@ sub findStyle
    return if $_[0]-> {findStyle} == $_[1];
    my ( $self, $style) = @_;
    $self-> {findStyle} = ( $style ? 1 : 0 );
-   $self-> $_-> enabled( ! $style ) for qw( Replace ReplaceLabel ChangeAll);
+   $self-> bring($_)-> enabled( ! $style ) for qw( Replace ReplaceLabel ChangeAll);
    $self-> Options-> Prompt-> enabled( !$style);
 }
 
@@ -288,7 +288,7 @@ to find and replace options selection.
 The module provides two classes - Prima::FindDialog and Prima::ReplaceDialog;
 Prima::ReplaceDialog is exactly same as Prima::FindDialog except that 
 its default L<findStyle> property value is set to 0. One can use a dialog-caching
-technique, abritrating between L<findStyle> value 0 and 1, and use only one
+technique, arbitrating between L<findStyle> value 0 and 1, and use only one
 instance of Prima::FindDialog.
 
 The module does not provide the actual search algorithm; this must be implemented

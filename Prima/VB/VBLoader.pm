@@ -23,17 +23,18 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: VBLoader.pm,v 1.19 2002/09/25 13:08:55 dk Exp $
+# $Id: VBLoader.pm,v 1.21 2002/10/17 20:30:55 dk Exp $
 package Prima::VB::VBLoader;
 use strict;
 use vars qw($builderActive $fileVersion @eventContext $form);
 
-$fileVersion   = '1.1';
+$fileVersion   = '1.2';
 @eventContext  = ('', '');
 
 my %fileVerCompat = (
    '1'   => '1.0',
    '1.0' => '1.1',
+   '1.1' => '1.2',
 );
 
 sub check_version
@@ -126,6 +127,9 @@ sub AUTOFORM_REALIZE
    }
    
    delete $dep{$main}->{profile}->{owner};
+   
+   $dep{$main}-> {code}->() if defined $dep{$main}-> {code} ;
+
    $ret{$main} = $dep{$main}->{class}-> create(
       %{$dep{$main}->{profile}},
       %{$parms->{$main}},
@@ -194,6 +198,7 @@ sub AUTOFORM_REALIZE
    $actions{onEnd}->{$_}->($_, $instances{$_}, $ret{$_})
       for keys %{$actions{onEnd}};
    $ret{$main}-> unlock;
+
    return %ret;
 }
 
@@ -271,7 +276,7 @@ sub VBLoad
 
 __DATA__
 
-=cut
+=pod
 
 =head1 NAME
 
@@ -342,7 +347,7 @@ a children widget, the parameter is deferred and passed after
 the creation using C<::set> call. 
 
 During the parsing and creation process some events can be are invoked.
-These events are stored in .fm file and ususally provide class-specific
+These events are stored in .fm file and usually provide class-specific
 loading instructions. See L<Events> for details.
 
 =item AUTOFORM_CREATE FILENAME, %PARAMETERS
@@ -368,15 +373,15 @@ and
 are identical. If the procedure finds that FILENAME is a relative
 module name, it calls C<Prima::find_image> automatically. To
 tell explicitly that FILENAME is a file system path name, FILENAME
-must be prepended with C<E<lt>> symbol ( the syntax is influenced by C<CORE::open> ).
+must be prefixed with C<E<lt>> symbol ( the syntax is influenced by C<CORE::open> ).
 
 %PARAMETERS is a hash with custom parameters passed to
 widgets during creation. The widgets are distinguished by the names.
 Visual Builder ensures that no widgets have equal names.
 
-If the form file loaded succesfully, returns the form object reference.
+If the form file loaded successfully, returns the form object reference.
 Otherwise, C<undef> is returned and the error string is stored in C<$@>
-valriable.
+variable.
 
 =back
 
@@ -384,7 +389,7 @@ valriable.
 
 The events, stored in .fm file are called during the loading process.
 The module provides no functionality for supplying the events during
-the load. This interface is useful only for developers of VisualBuilder-ready 
+the load. This interface is useful only for developers of Visual Builder - ready 
 classes.
 
 The events section is located in C<actions> section of widget entry.
@@ -402,7 +407,7 @@ Called upon beginning of widget tree creation.
 
 =item FormCreate NAME, INSTANCE, ROOT_WIDGET
 
-Called after the creation of a form, which refence is
+Called after the creation of a form, which reference is
 contained in ROOT_WIDGET.
 
 =item Create NAME, INSTANCE, WIDGET.
@@ -429,12 +434,12 @@ Called after the creation of all widgets is finished.
 
 The idea of format of .fm file is that is should be evaluated by 
 perl C<eval()> call without special manipulations, and kept as plain text.
-The file begins with a header, which is a #-prepended string, and
+The file begins with a header, which is a #-prefixed string, and
 contains a signature, version of file format, and version of the creator of the file:
 
  # VBForm version file=1 builder=0.1
 
-The header can also contain additional headers, also prepended with #.
+The header can also contain additional headers, also prefixed with #.
 These can be used to tell the loader that another perl module is needed to 
 be loaded before the parsing; this is useful, for example, if a constant is declared in
 the module.
@@ -453,6 +458,7 @@ and other associated data:
 		class   => 'Prima::Window',
 		module  => 'Prima::Classes',
 		parent => 1,
+                code   => GO_SUB('init()'),
 		profile => {
 			width => 144,
 			name => 'Form1',
@@ -471,10 +477,14 @@ The hash has several predefined keys:
 Contains hash of events. The events are evaluated via C<GO_SUB> mechanism
 and executed during creation of the widget tree. See L<Events> for details.
 
+=item code STRING
+
+Contains a code, executed before the form is created.
+This key is present only on the root widget record.
 
 =item class STRING
 
-Constains name of class to instantiate.
+Contains name of a class to be instantiated.
 
 =item extras HASH
 
@@ -507,4 +517,4 @@ Dmitry Karasik, E<lt>dmitry@karasik.eu.orgE<gt>.
 
 L<Prima>, L<VB>
 
-=pod
+=cut

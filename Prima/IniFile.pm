@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@tobez.org>
 #
-#  $Id: IniFile.pm,v 1.15 2002/07/22 09:30:51 dk Exp $
+#  $Id: IniFile.pm,v 1.16 2002/10/17 20:30:51 dk Exp $
 
 package Prima::IniFile;
 
@@ -656,7 +656,7 @@ Flushes the old content and opens new file. FILENAME is a text string,
 PROFILE is a two-level hash of default values for the new file. PROFILE is
 merged with the data from file, and the latter keep the precedence.
 Does not return any success values but, warns if any error
-is occured.
+is occurred.
 
 =item replace_values SECTION, ITEM, @VALUES
 
@@ -683,7 +683,7 @@ Returns array of section names.
 
 Assigns VALUES to ITEM in SECTION. If number of new values are equal or greater
 than the number of the old, the method is same as L<replace_values>. Otherwise,
-the values with indeces higher than the number of new values are not touched.
+the values with indexes higher than the number of new values are not touched.
 
 =item write
 

@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: KeySelector.pm,v 1.6 2002/09/09 21:09:14 dk Exp $
+#  $Id: KeySelector.pm,v 1.7 2002/10/17 20:30:51 dk Exp $
 #
 #  Contains:
 #       Prima::KeySelector
@@ -352,7 +352,7 @@ modifiers are allowed.
 =head2 Methods
 
 All methods here can ( and must ) be called without the object
-syntax; - the firts parameter must not be neither package nor 
+syntax; - the first parameter must not be neither package nor 
 widget.
 
 =over

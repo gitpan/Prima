@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Classes.pm,v 1.55 2002/09/24 22:18:21 dk Exp $
+# $Id: Classes.pm,v 1.57 2002/10/17 20:30:55 dk Exp $
 use strict;
 package Prima::VB::Classes;
 
@@ -2071,11 +2071,7 @@ sub open
       onClick  => sub {
          my %f = %{$_[0]-> font};
          delete $f{height};
-         my $f = $self->{fontDlg} ? $self->{fontDlg} : Prima::FontDialog-> create(
-            logFont => \%f,
-            name    => 'Choose font',
-            icon    => $VB::ico,
-         );
+         my $f = VB::font_dialog( logFont => \%f );
          $_[0]-> font( $f-> logFont) if $f-> execute == mb::OK;
       },
       onFontChanged => sub {
@@ -2537,7 +2533,14 @@ sub open
 {
    my $self = shift;
    $self-> SUPER::open( @_);
+   my $i = $VB::main-> {iniFile}-> section('Editor');
+   $self-> {A}-> font ( map { $_,  $i->{'Font' . ucfirst($_)}} qw(name size style encoding) );
    $self-> {A}-> syntaxHilite(1);
+   push @CodeEditor::editors, $self-> {A};
+   $self-> {A}-> onDestroy( sub {
+      my $self = $_[0];
+      @CodeEditor::editors = grep { $_ != $self } @CodeEditor::editors;
+   }) ;
 }
 
 
@@ -3312,7 +3315,7 @@ set of these methods, assuming that a widget would repaint when, for example,
 its C<color> or C<font> properties change.
 
 The hierarchy of VB classes mimics the one of the core toolkit classes,
-but this is a mere resemblance, no other dependences except the names
+but this is a mere resemblance, no other dependencies except the names
 are present. The hierarchy is as follows:
 
     Prima::VB::Object   Prima::Widget
@@ -3334,7 +3337,7 @@ accessible by C<prf> and C<prf_set> methods.
 
 A type object is a class used to represent a particular type of
 property in object inspector window in the builder.
-The type objects, like the widget classes, also are not hardcoded. The builder
+The type objects, like the widget classes, also are not hard-coded. The builder
 presents a basic set of the type objects, which can be easily expanded.
 The hierarchy ( incomplete ) of the type objects classes is as follows:
 
@@ -3389,7 +3392,7 @@ Changes to profile at run-time performed by C<prf_set> method.
 
 Returns hash of callbacks to be stored in the form file and
 executed by C<Prima::VB::VBLoader> when the form file is loaded.
-The keys fo hash are names of VBLoader events and values - strings
+The hash keys are names of VBLoader events and values - strings
 with code to be eval'ed. See L<Prima::VB::VBLoader/Events>
 for description and format of the callbacks.
 
@@ -3564,7 +3567,7 @@ is commanded to update the references.
 
 A class must also be usable without object instance,
 in particular, in C<write> method. It is called to
-export the propety value in a storable format
+export the property value in a storable format
 as a string, better as a perl-evaluable expression.
 
 =head2 Methods
@@ -3598,7 +3601,7 @@ Returns a string that can be stored in a file.
 
 =item change
 
-Called when the widget propety value is changed.
+Called when the widget property value is changed.
 
 =item change_id
 
@@ -3612,7 +3615,7 @@ Returns property value, based on the selector widgets value.
 
 =item open
 
-Called when the type object is to be visualised first time.
+Called when the type object is to be visualized first time.
 The object must create property value selector widgets
 in the C<{container}> panel widget.
 

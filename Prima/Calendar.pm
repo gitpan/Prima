@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Calendar.pm,v 1.4 2002/07/22 10:54:47 dk Exp $
+#  $Id: Calendar.pm,v 1.5 2002/10/17 20:30:50 dk Exp $
 
 use strict;
 
@@ -429,7 +429,7 @@ If 1, the locale-specified names of months and days of week are used.
 These are read by calling C<POSIX::strftime>. If invoking POSIX module
 is failed, the property is automatically assigned to 0.
 
-If 0, the english names of months and days of week are used.
+If 0, the English names of months and days of week are used.
 
 Default value: 1
 
@@ -452,11 +452,11 @@ by calling C<strftime>.
 
 =item month2str MONTH
 
-Returns MONTH name accoring to L<useLocale> value.
+Returns MONTH name according to L<useLocale> value.
 
 =item make_months
 
-Returns array of 12 month names accoring to L<useLocale> value.
+Returns array of 12 month names according to L<useLocale> value.
 
 =item day_of_week DAY, MONTH, YEAR
 

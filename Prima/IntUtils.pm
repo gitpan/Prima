@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: IntUtils.pm,v 1.20 2002/09/09 21:09:14 dk Exp $
+#  $Id: IntUtils.pm,v 1.21 2002/10/17 20:30:51 dk Exp $
 package Prima::IntUtils;
 
 use strict;
@@ -416,7 +416,7 @@ A class must not use the reserved variable names, which are:
    {borderWidth}  - internal borderWidth storage
    {hScroll}      - internal hScroll value storage
    {vScroll}      - internal vScroll value storage
-   {hScrollBar}   - pointer to the horizontall scroll bar
+   {hScrollBar}   - pointer to the horizontal scroll bar
    {vScrollBar}   - pointer to the vertical scroll bar
    {bone}         - rectangular widget between the scrollbars
 

@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Application.pm,v 1.13 2002/05/14 13:22:20 dk Exp $
+#  $Id: Application.pm,v 1.15 2002/11/18 14:03:34 dk Exp $
 
 package main;
 
@@ -86,7 +86,7 @@ alike the general create() syntax:
 
 In addition to this functionality Prima::Application
 is also a wrapper to a set of system functions, not
-directly relationed to object classes. This functionality
+directly related to object classes. This functionality
 is generally explained in L<"API">. 
 
 =head2 Inherited functionality
@@ -191,7 +191,7 @@ help viewing module can be assigned. Create-only C<Prima::Application>
 properties C<::helpClass> and C<::helpModule> can be used to
 set these options.
 
-C<Prima::Application> provides two methods for copmmunicating
+C<Prima::Application> provides two methods for communicating
 with the help viewer window: C<open_help()> opens a selected topic
 in the window, and C<close_help()> closes that window.
 
@@ -318,7 +318,7 @@ the new class is contained in a third-party module.
 
 =item pointerVisible BOOLEAN
 
-Governs the system pointer visiblity.
+Governs the system pointer visibility.
 If 0, hides the pointer so it is not visible in all 
 system windows. Therefore this property usage must be considered 
 with care.
@@ -369,7 +369,7 @@ the screen.
 
 Issues a system termination call, resulting in calling
 C<close> for all top-level windows. The call can be interrupted by these,
-and thus cancelled. If not cancelled, stops the application event loop.
+and thus canceled. If not canceled, stops the application event loop.
 
 =item close_help
 
@@ -506,7 +506,7 @@ The hash result contains the following keys:
 
 =item apc
 
-One of C<apc::XXX> constants, reflecting the platfrom.
+One of C<apc::XXX> constants, reflecting the platform.
 Currently, the list of the supported platforms is:
 
    apc::Os2    
@@ -557,7 +557,7 @@ The method can be called with a class string instead of an object instance.
 
 =item get_system_value 
 
-Returns the system integer value, associatied with one 
+Returns the system integer value, associated with one 
 of C<sv::XXX> constants. The constants are:
 
    sv::YMenu            - height of menu bar in top-level windows
@@ -594,6 +594,8 @@ of C<sv::XXX> constants. The constants are:
    sv::DblClickDelay    - mouse double-click timeout in milliseconds
    sv::ShapeExtension   - 1 if Prima::Widget::shape functionality is supported, 0 otherwise
    sv::ColorPointer     - 1 if system accepts color pointer icons.
+   sv::CanUTF8_Input    - 1 if system can generate key codes in unicode 
+   sv::CanUTF8_Output   - 1 if system can output utf8 text
 
 The method can be called with a class string instead of an object instance.
 
@@ -616,7 +618,7 @@ The main event loop. Called by
   run Prima;
 
 standard code. Returns when the program is about to
-terminate, or if the exception was signalled. In the
+terminate, or if the exception was signaled. In the
 latter case, can be safely re-started.
 
 =item lock
@@ -633,7 +635,7 @@ content and 'section' is a topic inside the manpage.
 
 =item sys_action CALL
 
-CALL is an arbitratry string, contained the system
+CALL is an arbitrary string, contained the system
 service name and the parameters to it.
 This functionality is non-portable, and should be avoided.
 The system services provided are not documented and

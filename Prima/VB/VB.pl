@@ -22,7 +22,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: VB.pl,v 1.65 2002/09/25 13:08:55 dk Exp $
+# $Id: VB.pl,v 1.69 2002/10/17 20:30:55 dk Exp $
 use strict;
 use Prima qw(StdDlg Notebooks MsgBox ComboBox ColorDialog IniFile);
 use Prima::VB::VBLoader;
@@ -34,7 +34,7 @@ use Prima::VB::CfgMaint;
 my $lite = 0;                          # set to 1 to use ::Lite packages. For debug only
 $Prima::VB::CfgMaint::systemWide = 0;  # 0 - user config, 1 - root config to write
 my $singleConfig                 = 0;  # set 1 to use only either user or root config
-my $VBVersion                    = 0.1;
+my $VBVersion                    = 0.2;
 
 ###################################################
 
@@ -52,6 +52,8 @@ use Prima::Application name => 'Form template builder';
 package VB;
 use vars qw($inspector
             $main
+            $editor
+            $code
             $form
             $fastLoad
             $writeMode
@@ -64,6 +66,7 @@ my $openFileDlg;
 my $saveFileDlg;
 my $openImageDlg;
 my $saveImageDlg;
+my $fontDlg;
 
 
 sub open_dialog
@@ -109,6 +112,18 @@ sub image_save_dialog
    $saveImageDlg-> set( %profile);
    return $saveImageDlg;
 }
+
+sub font_dialog
+{
+   my %profile = @_;
+   $fontDlg = Prima::FontDialog-> create( 
+      icon => $VB::ico,
+      name => 'Select font', 
+   ) unless $fontDlg;
+   $fontDlg-> set( %profile);
+   return $fontDlg;
+}
+
 sub accelItems
 {
    return [
@@ -116,6 +131,7 @@ sub accelItems
       ['-saveitem1' => '~Save' => 'F2' => 'F2' => sub {$VB::main-> save;}],
       ['Exit' => 'Alt+X' => '@X' => sub{ $VB::main-> close;}],
       ['Object Inspector' => 'F11' => 'F11' => sub { $VB::main-> bring_inspector; }],
+      ['Code Editor' => 'F12' => 'F12' => sub { $VB::main-> bring_code_editor; }],
       ['-runitem' => '~Run' => 'Ctrl+F9' => '^F9' => sub { $VB::main-> form_run}, ],
       ['~Help' => 'F1' => 'F1' => sub { $::application-> open_help('VB/Help')}],
       ['~Widget property' => 'Shift+F1' => '#F1' => sub { ObjectInspector::help_lookup() }],
@@ -365,7 +381,6 @@ sub widget_changed
       $list-> redraw_items( $ix);
    }
 }
-
 
 sub close_item
 {
@@ -674,7 +689,7 @@ sub on_size
 sub on_close
 {
    my $self = $_[0];
-   if ( $self->{modified}) {
+   if ( $self->{modified} || ( $VB::editor && $VB::editor-> {modified})) {
       my $name = defined ( $VB::main->{fmName}) ? $VB::main->{fmName} : 'Untitled';
       my $r = Prima::MsgBox::message( "Save changes to $name?", mb::YesNoCancel|mb::Warning);
       if ( $r == mb::Yes) {
@@ -698,6 +713,7 @@ sub on_destroy
          $VB::main->update_markings();
       }
    }
+   CodeEditor::flush;
    ObjectInspector::renew_widgets;
 }
 
@@ -1154,7 +1170,7 @@ sub profile_default
             ['openitem' => '~Open' => 'F3' => 'F3' => sub {$_[0]->open;}],
             ['-saveitem1' => '~Save' => 'F2' => 'F2' => sub {$_[0]->save;}],
             ['-saveitem2' =>'Save ~as...' =>           sub {$_[0]->saveas;}],
-            ['closeitem' =>'~Close' =>           sub {$VB::form-> close if $VB::form}],
+            ['closeitem' =>'~Close' =>           sub { $VB::form-> close if $VB::form}],
             [],
             ['E~xit' => 'Alt+X' => '@X' => sub{$_[0]->close;}],
          ]],
@@ -1176,6 +1192,7 @@ sub profile_default
          ]],
          ['~View' => [
            ['~Object Inspector' => 'F11' => 'F11' => sub { $_[0]-> bring_inspector; }],
+           ['~Code editor'      => 'F12' => 'F12' => sub { $_[0]-> bring_code_editor; }],
            ['~Add widgets...' => q(add_widgets)],
            [],
            ['Reset ~guidelines' => sub { Form::fm_resetguidelines(); } ],
@@ -1321,6 +1338,7 @@ sub init
    $self->{classes} = \%classes;
    $self->{pages}   = \@pages;
    $self->{gridAlert} = 5;
+   my $font = $self-> font;
    
    $self-> {iniFile} = Prima::IniFile-> create( 
       file    => Prima::path('VisualBuilder'),
@@ -1330,10 +1348,22 @@ sub init
             'SnapToGuidelines' => 1,
             'ObjectInspectorVisible' => 1,
             'ObjectInspectorRect' => '-1 -1 -1 -1',
+            'CodeEditorVisible' => 0,
+            'CodeEditorRect' => '-1 -1 -1 -1',
             'MainPanelRect' => '-1 -1 -1 -1',
             'OpenPath' => '.',
             'SavePath' => '.',
          ],
+         'Editor' => [
+            'syntaxHilite'    => 1,
+            'autoIndent'      => 1,
+            'persistentBlock' => 0,
+            'blockType'       => 0,
+            'FontName'        => $font-> name,
+            'FontSize'        => $font-> size,
+            'FontStyle'       => $font-> style,
+            'FontEncoding'    => $font-> encoding,
+         ]
       ],
    );
    my $i = $self-> {ini} = $self-> {iniFile}-> section( 'View' );
@@ -1362,8 +1392,12 @@ sub on_destroy
    my @rx = ( $_[0]-> {ini}-> {ObjectInspectorVisible} = ( $VB::inspector ? 1 : 0)) 
       ? $VB::inspector-> rect : ((-1)x4);
    $_[0]-> {ini}-> {ObjectInspectorRect} = join( ' ', @rx);
+   @rx = ( $_[0]-> {ini}-> {CodeEditorVisible} = ( $VB::editor ? 1 : 0)) 
+      ? $VB::editor-> rect : ((-1)x4);
+   $_[0]-> {ini}-> {CodeEditorRect} = join( ' ', @rx);
    $_[0]-> {ini}-> {OpenPath} = $openFileDlg-> directory if $openFileDlg;
    $_[0]-> {ini}-> {SavePath} = $saveFileDlg-> directory if $saveFileDlg;
+   $VB::editor-> close if $VB::editor;
    $VB::main = undef;
    $::application-> close;
 }
@@ -1709,6 +1743,17 @@ sub load_file
       creationOrder => 0,
       visible     => 0,
    );
+   if ( exists $mf-> {code}) {
+      if ( $@) {
+         Prima::MsgBox::message("Error loading $fileName: $@");
+      } else {
+         $VB::code = $mf-> {code};
+         if ( $VB::editor) {
+            $VB::editor-> Editor-> textRef( \$VB::code );
+            $VB::editor-> {modified} = 0;
+         }
+      }
+   }
    $VB::form-> prf_set( %{$mf->{profile}});
    $VB::inspector->{selectorChanging} = 1 if $VB::inspector;
    my $loaded = 1;
@@ -1772,7 +1817,12 @@ STARTSUB
 \t\tclass   => '$class',
 \t\tmodule  => '$module',
 MEDI
-      $c .= "\t\tparent => 1,\n" if $_ == $VB::form;
+      if ( $_ == $VB::form) {
+         CodeEditor::sync_code;
+         $c .= "\t\tparent => 1,\n";
+         $c .= "\t\tcode => Prima::VB::VBLoader::GO_SUB(\'".
+               Prima::VB::Types::generic::quotable($VB::code). "'),\n";
+      }
       my %extras    = $_-> ext_profile;
       if ( scalar keys %extras) {
           $c .= "\t\textras => {\n";
@@ -1841,8 +1891,11 @@ use Prima::Classes;
 PREPREHEAD
 
    my %modules = map { $_->{module} => 1 } @cmp;
+
+   CodeEditor::sync_code;
    
    my $c = <<PREHEAD;
+$VB::code
 
 package ${main}Window;
 use vars qw(\@ISA);
@@ -2017,6 +2070,7 @@ sub save
    close F;
 
    $VB::form->{modified} = undef unless $asPL;
+   $VB::editor->{modified} = 0 if $VB::editor && !$asPL;
 
    return 1;
 }
@@ -2087,6 +2141,7 @@ sub form_cancel
    }
    $VB::form-> show if $VB::form;
    $VB::inspector-> show if $VB::inspector;
+   $VB::editor-> show if $VB::editor;
 }
 
 
@@ -2104,7 +2159,10 @@ sub form_run
    $VB::main-> {topLevel} = { map { ("$_" => 1) } $::application-> get_components };
    @Prima::VB::VBLoader::eventContext = ('', '');
    eval{
-      local $SIG{__WARN__} = sub { die $_[0] };
+      local $SIG{__WARN__} = sub { 
+         return if $_[0] =~ /^Subroutine.*redefined/;
+         die $_[0] 
+      };
       my $sub = eval("$c");
       die "Error loading module $@" if $@;
       my @d = $sub->();
@@ -2118,12 +2176,14 @@ sub form_run
          $f-> select;
          $VB::form-> hide;
          $VB::inspector-> hide if $VB::inspector;
+         $VB::editor-> hide if $VB::editor;
       };
    };
    if ( $@) {
       my $msg = "$@";
       $msg =~ s/ \(eval \d+\)//g;
-      if ( length $Prima::VB::VBLoader::eventContext[0]) {
+      if ( defined( $Prima::VB::VBLoader::eventContext[0]) && 
+           length ($Prima::VB::VBLoader::eventContext[0])) {
           $VB::main-> bring_inspector;
           $VB::main-> {topLevel}-> { "$VB::inspector" } = 1;
           $VB::inspector-> Selector-> text( $Prima::VB::VBLoader::eventContext[0]);
@@ -2170,6 +2230,17 @@ sub bring_inspector
    }
 }
 
+sub bring_code_editor
+{
+   if ( $VB::editor) {
+      $VB::editor-> restore if $VB::editor-> windowState == ws::Minimized;
+      $VB::editor-> bring_to_front;
+      $VB::editor-> select;
+   } else {
+      $VB::editor = CodeEditor-> create;
+   }
+}
+
 package VisualBuilder;
 
 $::application-> icon( Prima::Image-> load( Prima::find_image( 'VB::VB.gif'), index => 6));
@@ -2178,6 +2249,8 @@ $VB::main = MainPanel-> create;
 $VB::inspector = ObjectInspector-> create(
    top => $VB::main-> bottom - 12 - $::application-> get_system_value(sv::YTitleBar)
 ) if $VB::main-> {ini}-> {ObjectInspectorVisible};
+$VB::code = '';
+$VB::editor = CodeEditor-> create() if $VB::main-> {ini}-> {CodeEditorVisible};
 $VB::form = Form-> create; 
 ObjectInspector::renew_widgets;
 ObjectInspector::preload() unless $VB::fastLoad;
@@ -2231,7 +2304,7 @@ buttons. If the user presses a widget button, and then clicks the mouse
 on the form window, the designated widget is inserted into the form
 and becomes a child of the form window.  If the click was made on a visible 
 widget in the form window, the newly inserted widget becomes a children of 
-that widget. After the widget is inserted, its properties are acceissible 
+that widget. After the widget is inserted, its properties are accessible 
 via the object inspector window.
 
 The menu bar contains the following commands:
@@ -2248,7 +2321,7 @@ Closes the current form and opens a new, empty form.
 If the old form was not saved, the user is asked if the changes made 
 have to be saved.
 
-This command is aliased to a 'new file' icon on the panel.
+This command is an alias to a 'new file' icon on the panel.
 
 =item Open
 
@@ -2256,7 +2329,7 @@ Invokes a file open dialog, so a I<.fm> form file can be opened.
 After the successful file load, all form widgets are visible and 
 available for editing.
 
-This command is aliased to an 'open folder' icon on the panel.
+This command is an alias to an 'open folder' icon on the panel.
 
 =item Save
 
@@ -2271,7 +2344,7 @@ without the builder or any supplementary code.
 Once the user assigned a name and a type for the form, it is
 never asked when selecting this command.
 
-This command is aliased to a 'save on disk' icon on the panel.
+This command is an alias to a 'save on disk' icon on the panel.
 
 =item Save as
 
@@ -2389,7 +2462,7 @@ This command hides the form and object inspector windows and
 The execution session ends either by closing the form window
 or by calling L<Break> command.
 
-This command is aliased to a 'run' icon on the panel.
+This command is an alias to a 'run' icon on the panel.
 
 =item Break
 
@@ -2433,7 +2506,7 @@ functionality.
 =item Guidelines
 
 The form window contains two guidelines, the horizontal and the vertical,
-drawn as blue dashed lines. These lines can be moved by dragging with the mouse.
+drawn as blue dashed lines. Dragging with the mouse can move these lines.
 If menu option L<Snap to guidelines> is on, the widgets moving and sizing
 operations treat the guidelines as the snapping areas.
 
@@ -2448,7 +2521,7 @@ call L<Select all> command from the menu.
 
 =item Moving
 
-The selected widgets can be moved by dragging the mouse. The widgets
+Dragging the mouse can move the selected widgets. The widgets
 can be snapped to the grid or the guidelines during the move. If one of
 the moving widgets is selected in the object inspector window, 
 the coordinate changes are reflected in the C<origin> property.

@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Label.pm,v 1.17 2002/09/09 21:09:14 dk Exp $
+#  $Id: Label.pm,v 1.18 2002/10/17 20:30:51 dk Exp $
 package Prima::Label;
 use vars qw(@ISA);
 @ISA = qw(Prima::Widget);
@@ -388,7 +388,7 @@ of the escaped character with the C<Alt> key, the C<focusLink>
 widget is explicitly focused.
 
 If 1, the text is showed as is, and no hot character is underlined.
-Key combionations with C<Alt> key are not recognized.
+Key combinations with C<Alt> key are not recognized.
 
 Default value: 0
 

@@ -1,4 +1,4 @@
-=for rcs $Id: codecs.pod,v 1.7 2002/09/25 13:31:21 dk Exp $
+=for rcs $Id: codecs.pod,v 1.8 2002/10/16 21:24:23 dk Exp $
 
 =head1 NAME
 
@@ -74,7 +74,7 @@ libduff trusts handles vs names:
 Together with load() you have to implement minimal open_load()
 and close_load().
 
-Simpliest open_load() returns non-null pointer - it is enough to report 'o.k'
+Simplest open_load() returns non-null pointer - it is enough to report 'o.k'
 
    static void * 
    open_load( PImgCodec instance, PImgLoadFileInstance fi)

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: CfgMaint.pm,v 1.8 2002/09/24 22:18:21 dk Exp $
+# $Id: CfgMaint.pm,v 1.10 2002/10/17 20:30:55 dk Exp $
 package Prima::VB::CfgMaint;
 use strict;
 use vars qw(@pages %classes $backup $userCfg $rootCfg $systemWide);
@@ -141,7 +141,7 @@ HEAD
 
    for ( keys %classes) {
       my %dt = %{$classes{$_}};
-      $c .= "   $_ => {\n";
+      $c .= "   \'$_\' => {\n";
       my $maxln = 0;
       for ( keys %dt) {
          $maxln = length($_) if length( $_) > $maxln;
@@ -217,7 +217,7 @@ Prima::VB::CfgMaint - maintains visual builder widget palette configuration.
 =head1 DESCRIPTION
 
 The module is used by the Visual Builder and C<cfgmaint> programs, to maintain
-the former's widget palette. The installed widgets are displayed
+the Visual Builder widget palette. The installed widgets are displayed
 in main panel of the Visual Builder, and can be maintained by C<cfgmaint>.
 
 =head1 USAGE

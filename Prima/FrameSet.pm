@@ -26,7 +26,7 @@
 #  Created by:
 #     Vadim Belman <voland@lflat.org>
 #
-#  $Id: FrameSet.pm,v 1.4 2002/07/25 22:05:49 voland Exp $
+#  $Id: FrameSet.pm,v 1.5 2002/10/17 20:30:51 dk Exp $
 use strict;
 use Prima;
 use Prima::Const;
@@ -914,7 +914,7 @@ by frames; isolation of different frames from each other.
 This module defines C<fra::> and C<frr::> packages for constants, used by L<arrangement>
 and L<resizeMethod> properties, respectively.
 
-Two additional auxliliary packageg are defined within this module: L<Prima::FrameSet::Frame>
+Two additional auxiliary packages are defined within this module: L<Prima::FrameSet::Frame>
 and L<Prima::FrameSet::Slider>.
 
 =head1 SYNOPSIS

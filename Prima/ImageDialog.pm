@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: ImageDialog.pm,v 1.9 2002/07/22 09:30:51 dk Exp $
+#  $Id: ImageDialog.pm,v 1.10 2002/10/17 20:30:51 dk Exp $
 #
 
 package Prima::ImageDialog;
@@ -442,7 +442,7 @@ loading and saving.
 =head1 Prima::ImageOpenDialog
 
 Provides a preview feature, allowing the user to view the image file
-before loading, and the selection of a frame index for the multiframed
+before loading, and the selection of a frame index for the multi-framed
 image files. Instead of C<execute> call, the L<load> method is used
 to invoke the dialog and returns the loaded image as a C<Prima::Image> object.
 The loaded object by default contains C<{extras}> hash variable set, which contains 

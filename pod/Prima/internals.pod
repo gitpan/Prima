@@ -1,4 +1,4 @@
-=for rcs $Id: internals.pod,v 1.5 2002/09/25 13:31:21 dk Exp $
+=for rcs $Id: internals.pod,v 1.6 2002/10/16 21:24:23 dk Exp $
 
 =head1 NAME
 
@@ -552,7 +552,7 @@ type conversion code is exemplified:
       inherited set ( self, profile);
    }
 
-If type conversion is performed along with palette change, some effeciency
+If type conversion is performed along with palette change, some efficiency
 is gained by supplying both 'type' and 'palette' parameters at a time.
 Moreover, because ordering of the fields is not determined by default
 ( although that be done by supplying '__ORDER__' hash key to set() }, it

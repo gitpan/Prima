@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Encodings.pm,v 1.3 2002/05/14 13:22:24 dk Exp $
+#  $Id: Encodings.pm,v 1.4 2002/10/17 20:30:54 dk Exp $
 #
 
 package Prima::PS::Encodings;
@@ -139,7 +139,7 @@ Prima::PS::Drawable uses these encodings when it decides whether the document
 have to be supplied with a bitmap character glyph or a character index, 
 thus relying on PS interpreter capabilities. Latter is obviously preferable,
 but as it's not possible to know beforehand what glyphs are supported by
-PS interpreter, the latin glyph set was selected as a ground level.
+PS interpreter, the Latin glyph set was selected as a ground level.
 
 =item files
 
@@ -165,7 +165,7 @@ If fails, loads default encoding, which defines only glyphs from
 
 =item unique
 
-Returns list of latin-based encoding string unique keys.
+Returns list of Latin-based encoding string unique keys.
 
 =cut
 

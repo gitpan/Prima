@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Outlines.pm,v 1.33 2002/09/13 19:59:33 dk Exp $
+#  $Id: Outlines.pm,v 1.34 2002/10/17 20:30:51 dk Exp $
 
 # contains:
 #   OutlineViewer
@@ -1738,9 +1738,9 @@ C<Prima::StringOutline>, C<Prima::Outline>, and C<Prima::DirectoryOutline>.
 =head1 Prima::OutlineViewer
 
 Presents a generic interface for browsing the tree-like lists.
-Each item is represented by a node in a linked list.
+A node in a linked list represents each item.
 The format of node is predefined, and is an anonymous array
-with the following definitions of indeces:
+with the following definitions of indexes:
 
 =over
 
@@ -1766,7 +1766,7 @@ Width of an item in pixels.
 
 =back
 
-The indeces above 3 should not be used, because eventual changes to the
+The indexes above 3 should not be used, because eventual changes to the
 implementation of the class may use these. It should be enough item 0 to store 
 any value.
 
@@ -1860,7 +1860,7 @@ Default value: 1
 
 =item adjust INDEX, EXPAND
 
-Preforms expansion ( 1 ) or collapse ( 0 ) of INDEXth item, depending on EXPAND
+Performs expansion ( 1 ) or collapse ( 0 ) of INDEXth item, depending on EXPAND
 boolean flag value.
 
 =item calibrate

@@ -27,11 +27,12 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Anton Berezin  <tobez@tobez.org>
 #
-#  $Id: Lists.pm,v 1.37 2002/09/08 19:53:26 dk Exp $
+#  $Id: Lists.pm,v 1.40 2002/10/17 20:30:51 dk Exp $
 package Prima::Lists;
 
 # contains:
 #   AbstractListViewer
+#   AbstractListBox
 #   ListViewer
 #   ListBox
 #   ProtectedListBox
@@ -1168,6 +1169,21 @@ sub std_draw_text_items
    }
 }
 
+package Prima::AbstractListBox;
+use vars qw(@ISA);
+@ISA = qw(Prima::AbstractListViewer);
+
+sub draw_items
+{
+   shift-> std_draw_text_items(@_);
+}
+
+sub on_measureitem
+{
+   my ( $self, $index, $sref) = @_;
+   $$sref = $self-> get_text_width( $self-> get_item_text( $index));
+}
+
 package Prima::ListViewer;
 use vars qw(@ISA);
 @ISA = qw(Prima::AbstractListViewer);
@@ -1485,6 +1501,7 @@ The module provides classes for several abstraction layers
 of item representation. The hierarchy of classes is as follows:
 
   AbstractListViewer
+     AbstractListBox
      ListViewer
         ProtectedListBox
         ListBox
@@ -1492,7 +1509,7 @@ of item representation. The hierarchy of classes is as follows:
 The root class, C<Prima::AbstractListViewer>, provides common
 interface, while by itself it is not directly usable.
 The main differences between classes
-are centered around the way the item list is stored. The simpliest
+are centered around the way the item list is stored. The simplest
 organization of a text-only item list, provided by C<Prima::ListBox>,
 stores an array of text scalars in a widget. More elaborated storage
 and representation types are not realized, and the programmer is urged
@@ -1623,7 +1640,7 @@ A read-only property. Returns number of selected items.
 
 =item selectedItems ARRAY
 
-ARRAY is an array of integer indeces of selected items.
+ARRAY is an array of integer indexes of selected items.
 
 =back
 
@@ -1633,10 +1650,10 @@ ARRAY is an array of integer indeces of selected items.
 
 =item add_selection ARRAY, FLAG
 
-Sets item indeces from ARRAY in selected
+Sets item indexes from ARRAY in selected
 or deselected state, depending on FLAG value, correspondingly 1 or 0.
 
-Only for mult-select mode.
+Only for multi-select mode.
 
 =item deselect_all
 
@@ -1663,8 +1680,8 @@ See L<DrawItem> for parameters description.
 =item draw_text_items CANVAS, FIRST, LAST, X, Y, OFFSET, CLIP_RECT
 
 Called by C<std_draw_text_items> to draw sequence of text items with 
-indeces from FIRST to LAST on CANVAS, starting at point X, Y, and
-incrementing the vertical position with OFFSET. CLIP_RECT is an reference
+indexes from FIRST to LAST on CANVAS, starting at point X, Y, and
+incrementing the vertical position with OFFSET. CLIP_RECT is a reference
 to array of four integers with inclusive-inclusive coordinates of the active 
 clipping rectangle.
 
@@ -1779,6 +1796,12 @@ scalar reference.
 
 =back
 
+=head1 Prima::AbstractListBox
+
+Exactly the same as its ascendant, C<Prima::AbstractListViewer>,
+except that it does not propagate C<DrawItem> message, 
+assuming that the items must be drawn as text. 
+
 =head1 Prima::ListViewer
 
 The class implements items storage mechanism, but leaves
@@ -1829,7 +1852,7 @@ C<autoWidth> is set.
 =item delete_items ITEMS
 
 Deletes items from the list. ITEMS can be either an array,
-or a reference to an array of item indeces.
+or a reference to an array of item indexes.
 
 =item get_item_width INDEX
 
@@ -1838,7 +1861,7 @@ Returns width in pixels of INDEXth item from internal cache.
 =item get_items ITEMS
 
 Returns array of items. ITEMS can be either an array,
-or a reference to an array of item indeces.
+or a reference to an array of item indexes.
 Depending on the caller context, the results are different:
 in array context the item list is returned; in scalar -
 only the first item from the list. The semantic of the last

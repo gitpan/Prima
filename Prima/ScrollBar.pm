@@ -30,7 +30,7 @@
 #  Documentation by:
 #     Anton Berezin  <tobez@tobez.org>
 #
-#  $Id: ScrollBar.pm,v 1.14 2002/09/14 22:05:11 dk Exp $
+#  $Id: ScrollBar.pm,v 1.15 2002/10/17 20:30:52 dk Exp $
 
 package Prima::ScrollBar;
 use vars qw(@ISA @stdMetrics);
@@ -718,8 +718,8 @@ Default value: 21
 =item pageStep INTEGER
 
 This determines the increment/decrement to
-C<value> during "page"-related operations, like clicking the mouse
-somewhere on the strip outside the thumb, or pressing C<PgDn> or C<PgUp>.
+C<value> during "page"-related operations, for example clicking the mouse
+on the strip outside the thumb, or pressing C<PgDn> or C<PgUp>.
 
 Default value: 10
 

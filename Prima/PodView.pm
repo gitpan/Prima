@@ -25,7 +25,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: PodView.pm,v 1.17 2002/05/14 07:59:13 dk Exp $
+#  $Id: PodView.pm,v 1.20 2002/11/19 10:35:36 dk Exp $
 
 use strict;
 use Prima;
@@ -162,6 +162,7 @@ sub init
    $self-> {links} = [];
    $self-> {styles} = [];
    $self-> {pageName} = '';
+   $self-> {manpath}  = '';
    $self-> {modelRange} = [0,0,0];
    $self-> {postBlocks} = {};
    $self-> {topics}     = [];
@@ -499,15 +500,17 @@ sub message
       $self-> update_styles;
    }
    $self-> pageName('');
+   $self-> {manpath} = '';
 }
 
 sub load_file 
 {
    my ( $self, $manpage) = @_;
    my $pageName = $manpage;
+   my $path = '';
 
    unless ( -f $manpage) {
-      my $fn;
+      my ( $fn, $mpath);
       my @ext =  ( '.pod', '.pm', '.pl' );
       push @ext, ( '.bat' ) if $^O =~ /win32/i;
       push @ext, ( '.bat', '.cmd' ) if $^O =~ /os2/;
@@ -518,13 +521,17 @@ sub load_file
                  split( $Config::Config{path_sep}, $ENV{PATH})) {
          if ( -f "$_/$manpage") {
             $manpage = "$_/$manpage";
+            $path = $_;
             last;
          }
          $fn = "$_/$manpage";
          $fn =~ s/::/\//g;
+         $mpath = $fn;
+         $mpath =~ s/\/[^\/]*$//;
          for ( @ext ) {
             if ( -f "$fn$_") {
                $manpage = "$fn$_";
+               $path = $mpath;
                goto FOUND;
             }
          }
@@ -545,7 +552,7 @@ ERROR
    }
 
    $self-> pointer( cr::Wait);
-   
+   $self-> {manpath} = $path;
    $self-> open_read;
    $self-> read($_) while <F>;
    close F;
@@ -626,7 +633,8 @@ sub add_formatted
                   local @INC = 
                       map {( "$_", "$_/pod")} 
                       grep { defined && length && -d } 
-                      ( @INC, split( $Config::Config{path_sep}, $ENV{PATH}));
+                      ( length($self-> {manpath}) ? $self->{manpath} : (), 
+                        @INC, split( $Config::Config{path_sep}, $ENV{PATH}));
                   $src = Prima::find_image( $src);
                   next unless $src;
                }
@@ -899,11 +907,11 @@ sub add
 
    if ( $style == STYLE_CODE) { 
       push @$g, tb::text( 0, length $p),
-   } elsif (( $style == STYLE_ITEM) && ( $p eq '*' || $p =~ /^\d+\.?$/)) {
+   } elsif (( $style == STYLE_ITEM) && ( $p =~ /^\*\s*$/ || $p =~ /^\d+\.?$/)) {
       push @$g, 
          tb::wrap(0),
          tb::color(0),
-         tb::code( \&_bulletpaint, ($p eq '*') ? 1 : 0),
+         tb::code( \&_bulletpaint, ($p =~ /^\*\s*$/) ? 1 : 0),
          tb::moveto( 1, 0, tb::X_DIMENSION_FONT_HEIGHT),
          tb::wrap(1);
       $r-> {bulletMode} = 1;
@@ -1607,13 +1615,13 @@ that the header length is only three integers:
 
 The actual rendering is performed in C<format_chunks>, where model blocks are
 transformed to the full text blocks, wrapped and pushed into TextView-provided
-storage. In parallel, links and the corresponsing event rectangles are calculated
+storage. In parallel, links and the corresponding event rectangles are calculated
 on this stage.
 
 =head2 Topics
 
 Prima::PodView provides the C<::topicView> property, which governs whether
-the manpage is viewed by topics or as a whole. When it is viewed as topics,
+the man page is viewed by topics or as a whole. When it is viewed as topics,
 C<{modelRange}> array selects the model blocks that include the topic.
 Thus, having a single model loaded, text blocks change dynamically.
 
@@ -1661,7 +1669,7 @@ when the user presses the mouse button on the link. The mechanics below that
 is as follows. C<{contents}> of event rectangles, ( see L<Prima::TextView> )
 is responsible for distinguishing whether a mouse is inside a link or not.
 When the link is activated, C<link_click> is called, which, in turn, calls
-C<load_link> method. If the page is loaded succesfully, depending on C<::topicView>
+C<load_link> method. If the page is loaded successfully, depending on C<::topicView>
 property value, either C<select_topic> or C<select_text_offset> method is called.
 
 The family of file and link access functions consists of the following methods:

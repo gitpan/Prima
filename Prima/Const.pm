@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@plab.ku.dk>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Const.pm,v 1.13 2002/07/15 07:04:39 dk Exp $
+#  $Id: Const.pm,v 1.16 2002/11/18 14:03:34 dk Exp $
 package Prima::Const;
 use Prima '';
 use Carp;
@@ -92,9 +92,9 @@ C<Prima::Const> and L<Prima::Classes> is a minimal set of perl modules needed fo
 the toolkit. Since the module provides bindings for the core constants, it is required
 to be included in every Prima-related module and program.
 
-The constans are assembled under the top-level package names, with no C<Prima::>
+The constants are assembled under the top-level package names, with no C<Prima::>
 prefix. This violates the perl guidelines about package naming, however, it was 
-considered way too inconvenient to prepend every constant with C<Prima::> string.
+considered way too inconvenient to prefix every constant with C<Prima::> string.
 
 This document provides description of all core-coded constants. The constants
 are also described in the articles together with the corresponding methods and
@@ -222,8 +222,6 @@ See L<Prima::Widget/key_down>, L<Prima::Widget/mouse_down>
 
 =item Internal commands ( used in core only or not used at all )
 
-  cm::Valid
-  cm::Quit
   cm::Close
   cm::Create
   cm::Destroy
@@ -259,7 +257,6 @@ See L<Prima::Widget/key_down>, L<Prima::Widget/mouse_down>
   cm::MenuCmd
   cm::TranslateAccel
   cm::DelegateKey
-  cm::User
 
 =back
 
@@ -269,7 +266,7 @@ See L<Prima::Widget/pointerType>
 
   cr::Default                 same pointer type as owner's
   cr::Arrow                   arrow pointer
-  cr::Text                    text entry sursor-like pointer
+  cr::Text                    text entry cursor-like pointer
   cr::Wait                    hourglass
   cr::Size                    general size action pointer
   cr::Move                    general move action pointer 
@@ -301,7 +298,7 @@ See L<Prima::Utils/query_drive_type>
 =head2 dt::  - Prima::Drawable::draw_text constants
 
   dt::Left                  - text is aligned to the left boundary
-  dt::Right                 - text is aligned to the right boundaryt
+  dt::Right                 - text is aligned to the right boundary
   dt::Center                - text is aligned horizontally in center
   dt::Top                   - text is aligned to the upper boundary
   dt::Bottom                - text is aligned to the lower boundary 
@@ -312,7 +309,7 @@ See L<Prima::Utils/query_drive_type>
   dt::SpaceBreak            - sets tw::SpaceBreak option to Prima::Drawable::text_wrap call  
   dt::WordBreak             - sets tw::WordBreak option to Prima::Drawable::text_wrap call 
   dt::ExpandTabs            - performs tab character ( \t ) expansion
-  dt::DrawPartial           - draws the last line, if it is visible partally 
+  dt::DrawPartial           - draws the last line, if it is visible partially 
   dt::UseExternalLeading    - text lines positioned vertically with respect to the font external leading
   dt::UseClip               - assign ::clipRect property to the boundary rectangle
   dt::QueryLinesDrawn       - calculates and returns number of lines drawn ( contrary to dt::QueryHeight )
@@ -347,7 +344,7 @@ See L<Prima::File>
   fe::Write
   fe::Exception
 
-=head2 fp::  - standard fill pattern indeces
+=head2 fp::  - standard fill pattern indexes
 
 See L<Prima::Drawable/fillPattern>
 
@@ -534,15 +531,17 @@ See L<Prima::Image/type>.
 See L<Prima::Image/conversion>.
 
   ict::None            - no dithering
-  ict::Halftone        - 8x8 halftone dithering
-  ict::ErrorDiffusion  - ordered dithering
+  ict::Ordered         - 8x8 ordered halftone dithering
+  ict::ErrorDiffusion  - error diffusion dithering with static palette
+  ict::Optimized       - error diffusion dithering with optimized palette
+  
 
 =head2 is::  - image statistics indeces
 
 See L<Prima::Image/stats>.
 
   is::RangeLo  - minimum pixel value
-  is::RangeHi  - maximun pixel value
+  is::RangeHi  - maximum pixel value
   is::Mean     - mean value
   is::Variance - variance
   is::StdDev   - standard deviation
@@ -726,7 +725,7 @@ See L<Prima::Drawable/Raster operations>
   rop::SrcLeave       #   /* dest = (src != fore color) ? src : dest */
   rop::DestLeave      #   /* dest = (src != back color) ? src : dest */
 
-=head2 sbmp:: - system bitmaps indeces
+=head2 sbmp:: - system bitmaps indexes
 
 See also L<Prima::StdBitmap>.
 
@@ -769,7 +768,7 @@ See also L<Prima::StdBitmap>.
   sbmp::SFolderClosed
   sbmp::Last
 
-=head2 sv::  - system value indeces
+=head2 sv::  - system value indexes
 
 See also L<Prima::Application/get_system_value>
 
@@ -803,6 +802,8 @@ See also L<Prima::Application/get_system_value>
   sv::DblClickDelay    - mouse double-click timeout in milliseconds
   sv::ShapeExtension   - 1 if Prima::Widget::shape functionality is supported, 0 otherwise
   sv::ColorPointer     - 1 if system accepts color pointer icons.
+  sv::CanUTF8_Input    - 1 if system can generate key codes in unicode 
+  sv::CanUTF8_Output   - 1 if system can output utf8 text
 
 =head2 ta::  - alignment constants
 
@@ -825,7 +826,7 @@ See L<Prima::Drawable/text_wrap>
   tw::CalcTabs        - wraps text with respect to tab expansion
   tw::ExpandTabs      - expands tab characters
   tw::BreakSingle     - determines if text is broken to single characters when text cannot be fit
-  tw::NewLineBreak    - breaks line on a newline character 
+  tw::NewLineBreak    - breaks line on newline characters 
   tw::SpaceBreak      - breaks line on space or tab characters
   tw::ReturnChunks    - returns wrapped text chunks
   tw::ReturnLines     - returns positions and lengths of wrapped text chunks

@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ComboBox.pm,v 1.25 2002/07/22 09:21:46 dk Exp $
+#  $Id: ComboBox.pm,v 1.26 2002/09/27 14:55:48 dk Exp $
 
 # combo styles
 package cs;
@@ -36,7 +36,7 @@ use constant DropDownList =>  2;
 package Prima::ComboBox;
 
 use vars qw(@ISA %listProps %editProps %listDynas);
-use Prima qw( InputLine Lists Utils StdBitmaps);
+use Prima qw( InputLine Lists Utils StdBitmap);
 @ISA = qw(Prima::Widget);
 
 use constant DefButtonX => 17;

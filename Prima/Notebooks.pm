@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Notebooks.pm,v 1.21 2002/09/23 14:46:54 dk Exp $
+#  $Id: Notebooks.pm,v 1.23 2002/10/17 20:30:51 dk Exp $
 use strict;
 use Prima::Const;
 use Prima::Classes;
@@ -650,8 +650,8 @@ sub attach_to_page
       push( @{$cp}, [@rec]);
       next if $page == $self->{pageIndex};
       $_-> visible(0);
-      $_-> enabled(0);
       $_-> autoEnableChildren(0);
+      $_-> enabled(0);
    }
 }
 
@@ -1226,7 +1226,7 @@ flag value is returned instead.
 =item widget_set WIDGET, %PROFILE
 
 Calls C<set> on WIDGET with PROFILE and
-updates the internal visibile, enabled, and current flags
+updates the internal visible, enabled, and current flags
 if these are present in PROFILE. 
 
 See L<Prima::Object/set>.   
@@ -1255,7 +1255,7 @@ the notification execution.
 
 Since the notebook operates directly on children widgets'
 C<::visible> and C<::enable> properties, there is a problem when
-a widget associated with a non-active page must explicity be hidden 
+a widget associated with a non-active page must be explicitly hidden 
 or disabled. As a result, such a widget would become visible and enabled anyway.
 This happens because Prima API does not cache property requests. For example,
 after execution of the following code
