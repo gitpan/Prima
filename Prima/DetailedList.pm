@@ -26,7 +26,7 @@
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #  Modifications by Anton Berezin <tobez@tobez.org>
 #
-#  $Id: DetailedList.pm,v 1.16 2003/04/07 10:38:25 dk Exp $
+#  $Id: DetailedList.pm,v 1.17 2003/08/27 12:54:09 dk Exp $
 
 
 package Prima::DetailedList;
@@ -357,6 +357,17 @@ sub get_item_text
    my ( $self, $index, $sref) = @_;
    my $c = $self-> {mainColumn};
    $$sref = $self-> {items}->[$index]-> [ $c];
+}
+
+sub on_fontchanged
+{
+   my $self = $_[0];
+   $self-> setup_indents;
+   $self-> {header}-> set(
+      bottom => $self-> {header}-> top - $self-> {headerInitHeight},
+      height => $self-> {headerInitHeight},
+   );
+   $self-> SUPER::on_fontchanged;
 }
 
 sub on_measureitem

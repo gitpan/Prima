@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Classes.pm,v 1.72 2002/11/05 15:53:10 dk Exp $
+#  $Id: Classes.pm,v 1.78 2003/08/27 18:59:24 dk Exp $
 use Prima;
 use Prima::Const;
 
@@ -145,6 +145,9 @@ use vars qw(@ISA);
 
 {
 my %RNT = (
+   ChangeOwner => nt::Default,
+   ChildEnter  => nt::Default,
+   ChildLeave  => nt::Default,
    Create      => nt::Default,
    Destroy     => nt::Default,
    PostMessage => nt::Default,
@@ -236,8 +239,9 @@ sub profile_default
 {
    my $def = $_[ 0]-> SUPER::profile_default;
    my %prf = (
-      file => undef,
-      mask => fe::Read|fe::Write|fe::Exception,
+      file  => undef,
+      mask  => fe::Read|fe::Write|fe::Exception,
+      owner => undef,
    );
    @$def{keys %prf} = values %prf;
    return $def;
@@ -283,10 +287,12 @@ sub profile_default
       lineEnd         => le::Round,
       linePattern     => lp::Solid,
       lineWidth       => 0,
+      owner           => undef,
       palette         => [],
       region          => undef,
       rop             => rop::CopyPut,
       rop2            => rop::NoOper,
+      splinePrecision => 24,
       textOutBaseline => 0,
       textOpaque      => 0,
       transform       => [ 0, 0],
@@ -451,7 +457,7 @@ sub draw_text
       $canvas-> text_out( $_, $xx, $y);
    }
 
-   if (( $flags & dt::DrawMnemonic) and ( $tildes->{tildeLine} >= 0)) {
+   if (( $flags & dt::DrawMnemonic) and ( defined $tildes->{tildeLine})) {
       my $tl = $tildes->{tildeLine};
       my $xx = $x;
       if ( $align == dt::Center) {
@@ -572,6 +578,7 @@ sub profile_default
    my $def = $_[ 0]-> SUPER::profile_default;
    my %prf = (
       printer => '',
+      owner   => $::application,
    );
    @$def{keys %prf} = values %prf;
    return $def;
@@ -643,6 +650,7 @@ sub notification_types { return \%RNT; }
    enabled           => 1,
    firstClick        => 1,
    focused           => 0,
+   geometry          => gt::GrowMode,
    growMode          => 0,
    height            => 100,
    helpContext       => '',
@@ -658,6 +666,9 @@ sub notification_types { return \%RNT; }
    ownerHint         => 1,
    ownerShowHint     => 1,
    ownerPalette      => 1,
+   packInfo          => undef,
+   packPropagate     => 1,
+   placeInfo         => undef,
    pointerIcon       => undef,
    pointer           => cr::Default,
    pointerType       => cr::Default,
@@ -704,6 +715,7 @@ sub profile_default
       cursorSize        => [ 12, 3],
       designScale       => [ 0, 0],
       origin            => [ 0, 0],
+      owner             => $::application,
       pointerHotSpot    => [ 0, 0],
       rect              => [ 0, 0, 100, 100],
       size              => [ 100, 100],
@@ -771,8 +783,7 @@ sub profile_check_in
       $p->{ $_} = Prima::Widget-> font_match( $p->{ $_}, $default->{ $_});
    }
 
-   if ( exists( $p-> { origin}))
-   {
+   if ( exists( $p-> { origin})) {
       $p-> { left  } = $p-> { origin}-> [ 0];
       $p-> { bottom} = $p-> { origin}-> [ 1];
    }
@@ -789,7 +800,7 @@ sub profile_check_in
       $p-> { width } = $p-> { size}-> [ 0];
       $p-> { height} = $p-> { size}-> [ 1];
    }
-
+   
    my $designScale = exists $p->{designScale} ? $p->{designScale} : $default->{designScale};
    if ( defined $designScale) {
       my @defScale = @$designScale;
@@ -815,6 +826,7 @@ sub profile_check_in
    } else {
       $p-> {designScale} = [0,0];
    }
+
 
    $p-> { top} = $default->{ bottom} + $p-> { height}
      if ( !exists ( $p-> { top}) && !exists( $p-> { bottom}) && exists( $p-> { height}));
@@ -861,6 +873,24 @@ sub profile_check_in
       $p->{pointerIcon}    = $pt if !exists $p->{pointerIcon} && ref( $pt);
       $p->{pointerHotSpot} = $pt->{__pointerHotSpot}
          if !exists $p->{pointerHotSpot} && ref( $pt) && exists $pt->{__pointerHotSpot};
+   }
+
+   if ( exists $p-> {pack}) {
+      for ( keys %{$p-> {pack}}) {
+         s/^-//; # Tk syntax
+         $p-> {packInfo}->{$_} = $p->{pack}->{$_} unless exists $p->{packInfo}->{$_};
+      }
+      $p-> {geometry} = gt::Pack unless exists $p->{geometry};
+   } 
+   $p-> {packPropagate} = 0 if !exists $p->{packPropagate} && 
+      ( exists $p->{width} || exists $p-> {height});
+   
+   if ( exists $p-> {place}) {
+      for ( keys %{$p-> {place}}) {
+         s/^-//; # Tk syntax
+         $p-> {placeInfo}->{$_} = $p->{place}->{$_} unless exists $p->{placeInfo}->{$_};
+      }
+      $p-> {geometry} = gt::Place unless exists $p->{geometry}; 
    }
 }
 
@@ -971,6 +1001,25 @@ sub deselect    { $_[0]-> selected(0); }
 sub focus       { $_[0]-> focused(1); }
 sub defocus     { $_[0]-> focused(0); }
 
+# Tk namespace and syntax compatibility
+
+sub pack { 
+   my $self = shift;
+# XXX regexp kills valid undefs   
+   $self-> packInfo( { grep { defined } map { /^(?:-(\D.*))|(.*)$/; } @_ });
+   $self-> geometry( gt::Pack);
+}
+
+sub place { 
+   my $self = shift;
+   $self-> placeInfo( { grep { defined } map { /^(?:-(\D.*))|(.*)$/; } @_ });
+   $self-> geometry( gt::Place);
+}
+
+sub packForget { $_[0]-> geometry( gt::Default) if $_[0]-> geometry == gt::Pack }
+sub placeForget { $_[0]-> geometry( gt::Default) if $_[0]-> geometry == gt::Place }
+sub packSlaves { shift-> get_pack_slaves()}
+sub placeSlaves { shift-> get_place_slaves()}
 
 # class Window
 package Prima::Window;
@@ -1094,6 +1143,12 @@ sub profile_default
    @$def{keys %prf} = values %prf;
    return $def;
 }
+
+package Prima::MainWindow;
+use vars qw(@ISA);
+@ISA = qw(Prima::Window);
+
+sub on_destroy { $::application-> close }
 
 # class MenuItem
 package Prima::MenuItem;

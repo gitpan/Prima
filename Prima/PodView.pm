@@ -25,7 +25,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: PodView.pm,v 1.26 2003/07/07 15:08:28 dk Exp $
+#  $Id: PodView.pm,v 1.27 2003/07/31 09:10:53 dk Exp $
 
 use strict;
 use Prima;
@@ -519,7 +519,6 @@ sub load_file
               grep { defined && length && -d } 
                  @INC, 
                  split( $Config::Config{path_sep}, $ENV{PATH})) {
-                 print "$_/$manpage\n";
          if ( -f "$_/$manpage") {
             $manpage = "$_/$manpage";
             $path = $_;

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_app.c,v 1.90 2003/07/09 10:18:47 dk Exp $
+ * $Id: apc_app.c,v 1.91 2003/08/29 20:43:51 dk Exp $
  */
 
 /***********************************************************/
@@ -197,7 +197,8 @@ window_subsystem_init( void)
       "INCR",
       "PIXEL",
       "FOREGROUND",
-      "BACKGROUND"
+      "BACKGROUND",
+      "_MOTIF_WM_HINTS"
    };
    char hostname_buf[256], *hostname = hostname_buf;
    

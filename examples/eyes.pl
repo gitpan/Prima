@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: eyes.pl,v 1.5 2002/05/14 13:22:26 dk Exp $
+#  $Id: eyes.pl,v 1.6 2003/08/01 09:45:30 dk Exp $
 #
 =pod 
 =item NAME
@@ -84,7 +84,7 @@ sub reshape
 
 my $m;
 
-my $x = Prima::Window-> create(
+my $x = Prima::MainWindow-> create(
    visible  => 0,
    buffered  => 1,
    color     => cl::Black,
@@ -139,7 +139,6 @@ my $x = Prima::Window-> create(
          $cc[0] += $sz[0] / 2;
       }
    },
-   onDestroy => sub { $::application-> close },
 );
 
 $x-> icon( reshape( $x));

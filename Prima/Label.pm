@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Label.pm,v 1.18 2002/10/17 20:30:51 dk Exp $
+#  $Id: Label.pm,v 1.21 2003/08/18 12:30:38 dk Exp $
 package Prima::Label;
 use vars qw(@ISA);
 @ISA = qw(Prima::Widget);
@@ -114,7 +114,7 @@ sub on_paint
    my $y   = $starty;
    my $tl  = $self->{tildeLine};
    my $i;
-   my $paintLine = !$self->{showAccelChar} && $tl < scalar @{$ws} && $tl >= 0;
+   my $paintLine = !$self->{showAccelChar} && defined($tl) && $tl < scalar @{$ws};
 
    unless ( $self-> enabled)
    {
@@ -255,13 +255,13 @@ sub check_auto_size
    {
       $cap =~ s/~//s unless $self->{showAccelChar};
       my %sets;
-      $sets{ width}  = $self-> get_text_width( $cap) + 6 if $self->{autoWidth};
-      $sets{ height} = $self-> font-> height + 2 if $self->{autoHeight};
+      $sets{ geomWidth}  = $self-> get_text_width( $cap) + 6 if $self->{autoWidth};
+      $sets{ geomHeight} = $self-> font-> height + 2 if $self->{autoHeight};
       $self-> set( %sets);
    }
    $self-> reset_lines;
    if ( $self->{wordWrap} && $self->{autoHeight}) {
-      $self-> height( $self-> font-> height * $self->{textLines} + 2);
+      $self-> geomHeight( $self-> font-> height * $self->{textLines} + 2);
    }
 }
 

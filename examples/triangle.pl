@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: triangle.pl,v 1.8 2002/05/14 13:22:26 dk Exp $
+#  $Id: triangle.pl,v 1.9 2003/08/01 09:45:30 dk Exp $
 #
 =pod 
 =item NAME
@@ -82,7 +82,7 @@ sub recalc_coordinates
 }
 
 
-my $w = Prima::Window-> create(
+my $w = Prima::MainWindow-> create(
 #my $w = Window-> create(
    text   => $::application-> name,
    left   => 200,
@@ -95,7 +95,6 @@ my $w = Prima::Window-> create(
    backColor => cl::Black,
    hiliteColor => cl::LightCyan,
    lineWidth => 2,
-   onDestroy => sub { $::application-> close},
 #   onSize    => \&recalc_coordinates,
    onCreate  => sub {
       $_[0]->{r} = $_[0]->{g} = $_[0]->{b} = $_[0]->{c} = 0;

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: palette.pl,v 1.6 2002/05/14 13:22:26 dk Exp $
+#  $Id: palette.pl,v 1.7 2003/08/01 09:45:30 dk Exp $
 #
 =pod 
 =item NAME
@@ -44,14 +44,9 @@ multiple images representation on a single widget.
 
 =cut
 
-use Prima;
-use Prima::Const;
-use Prima::Classes;
+use Prima qw(Application);
 
 my $useImages = 0;
-
-$::application = Prima::Application-> create( name => "Tester");
-
 
 my $j = $::application;
 
@@ -74,8 +69,7 @@ if ( $useImages) {
 
 @spal = (@{$aimg->palette}, @{$bimg->palette}, @{$cimg->palette}) if $useImages;
 
-my $w = Prima::Window->create(
-   onDestroy => sub {$::application-> close},
+my $w = Prima::MainWindow->create(
    size    => [ 100, 33 * 8],
    palette => [ @spal],
    buffered => 1,

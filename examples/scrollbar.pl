@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: scrollbar.pl,v 1.9 2002/05/14 13:22:26 dk Exp $
+#  $Id: scrollbar.pl,v 1.10 2003/08/01 09:45:30 dk Exp $
 #
 
 =pod 
@@ -43,10 +43,11 @@ Note how Area widget maintains its maximum size when the window gets maximized.
 
 use strict;
 use Prima qw(ScrollBar);
+use Prima::Application name => 'scrollbar';
 
 package MyWindow;
 use vars qw(@ISA);
-@ISA = qw(Prima::Window);
+@ISA = qw(Prima::MainWindow);
 
 sub updateArea
 {
@@ -64,7 +65,6 @@ sub Timer1_Tick
 
 package UserInit;
 
-$::application = Prima::Application-> create( name => "scrollbars.pm");
 my $w = MyWindow-> create(
    text => "Scrollbar & timer example",
    left    => 100,
@@ -72,7 +72,6 @@ my $w = MyWindow-> create(
    width   => 300,
    height  => 300,
    borderStyle => bs::Sizeable,
-   onDestroy => sub {$::application-> close},
 );
 
 $w-> insert(

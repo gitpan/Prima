@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Drawable.pm,v 1.18 2003/06/02 10:17:22 dk Exp $
+#  $Id: Drawable.pm,v 1.20 2003/07/30 10:22:13 dk Exp $
 #
 use strict;
 use Prima;
@@ -133,7 +133,7 @@ sub save_state
    $self-> set_font( $self-> get_font) if $self-> {useDeviceFonts};
    $self-> {saveState}-> {$_} = $self-> $_() for qw( 
       color backColor fillPattern lineEnd linePattern lineWidth
-      rop rop2 textOpaque textOutBaseline font
+      rop rop2 textOpaque textOutBaseline font 
    );
    $self-> {saveState}-> {$_} = [$self-> $_()] for qw( 
       transform clipRect
@@ -1052,7 +1052,7 @@ sub polyline
    for ( $i = 2; $i < $c; $i += 2) {
       $z .= "@a[$i,$i+1] lineto ";
    }
-   $z .= "closepath stroke";
+   $z .= "stroke";
    $self-> stroke( '', $z, '');
 }
 

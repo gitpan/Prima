@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: win32guts.h,v 1.58 2003/06/18 15:31:35 dk Exp $ */
+/* $Id: win32guts.h,v 1.59 2003/07/28 09:27:33 dk Exp $ */
 
 #ifndef _WIN32_H_
 #define _WIN32_H_
@@ -55,13 +55,6 @@ typedef HANDLE WINHANDLE;
 #ifdef UNICODE
 #error This version of apc_Win32 does not support Unicode
 #endif
-
-#ifndef CYGWIN32
-#define O_SYNC                      0
-#elif defined( _POSIX_SOURCE)
-#define O_SYNC                      _FSYNC
-#endif
-
 
 #define DEFAULT_SYSTEM_FONT              "System"
 #define DEFAULT_WIDGET_FONT              "MS Shell Dlg"

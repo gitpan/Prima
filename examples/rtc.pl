@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: rtc.pl,v 1.7 2002/05/14 13:22:26 dk Exp $
+#  $Id: rtc.pl,v 1.9 2003/08/08 11:43:57 dk Exp $
 #
 =pod 
 =item NAME
@@ -39,20 +39,18 @@ change of its parameters.
 =cut
 
 use Prima qw( Buttons ScrollBar);
+use Prima::Application name => 'rtc';
 
 package UserInit;
 
-$::application = Prima::Application->create(name=> "rtc");
-my $w = Prima::Window-> create(
+my $w = Prima::MainWindow-> create(
   text=> "Test of RTC",
   origin => [ 200, 200],
   size   => [ 250, 300],
-  onDestroy => sub {$::application-> close},
 );
 
 $w-> insert( "Button",
-  origin  => [10, 10],
-  width   => 220,
+  pack => { side => 'bottom', pady => 20 },
   text => "Change scrollbar direction",
   onClick=> sub {
     my $i = $_[0]-> owner-> scrollbar;
@@ -62,8 +60,8 @@ $w-> insert( "Button",
 
 $w-> insert( "ScrollBar",
   name    => "scrollbar",
-  origin  => [ 40, 80],
-  size    => [150, 150],
+  pack => { pady => 60, padx => 60, fill => 'both', expand => 1 },
+  size => [ 150, 150],
   onCreate => sub {
      Prima::Timer-> create(
          timeout=> 1000,

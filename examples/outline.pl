@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: outline.pl,v 1.12 2003/04/05 21:47:48 dk Exp $
+#  $Id: outline.pl,v 1.14 2003/08/08 11:43:57 dk Exp $
 #
 =pod 
 =item NAME
@@ -39,8 +39,7 @@ and Prima::Outlines class.
 
 use Prima qw(Application Outlines);
 
-my $w = Prima::Window->create( size => [ 200, 200],
-onDestroy=>sub{$::application-> close});
+my $w = Prima::MainWindow->create( size => [ 200, 200]);
 my $o = $w-> insert(
 DirectoryOutline =>
 #StringOutline =>
@@ -70,9 +69,8 @@ popupItems => [
   }],
 ],
 path => '.',
-origin => [0,0],
 buffered => 1,
-size=>[200,200],growMode => gm::Client,
+pack => { expand => 1, fill => 'both'},
 onSelectItem => sub {
    my ($self, $index) = @_;
    #print $self-> path."\n";

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: keys.pl,v 1.14 2003/07/07 22:44:45 dk Exp $
+#  $Id: keys.pl,v 1.15 2003/08/01 09:45:30 dk Exp $
 #
 
 =pod 
@@ -51,15 +51,13 @@ use Prima::Buttons;
 use strict;
 use Prima::Label;
 use Prima::FontDialog;
-
-$::application = Prima::Application-> create(name => 'keys');
+use Prima::Application;
 
 my $propagate = 1;
 my $repeat    = 0;
 my $fontDialog;
 
-my $w = Prima::Window-> create(
-    onDestroy => sub {$::application-> destroy},
+my $w = Prima::MainWindow-> create(
     size => [500,250],
     text => 'Keyboard events checker',
     menuItems => [['~Options' => [

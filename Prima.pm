@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Prima.pm,v 1.53 2003/07/15 09:20:50 dk Exp $
+#  $Id: Prima.pm,v 1.56 2003/09/03 07:53:21 dk Exp $
 
 package Prima;
 
@@ -34,7 +34,7 @@ require DynaLoader;
 use vars qw($VERSION @ISA $__import);
 @ISA = qw(DynaLoader);
 sub dl_load_flags { 0x00 }
-$VERSION = '1.11';
+$VERSION = '1.12';
 bootstrap Prima $VERSION;
 unless ( UNIVERSAL::can('Prima', 'init')) {
    $::application = 0;
@@ -89,7 +89,7 @@ Prima - a perl graphic toolkit
 
   use Prima qw(Application Buttons);
 
-  Prima::Window-> create(
+  Prima::MainWindow-> create(
       text     => 'Hello world!',
       size     => [ 200, 200],
   )-> insert( Button =>
@@ -243,6 +243,14 @@ L<Prima::Image>  - bitmap routines
 L<Prima::image-load> - image subsystem and file operations
 
 L<Prima::Widget> - window management 
+
+=over 2
+
+L<Prima::Widget::pack> - Tk::pack geometry manager
+
+L<Prima::Widget::place> - Tk::place geometry manager
+
+=back
 
 L<Prima::Window> - top-level window management
 

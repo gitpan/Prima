@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_menu.c,v 1.34 2003/07/06 15:56:54 dk Exp $
+ * $Id: apc_menu.c,v 1.39 2003/08/29 20:43:52 dk Exp $
  */
 
 /***********************************************************/
@@ -87,6 +87,7 @@ get_window( Handle self, PMenuItemReg m)
       | ColormapChangeMask
       | OwnerGrabButtonMask;
    attrs. override_redirect = true;
+   attrs. save_under = true;
    attrs. do_not_propagate_mask = attrs. event_mask;
    w->w = XCreateWindow( DISP, guts. root,
                          0, 0, 1, 1, 0, CopyFromParent,
@@ -94,12 +95,14 @@ get_window( Handle self, PMenuItemReg m)
                          0
                          | CWOverrideRedirect
                          | CWEventMask
+                         | CWSaveUnder
                          , &attrs);
    if (!w->w) {
       free(w);
       return nil;
    }
    XCHECKPOINT;
+   XSetTransientForHint( DISP, w->w, None);
    hash_store( guts.menu_windows, &w->w, sizeof(w->w), (void*)self);
    wx = XX-> w;
    if ( predefined_cursors[crArrow] == None) {
@@ -1300,7 +1303,8 @@ NEXT_STAGE:
                   j++;
                }
                if ( z == c) {
-                  menu_enter_item( XX, w, i, 1);
+                  if ( menu_enter_item( XX, w, i, 1) && w-> next)
+                     menu_select_item( XX, w, i);
                   return;
                }
             }
@@ -1375,6 +1379,58 @@ prima_handle_menu_shortcuts( Handle self, XEvent * ev, KeySym keysym)
          } else 
             prima_end_menu();
          ret = 1;
+      }
+   }
+   
+   if ( !guts. currentMenu && mod == kmAlt) {   /* handle menu bar keys */
+      KeySym keysym;
+      char str_buf[ 256];
+      Handle ps = self;
+
+      while ( PComponent( self)-> owner) {
+         ps = self;
+         if ( XT_IS_WINDOW(X(self))) break;
+         self = PComponent( self)-> owner;
+      }
+      self = ps;
+
+      if ( XT_IS_WINDOW(X(self)) && PWindow(self)-> menu && 
+            1 == XLookupString( &ev-> xkey, str_buf, 256, &keysym, nil)) {
+         int i;
+         PMenuSysData selfxx = M(PWindow(self)-> menu);
+	 char c = tolower( str_buf[0]);
+         PMenuWindow w = XX-> w;
+         PMenuItemReg m = w-> m;
+         
+         for ( i = 0; i <= w-> last; i++) {
+            if ( m-> text) {
+               int j = 0;
+               char * t = m-> text, z = 0;
+               while ( t[j]) {
+                  if ( t[j] == '~' && t[j+1]) {
+                     if ( t[j+1] == '~')
+                        j += 2;
+                     else {
+                        z = tolower(t[j+1]);
+                        break;
+                     }
+                  }
+                  j++;
+               }
+               if ( z == c) {
+                  XEvent ev;
+                  bzero( &ev, sizeof( ev));
+                  ev. type = ButtonPress;
+                  ev. xbutton. button = Button1; 
+                  ev. xbutton. send_event = true;
+                  prima_handle_menu_event( &ev, w-> w, PWindow(self)-> menu);
+                  if ( menu_enter_item( XX, w, i, 1) && w-> next)
+                     menu_select_item( XX, w, i);
+                  return 1;
+               }
+            }
+            m = m-> next;
+         }
       }
    }
    return ret;
@@ -1531,7 +1587,9 @@ static void
 menu_reconfigure( Handle self)
 {
    XEvent ev;
+   DEFMM;
    ev. type = ConfigureNotify;
+   XX-> w-> sz. x =  ev. xconfigure. width - 1; /* force cache flush */
    ev. xconfigure. width  = X(PComponent(self)-> owner)-> size.x;
    ev. xconfigure. height = X(PComponent(self)-> owner)-> size.y;
    prima_handle_menu_event( &ev, PMenu(self)-> handle, self);
@@ -1664,9 +1722,9 @@ apc_popup( Handle self, int x, int y, Rect *anchor)
       if ( y > anchor-> top)    anchor-> top    = y;
    }
    owner = X(PComponent(self)->owner);
-   y = owner-> size. y - y + owner-> menuHeight;
-   anchor-> bottom = owner-> size. y - anchor-> bottom + owner-> menuHeight;
-   anchor-> top = owner-> size. y - anchor-> top + owner-> menuHeight;
+   y = owner-> size. y - y;
+   anchor-> bottom = owner-> size. y - anchor-> bottom;
+   anchor-> top = owner-> size. y - anchor-> top;
    dx = dy = 0;
    XTranslateCoordinates( DISP, owner->udrawable, guts. root, dx, dy, &dx, &dy, &dummy);
    x += dx;

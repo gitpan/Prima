@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: fontdlg.pl,v 1.18 2002/11/06 21:48:28 dk Exp $
+#  $Id: fontdlg.pl,v 1.19 2003/08/01 09:45:30 dk Exp $
 #
 package fontdlg;
 
@@ -168,10 +168,9 @@ my $re_size = sub {
    $w-> SizeList-> set_focused_item($i);
 };
 
-$w = Prima::Window-> create( text => "Font Window",
+$w = Prima::MainWindow-> create( text => "Font Window",
    origin => [ 200, 200],
    size   => [ 500, 530],
-   onDestroy => sub{ $::application-> close},
    borderStyle => bs::Dialog,
 );
 

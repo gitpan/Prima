@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: macro.pl,v 1.3 2002/05/14 13:22:26 dk Exp $
+#  $Id: macro.pl,v 1.5 2003/08/08 11:43:57 dk Exp $
 =pod 
 =item NAME
 
@@ -106,10 +106,9 @@ sub msave
 }
 
 
-my $w = Prima::Window-> create(
+my $w = Prima::MainWindow-> create(
    text => $wtx,
    size => [ 436, 54],
-   onDestroy => sub { $::application-> close; },
    menuItems => [[ '~File' => [
          ['~Open...' => 'F3' => 'F3' => \&mopen],
          ['~Save...' => 'F2' => 'F2' => \&msave],
@@ -222,29 +221,25 @@ sub clean
 
 $w-> insert( [ Button =>
     text    => '~Start',
-    origin  => [ 10, 10],
-    size    => [ 96, 36],
+    pack    => { side => 'left', padx => 10 },
     name    => 'Start',
     selectable => 0,
     onClick => \&start,
   ], [ Button =>
     text    => 'S~top',
-    origin  => [ 116, 10],
-    size    => [ 96, 36],
+    pack    => { side => 'left', padx => 10 },
     name    => 'Stop',
     selectable => 0,
     onClick => \&stop,
   ], [ Button =>
     text    => '~Record',
-    origin  => [ 222, 10],
-    size    => [ 96, 36],
+    pack    => { side => 'left', padx => 10 },
     name    => 'Record',
     selectable => 0,
     onClick => \&record,
   ], [ Button =>
     text    => '~Clean',
-    origin  => [ 328, 10],
-    size    => [ 96, 36],
+    pack    => { side => 'left', padx => 10 },
     name    => 'Clean',
     selectable => 0,
     onClick => \&clean,

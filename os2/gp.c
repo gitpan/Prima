@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: gp.c,v 1.22 2003/02/10 10:35:25 dk Exp $
+ * $Id: gp.c,v 1.23 2003/07/15 16:36:20 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 /* apc.c --- apc/ api for os/2 */
@@ -612,6 +612,8 @@ apc_gp_get_font_ranges( Handle self, int * count)
    *count = 2;
    ret[0] = fm. sFirstChar;
    ret[1] = fm. sLastChar;
+   if ( ret[0] > 255) ret[0] = 255;
+   if ( ret[1] > 255) ret[1] = 255;
    return ret;
 }
 

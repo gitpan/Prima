@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Application.c,v 1.69 2003/07/07 22:44:44 dk Exp $
+ * $Id: Application.c,v 1.70 2003/07/30 17:45:55 dk Exp $
  */
 
 #include "apricot.h"
@@ -174,6 +174,10 @@ Application_set( Handle self, HV * profile)
    pdelete( clipOwner);
    pdelete( enabled);
    pdelete( focused);
+   pdelete( geometry);
+   pdelete( geomHeight);
+   pdelete( geomSize);
+   pdelete( geomWidth);
    pdelete( growMode);
    pdelete( height);
    pdelete( hintClass);
@@ -188,6 +192,8 @@ Application_set( Handle self, HV * profile)
    pdelete( ownerPalette);
    pdelete( ownerShowHint);
    pdelete( palette);
+   pdelete( pack);
+   pdelete( place);
    pdelete( printerClass);
    pdelete( printerModule);
    pdelete( helpClass);

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: xft.c,v 1.3 2003/07/07 10:10:16 dk Exp $
+ * $Id: xft.c,v 1.4 2003/07/17 09:09:18 dk Exp $
  */
 
 /*********************************/
@@ -1285,5 +1285,5 @@ prima_xft_set_region( Handle self, Region region)
 }
 
 #else
-#error Required Xft version 2.1.0 or higher. To compile without Xft, re-run 'perl Makefile.PL WITH_XFT=0'
+#error Required: Xft version 2.1.0 or higher; fontconfig version 2.0.1 or higher. To compile without Xft, re-run 'perl Makefile.PL WITH_XFT=0'
 #endif /* USE_XFT */

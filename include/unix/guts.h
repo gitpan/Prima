@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: guts.h,v 1.120 2003/07/06 15:56:53 dk Exp $ */
+/* $Id: guts.h,v 1.122 2003/08/29 20:43:51 dk Exp $ */
 
 #ifndef _UNIX_GUTS_H_
 #define _UNIX_GUTS_H_
@@ -53,7 +53,8 @@
 #endif
 #if defined(HAVE_X11_XFT_XFT_H) && defined(HAVE_FONTCONFIG_FONTCONFIG_H) && defined(HAVE_X11_EXTENSIONS_XRENDER_H)
 #include <X11/Xft/Xft.h>
-#  if XFT_MAJOR > 1
+#include <fontconfig/fontconfig.h>
+#  if XFT_MAJOR > 1 && FC_MAJOR > 1
 #     define USE_XFT
 #  endif
 #endif
@@ -389,7 +390,8 @@ typedef struct {
 #define AI_PIXEL                         22
 #define AI_FOREGROUND                    23
 #define AI_BACKGROUND                    24
-#define AI_count                         25 
+#define AI_MOTIF_WM_HINTS                25
+#define AI_count                         26
 
 #define FXA_RESOLUTION_X guts. atoms[ AI_FXA_RESOLUTION_X]
 #define FXA_RESOLUTION_Y guts. atoms[ AI_FXA_RESOLUTION_Y]
@@ -420,6 +422,7 @@ typedef struct {
 #define CF_PIXEL guts. atoms[ AI_PIXEL]
 #define CF_FOREGROUND guts. atoms[ AI_FOREGROUND]
 #define CF_BACKGROUND guts. atoms[ AI_BACKGROUND]
+#define XA_MOTIF_WM_HINTS guts. atoms[ AI_MOTIF_WM_HINTS]
 
 typedef struct _UnixGuts
 {
@@ -715,6 +718,7 @@ typedef struct _drawable_sys_data
    TAILQ_ENTRY(_drawable_sys_data) paintq_link;
    TAILQ_HEAD(,configure_event_pair)    configure_pairs;
    Byte * palette;
+   int borderIcons;
 #ifdef USE_XFT
    XftDraw  * xft_drawable;
    uint32_t * xft_map8;

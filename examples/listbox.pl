@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: listbox.pl,v 1.7 2002/05/14 13:22:26 dk Exp $
+#  $Id: listbox.pl,v 1.9 2003/08/08 11:43:57 dk Exp $
 #
 #  Example of listbox extended usage
 #
@@ -41,12 +41,12 @@ and Prima::ListBox widgets.
 =cut
 
 use strict;
-use Prima qw( ComboBox Edit);
+use Prima qw( ComboBox Edit Application );
 
 
 package TestWindow;
 use vars qw(@ISA);
-@ISA = qw(Prima::Window);
+@ISA = qw(Prima::MainWindow);
 
 sub create_menu
 {
@@ -124,48 +124,37 @@ sub PrintAll
 }
 
 
-package UserInit;
-$::application = Prima::Application->create( name => "listbox.pm");
 my $w = TestWindow->create(
    name    =>  "Window1",
    origin  => [ 100, 100],
    size    => [ 600, 230],
    text => "List & edit boxes example",
    menuItems => TestWindow::create_menu,
-   onDestroy => sub { $::application-> close},
 );
 
-$w-> insert("InputLine",
-   origin => [ 50, 20],
-   width  => 250,
-   name   => 'InputLine1',
-);
+$w-> insert("InputLine", pack => {side => 'bottom', fill => 'x', padx => 20, pady => 20 });
 
 $w-> insert( "ListBox",
-   origin         => [220, 74],
-   size           => [160, 126],
    hScroll        => 1,
    multiSelect    => 0,
    extendedSelect => 1,
-   #integralHeight => 1,
-   tabStop         =>1,
    name            => 'ListBox1',
-   font => { size => 24},
-   items          => ['Items', 'created', 'indirect'],
+   font            => { size => 24},
+   items           => ['Items', 'created', 'indirect'],
+   pack            => { side => 'left', expand => 1, fill => 'both', padx => 20, pady => 20},
 );
 $w-> insert( "Edit",
-   origin         => [20, 74],
-   size           => [160, 126],
    maxLen         => 200,
    name           => 'Edit1',
    hScroll        => 1,
+   vScroll        => 1,
    wantReturns    => 0,
+   pack            => { side => 'left', expand => 1, fill => 'both', padx => 20, pady => 20},
 );
 $w-> insert( "ComboBox",
-   origin         => [400, 74],
-   size           => [160, 126],
    name           => 'ComboBox1',
    items          => ['Combo', 'box', 'salutes', 'you!'],
+   pack            => { side => 'left', expand => 1, fill => 'both', padx => 20, pady => 20},
 );
 
 run Prima;

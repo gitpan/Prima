@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_graphics.c,v 1.106 2003/07/06 15:56:54 dk Exp $
+ * $Id: apc_graphics.c,v 1.107 2003/07/30 12:06:29 dk Exp $
  */
 
 /***********************************************************/
@@ -275,6 +275,7 @@ prima_cleanup_drawable_after_painting( Handle self)
          XDestroyRegion( region);
       }
       XCHECKPOINT;
+      XSetFunction( DISP, XX-> gc, GXcopy);
       XCopyArea( DISP, XX-> gdrawable, XX-> udrawable, XX-> gc,
                  0, 0,
                  XX-> bsize.x, XX-> bsize.y,

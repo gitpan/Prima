@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: label.pl,v 1.9 2002/05/14 13:22:26 dk Exp $
+#  $Id: label.pl,v 1.10 2003/08/01 09:45:30 dk Exp $
 #
 
 =pod 
@@ -43,13 +43,11 @@ use Prima;
 use Prima::Const;
 use Prima::Buttons;
 use Prima::Label;
+use Prima::Application;
 
-$::application = Prima::Application-> create( name => "Generic.pm");
-
-my $w = Prima::Window-> create(
+my $w = Prima::MainWindow-> create(
   size => [ 430, 200],
   text => "Static texts",
-  onDestroy => sub { $::application-> destroy},
 );
 
 my $b1 = $w-> insert( Button => left => 20 => bottom => 0);

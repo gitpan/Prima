@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: menu.pl,v 1.12 2002/05/14 13:22:26 dk Exp $
+#  $Id: menu.pl,v 1.14 2003/08/08 11:43:57 dk Exp $
 #
 
 =pod 
@@ -43,7 +43,7 @@ Note the "Edit/Kill menu" realisation.
 =cut
 
 use strict;
-use Prima qw( InputLine Label);
+use Prima qw( InputLine Label Application);
 
 package TestWindow;
 use vars qw(@ISA);
@@ -195,7 +195,6 @@ sub BorderMode
 
 
 package UserInit;
-$::application = Prima::Application-> create( name => "Menu.pm");
 
 my $w = TestWindow-> create(
   text   => "Menu and input line example",
@@ -205,8 +204,7 @@ my $w = TestWindow-> create(
   onDestroy => sub {$::application-> close},
 );
 $w-> insert( "InputLine",
-              origin    => [ 50, 10],
-              width     => 260,
+              pack      => { pady => 20, padx => 20, fill => 'x', side => 'bottom'},
               text      => $w-> text,
               maxLen    => 200,
               onChange  => sub {
@@ -218,12 +216,9 @@ $w-> insert( "InputLine",
             );
 
 $w-> insert( "Label",
+              pack      => { pady => 20, padx => 20, fill => 'both', expand => 1},
               text   => "Type here something",
-              left      => 48,
               backColor => cl::Green,
-              bottom    => 20 + $w-> InputLine1-> height,
-              width     => 200,
-              height    => 60,
               valignment => ta::Center,
               focusLink => $w-> InputLine1,
            );

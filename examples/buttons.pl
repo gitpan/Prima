@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: buttons.pl,v 1.13 2002/05/14 13:22:26 dk Exp $
+#  $Id: buttons.pl,v 1.14 2003/08/01 09:45:30 dk Exp $
 #
 
 =pod 
@@ -117,8 +117,7 @@ sub clone
 
 package main;
 
-my $w = Prima::Window-> create(
-  onDestroy => sub { $::application-> close} ,
+my $w = Prima::MainWindow-> create(
    text   => "Button example",
    centered  => 1,
    height    => 300,

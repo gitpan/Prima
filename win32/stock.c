@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: stock.c,v 1.69 2003/06/18 15:31:36 dk Exp $
+ * $Id: stock.c,v 1.71 2003/07/28 09:27:34 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 /*
@@ -1151,12 +1151,13 @@ fep2( ENUMLOGFONTEXW FAR *e, NEWTEXTMETRICEXW FAR *t, int type, Fep2 * f)
    PFont fm;
    char wname[256], *name = nil;
 
+   if ( f-> wide) {
+      wchar2char( wname, e-> elfLogFont. lfFaceName, LF_FACESIZE);
+      name = wname;
+   } else
+      name = (( ENUMLOGFONTEXA*) e)-> elfLogFont. lfFaceName;
+
    if ( f-> hash) { /* gross-family enumeration */
-      if ( f-> wide) {
-         wchar2char( wname, e-> elfLogFont. lfFaceName, LF_FACESIZE);
-         name = wname;
-      } else
-         name = (( ENUMLOGFONTEXA*) e)-> elfLogFont. lfFaceName;
       fm = hash_fetch( f-> hash, name, strlen( name));
       if ( fm) {
          char ** enc = (char**) fm-> encoding;
@@ -1648,7 +1649,10 @@ hwnd_leave_paint( Handle self)
    SelectObject( sys ps,  sys stockBrush);
    SelectObject( sys ps,  sys stockFont);
    SelectPalette( sys ps, sys stockPalette, 0);
-   sys stockPen = sys stockBrush = sys stockFont = sys stockPalette = nil;
+   sys stockPen = nil;
+   sys stockBrush = nil;
+   sys stockFont = nil;
+   sys stockPalette = nil;
    stylus_free( sys stylusResource, false);
    if ( IS_WIN95) {
       if ( sys linePatternLen2 > 3) free( sys linePattern2);

@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: ms_install.pl,v 1.4 2003/06/20 13:27:28 dk Exp $
+#  $Id: ms_install.pl,v 1.5 2003/08/21 20:17:58 dk Exp $
 #
 
 BEGIN {
@@ -69,7 +69,7 @@ SD
 }
 
 my $os2 = $^O eq 'os2';
-my $mswin32 = ($^O =~ /win32/);
+my $mswin32 = ($^O =~ /MSWin32/);
 my $cygwin = ($^O =~ /cygwin/);
 
 my $iarc = $Config{ installsitearch};
@@ -218,12 +218,12 @@ D
 
    my $found;
    $ibin = lc $ibin;
-   $ibin =~ s/[\/]*$//;
    $ibin =~ s/\\/\//;
+   $ibin =~ s/[\/]*$//;
    for ( split ( $Config{ path_sep}, $ENV{PATH})) {
       my $path = lc;
-      $path =~ s/[\/]*$//;
       $path =~ s/\\/\//;
+      $path =~ s/[\/]*$//;
       next if $path ne $ibin;
       $found = 1;
    }

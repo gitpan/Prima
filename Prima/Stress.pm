@@ -26,9 +26,10 @@
 #  Module for simulated extreme situations, useful for testing.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Stress.pm,v 1.3 2002/09/17 21:10:05 dk Exp $
+#  $Id: Stress.pm,v 1.4 2003/07/28 10:44:31 dk Exp $
 #
 use strict;
+no warnings;
 use Prima;
 
 my $rtfs = (  5, 7, 14, 18) [ int(rand(4)) ] ;
@@ -38,6 +39,7 @@ Prima::Application::add_startup_notification( sub {
 });
 
 package Prima::Widget;
+
 
 sub get_default_font
 {

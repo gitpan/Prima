@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: generic.pl,v 1.9 2002/05/14 13:22:26 dk Exp $
+#  $Id: generic.pl,v 1.10 2003/08/01 09:45:30 dk Exp $
 #
 
 =pod 
@@ -41,9 +41,8 @@ use strict;
 use Prima;
 use Prima::Application name => 'Generic';
 
-my $w = Prima::Window-> create(
+my $w = Prima::MainWindow-> create(
     text => "Hello, world!",
-    onDestroy => sub { $::application-> close},
     onPaint   => sub {
        my ( $self, $canvas) = @_;
        my $color = $self-> color;

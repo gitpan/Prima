@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: ownerchange.pl,v 1.7 2002/05/14 13:22:26 dk Exp $
+#  $Id: ownerchange.pl,v 1.8 2003/08/01 09:45:30 dk Exp $
 #
 =pod 
 =item NAME
@@ -40,9 +40,8 @@ implementation of Prima owner change functionality.
 =cut
 
 use strict;
-use Prima qw(Buttons);
+use Prima qw(Buttons Application);
 
-$::application = Prima::Application-> create( name => "Generic.pm");
 my $w = Prima::Window-> create(
    name       => "D1",
    text    => "Window Number One",

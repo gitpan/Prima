@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@plab.ku.dk>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Const.pm,v 1.19 2003/06/04 11:18:39 dk Exp $
+#  $Id: Const.pm,v 1.20 2003/07/30 17:45:56 dk Exp $
 package Prima::Const;
 use Prima '';
 use Carp;
@@ -75,6 +75,7 @@ package fdo; *AUTOLOAD = \&Prima::Const::AUTOLOAD;	# find/replace dialog options
 package fe; *AUTOLOAD = \&Prima::Const::AUTOLOAD;	# file events
 package fr; *AUTOLOAD = \&Prima::Const::AUTOLOAD;	# fetch resource constants
 package mt; *AUTOLOAD = \&Prima::Const::AUTOLOAD;	# modality types
+package gt; *AUTOLOAD = \&Prima::Const::AUTOLOAD;	# geometry manager types
 
 1;
 

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: mouse_tale.pl,v 1.3 2003/04/03 13:52:58 dk Exp $
+#  $Id: mouse_tale.pl,v 1.6 2003/08/27 18:59:25 dk Exp $
 #
 
 =pod 
@@ -106,9 +106,9 @@ my @indents = (
 my ( $w, $t);
 my $initfs = 20;
 
-$w = Prima::Window-> create(
+$w = Prima::MainWindow-> create(
    name => 'Mouse tale',
-   onDestroy => sub { $::application-> close },
+   packPropagate => 0,
    menuItems => [
       ['~Font' => [
           [ '~Increase' , 'Ctrl+Plus' , km::Ctrl|ord('+') , sub {
@@ -127,10 +127,8 @@ $w = Prima::Window-> create(
 
 $t = Prima::TextView-> create(
    owner => $w,
-   growMode => gm::Client,
-   origin   => [0,0],
-   size     => [$w-> size],
    text     => join( "\n", @tale),
+   pack     => { expand => 1, fill => 'both' },
 );
 
 sub typeset

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: mdi.pl,v 1.12 2003/04/05 21:47:48 dk Exp $
+#  $Id: mdi.pl,v 1.14 2003/08/08 11:43:57 dk Exp $
 #
 
 =pod 
@@ -40,10 +40,9 @@ decorations and do not conform to the system user interaction scheme.
 =cut
 
 use strict;
-use Prima qw( InputLine ImageViewer MDI);
+use Prima qw( InputLine ImageViewer MDI Application);
 
 package Generic;
-$::application = Prima::Application-> create(name => 'mdi');
 
 my $w;
 
@@ -109,10 +108,8 @@ my $i = Prima::Image-> create;
 $i->load('Hand.gif');
 
 $w-> client-> insert( ImageViewer =>
-  origin => [0,0],
-  size   => [ $w-> client-> size],
-  growMode => gm::Client,
   image => $i,
+  pack  => { expand => 1, fill => 'both' },
 );
 
 run Prima;

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc.c,v 1.105 2003/06/18 15:31:35 dk Exp $
+ * $Id: apc.c,v 1.108 2003/08/08 14:19:46 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -142,7 +142,8 @@ apc_application_end_paint( Handle self)
    dc_free();
    apt_clear( aptWinPS);
    apt_clear( aptCompatiblePS);
-   sys pal = sys ps = nil;
+   sys pal = nil;
+   sys ps = nil;
    return true;
 }
 
@@ -323,7 +324,6 @@ files_rehash( Handle self, void * dummy)
 static Bool
 process_msg( MSG * msg)
 {
-   Bool callTranslateMessage = IS_WIN95;
    switch ( msg-> message)
    {
    case WM_TERMINATE:
@@ -337,7 +337,6 @@ process_msg( MSG * msg)
       return true;
    case WM_SYSKEYDOWN:
    case WM_SYSKEYUP:
-      callTranslateMessage = false;
    case WM_KEYDOWN:
    case WM_KEYUP:
       GetKeyboardState( guts. keyState);
@@ -430,9 +429,7 @@ process_msg( MSG * msg)
       }
       return true;
    }
-   // absolutely unneeded syscall, we don't use CHAR messages, but -
-   // Mustdie 95 and Mustdie 98 switches kbd lamps inside TranslateMessage()
-   if ( callTranslateMessage) TranslateMessage( msg);
+   TranslateMessage( msg);
    DispatchMessage( msg);
    kill_zombies();
    return true;
@@ -756,6 +753,33 @@ create_group( Handle self, Handle owner, Bool syncPaint, Bool clipOwner,
       if ( var postList) list_first_that( var postList, repost_msgs, ( void*)self);
    }
    PostMessage( ret, WM_PRIMA_CREATE, 0, 0);
+
+   
+   if ( !reset) {
+      /* set manually cmMove and cmSize when windows are configured automatically */
+      if ( !usePos) {
+         Event e;
+         Point sz = apc_window_get_client_pos( self);
+         memset( &e, 0, sizeof(e));
+         e. gen. source = self;
+         e. cmd = cmMove;
+         e. gen. P. x = sz. x;
+         e. gen. P. y = sz. y;
+         CComponent(self)->message( self, &e);
+         if ( PObject( self)-> stage == csDead) return false; 
+      }
+      if ( !useSize) {
+         Event e;
+         Point sz = apc_window_get_client_size( self);
+         memset( &e, 0, sizeof(e));
+         e. gen. source = self;
+         e. cmd = cmSize;
+         e. gen. P. x = e. gen. R. right = sz. x;
+         e. gen. P. y = e. gen. R. top = sz. y;
+         CComponent(self)->message( self, &e);
+         if ( PObject( self)-> stage == csDead) return false; 
+      }
+   }
    return true;
 }
 
@@ -1023,11 +1047,11 @@ map_text_accel( PMenuItemReg i)
    return buf;
 }
 
-static HWND
+static HMENU
 add_item( Bool menuType, Handle menu, PMenuItemReg i)
 {
     MENUITEMINFOW menuItem;
-    HWND m;
+    HMENU m;
     PMenuWndData mwd;
     PMenuItemReg first;
 
@@ -1401,7 +1425,7 @@ apc_window_end_modal( Handle self)
          SetActiveWindow( sys s. window. oldActive);
       if ( !who && var owner)
          CWidget( var owner)-> set_selected( var owner, 1);
-      if ( who = sys s. window. oldFoc) {
+      if (( who = sys s. window. oldFoc)) {
          if ( PWidget( who)-> stage == csNormal)
             CWidget( who)-> set_focused( who, 1);
          unprotect_object( who);
@@ -1683,7 +1707,9 @@ apc_widget_end_paint( Handle self)
 
       DeleteDC( sys ps);
       sys ps = sys ps2;
-      sys bm = sys ps2 = sys stockBM = nil;
+      sys bm = nil;
+      sys ps2 = nil;
+      sys stockBM = nil;
    }
 
    hwnd_leave_paint( self);
@@ -1694,7 +1720,8 @@ apc_widget_end_paint( Handle self)
       } else if ( is_apt( aptWinPS))
          if ( !ReleaseDC(( HWND) var handle, sys ps)) apiErr;
    }
-   sys ps = sys pal2 = nil;
+   sys ps = nil;
+   sys pal2 = nil;
    apt_clear( aptWinPS);
    apt_clear( aptWM_PAINT);
    apt_clear( aptCompatiblePS);
@@ -3058,7 +3085,7 @@ apc_system_action( const char * params)
 
          if ( strcmp( params, " exists") == 0) {
            char * p = ( char *) malloc(12);
-           if ( p) sprintf( p, "0x%08lx", guts. console);
+           if ( p) sprintf( p, "0x%08lx", ( unsigned long) guts. console);
            return p;
          } else
          if ( strcmp( params, " hide") == 0)     { ShowWindow( guts. console, SW_HIDE); } else

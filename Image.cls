@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Image.cls,v 1.28 2003/01/16 11:31:33 dk Exp $
+# $Id: Image.cls,v 1.29 2003/07/30 10:22:11 dk Exp $
 
 local @ImageStats double[7];
 
@@ -69,13 +69,13 @@ object Prima::Image( Prima::Drawable)
    c_only void   make_empty();
    method void   map( Color color);
    import SV *   profile_default ();
-   method void   put_image(int x, int y, Handle image);
-   method void   put_image_indirect( Handle image, int x, int y, int xFrom, int yFrom, int xDestLen, int yDestLen, int xLen, int yLen, int rop);
+   method Bool   put_image(int x, int y, Handle image);
+   method Bool   put_image_indirect( Handle image, int x, int y, int xFrom, int yFrom, int xDestLen, int yDestLen, int xLen, int yLen, int rop);
    method void   resample( double srcLo, double srcHi, double dstLo, double dstHi);
    weird  int    save( SV *className, char *filename, HV * profile);
    method void   set( HV * profile);
    c_only void   reset( int type, RGBColor * palette, int palSize);
    c_only void   stretch( int width, int height);
-   method void   stretch_image(int x, int y, int xDest, int yDest, Handle image);
+   method Bool   stretch_image(int x, int y, int xDest, int yDest, Handle image);
    c_only void   update_change();
 }

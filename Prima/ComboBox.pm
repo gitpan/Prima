@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ComboBox.pm,v 1.28 2003/04/06 10:36:40 dk Exp $
+#  $Id: ComboBox.pm,v 1.30 2003/08/22 11:02:26 tobez Exp $
 
 # combo styles
 package cs;
@@ -44,12 +44,11 @@ use constant DefButtonX => 17;
 # these are properties, methods and dynas of encapsulated widgets, edit and list
 
 %editProps = (
-   alignment      => 1, autoScroll  => 1, text        => 1, text        => 1,
+   alignment      => 1, autoScroll  => 1, text        => 1, select_all  => 1,
    charOffset     => 1, maxLen      => 1, insertMode  => 1, firstChar   => 1,
    selection      => 1, selStart    => 1, selEnd      => 1, writeOnly   => 1,
    copy           => 1, cut         => 1, 'delete'    => 1, paste       => 1,
    wordDelimiters => 1, readOnly    => 1, passwordChar=> 1, focus       => 1,
-   select_all     => 1,
 );
 
 %listProps = (
@@ -178,7 +177,7 @@ sub init
       origin         => [ $w - DefButtonX, $h - $eh],
       size           => [ DefButtonX, $eh],
       visible        => $self-> {style} != cs::Simple,
-      growMode       => gm::Right,
+      growMode       => gm::GrowLoX | gm::GrowLoY,
       tabStop        => 0,
       ownerFont      => 0,
       selectable     => 0,

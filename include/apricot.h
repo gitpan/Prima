@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: apricot.h,v 1.162 2003/07/07 15:08:31 dk Exp $ */
+/* $Id: apricot.h,v 1.166 2003/08/27 18:59:25 dk Exp $ */
 
 #ifndef _APRICOT_H_
 #define _APRICOT_H_
@@ -648,7 +648,13 @@ END_TABLE(mt,UV)
 START_TABLE(cm,UV)
 #define cmClose         (0x00000005|ctDiscardable)
 CM(Close)
-#define cmCreate        (0x0000000A|ctPassThrough)
+#define cmChangeOwner   (0x00000006|ctDiscardable)
+CM(ChangeOwner)
+#define cmChildEnter    (0x00000007|ctDiscardable)
+CM(ChildEnter)         
+#define cmChildLeave    (0x00000008|ctDiscardable)
+CM(ChildLeave)         
+#define cmCreate        (0x00000009|ctPassThrough)
 CM(Create)
 #define cmDestroy       (0x0000000B|ctPassThrough|ctNoInhibit)
 CM(Destroy)
@@ -1286,7 +1292,7 @@ SvBOOL( SV *sv)
 #define pset_f( key, value)  pset_sv_noinc( key, newSVnv( value))
 #define pset_c( key, value)  pset_sv_noinc( key, newSVpv( value, 0))
 #define pset_b( key, value, len)  pset_sv_noinc( key, newSVpv( value, ( len)))
-#define pset_H( key, value)  pset_sv_noinc( key, (value) ? newSVsv((( PAnyObject) value)-> mate) : nilSV)
+#define pset_H( key, value)  pset_sv_noinc( key, (value) ? newSVsv((( PAnyObject) (value))-> mate) : nilSV)
 
 #define create_instance( obj)  (                                   \
    temporary_prf_Sv = ( SV **) Object_create( obj, profile),       \
@@ -1394,7 +1400,7 @@ extern int
 list_index_of( PList self, Handle item);
 
 /* utf8 */
-#if (!defined(__EMX__) && (PERL_PATCHLEVEL > 5))
+#if PERL_PATCHLEVEL > 5
 #define PERL_SUPPORTS_UTF8  1
 #if (PERL_PATCHLEVEL == 6)
 #define utf8_to_uvchr utf8_to_uv_simple
@@ -1554,6 +1560,7 @@ typedef struct _ObjectOptions_ {
    unsigned optOwnerHint           : 1;
    unsigned optOwnerShowHint       : 1;
    unsigned optOwnerPalette        : 1;
+   unsigned optPackPropagate       : 1;
    unsigned optSetupComplete       : 1;
    unsigned optSelectable          : 1;
    unsigned optShowHint            : 1;
@@ -1622,6 +1629,22 @@ WC(Application)
 WC(Mask)
 END_TABLE(wc,UV)
 #undef WC
+
+/* geometry manager types */
+#define GT(const_name) CONSTANT(gt,const_name)
+START_TABLE(gt,UV)
+#define gtDefault          0
+GT(Default)
+#define gtGrowMode         0
+GT(GrowMode)
+#define gtPack             1
+GT(Pack)
+#define gtPlace            2
+GT(Place)
+#define gtMax              2
+GT(Max)
+END_TABLE(gt,UV)
+#undef GT
 
 /* widget grow constats */
 #define GM(const_name) CONSTANT(gm,const_name)
@@ -1922,6 +1945,41 @@ apc_window_end_modal( Handle self);
 
 
 /* Widget management */
+
+typedef struct {
+   /* common geometry fields */
+   Handle         next;           /* dynamically filled linked list of pack slaves */
+   Handle         in;             /* 'in' option */
+   /* pack */
+   Point          pad;            /* border padding */
+   Point          ipad;           /* size increaze */
+   Handle         order;          /* if non-nil, BEFORE or AFTER a widget */
+   /* place */ 
+   int x, y;
+   float relX, relY;
+   float relWidth, relHeight;
+
+   /* bitwise fields */
+   /* common */
+   unsigned int   anchorx    : 2; /* 0 - left, 1 - center, 2 - right */
+   unsigned int   anchory    : 2; /* 0 - bottom, 1 - center, 2 - top */
+   /* pack */
+   unsigned int   after      : 1; /* 0 - order is BEFORE; 1 - order is AFTER */
+   unsigned int   expand     : 1; /* causes the allocation rectange to fill all remaining space */
+   unsigned int   fillx      : 1; /* fill horizontal extent */
+   unsigned int   filly      : 1; /* fill vertical extent */ 
+   unsigned int   side       : 2; /* 0 - left, 1 - bottom, 2 - right, 3 - top */
+   /* place */ 
+   unsigned int   use_x      : 1;
+   unsigned int   use_y      : 1;
+   unsigned int   use_w      : 1;
+   unsigned int   use_h      : 1;
+   unsigned int   use_rx     : 1;
+   unsigned int   use_ry     : 1;
+   unsigned int   use_rw     : 1;
+   unsigned int   use_rh     : 1;
+} GeomInfo, *PGeomInfo;
+
 extern Bool
 apc_widget_create( Handle self, Handle owner, Bool syncPaint,
                    Bool clipOwner, Bool transparent, ApiHandle parentHandle);

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: calendar.pl,v 1.1 2002/07/17 11:39:16 dk Exp $
+#  $Id: calendar.pl,v 1.4 2003/08/27 08:20:33 dk Exp $
 #
 
 =pod 
@@ -44,9 +44,8 @@ use Prima::Application name => 'Calendar';
 use Prima::Calendar;
 
 my $cal;
-my $w = Prima::Window-> create(
+my $w = Prima::MainWindow-> create(
     text => "Calendar example",
-    onDestroy => sub { $::application-> close},
     size => [ 200, 200],
     menuItems => [[ "~Options" => [
        [ 'locale', 'Use ~locale', 'Ctrl+L', '^L', sub {
@@ -61,17 +60,19 @@ my $w = Prima::Window-> create(
        [ 'Re~set to current date', 'Ctrl+R', '^R', sub {
           $cal-> date_from_time( localtime( time));
        }],
+       [ 'monday', '~Monday is the first day of week', sub {
+          my ( $self, $mid) = @_;
+          $cal-> firstDayOfWeek( $self-> menu-> toggle( $mid) ? 1 : 0);
+       }],
     ]]],
 );
 
 $cal = $w-> insert( Calendar =>
-   origin    => [ 0,0],
-   size      => [ $w-> size],
-   growMode  => gm::Client,
    useLocale => 1,
    onChange  => sub {
       $w-> text( "Calendar - ".$cal-> date_as_string);
    },
+   pack => { expand => 1, fill => 'both'},
 );
 
 $w-> menu-> locale-> check if $cal-> useLocale;

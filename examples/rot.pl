@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: rot.pl,v 1.9 2002/05/14 13:22:26 dk Exp $
+#  $Id: rot.pl,v 1.10 2003/08/01 09:45:30 dk Exp $
 #
 =pod 
 =item NAME
@@ -152,7 +152,7 @@ sub rotate {
 };
 
 my $a = 1;
-my $w = Prima::Window-> create
+my $w = Prima::MainWindow-> create
 (
   text => 'Rotating line',
   font => { name => 'Terminal', size => 12, pitch => fp::Fixed},
@@ -165,7 +165,6 @@ my $w = Prima::Window-> create
   ]],
 
   buffered => 1,
-  onDestroy => sub { $::application-> close},
   onPaint => sub {
      my ( $self, $canvas) = @_;
      $canvas-> color( cl::Back);

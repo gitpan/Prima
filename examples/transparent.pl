@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: transparent.pl,v 1.9 2002/05/14 13:22:26 dk Exp $
+#  $Id: transparent.pl,v 1.10 2003/08/01 09:45:30 dk Exp $
 #
 =pod 
 =item NAME
@@ -45,7 +45,7 @@ use Prima;
 use Prima::Const;
 use Prima::Application name => 'Generic.pm';
 
-$w = Prima::Window-> create(
+$w = Prima::MainWindow-> create(
    size => [ 300, 300],
    borderStyle => bs::Dialog,
    backColor => cl::Green,
@@ -65,7 +65,6 @@ $w = Prima::Window-> create(
          $canvas-> text_out("Hello!", $d + $i * 40, $d + $i * 40);
       }
    },
-   onDestroy => sub { $::application-> close},
 );
 
 $w-> insert( Timer =>

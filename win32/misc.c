@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: misc.c,v 1.28 2003/06/18 16:40:44 dk Exp $
+ * $Id: misc.c,v 1.29 2003/07/28 09:27:34 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -208,7 +208,7 @@ apc_getdir( const char *dirname)
    if ( strcmp( dirname, "/") == 0)
       dname = "";
    else
-      dname = dirname;
+      dname = ( char*) dirname;
       
 
    if (( dh = opendir( dirname)) && (dirlist = plist_create( 50, 50))) {

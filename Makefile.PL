@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Makefile.PL,v 1.154 2003/07/07 07:39:33 dk Exp $
+#  $Id: Makefile.PL,v 1.156 2003/08/27 19:53:17 dk Exp $
 #
 
 BEGIN {
@@ -127,7 +127,6 @@ use vars qw(
     @allinstall
     @allbins
     @alldirs
-    @allman
     @allman
     @headers
     @footers
@@ -756,14 +755,15 @@ sub setup_variables
     # my $ldflags = $COMPILER eq 'emx' ? "" : "$Config{ ldflags} ";
     my $ldflags = "";
     my $lddlflags = $Config{ lddlflags};
+    setvar( 'DEBUG', defined($ENV{ PRIMA_DEVEL}) ? $ENV{ PRIMA_DEVEL} : 0);
     if ( $COMPILER eq 'msvc' && (( $ccflags =~ /TP/) || ($ccflags =~ /O\d/))) { # M$VC++ protection
         $warnflags =~ s/W3/W1/;        # lower warning level
         $ccflags   =~ s/\-W3/\-W1/;        # lower warning level
         $warnflags =~ s/(-|\/)WX//;    # and dismiss 'warnings as errors'; ( for its stupidity in the c++ case)
         $ldflags =~ s/(-|\/)nodefaultlib//g;
         $lddlflags =~ s/(-|\/)nodefaultlib//g;
+        $ccflags =~ s/(-|\/)O\d//g if $DEBUG; # remove optimization
     }
-    setvar( 'DEBUG', defined($ENV{ PRIMA_DEVEL}) ? $ENV{ PRIMA_DEVEL} : 0);
     setvar( 'C_FLAGS',  "$ccflags $warnflags $cc_specs{ $COMPILER}->{ cflags} " . ( $Config{ optimize} || '') . " ");
     setvar( 'CFLAGS',  "$ccflags $warnflags $cc_specs{ $COMPILER}->{ cflags}" . ( $DEBUG ? " $cc_specs{ $COMPILER}->{ cdebugflags}" : " " . ( $Config{ optimize} || '')) . " ");
     setvar( 'CCFLAGS',  '');
@@ -2240,11 +2240,24 @@ EOF
 
     push @allrealclean, $config_h;
     push @allinstall, $config_h => $INSTALL_LIB . qd( "/CORE/generic");
+    
+    # install pod files
+    print "Enumerating POD files\n";
     push @allinstall, map { qd($_), $INSTALLSITEARCH} <pod/*.pod>;
-    push @allinstall, map { qd($_), $INSTALL_LIB} <pod/Prima/*.pod>;
-    push @allinstall, map { qd($_), $INSTALL_LIB} <pod/Prima/*.gif>;
     push @allman,     map { qd($_), manname($_, 1, 'pod')} <pod/*.pod>;
-    push @allman,     map { qd($_), manname($_, 3, 'pod')} <pod/Prima/*.pod>;
+    finddepth( sub {
+       my $f = "$File::Find::dir/$_";
+       return unless -f $_;
+       my $d = $File::Find::dir; 
+       $d =~ s/^pod[\\\/]Prima//;
+       if ( m/pod$/) {
+          push @allinstall, qd($f), qd("$INSTALL_LIB$d");
+          push @allman,     qd($f), manname($f, 3, 'pod');
+       } elsif( m/gif$/) {
+          push @allinstall, qd($f), qd("$INSTALL_LIB$d");
+       }
+    }, "pod/Prima");
+
     push @alldirs, qd( "include/generic"), qd( "auto/Prima");
 
     print "Creating Prima::Config.pm\n";

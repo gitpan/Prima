@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: print.pl,v 1.12 2002/05/14 13:22:26 dk Exp $
+#  $Id: print.pl,v 1.14 2003/08/08 11:43:57 dk Exp $
 #
 =pod 
 =item NAME
@@ -142,11 +142,10 @@ sub refresh
    $w-> menu-> A1-> enabled( scalar @printers);
 }
 
-$w = Prima::Window-> create(
+$w = Prima::MainWindow-> create(
    text   => 'Print example',
    size      => [400, 200],
    centered  => 1,
-   onDestroy => sub {$::application-> close},
    menuItems => [
       ['~Print' => [
          [A1 => '~Print sample' => \&print_sample],
@@ -166,9 +165,7 @@ $w = Prima::Window-> create(
 );
 
 $l = $w-> insert( ListBox =>
-   origin   => [ 0, 0],
-   size     => [$w-> size],
-   growMode => gm::Client,
+   pack     => { expand => 1, fill => 'both'},
    name     => 'ListBox1',
    onSelectItem => sub {
       my ( $self, $ref, $sel) = @_;

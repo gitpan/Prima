@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: socket.pl,v 1.5 2003/04/05 21:47:48 dk Exp $
+#  $Id: socket.pl,v 1.7 2003/08/08 11:43:57 dk Exp $
 #
 =pod 
 =item NAME
@@ -45,17 +45,14 @@ use Prima 'InputLine', 'Edit', Application => { name => 'WebSource' };
 use Socket;
 
 
-my $w = Prima::Window-> create(
+my $w = Prima::MainWindow-> create(
    size => [ $::application-> width * 0.8, $::application-> height * 0.8],
    text => 'Socket demo',
-   onDestroy => sub { $::application-> close}
 );
 
 my $e = $w-> insert( Edit =>
-   origin => [ 0, 30],
-   size => [ $w-> width, $w-> height - 30],
+   pack   => { side => 'top', expand => 1, fill => 'both'},
    text => '',
-   growMode => gm::Client,
    wordWrap => 1,
 );
 
@@ -104,10 +101,9 @@ my $watcher = Prima::File->create(
 );    
 
 my $il = $w-> insert( InputLine =>
-   origin => [ 5, 3],
-   size => [ $w-> width - 10, 20],
    text => '',
    current => 1,
+   pack   => { side => 'bottom', fill => 'x'},
    onKeyDown => sub {
      my ( $me, $code, $key, $mod) = @_;
      return unless $key == kb::Enter;

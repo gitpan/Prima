@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Config.pm,v 1.14 2003/05/06 19:05:07 tobez Exp $
+# $Id: Config.pm,v 1.15 2003/07/17 11:05:07 dk Exp $
 package Prima::VB::Config;
 
 sub pages
@@ -264,6 +264,20 @@ sub classes
       class    => 'Prima::VB::SpinButton',
       RTModule => 'Prima::Sliders',
       module   => 'Prima::VB::CoreClasses',
+   },
+   'Prima::Grid' => {
+       RTModule => 'Prima::Grids',
+       class  => 'Prima::VB::Grid',
+       page   => 'General',
+       icon   => 'VB::classes.gif:33',
+       module   => 'Prima::VB::CoreClasses',
+   },
+   'Prima::AbstractGrid' => {
+       RTModule => 'Prima::Grids',
+       class  => 'Prima::VB::AbstractGrid',
+       page   => 'Abstract',
+       icon   => 'VB::classes.gif:33',
+       module   => 'Prima::VB::CoreClasses',
    },
    );
 }

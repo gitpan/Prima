@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: grip.pl,v 1.11 2003/04/05 21:47:48 dk Exp $
+#  $Id: grip.pl,v 1.13 2003/08/08 11:43:57 dk Exp $
 #
 
 =pod 
@@ -48,9 +48,8 @@ especially on paletted displays.
 
 use strict;
 use Prima;
-use Prima::Const;
-use Prima::Classes;
 use Prima::ImageViewer;
+use Prima::Application;
 
 package MonoDeviceBitmap;
 use vars qw(@ISA);
@@ -71,8 +70,6 @@ sub backColor
 }
 
 package Generic;
-
-$::application = Prima::Application-> create( name => "Generic.pm");
 
 my $imgType = im::bpp1;
 
@@ -128,7 +125,7 @@ sub xordraw
    $o-> end_paint;
 }
 
-my $w = Prima::Window-> create(
+my $w = Prima::MainWindow-> create(
    size => [ 200, 200],
    menuItems => [
       [ "~Grip" => sub {
@@ -143,7 +140,6 @@ my $w = Prima::Window-> create(
          $self-> { cap} = 2;
       }],
    ],
-   onDestroy => sub { $::application-> close; },
    onMouseDown => sub {
       my ( $self, $btn, $mod, $x, $y) = @_;
       return unless defined $self->{cap};
@@ -189,9 +185,7 @@ my $w = Prima::Window-> create(
 );
 
 $w-> insert( ImageViewer =>
-   origin => [ 0, 0],
-   size   => [ $w-> size],
-   growMode => gm::Client,
+   pack    => { expand => 1, fill => 'both' },
    name    => 'IV',
    valignment  => ta::Center,
    alignment   => ta::Center,

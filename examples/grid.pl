@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: grid.pl,v 1.1 2003/04/14 10:42:14 dk Exp $
+#  $Id: grid.pl,v 1.4 2003/08/27 18:59:25 dk Exp $
 #
 #
 #  Grid example
@@ -49,9 +49,9 @@ use Prima::Grids;
 
 
 my $g;
-my $w = Prima::Window-> create(
+my $w = Prima::MainWindow-> create(
    text => 'Grid example',
-   onDestroy => sub { $::application-> close },
+   packPropagate => 0,
    menuItems => [
       ['~Options' => [
          ['*dhg', 'Draw HGrid'=> sub { $g-> drawHGrid( $_[0]-> menu-> toggle( $_[1])) }],
@@ -71,10 +71,7 @@ my @user_breadths=({},{});
 
 $g = $w-> insert( 
   ( $abstract_grid ? 'Prima::AbstractGrid' : 'Prima::Grid' ),
-   origin => [0, 0],
-   size   => [$w-> size],
   ( $abstract_grid ? () : ('cells', [ map { my $a = $_; [ map {"$a.$_"} 0 .. 300]} 0 .. 300])),
-   growMode => gm::Client,
    onMeasure => sub {
       my ( $self, $axis, $index, $ref) = @_;
       if ( defined $user_breadths[$axis]->{$index} ) {
@@ -114,6 +111,7 @@ $g = $w-> insert(
    allowChangeCellWidth => 1,
    allowChangeCellHeight => 1,
    clipCells => 2,
+   pack => { expand => 1, fill => 'both' },
 );
 if ( $abstract_grid) {
    $g-> columns(10000);

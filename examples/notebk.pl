@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: notebk.pl,v 1.7 2002/05/14 13:22:26 dk Exp $
+#  $Id: notebk.pl,v 1.9 2003/08/08 11:43:57 dk Exp $
 #
 
 =pod 
@@ -41,10 +41,11 @@ Prima::TabbedNotebook standard class.
 use Prima;
 use Prima::Buttons;
 use Prima::Notebooks;
+use Prima::Application;
 
 package Bla;
 use vars qw(@ISA);
-@ISA = qw(Prima::Window);
+@ISA = qw(Prima::MainWindow);
 
 sub init
 {
@@ -52,9 +53,7 @@ sub init
    my %profile = $self-> SUPER::init( @_);
 
    my $n = $self-> insert( TabbedNotebook =>
-      origin => [10, 10],
-      size => [ $self-> width - 20, $self-> height - 20],
-      growMode => gm::Client,
+      pack => { fill => 'both', expand => 1, padx => 20, pady => 20 },
 #     pageCount => 11,
       tabs => [0..5,5,5..10],
    );
@@ -77,14 +76,11 @@ sub init
 
 package Generic;
 
-$::application = Prima::Application-> create( name => "Generic.pm");
-
 my $l;
 my $w = Bla-> create(
   size => [ 600, 300],
   y_centered  => 1,
  # current  => 1,
-  onDestroy => sub { $::application-> close},
 );
 
 

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: matrix.pl,v 1.9 2002/05/14 13:22:26 dk Exp $
+#  $Id: matrix.pl,v 1.10 2003/08/01 09:45:30 dk Exp $
 #
 
 =pod 
@@ -40,8 +40,7 @@ and large font output performance.
 
 use strict;
 use Prima;
-
-$::application = Prima::Application->  create;
+use Prima::Application;
 
 my $smp = "The Matrix has you";
 my $maxstep = 40;
@@ -163,7 +162,7 @@ sub resetfs
 }
 
 
-my $w = Prima::Window-> create(
+my $w = Prima::MainWindow-> create(
    palette => [@spal],
    font => { name => 'Courier New', size => $basicfsize, },
    backColor => 0x002000,
@@ -182,7 +181,6 @@ my $w = Prima::Window-> create(
          }, ],
       ]],
    ],
-   onDestroy => sub { $::application-> close; },
    onKeyDown => sub {
       return unless $fullScreen;
       $fullScreen = 0;

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: sheet.pl,v 1.7 2003/04/05 21:47:48 dk Exp $
+#  $Id: sheet.pl,v 1.10 2003/08/27 18:59:25 dk Exp $
 #
 =pod 
 =item NAME
@@ -48,7 +48,7 @@ use Prima;
 use Prima::Header;
 use Prima::Application;
 
-my $w = Prima::Window-> create( onDestroy => sub { $::application-> close});
+my $w = Prima::MainWindow-> create( packPropagate => 0);
 
 my @items;
 
@@ -87,9 +87,7 @@ if ( defined $fname) {
 }
 
 my $l = $w-> insert( DetailedList =>
-   origin => [0,0],
-   size   => [ $w-> size],
-   growMode => gm::Client,
+   pack    => { expand => 1, fill => 'both' },
    items   => \@items,
    headers => [ 'Service' , 'Port', 'Protocol', 'Description'],
    columns => 4,
