@@ -1,3 +1,4 @@
+=for rcs $Id: internals.pod,v 1.4 2002/05/14 13:22:33 dk Exp $
 
 =head1 NAME
 
@@ -227,7 +228,9 @@ resulting in memory leak problem.
 For user code it is sufficient to overload done() and/or cleanup()
 methods, or just onDestroy notifications. It is highly recommended
 to avoid overloading destroy method, since it can be called 
-in re-entrant fashion.
+in re-entrant fashion. When overloading done(), be prepared that
+it may be called inside init(), and deal with the 
+semi-initialized object.
 
 =head2 Data instance
 

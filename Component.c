@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Component.c,v 1.45 2002/01/03 14:04:41 dk Exp $
+ * $Id: Component.c,v 1.49 2002/05/24 14:32:16 dk Exp $
  */
 
 #include <ctype.h>
@@ -250,6 +250,7 @@ Component_owner( Handle self, Bool set, Handle owner)
    return nilHandle;
 }
 
+
 void
 Component_set( Handle self, HV * profile)
 {
@@ -274,6 +275,7 @@ Component_set( Handle self, HV * profile)
 
       pdelete( owner);                    /* like this. */
    }
+
    inherited set ( self, profile);
 }
 
@@ -406,8 +408,7 @@ Component_handle_event( Handle self, PEvent event)
    {
    case cmCreate:
       my-> notify( self, "<s", "Create");
-      if ( var-> stage == csNormal)
-      {
+      if ( var-> stage == csNormal && var-> evQueue) {
          PList q = var-> evQueue;
          var-> evQueue = nil;
          if ( q-> count > 0)
@@ -697,10 +698,14 @@ Component_notify( Handle self, char * format, ...)
    SV * ret;
    va_list args;
    va_start( args, format);
+   ENTER;
+   SAVETMPS;
    ret = call_perl_indirect( self, "notify", format, true, false, args);
    va_end( args);
    r = ( ret && SvIOK( ret)) ? SvIV( ret) : 0;
    if ( ret) my-> set_eventFlag( self, r);
+   FREETMPS;
+   LEAVE;
    return r;
 }
 
@@ -711,10 +716,14 @@ Component_notify_REDEFINED( Handle self, char * format, ...)
    SV * ret;
    va_list args;
    va_start( args, format);
+   ENTER;
+   SAVETMPS;
    ret = call_perl_indirect( self, "notify", format, true, false, args);
    va_end( args);
    r = ( ret && SvIOK( ret)) ? SvIV( ret) : 0;
    if ( ret) my-> set_eventFlag( self, r);
+   FREETMPS;
+   LEAVE;
    return r;
 }
 
@@ -751,11 +760,15 @@ Component_add_notification( Handle self, char * name, SV * subroutine, Handle re
    void * ret;
    PList  list;
    int    nameLen = strlen( name);
+   SV   * res;
 
-   if ( !hv_exists(( HV *) SvRV( my-> notification_types( self)), name, nameLen)) {
+   res = my-> notification_types( self);
+   if ( !hv_exists(( HV *) SvRV( res), name, nameLen)) {
+       sv_free( res);
        warn("RTC04B: No such event %s", name);
        return 0;
    }
+   sv_free( res);
 
    if ( !subroutine || !SvROK( subroutine) || ( SvTYPE( SvRV( subroutine)) != SVt_PVCV)) {
       warn("RTC04C: Not a CODE reference passed to %s to Component::add_notification", name);

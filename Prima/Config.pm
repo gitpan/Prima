@@ -9,7 +9,7 @@ use vars qw(%Config %Config_inst);
   tmlink                => '/usr/local/bin\\tmlink',
   libname               => '/usr/local/lib/perl5/site_perl/5.005/i386-freebsd/Prima.a',
   dlname                => '/usr/local/lib/perl5/site_perl/5.005/i386-freebsd/auto/Prima/Prima.so',
-  ldpaths               => ['/usr/local/lib','/usr/lib','/usr/local/lib','/usr/X11R6/lib'],
+  ldpaths               => ['/usr/lib','/usr/local/lib','/usr/X11R6/lib'],
 );
 
 %Config = (
@@ -24,7 +24,7 @@ use vars qw(%Config %Config_inst);
   scriptext             => '',
   genclsoptions         => '--tml --h --inc',
   cc                    => 'cc',
-  cflags                => '-c -I/usr/local/include -Wall  -O  ',
+  cflags                => '-c  -Wall    ',
   cdebugflags           => '-g -O',
   cincflag              => '-I',
   cobjflag              => '-o ',
@@ -38,15 +38,16 @@ use vars qw(%Config %Config_inst);
   dlname                => '/usr/home/dk/src/Prima/auto/Prima/Prima.so',
   dlext                 => '.so',
   ld                    => 'cc',
-  ldflags               => ' -Wl,-E -shared -L/usr/local/lib -lgcc ',
+  ldflags               => ' -Wl,-E -shared -lperl -lm  -lgcc ',
   lddefflag             => '',
   lddebugflags          => '-g',
   ldoutflag             => '-o ',
   ldlibflag             => '-l',
   ldlibpathflag         => '-L',
-  ldpaths               => ['/usr/local/lib','/usr/lib','/usr/local/lib','/usr/X11R6/lib'],
-  ldlibs                => ['gdbm','db','m','c','crypt','util','X11','Xext','jpeg','png','ungif'],
+  ldpaths               => ['/usr/lib','/usr/local/lib','/usr/X11R6/lib'],
+  ldlibs                => ['m','c','crypt','X11','Xext','Xpm','jpeg','png','ungif'],
   ldlibext              =>'',
+  inline                => 'inline',
   perl                  => 'perl',
 );
 

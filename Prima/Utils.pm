@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 #     Vadim Belman   <voland@plab.ku.dk>
 #     Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Utils.pm,v 1.6 2000/10/18 11:58:01 tobez Exp $
+#  $Id: Utils.pm,v 1.7 2002/05/14 13:22:22 dk Exp $
 
 package Prima::Utils;
 use strict;

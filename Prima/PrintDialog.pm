@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: PrintDialog.pm,v 1.6 2002/01/05 17:25:36 dk Exp $
+#  $Id: PrintDialog.pm,v 1.8 2002/05/14 13:22:21 dk Exp $
 
 use strict;
 use Carp;
@@ -106,6 +106,11 @@ sub on_execute
    my $self = $_[0];
    my $oldp = $self-> Printers-> text;
    my @prs = @{$::application-> get_printer-> printers};
+   unless ( scalar @prs) {
+      $self-> cancel;
+      Prima::message("No printers found");
+      return;
+   }
    $self-> {list} = [ @prs];
    my $p = $self-> Printers;
    my @newprs = @prs;

@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Buttons.pm,v 1.27 2001/04/30 15:20:14 dk Exp $
+#  $Id: Buttons.pm,v 1.29 2002/05/14 13:22:20 dk Exp $
 
 # contains:
 #   Button
@@ -133,6 +133,7 @@ sub on_keyup
       $self-> capture(0) if $self->{mouseTransaction};
       $self->{mouseTransaction} = undef;
       $self-> pressed( 0);
+      $self-> update_view;
       $self-> clear_event;
       $self-> notify( 'Click')
    }
@@ -187,6 +188,7 @@ sub on_mouseup
    $self-> pressed( 0);
    if ( $x > 0 && $y > 0 && $x < $size[0] && $y < $size[1] ) {
       $self-> clear_event;
+      $self-> update_view;
       $self-> notify( 'Click');
    }
 }

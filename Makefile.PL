@@ -1,6 +1,6 @@
 #! /usr/bin/perl -w
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Makefile.PL,v 1.118 2002/02/04 10:15:20 dk Exp $
+#  $Id: Makefile.PL,v 1.129 2002/06/25 14:44:10 dk Exp $
 #
 
 BEGIN {
@@ -314,6 +314,20 @@ sub find_lib
 {
     my $lib = shift;
     my ( $libpath, $present);
+
+    if ( $OS2) { # link386 is broken - warns, not dies if no library found
+       if ( -f $lib) {
+          $lib =~ s/(\\|\/[^\\|\/]*)$//g;
+          return $lib;
+       }
+       for ( @LIBPATH) {
+          return $_ if -f "$_/$lib";
+          return $_ if -f "$_/$lib.lib";
+          return $_ if -f "$_/$lib.a";
+       }
+       return undef;
+    }
+
     local @LIBS = @LIBS;
     push @LIBS, $lib;
     foreach $libpath ( @_) {
@@ -379,7 +393,7 @@ main()
 #if defined( $defname)
 return 0;
 #else
-#error No
+0error No
 #endif
 }
 EOF
@@ -424,18 +438,51 @@ sub have_types_in
 {
     my ($hdr, @types) = @_;
     return unless have_header( $hdr);
+    my $found = 1;
     for my $type (@types) {
-       have_type( $type, $hdr);
+       $found = $found && have_type($type, $hdr);
+       last unless $found;
     }
+    return $found;
 }
 
 sub have_funcs_in
 {
     my ($hdr, @funcs) = @_;
     return unless have_header( $hdr);
+    my $found = 1;
     for my $func (@funcs) {
-       have_func( $func, $hdr);
+       $found = $found && have_func( $func, $hdr);
+       last unless $found;
     }
+    return $found;
+}
+
+
+sub find_inline
+{
+    print "Checking for inline...";
+    for ( qw( inline __inline inline__ __inline__
+              INLINE __INLINE INLINE__ __INLINE__)) {
+       my $i = $_;    
+       my $rc = compile( <<EOF);
+
+$_ void a( void) {};
+
+int
+main()
+{
+    return 0;
+}
+EOF
+       if ( $rc) {
+           $DEFINES{__INLINE__} = $i;
+           print "$i\n";
+           return;
+       }
+    }
+    print "none found\n";
+    $DEFINES{__INLINE__} = 'static'; # nasty hack, but better than #pragma inline
 }
 
 sub setvar
@@ -487,7 +534,7 @@ sub setup_variables
 {
     my $platform;
     $NeedX11 = 0;
-    if ( $Win32) {              # XXX Correct for NT.
+    if ( $Win32) {              
         $platform = 'win32';
     }
     elsif ( $OS2) {
@@ -500,6 +547,24 @@ sub setup_variables
     setvar( 'PLATFORM', $platform);
 
     %cc_specs = (
+                 cc => {
+                         warnflags => "",
+                         cflags => "",
+                         coutoflag => '-o ',
+                         coutexeflag => '-o ',
+                         cdebugflags => '-g -O',
+                         clinkprefix => '',
+                         clibpathflag => '-L',
+                         ldflags => '',
+                         ldoutflag => '-o ',
+                         ldlibpathflag => '-L',
+                         ldlibflag => '-l',
+                         ldlibext  => '',
+                         lddebugflags => '-g',
+                         name => "CC",
+                         lib  => '',
+                         liboflag => '',
+                        },
                  gcc => {
                          warnflags => "-Wall",
                          cflags => "",
@@ -518,9 +583,27 @@ sub setup_variables
                          lib  => '',
                          liboflag => '',
                         },
+                  hpcc => {
+                          warnflags => "", #"+w1",
+                          cflags => "-Ae",
+                          coutoflag => '-o ',
+                          coutexeflag => '-o ',
+                          cdebugflags => '-g +O2 +Onolimit',
+                          clinkprefix => '',
+                          clibpathflag => '-L',
+                          ldflags => '',
+                          ldoutflag => '-o ',
+                          ldlibpathflag => '-L',
+                          ldlibflag => '-l',
+                          ldlibext  => '',
+                          lddebugflags => '-g',
+                          name => "HP-UX C-ANSI-C",
+                          lib  => '',
+                          liboflag => '',
+                        },
                  irixcc  => {
                          warnflags => "-fullwarn",
-                         cflags => "-diag_error 1035 -woff 1011,1042,1048,1140,1164,1174,1209,1506,1515,1552", 
+                         cflags => "-diag_error 1035 -woff 1011,1042,1048,1140,1164,1174,1209,1506,1515,1552",
                          coutoflag => '-o',
                          coutexeflag => '-o',
                          cdebugflags => '-g -O0',
@@ -600,11 +683,16 @@ sub setup_variables
     if ( defined $USER_VARS{ COMPILER}) {
         $COMPILER = $USER_VARS{ COMPILER};
         die "Compiler type $COMPILER is unknown" unless defined $cc_specs{ $COMPILER};
-    } 
+    }
     elsif ( $^O =~ /irix/ && $CC =~ /^(\S*\/)?cc\b/) {
         # this code should be put first, as cc call does not treat #error as error,
         # and have_define() is therefore always true
-        $COMPILER = 'irixcc'; 
+        $COMPILER = 'irixcc';
+    }
+    elsif ( $^O eq "hpux" && $CC =~ /^(\S*\/)?cc\b/) {
+        # this code should be put first, as cc call does not treat #error as error,
+        # and have_define() is therefore always true
+        $COMPILER = 'hpcc'; 
     } 
     elsif ( have_define( "__EMX__")) {
         $COMPILER = 'emx';
@@ -617,6 +705,8 @@ sub setup_variables
     }
     elsif ( have_define( "_MSC_VER")) {
         $COMPILER = 'msvc';
+    } elsif ( $CC =~ /^(\S*\/)?cc\b/ ) {
+        $COMPILER = 'cc';
     } else {
         print "($CC is unknown, using gcc instead) ";
         $COMPILER = 'gcc';
@@ -629,7 +719,7 @@ sub setup_variables
     # Checking some Config.pm - were empty for ActiveState 626
     $Config{PATCHLEVEL} = $Config{patchlevel} if !defined $Config{PATCHLEVEL} || !length $Config{PATCHLEVEL};
     $Config{SUBVERSION} = $Config{subversion} if !defined $Config{SUBVERSION} || !length $Config{SUBVERSION};
-    $Config{ld} = ($Win32 ? 'link' : 'ld'), print("** warning: malformed Config.pm\n") 
+    $Config{ld} = ($Win32 ? 'link' : 'ld'), print("** warning: malformed Config.pm\n")
        unless length $Config{ld};
 
     my $ccflags   = $Config{ ccflags};
@@ -722,6 +812,7 @@ sub setup_variables
                 PRIMA_CORE => 1,
                 PERL_POLLUTE => 1,
                );
+     $DEFINES{PRIMA_PLATFORM} = $OS2 ? 1 : ( $Win32 ? 2 : 3);
     if ( env_true( 'PRIMA_PARANOID_MALLOC')) {
         $DEFINES{ PARANOID_MALLOC} = 1;
     }
@@ -736,7 +827,7 @@ sub setup_variables
         my ( $defname, $defvalue) = ( $1, $2 || 1);
         $DEFINES{ $defname} = $defvalue;
     }
-    
+
     # find common denominator with installsitearch and installscript
     my @a = split( '\\\\|\/', $Config{installscript});
     my @b = split( '\\\\|\/', $Config{installsitearch});
@@ -746,7 +837,7 @@ sub setup_variables
        $i++;
     }
     my $prefix = qd(($i ? join( '/', @a[0..$i-1]) : ''));
-    
+
     setvar( 'PREFIX',           $prefix);
     setvar( 'INSTALLSCRIPT',    $PREFIX . qd( '/' . join( '/', @a[$i .. $#a])));
     setvar( 'INSTALLSITEARCH',  $PREFIX . qd( '/' . join( '/', @b[$i .. $#b])));
@@ -903,9 +994,6 @@ apc_gp_set_text_out_baseline
 apc_gp_set_transform
 apc_gp_stretch_image
 apc_gp_text_out
-apc_help_close
-apc_help_open_topic
-apc_help_set_file
 apc_image_begin_paint
 apc_image_begin_paint_info
 apc_image_create
@@ -1150,19 +1238,21 @@ sub setup_defines
     have_header( "unistd.h");
     have_header( "strings.h");
 
-    have_types_in( "sys/types.h",
-                   qw(int8_t int16_t int32_t));
-    have_types_in( "sys/types.h",
-                   qw(uint8_t uint16_t uint32_t uint64_t));
-    have_types_in( "sys/types.h",
-                   qw(u_int8_t u_int16_t u_int32_t u_int64_t));
-
-    have_types_in( "stdint.h",
-                   qw(int8_t int16_t int32_t));
-    have_types_in( "stdint.h",
-                   qw(uint8_t uint16_t uint32_t uint64_t));
-    have_types_in( "stdint.h",
-                   qw(u_int8_t u_int16_t u_int32_t u_int64_t));
+    my @int_types = qw(int8_t int16_t int32_t);
+    my @uint_types = qw(uint8_t uint16_t uint32_t uint64_t);
+    my @u_int_types = qw(u_int8_t u_int16_t u_int32_t u_int64_t);
+    have_types_in( "sys/types.h", @int_types)
+	|| have_types_in( "sys/bitypes.h", @int_types)
+	|| have_types_in( "sys/inttypes.h", @int_types)
+	|| have_types_in( "stdint.h", @int_types);
+    have_types_in( "sys/types.h", @uint_types)
+	|| have_types_in( "sys/bitypes.h", @uint_types)
+	|| have_types_in( "sys/inttypes.h", @uint_types)
+	|| have_types_in( "stdint.h", @uint_types);
+    have_types_in( "sys/types.h", @u_int_types)
+	|| have_types_in( "sys/bitypes.h", @u_int_types)
+	|| have_types_in( "sys/inttypes.h", @u_int_types)
+	|| have_types_in( "stdint.h", @u_int_types);
 
     if ( $NeedX11) {
        have_header( "sys/ipc.h", "sys/types.h");
@@ -1191,6 +1281,7 @@ sub setup_defines
     if ( $Win32) {
         have_type( "BOOLEAN", "windows.h");
     }
+    find_inline();
 
     foreach my $defname ( keys %USER_DEFINES) {
         if ( defined $USER_DEFINES{ $defname}) {
@@ -1241,8 +1332,8 @@ sub setup_misc
 {
     # finding image codecs
     my %libs = map { $_ => 1 } @LIBS;
-    while (<img/codec_*.c>) { 
-       m/codec_(.*)\.c$/i; 
+    while (<img/codec_*.c>) {
+       m/codec_(.*)\.c$/i;
        my ( $fn, $lib) = ( $_, $1);
        $lib.='.lib' if $Win32 || $OS2;
        if ( $libs{$lib} || defined find_lib( $lib,'')) {
@@ -1291,7 +1382,7 @@ NOCODECS
 sub process_commandline
 {
     %overrideable = map { /^(.)(.*)$/; $2 => $1} @ovvars; # Script variables which may be overridden.
-    my %expand = map { /^.(.*)$/; $1 => 1 } @path_expand_ovvars; 
+    my %expand = map { /^.(.*)$/; $1 => 1 } @path_expand_ovvars;
     $ARGV_STR = join( " ", map { "\"$_\""} @ARGV);
     foreach my $arg ( @ARGV) {
         if ( $arg =~ /^\s*(\w+)\s*(\+?)\=(.*)$/) {
@@ -1476,7 +1567,7 @@ sub create_config_pm
    my @libpath = @LIBPATH;
    my @libs = @LIBS;
    my $perllib = pop @libs;
-   if ( $perllib =~ m[^(.*)\/([^/]*)$]) {
+   if ( $perllib =~ m/^(.*)\/([^\/]*)$/) {
       my $pfile = $2;
       push @libpath, $1;
       $pfile =~ s/$LIB_EXT$//;
@@ -1499,7 +1590,7 @@ sub create_config_pm
    my $pt = qqd( $PrimaTarget);
    my $iscr = qqd($INSTALLSCRIPT);
    my $isa  = qqd($INSTALLSITEARCH);
-   
+
 
    open F, "> Prima/Config.pm" or die "cannot open Prima/Config.pm:$!\n";
    print F <<CONFIG;
@@ -1552,6 +1643,7 @@ use vars qw(%Config %Config_inst);
   ldpaths               => [$libpath],
   ldlibs                => [$libs],
   ldlibext              =>'$cc_specs{$COMPILER}->{ldlibext}',
+  inline                => '$DEFINES{__INLINE__}',
   perl                  => '$perl',
 );
 
@@ -1566,11 +1658,11 @@ sub create_codecs_c
 
    my $def1 = join("\n", map { "extern void apc_img_codec_$_(void);"} @ACTIVE_CODECS);
    my $def2 = join("\n", map { "   apc_img_codec_$_();"} @ACTIVE_CODECS);
-   
+
    print F <<CONTENT;
-/* 
+/*
   This file was automatically generated.
-  Do not edit, you'll loose your changes anyway. 
+  Do not edit, you'll loose your changes anyway.
 */
 
 #include "img.h"
@@ -1581,18 +1673,18 @@ extern "C" {
 
 $def1
 
-void 
+void
 prima_cleanup_image_subsystem(void)
 {
    apc_img_done();
 }
 
-void 
+void
 prima_init_image_subsystem(void)
 {
    apc_img_init();
 $def2
-}   
+}
 
 #ifdef __cplusplus
 }
@@ -1698,7 +1790,7 @@ elsif ( $#ARGV >= 0 && $ARGV[ 0] eq '--updateconfig') {
    open FF, "> $fn.tmp" or die "cannot open $fn.tmp:$!\n";
    my ( $c_state, $ci_state) = (0,0);
    my %ci;
-   
+
    print FF <<HEADER;
 # This file was automatically generated.
 package Prima::Config;
@@ -1753,7 +1845,7 @@ FOOTER
       my @dirs;
       return unless -d $distname;
       print "Cleaning...\n";
-      finddepth( sub { 
+      finddepth( sub {
          my $f = "$File::Find::dir/$_";
          -d($f) ? push(@dirs, $f) : unlink($f);
       }, "$cwd/$distname");
@@ -1771,14 +1863,14 @@ FOOTER
    clean_dist;
    my @dirs;
    my @files;
-   finddepth( sub { 
-      return if $_ eq '.';
-      return if /\.pdb$/i; # M$VC
+   finddepth( sub {
+      return if $_ eq '.' || $_ eq 'Makefile' || $_ eq 'makefile.log';
+      return if /\.(pdb|ncb|opt|dsp|dsw)$/i; # M$VC
       my $f = "$File::Find::dir/$_";
       return if $f =~ /include.generic|CVS/;
       if ($type eq 'bin') {
-         return if $f =~ /\.c$|\.cls$|\.h$/;
-         return if $f =~ /$cwd.(img|include|os2|win32|unix|utils|Makefile)/i;
+         return if $f =~ /\.(c|cls|h)$/i;
+         return if $f =~ /$cwd.(img|include|os2|win32|unix|Makefile.PL)/i;
       } else {
          return if $f =~ /auto/;
       }
@@ -1833,7 +1925,7 @@ FOOTER
     $| = 1;
 
     print "Setting up working environment.\n";
-=pod    
+=pod
     %USER_VARS_LINKS = (
         INSTALLSCRIPT => {
             src => 'PREFIX',
@@ -1844,7 +1936,7 @@ FOOTER
             format => '%s',
         },
     );
-=cut    
+=cut
     process_commandline;
     setup_variables;
     setup_paths;
@@ -1863,7 +1955,8 @@ FOOTER
 #define __GENERIC_CONFIG_H__
 EOF
     foreach my $define ( sort keys %DEFINES) {
-        print CONFIG "#undef $define\n#define $define $DEFINES{ $define}\n" if defined $DEFINES{ $define};
+        print CONFIG "#undef $define\n";
+        print CONFIG "#define $define $DEFINES{ $define}\n" if defined $DEFINES{ $define};
     }
     print CONFIG <<EOF;
 #endif
@@ -1903,7 +1996,7 @@ EOF
         $make .= cmake( $_);
     }
     while ( <img/*.c>) {
-        next if exists $PASSIVE_CODECS{$_};    
+        next if exists $PASSIVE_CODECS{$_};
         $make .= cmake( $_);
     }
     while ( <$PLATFORM/*.c>) {
@@ -1916,11 +2009,12 @@ EOF
            push @allinstall, $_, $INSTALL_EXAMPLES;
         }
     }
-    push @allbins, "utils/gencls.pl", $INSTALLSCRIPT;
-    push @allbins, "utils/tmlink.pl", $INSTALLSCRIPT;
+    while ( <utils/*.pl>) {
+        push @allbins, $_, $INSTALLSCRIPT;
+    }
     push @allbins, "Prima/VB/VB.pl", $INSTALLSCRIPT;
     push @allbins, "Prima/VB/cfgmaint.pl", $INSTALLSCRIPT;
-    
+
 
     my $thunks_tinc = qd( "include/generic/thunks.tinc");
     push @allclean, $thunks_tinc;
@@ -1950,7 +2044,7 @@ MD=$^X Makefile.PL --md
 RM=$^X Makefile.PL --rm
 RMDIR=$^X Makefile.PL --rmdir
 
-dirs: 
+dirs:
 \t\@echo Creating directories...
 \t\@\$(MD) @alldirs
 
@@ -1997,7 +2091,7 @@ EOF
     $cp{$PrimaTarget} = $INSTALL_DL;
     $cp{$PrimaLib}    = $INSTALLSITEARCH;
     $cp{"Prima.pm"}   = $INSTALLSITEARCH;
-    
+
     my $cwd = cwd();
     finddepth( sub {
         return if $File::Find::dir =~ /CVS/ || m/CVS/;
@@ -2006,7 +2100,7 @@ EOF
 
     delete $cp{qd("Prima/VB/VB.pl")};
     delete $cp{qd("Prima/VB/cfgmaint.pl")};
-   
+
     while (@allinstall) {
        my ( $src, $dst) = ( shift(@allinstall), shift(@allinstall));
        next if $src =~ /CVS/;
@@ -2023,41 +2117,45 @@ EOF
         $cp{$_} = dirname( qd( "$INSTALL_LIB/$dst"));
     }
     my $i = 0;
-    print MAKE "\ninstall: all"; 
-    for ( keys %cp) {
-       print MAKE "\n\t\@\$(CP) \\\n" if ( $i++ % 20) == 0;
-       print MAKE "\t$_ $cp{$_} \\\n";
+
+    sub dump_cmd
+    {
+        my ( $line, $sub, $command) = ( 0, shift, shift);
+        print MAKE "\t\@\$($command) \\\n" if scalar @_;
+        for ( @_) {
+           my $call = $sub->($_);
+           if (( $line++ % 20) == 19) {
+              print MAKE "\n\t\@\$($command) \\\n";
+           } elsif ( $line <= scalar @_ && $line > 1) {
+              print MAKE " \\\n";
+           }
+           print MAKE "\t$call";
+        }
+        print MAKE "\n";
     }
-    $i = 0;
+
+    print MAKE "\ninstall: all\n";
+    dump_cmd( sub { "$_[0] $cp{$_[0]}"}, 'CP', keys %cp);
     while ( scalar @allbins) {
         my ( $src, $dst) = ( shift @allbins, shift @allbins);
         $cp{qd( basename( $src, '.pl') . $SCRIPT_EXT)} = $dst;
         $cpbin{$src} = qd( "$dst/" . basename( $src, '.pl')) . $SCRIPT_EXT;
     }
-    for ( keys %cpbin) {
-       print MAKE "\n\t\@\$(CPBIN) \\\n" if ( $i++ % 20) == 0;
-       print MAKE "\t$_ $cpbin{$_} \\\n";
-    }
+    dump_cmd( sub { "$_[0] $cpbin{$_[0]}"}, 'CPBIN', keys %cpbin);
 
     print MAKE "\n\t\@echo Updating config...\n";
     print MAKE "\t$^X Makefile.PL --updateconfig $INSTALLSITEARCH/Prima/Config.pm\n";
 
-    print MAKE "\ndeinstall:";
-    $i = 0;
+    print MAKE "\ndeinstall:\n";
     my %dirs_to_rm;
-    for ( keys %cp) {
-       my $fn = $_;
-       print MAKE "\n\t\@\$(RM) \\\n" if ( $i++ % 40) == 0;
-       $fn =~ /(\\|\/)?([^\\|\/]+)$/;
-       print MAKE "\t$cp{$_}$dir_sep$2 \\\n";
-       $dirs_to_rm{$cp{$_}} = 1;
-    }
+    dump_cmd( sub { 
+        $dirs_to_rm{$cp{$_[0]}} = 1;
+        $_[0] =~ m/(\\|\/)?([^\\|\/]+)$/; 
+        return "$cp{$_[0]}$dir_sep$2";
+    }, 'RM', keys %cp);
     delete $dirs_to_rm{$INSTALLSITEARCH};
     delete $dirs_to_rm{$INSTALLSCRIPT};
-    print MAKE "\n\t\@\$(RMDIR) \\\n";
-    for ( sort { length($b) <=> length($a) } keys %dirs_to_rm) {
-       print MAKE "\t$_ \\\n";
-    }
+    dump_cmd( sub { $_[0] }, 'RMDIR', sort { length($b) <=> length($a) } keys %dirs_to_rm);
     print MAKE "\n";
     print MAKE join( "\n", @footers), "\n";
 

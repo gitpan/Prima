@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_menu.c,v 1.25 2001/11/15 11:58:00 dk Exp $
+ * $Id: apc_menu.c,v 1.28 2002/05/14 13:22:35 dk Exp $
  */
 
 /***********************************************************/
@@ -846,8 +846,19 @@ AGAIN:
       DEFMM;
       int px, first = 0;
       PMenuWindow w;
+      XWindow focus = nilHandle;
       if ( prima_no_input( X(PComponent(self)->owner), false, true)) return;
       if ( ev-> xbutton. button != Button1) return;
+
+      if ( XX-> wstatic. w == win) {
+         Handle x = guts. focused, owner = PComponent(self)-> owner;
+         while ( x && !X(x)-> type. window) x = PComponent( x)-> owner;
+         if ( x != owner) {
+            XSetInputFocus( DISP, focus = PComponent( owner)-> handle, 
+               RevertToNone, ev-> xbutton. time);
+         }
+      }
+      
       if ( !( w = get_menu_window( self, win))) {
          prima_end_menu();
          return;
@@ -863,7 +874,10 @@ AGAIN:
          if ( ev-> type == ButtonRelease) return;
          if ( guts. currentMenu) 
             prima_end_menu();
-         XGetInputFocus( DISP, &XX-> focus, &rev);
+         if ( focus)
+            XX-> focus = focus;
+         else
+            XGetInputFocus( DISP, &XX-> focus, &rev);
          if ( !XX-> type. popup) {
             Handle topl = PComponent( self)-> owner;
             Handle who  = ( Handle) hash_fetch( guts.windows, (void*)&XX-> focus, sizeof(XX-> focus));

@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,9 +24,11 @@
  * SUCH DAMAGE.
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
-/* $Id: codec_png.c,v 1.3 2002/01/03 14:04:43 dk Exp $ */
+/* $Id: codec_png.c,v 1.5 2002/05/14 13:22:28 dk Exp $ */
 
+#define Z_PREFIX 
 #include <png.h>
+#undef Byte
 
 #ifndef PNG_GAMMA_THRESHOLD
 #define PNG_GAMMA_THRESHOLD 0.05

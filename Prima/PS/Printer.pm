@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
+#  $Id: Printer.pm,v 1.9 2002/05/14 13:22:24 dk Exp $
 #
 =head1 NAME
 
@@ -62,7 +63,7 @@ sub profile_default
 {
    my $def = $_[ 0]-> SUPER::profile_default;
    my %prf = (
-      resFile       => '~/.prima.printer',
+      resFile       => Prima::path . '/Printer',
       printer       => undef,
       defaultData   => {
          color          => 0,
@@ -199,7 +200,10 @@ sub data
    $self-> reversed( $p-> {portrait} ? 0 : 1) if exists $dd-> {portrait};
    $self-> pageSize( @{exists($pageSizes{$p-> {page}}) ? $pageSizes{$p-> {page}} : $pageSizes{A4}})
      if exists $dd-> {page};
-   $self-> useDeviceFonts( $p-> {useDeviceFonts}) if exists $dd-> {page};
+   if ( exists $dd-> {page}) {
+      $self-> useDeviceFonts( $p-> {useDeviceFonts});
+      $self-> useDeviceFontsOnly( $p-> {useDeviceFontsOnly});
+   }
    if ( defined $dv) {
       my %dp = %{$p-> {devParms}};
       for ( keys %dp) {
@@ -282,7 +286,7 @@ sub deepcopy
 
 sub setup_dialog
 {
-   require Prima::PS::Setup;
+   eval "use Prima::PS::Setup"; die "$@\n" if $@;
    $_[0]-> sdlg_exec;
 }
 
@@ -290,9 +294,9 @@ sub spool
 {
    my ( $self, $data) = @_;
    if ( $self-> {data}-> {spoolerType} == file) {
-      require Prima::MsgBox;
+      eval "use Prima::MsgBox"; die "$@\n" if $@;
       my $f = Prima::MsgBox::input_box( 'Print to file', 'Output file name:', '', mb::OKCancel, { buttons => {
-         mb::OK => { 
+         mb::OK, { 
          modalResult => undef,
          onClick => sub {
             $_[0]-> clear_event;

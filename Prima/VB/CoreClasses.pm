@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: CoreClasses.pm,v 1.24 2002/01/05 17:25:37 dk Exp $
+# $Id: CoreClasses.pm,v 1.25 2002/05/14 13:22:25 dk Exp $
 package Prima::VB::CoreClasses;
 use strict;
 

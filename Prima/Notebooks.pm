@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Notebooks.pm,v 1.17 2001/01/18 13:29:53 dk Exp $
+#  $Id: Notebooks.pm,v 1.19 2002/05/14 13:22:21 dk Exp $
 use strict;
 use Prima::Const;
 use Prima::Classes;
@@ -1038,9 +1038,9 @@ sub set_page_index
    $a |= 1 if $pix > 0;
    $a |= 2 if $pix < $mpi;
    my $newA = 0;
-   $pix = $self->{notebook}-> pageIndex;
-   $newA |= 1 if $pix > 0;
-   $newA |= 2 if $pix < $mpi;
+   $pi = $self->{notebook}-> pageIndex;
+   $newA |= 1 if $pi > 0;
+   $newA |= 2 if $pi < $mpi;
    $self->invalidate_rect(
       DefBorderX + 1, $size[1] - DefBorderX - $th - DefBookmarkX - 1,
       $size[0] - DefBorderX - (( $a == $newA) ? DefBookmarkX + 2 : 0),

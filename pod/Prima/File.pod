@@ -1,3 +1,5 @@
+=for rcs $Id: File.pod,v 1.2 2002/05/14 13:22:32 dk Exp $
+
 =head1 NAME
 
 File - asynchronous stream I/O.

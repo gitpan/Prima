@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: FontDialog.pm,v 1.15 2002/02/02 11:38:21 dk Exp $
+#  $Id: FontDialog.pm,v 1.17 2002/05/14 13:22:21 dk Exp $
 
 package Prima::FontDialog;
 
@@ -264,7 +264,8 @@ sub reset_sizelist
             push ( @sizes, $_->{size});
          }
       }
-      @sizes = sort { $a <=> $b } keys %{{(map { $_ => 1 } @sizes)}};
+      my %k = map { $_ => 1 } @sizes;
+      @sizes = sort { $a <=> $b } keys %k;
       @sizes = (10) unless scalar @sizes;
    }
    $self-> Size-> items( \@sizes);

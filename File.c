@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: File.c,v 1.19 2001/08/03 13:23:59 dk Exp $
+ * $Id: File.c,v 1.20 2002/05/14 13:22:16 dk Exp $
  */
 
 #include "apricot.h"

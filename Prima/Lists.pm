@@ -1,5 +1,5 @@
-#
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+##
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Anton Berezin  <tobez@tobez.org>
 #
-#  $Id: Lists.pm,v 1.34 2001/08/03 11:48:25 dk Exp $
+#  $Id: Lists.pm,v 1.36 2002/05/14 13:22:21 dk Exp $
 package Prima::Lists;
 
 # contains:
@@ -437,8 +437,9 @@ sub on_mousedown
       $self-> {anchor} = $item if $self->{extendedSelect};
    }
    $self-> {mouseTransaction} = 1;
-   $self-> focusedItem( $item >= 0 ? $item : 0);
-   $self-> selectedItems([$self->{focusedItem}]) if $self->{extendedSelect};
+   my $foc = $item >= 0 ? $item : 0;
+   $self-> selectedItems([$foc]) if $self->{extendedSelect};
+   $self-> focusedItem( $foc);
    $self-> capture(1);
 }
 
@@ -702,8 +703,8 @@ sub set_focused_item
    return if $self->{focusedItem} == $foc;
    return if $foc < -1;
    $self->{focusedItem} = $foc;
-   $self-> notify(q(SelectItem), [ $foc], 1) if $foc >= 0;
    $self-> selectedItems([$foc]) if $self->{extendedSelect} && ! exists $self->{anchor};
+   $self-> notify(q(SelectItem), [ $foc], 1) if $foc >= 0 && !exists $self-> {selectedItems}-> {$foc};
    my $topSet = undef;
    if ( $foc >= 0)
    {
@@ -885,7 +886,7 @@ sub get_selected_count
 
 sub is_selected
 {
-   return exists $_[0]->{selectedItems}->{$_[1]};
+   return exists($_[0]->{selectedItems}->{$_[1]}) ? 1 : 0;
 }
 
 sub set_item_selected
@@ -901,7 +902,7 @@ sub set_item_selected
 
 sub select_item   {  $_[0]-> set_item_selected( $_[1], 1); }
 sub unselect_item {  $_[0]-> set_item_selected( $_[1], 0); }
-sub toggle_item   {  $_[0]-> set_item_selected( $_[1], !$_[0]-> is_selected( $_[1]))}
+sub toggle_item   {  $_[0]-> set_item_selected( $_[1], $_[0]-> is_selected( $_[1]) ? 0 : 1)}
 
 sub add_selection
 {

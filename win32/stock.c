@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: stock.c,v 1.57 2002/02/19 14:08:08 dk Exp $
+ * $Id: stock.c,v 1.62 2002/05/15 11:53:44 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 /*
@@ -334,7 +334,7 @@ elf( Font * font, Bool bySize)
 {
    unsigned long seed = 0;
    if ( bySize) {
-      seed = elf_hash( (const char*)&font-> width, (char *)(&(font-> name)) - (char *)&(font-> width), seed);
+      seed = elf_hash( (const char*)&font-> style, (char *)(&(font-> name)) - (char *)&(font-> style), seed);
       seed = elf_hash( font-> name, -1, seed);
       seed = elf_hash( font-> encoding, -1, seed);
       seed = elf_hash( (const char*)&font-> size, sizeof( font-> size), seed);
@@ -362,10 +362,10 @@ find_node( const PFont font, Bool bySize)
    else
       node = fontHash. buckets[ i];
    if ( bySize) {
-      sz = (char *)(&(font-> name)) - (char *)&(font-> width);
+      sz = (char *)(&(font-> name)) - (char *)&(font-> style);
       while ( node != nil)
       {
-         if (( memcmp( &(font-> width), &(node-> key. width), sz) == 0) &&
+         if (( memcmp( &(font-> style), &(node-> key. style), sz) == 0) &&
              ( strcmp( font-> name, node-> key. name) == 0 ) &&
              ( strcmp( font-> encoding, node-> key. encoding) == 0 ) &&
              (font-> size == node-> key. size))
@@ -918,7 +918,16 @@ font_font2gp_internal( PFont font, Point res, Bool forceSize, HDC theDC)
    strncpy( elf. lfFaceName, font-> name, LF_FACESIZE);
    elf. lfPitchAndFamily = 0;
    elf. lfCharSet = font_encoding2charset( font-> encoding);
-   EnumFontFamiliesEx( dc, &elf, ( FONTENUMPROC) fep, ( LPARAM) &es, 0);
+   if ( IS_WIN95 && elf. lfCharSet == DEFAULT_CHARSET) {
+      int i;
+      for ( i = 0; i < sizeof( ctx_CHARSET2index) / 2; i+=2) {
+         elf. lfCharSet = ctx_CHARSET2index[ i];
+         EnumFontFamiliesEx( dc, &elf, ( FONTENUMPROC) fep, ( LPARAM) &es, 0);
+      }
+      elf. lfCharSet = DEFAULT_CHARSET;
+   } else {
+      EnumFontFamiliesEx( dc, &elf, ( FONTENUMPROC) fep, ( LPARAM) &es, 0);
+   }
 
    // check encoding match
    if (( es. passedCount == 0) && ( elf. lfCharSet != DEFAULT_CHARSET)) {
@@ -1171,8 +1180,16 @@ apc_fonts( Handle self, const char* facename, const char *encoding, int * retCou
    list_create( &f. lst, 256, 256);
    memset( &elf, 0, sizeof( elf));
    strncpy( elf. lfFaceName, facename ? facename : "", LF_FACESIZE);
-   elf. lfCharSet = font_encoding2charset( encoding); 
-   EnumFontFamiliesEx( dc, &elf, ( FONTENUMPROC) fep2, ( LPARAM) &f, 0);
+   if ( IS_WIN95 && facename && !encoding) {
+      int i;
+      for ( i = 0; i < sizeof( ctx_CHARSET2index) / 2; i+=2) {
+         elf. lfCharSet = ctx_CHARSET2index[ i];
+         EnumFontFamiliesEx( dc, &elf, ( FONTENUMPROC) fep2, ( LPARAM) &f, 0);
+      }
+   } else {
+      elf. lfCharSet = font_encoding2charset( encoding); 
+      EnumFontFamiliesEx( dc, &elf, ( FONTENUMPROC) fep2, ( LPARAM) &f, 0);
+   }
    if ( f. hash) {
       hash_destroy( f. hash, false);
       f. hash = nil;
@@ -1755,6 +1772,7 @@ palette_change( Handle self)
 
    if ( l. l. count == 0) {
       list_destroy( &l.l);
+      hwnd_repaint( self);
       return false;
    }
 
@@ -1763,6 +1781,7 @@ palette_change( Handle self)
    p = ( PRGBColor) malloc( sizeof( RGBColor) * l. sz);
    if ( !p) {
       list_destroy( &l.l);
+      hwnd_repaint( self);
       return false;
    }
    
@@ -1770,6 +1789,7 @@ palette_change( Handle self)
    if ( !d) {
       free( p);
       list_destroy( &l.l);
+      hwnd_repaint( self);
       return false;
    }
 
@@ -1796,7 +1816,7 @@ palette_change( Handle self)
    DeleteObject( SelectPalette( dc, pal, 0));
    ReleaseDC( HANDLE, dc);
 
-   if ( rCol > 0) hwnd_repaint( self);
+   hwnd_repaint( self);
 
    list_destroy( &l.l);
    return true;

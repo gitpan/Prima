@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dev.c,v 1.40 2002/01/03 14:04:45 dk Exp $
+ * $Id: dev.c,v 1.44 2002/05/14 22:00:48 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -191,9 +191,6 @@ bm_put_zs( HBITMAP hbm, int x, int y, int z)
 }
 */
 
-
-
-
 HBITMAP
 image_make_bitmap_handle( Handle img, HPALETTE pal)
 {
@@ -207,15 +204,17 @@ image_make_bitmap_handle( Handle img, HPALETTE pal)
    if ( !dc)
       apiErr;
 
+   if ( bi-> bmiHeader. biClrUsed > 0)
+      bi-> bmiHeader. biClrUsed = bi-> bmiHeader. biClrImportant = PImage(img)-> palSize;
+
    if ( xpal == nil)
       xpal = image_make_bitmap_palette( img);
 
    if ( xpal) {
       old = SelectPalette( dc, xpal, 1);
-      RealizePalette( dc);        // m$ suxx !!!
+      RealizePalette( dc);        
    }
 
-   // if (((( PImage) img)-> type & imBPP) != 1)
    if ((( PImage) img)-> type != imBW)
       bm = CreateDIBitmap( dc, &bi-> bmiHeader, CBM_INIT,
         (( PImage) img)-> data, bi, DIB_RGB_COLORS);
@@ -618,7 +617,7 @@ image_make_icon_handle( Handle img, Point size, Point * hotSpot, Bool forPointer
    ii. xHotspot = hotSpot ? hotSpot-> x : 0;
    ii. yHotspot = hotSpot ? hotSpot-> y : 0;
 
-   if ( noSZ || noBPP)
+   if ( noSZ || noBPP || ( !notAnIcon && !IS_NT))
       i = ( PIcon)( i-> self-> dup( img));
 
    if ( IS_WIN95 && forPointer && ( guts. displayBMInfo. bmiHeader. biBitCount <= 4)) {
@@ -642,6 +641,8 @@ image_make_icon_handle( Handle img, Point size, Point * hotSpot, Bool forPointer
       return NULL;
    }
    image_get_binfo(( Handle)i, &bi);
+   if ( bi. bmiHeader. biClrUsed > 0)
+      bi. bmiHeader. biClrUsed = bi. bmiHeader. biClrImportant = i-> palSize;
 
   // if ( 0) {
    if ( IS_NT) {
@@ -657,7 +658,7 @@ image_make_icon_handle( Handle img, Point size, Point * hotSpot, Bool forPointer
    } else {
 // Moronious and "macaronious" code for Win95 -
 // since CreateIconIndirect gives results so weird,
-// we use following sequence.
+// we use the following sequence.
 	 Byte * mask;
          if ( !notAnIcon) {
             int mSize = i-> maskSize / i-> h;
@@ -702,6 +703,9 @@ image_make_icon_handle( Handle img, Point size, Point * hotSpot, Bool forPointer
          apiErrRet;
       }
       GetIconInfo( r, &ii);
+      ii. fIcon = hotSpot ? false : true;
+      ii. xHotspot = hotSpot ? hotSpot-> x : 0;
+      ii. yHotspot = hotSpot ? hotSpot-> y : 0;
       DeleteObject( ii. hbmColor);
 
       if ( !( ii. hbmColor = CreateDIBitmap( dc, &bi. bmiHeader, CBM_INIT,

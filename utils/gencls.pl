@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: gencls.pl,v 1.15 2000/10/18 11:58:28 tobez Exp $
+#  $Id: gencls.pl,v 1.16 2002/05/14 13:22:36 dk Exp $
 #
 
 use lib qw( ..);

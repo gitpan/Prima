@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@
 #  Documentation by:
 #     Anton Berezin  <tobez@tobez.org>
 #
-#  $Id: ScrollBar.pm,v 1.12 2001/07/02 18:55:10 dk Exp $
+#  $Id: ScrollBar.pm,v 1.13 2002/05/14 13:22:21 dk Exp $
 
 package Prima::ScrollBar;
 use vars qw(@ISA @stdMetrics);

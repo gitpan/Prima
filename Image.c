@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,17 +23,10 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Image.c,v 1.95 2002/01/26 20:11:35 dk Exp $
+ * $Id: Image.c,v 1.104 2002/06/19 13:30:14 dk Exp $
  */
 
 #include "img.h"
-
-#ifndef __unix
-#   include <io.h>
-#else
-#   include <unistd.h>
-#endif /* __unix */
-#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <limits.h>
@@ -43,6 +36,7 @@
 #include "img_conv.h"
 #include <Image.inc>
 #include "Clipboard.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -91,8 +85,11 @@ Image_init( Handle self, HV * profile)
       my-> set_data( self, pget_sv( data));
    opt_assign( optPreserveType, pget_B( preserveType));
    var->palSize = (1 << (var->type & imBPP)) & 0x1ff;
-   if (!( var->type & imGrayScale))
-      apc_img_read_palette( var->palette, pget_sv( palette));
+   if (!( var->type & imGrayScale)) {
+      int ps = apc_img_read_palette( var->palette, pget_sv( palette));
+      if ( ps) var-> palSize = ps;
+   }
+
    {
       Point set;
       prima_read_point( pget_sv( resolution), (int*)&set, 2, "RTC0109: Array panic on 'resolution'");
@@ -114,13 +111,16 @@ Image_init( Handle self, HV * profile)
    my->update_change( self);
 }
 
-
 void
 Image_reset( Handle self, int type, SV * palette)
 {
+   int ps;
    Byte * newData = nil;
    if ( var->stage > csFrozen) return;
+
+   ps = (1 << ( type & imBPP)) & 0x1ff;
    if (!( type & imGrayScale)) {
+      int pps;
       switch ( type) {
       case im16:
          if (( var-> type & imBPP) < im16) {
@@ -135,7 +135,8 @@ Image_reset( Handle self, int type, SV * palette)
          }
          break;
       }
-      apc_img_read_palette( var->palette, palette);
+      pps = apc_img_read_palette( var->palette, palette);
+      if ( pps) ps = pps;
    }
    if ( var->type == imByte && type == im256)
    {
@@ -144,7 +145,7 @@ Image_reset( Handle self, int type, SV * palette)
    }
    var->lineSize = (( var->w * ( type & imBPP) + 31) / 32) * 4;
    var->dataSize = ( var->lineSize) * var->h;
-   var->palSize = (1 << ( type & imBPP)) & 0x1ff;
+   var->palSize  = ps;
    if ( var->dataSize > 0) {
       newData = allocb( var-> dataSize);
       if ( newData == nil) {
@@ -221,8 +222,15 @@ Image_set( Handle self, HV * profile)
       if ( !itype_supported( newType))
          warn("RTC0100: Invalid image type requested (%08x) in Image::set_type", newType);
       else 
-         if ( !opt_InPaint)
-            my-> reset( self, newType, pexist( palette) ? pget_sv( palette) : my->get_palette( self));
+         if ( !opt_InPaint) {
+            if ( pexist( palette)) {
+               my-> reset( self, newType, pget_sv( palette));
+            } else {
+               SV * palette = my-> get_palette( self);
+               my-> reset( self, newType, palette);
+               sv_free( palette);
+            }
+         }
       pdelete( palette);
       pdelete( type);
    }
@@ -399,8 +407,14 @@ Image_set_extended_data( Handle self, HV * profile)
    /* fixing image and maybe palette - for known type it's same code as in ::set, */
    /* but here's no sense calling it, just doing what we need. */
    if ( fixType != var-> type) { 
-      my-> reset( self, fixType, pexist( palette) ? pget_sv( palette) : my-> get_palette( self));
-      pdelete( palette);
+      if ( pexist( palette)) {
+         my-> reset( self, fixType, pget_sv( palette));
+         pdelete( palette);
+      } else {
+         SV * palette = my-> get_palette( self);
+         my-> reset( self, fixType, palette);
+         sv_free( palette);
+      }
    }   
 
     /* copying user data */
@@ -601,15 +615,15 @@ Image_end_paint( Handle self)
       switch( var->type)
       {
          case imbpp1:
-            if ( memcmp( var->palette, stdmono_palette, sizeof( stdmono_palette)) == 0)
+            if ( var-> palSize == 2 && memcmp( var->palette, stdmono_palette, sizeof( stdmono_palette)) == 0)
                var->type |= imGrayScale;
             break;
          case imbpp4:
-            if ( memcmp( var->palette, std16gray_palette, sizeof( std16gray_palette)) == 0)
+            if ( var-> palSize == 16 && memcmp( var->palette, std16gray_palette, sizeof( std16gray_palette)) == 0)
                var->type |= imGrayScale;
             break;
          case imbpp8:
-            if ( memcmp( var->palette, std256gray_palette, sizeof( std256gray_palette)) == 0)
+            if ( var-> palSize == 256 && memcmp( var->palette, std256gray_palette, sizeof( std256gray_palette)) == 0)
                var->type |= imGrayScale;
             break;
       }
@@ -711,9 +725,13 @@ Image_palette( Handle self, Bool set, SV * palette)
 {
    if ( var->stage > csFrozen) return nilSV;
    if ( set) {
+      int ps;
       if ( var->type & imGrayScale) return nilSV;
       if ( !var->palette)           return nilSV;
-      if ( !apc_img_read_palette( var->palette, palette))
+      ps = apc_img_read_palette( var->palette, palette);
+      if ( ps)
+         var-> palSize = ps;
+      else
          warn("RTC0107: Invalid array reference passed to Image::palette");
       my-> update_change( self);
    } else {
@@ -722,6 +740,7 @@ Image_palette( Handle self, Bool set, SV * palette)
       int colors = ( 1 << ( var->type & imBPP)) & 0x1ff;
       Byte * pal = ( Byte*) var->palette;
       if (( var->type & imGrayScale) && (( var->type & imBPP) > imbpp8)) colors = 256;
+      if ( var-> palSize < colors) colors = var-> palSize;
       for ( i = 0; i < colors*3; i++) av_push( av, newSViv( pal[ i]));
       return newRV_noinc(( SV *) av);
    }
@@ -931,7 +950,7 @@ Image_bitmap( Handle self)
    pset_H( owner,        var->owner);
    pset_i( width,        var->w);
    pset_i( height,       var->h);
-   pset_sv( palette,     my->get_palette( self));
+   pset_sv_noinc( palette,     my->get_palette( self));
    pset_i( monochrome,   (var-> type & imBPP) == 1);
    h = Object_create( "Prima::DeviceBitmap", profile);
    sv_free(( SV *) profile);
@@ -961,6 +980,7 @@ Image_dup( Handle self)
    sv_free(( SV *) profile);
    i = ( PImage) h;
    memcpy( i-> palette, var->palette, 768);
+   i-> palSize = var-> palSize;
    if ( i-> type != var->type)
       croak("RTC0108: Image::dup consistency failed");
    else
@@ -1011,6 +1031,7 @@ Image_extract( Handle self, int x, int y, int width, int height)
 
    i = ( PImage) h;
    memcpy( i-> palette, var->palette, 768);
+   i-> palSize = var-> palSize;
    if (( var->type & imBPP) >= 8) {
       int pixelSize = ( var->type & imBPP) / 8;
       while ( height > 0) {
@@ -1054,6 +1075,7 @@ Image_map( Handle self, Color color)
    int   type = var-> type, height = var-> h, i, ls;
    int   rop[2]; 
    RGBColor r[2];
+   int b[2], bc = 0;
 
    if ( var-> data == nil) return;
 
@@ -1081,6 +1103,11 @@ Image_map( Handle self, Color color)
          r[i]. g = ( c >> 8) & 0xff;
          r[i]. b = c & 0xff;
       }} 
+               
+      if (( type & imBPP) <= 8) {
+         b[0] = cm_nearest_color( r[0], var-> palSize, var-> palette);
+         b[1] = cm_nearest_color( r[1], var-> palSize, var-> palette);
+      }
       
       switch ( rop[i]) {
       case ropNotPut:
@@ -1100,48 +1127,101 @@ Image_map( Handle self, Color color)
       }
    }         
 
+
    c. r = ( color >> 16) & 0xff;
    c. g = ( color >> 8) & 0xff;
    c. b = color & 0xff;
-   
-   my-> set_type( self, imRGB);
+   if (( type & imBPP) <= 8) {
+      Color cc;
+      bc = cm_nearest_color( c, var-> palSize, var-> palette);
+      cc = ARGB( var->palette[bc].r, var->palette[bc].g, var->palette[bc].b);
+      if ( cc != color) bc = 0xffff; /* no exact color found */
+   }
+  
+   if (
+        (( type & imBPP) < 8) ||
+        (
+           ( type != imRGB) &&
+           ( type != imRGB | imGrayScale)
+        )
+      ) {
+      if ( type & imGrayScale)
+         my-> set_type( self, imbpp8 | imGrayScale);
+      else
+         my-> set_type( self, imbpp8);
+   }
 
    d = ( Byte * ) var-> data;
    ls = var-> lineSize;
    
    while ( height--) {
-      PRGBColor data = ( PRGBColor) d;
-      for ( i = 0; i < var-> w; i++) {
-         int z = ( data-> r == c.r && data-> g == c.g && data-> b == c.b) ? 0 : 1;
-         switch( rop[z]) {
-         case ropAndPut:     
-            data-> r &= r[z]. r; data-> g &= r[z]. g; data-> b &= r[z]. b; break;
-         case ropXorPut:     
-            data-> r ^= r[z]. r; data-> g ^= r[z]. g; data-> b ^= r[z]. b; break;
-         case ropOrPut:      
-            data-> r |= r[z]. r; data-> g |= r[z]. g; data-> b |= r[z]. b; break;
-         case ropNotDestAnd: 
-            data-> r = ( ~data-> r) & r[z].r; data-> g = ( ~data-> g) & r[z].g; data-> b = ( ~data-> b) & r[z].b; break;
-         case ropNotDestOr:  
-            data-> r = ( ~data-> r) | r[z].r; data-> g = ( ~data-> g) | r[z].g; data-> b = ( ~data-> b) | r[z].b; break;
-         case ropNotDestXor: 
-            data-> r = ( ~data-> r) ^ r[z].r; data-> g = ( ~data-> g) ^ r[z].g; data-> b = ( ~data-> b) ^ r[z].b; break;
-         case ropNotAnd:     
-            data-> r = ~(data-> r & r[z].r); data-> g = ~(data-> g & r[z].g); data-> b = ~(data-> b & r[z].b); break;
-         case ropNotOr:      
-            data-> r = ~(data-> r | r[z].r); data-> g = ~(data-> g | r[z].g); data-> b = ~(data-> b | r[z].b); break;
-         case ropNotXor:     
-            data-> r = ~(data-> r ^ r[z].r); data-> g = ~(data-> g ^ r[z].g); data-> b = ~(data-> b ^ r[z].b); break;
-         case ropNoOper:     
-            break;   
-         case ropInvert:     
-            data-> r = ~r[z]. r; data-> g = ~r[z]. g; data-> b = ~r[z]. b; break;
-         default:            
-            data-> r = r[z]. r; data-> g = r[z]. g; data-> b = r[z]. b;
-         }      
-         data++;
-      }   
-      d += ls;
+      if (( type & imBPP) == 24) {
+         PRGBColor data = ( PRGBColor) d;
+         for ( i = 0; i < var-> w; i++) {
+            int z = ( data-> r == c.r && data-> g == c.g && data-> b == c.b) ? 0 : 1;
+            switch( rop[z]) {
+            case ropAndPut:     
+               data-> r &= r[z]. r; data-> g &= r[z]. g; data-> b &= r[z]. b; break;
+            case ropXorPut:     
+               data-> r ^= r[z]. r; data-> g ^= r[z]. g; data-> b ^= r[z]. b; break;
+            case ropOrPut:      
+               data-> r |= r[z]. r; data-> g |= r[z]. g; data-> b |= r[z]. b; break;
+            case ropNotDestAnd: 
+               data-> r = ( ~data-> r) & r[z].r; data-> g = ( ~data-> g) & r[z].g; data-> b = ( ~data-> b) & r[z].b; break;
+            case ropNotDestOr:  
+               data-> r = ( ~data-> r) | r[z].r; data-> g = ( ~data-> g) | r[z].g; data-> b = ( ~data-> b) | r[z].b; break;
+            case ropNotDestXor: 
+               data-> r = ( ~data-> r) ^ r[z].r; data-> g = ( ~data-> g) ^ r[z].g; data-> b = ( ~data-> b) ^ r[z].b; break;
+            case ropNotAnd:     
+               data-> r = ~(data-> r & r[z].r); data-> g = ~(data-> g & r[z].g); data-> b = ~(data-> b & r[z].b); break;
+            case ropNotOr:      
+               data-> r = ~(data-> r | r[z].r); data-> g = ~(data-> g | r[z].g); data-> b = ~(data-> b | r[z].b); break;
+            case ropNotXor:     
+               data-> r = ~(data-> r ^ r[z].r); data-> g = ~(data-> g ^ r[z].g); data-> b = ~(data-> b ^ r[z].b); break;
+            case ropNoOper:     
+               break;   
+            case ropInvert:     
+               data-> r = ~r[z]. r; data-> g = ~r[z]. g; data-> b = ~r[z]. b; break;
+            default:            
+               data-> r = r[z]. r; data-> g = r[z]. g; data-> b = r[z]. b;
+            }      
+            data++;
+         }   
+         d += ls;
+      } else {
+         Byte * data = d;
+         for ( i = 0; i < var-> w; i++) {
+            int z = ( *data == bc) ? 0 : 1;
+            switch( rop[z]) {
+            case ropAndPut:     
+               *data &= b[z]; break;
+            case ropXorPut:     
+               *data ^= b[z]; break;
+            case ropOrPut:      
+               *data |= b[z]; break;
+            case ropNotDestAnd: 
+               *data = (~(*data)) & b[z]; break;
+            case ropNotDestOr:  
+               *data = (~(*data)) | b[z]; break;
+            case ropNotDestXor: 
+               *data = (~(*data)) ^ b[z]; break;
+            case ropNotAnd:     
+               *data = ~(*data & b[z]); break;
+            case ropNotOr:      
+               *data = ~(*data | b[z]); break;
+            case ropNotXor:     
+               *data = ~(*data ^ b[z]); break;
+            case ropNoOper:     
+               break;   
+            case ropInvert:     
+               *data = ~b[z]; break;
+            default:            
+               *data = b[z]; break;
+            }      
+            data++;
+         }   
+         d += ls;
+      }
    }   
 
    if ( is_opt( optPreserveType) && var->type != type) 
@@ -1164,6 +1244,51 @@ Image_codecs( SV * dummy)
    plist_destroy( p);
    return newRV_noinc(( SV *) av); 
 }
+
+void
+Image_put_image( Handle self, int x , int y , Handle image )
+{
+   Point size;
+   if ( is_opt( optInDrawInfo)) return;
+   if ( image == nilHandle) return;
+   if ( is_opt( optInDraw)) {
+      inherited put_image( self, x, y, image);
+      return;
+   }
+   if ( !kind_of( image, CImage)) return;
+   size = ((( PDrawable) image)-> self)-> get_size( image);
+   img_put( self, image, x, y, 0, 0, size.x, size.y, size.x, size.y, my-> get_rop( self));
+   my-> update_change( self);
+}
+
+void
+Image_stretch_image(Handle self, int x, int y, int xDest, int yDest, Handle image)
+{
+   if ( is_opt( optInDrawInfo)) return;
+   if ( image == nilHandle) return;
+   if ( is_opt( optInDraw)) {
+      inherited stretch_image( self, x, y, xDest, yDest, image);
+      return;
+   }
+   if ( !kind_of( image, CImage)) return;
+   img_put( self, image, x, y, 0, 0, xDest, yDest, PImage(image)-> w, PImage(image)-> h, my-> get_rop( self));
+   my-> update_change( self);
+}
+
+void
+Image_put_image_indirect( Handle self, Handle image, int x, int y, int xFrom, int yFrom, int xDestLen, int yDestLen, int xLen, int yLen, int rop)
+{
+   if ( is_opt( optInDrawInfo)) return;
+   if ( image == nilHandle) return;
+   if ( is_opt( optInDraw)) {
+      inherited put_image_indirect( self, image, x, y, xFrom, yFrom, xDestLen, yDestLen, xLen, yLen, rop);
+      return;
+   }
+   if ( !kind_of( image, CImage)) return;
+   img_put( self, image, x, y, xFrom, yFrom, xDestLen, yDestLen, xLen, yLen, rop);
+   my-> update_change( self);
+}
+
 
 #ifdef __cplusplus
 }

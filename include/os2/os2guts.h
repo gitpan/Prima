@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: os2guts.h,v 1.15 2000/10/23 09:16:29 dk Exp $ */
+/* $Id: os2guts.h,v 1.18 2002/05/14 13:22:30 dk Exp $ */
 
 #ifndef _OS2GUTS_H_
 #define _OS2GUTS_H_
@@ -59,6 +59,9 @@
 #define WM_FORCEFOCUS                     ( WM_USER + 15)
 #define WM_ZORDERSYNC                     ( WM_USER + 16)
 #define WM_REPAINT                        ( WM_USER + 17)
+#define WM_SOCKET                         ( WM_USER + 18)
+#define WM_CROAK                          ( WM_USER + 19)
+#define WM_SOCKET_REHASH                  ( WM_USER + 20)
 #define WM_TERMINATE                      ( WM_USER + 99)
 #define WM_FIRST_USER_MESSAGE             ( WM_USER +100)
 #define WM_LAST_USER_MESSAGE              ( WM_USER +900)
@@ -73,6 +76,7 @@
 #define DEFAULT_SYSTEM_FONT              "System VIO"
 #define CTRL_ID_AUTOSTART                100
 #define MENU_ID_AUTOSTART                1000
+#define FONT_FONTSPECIFIC                "fontspecific"
 #define csAxEvents csFrozen
 
 #define WC_CUSTOM ((PSZ)0)
@@ -113,13 +117,15 @@ typedef struct _OS2Guts
    int   pointerLock;        // pointer lock count
    Bool  pointerInvisible;   // pointer visibility state;
    ULONG codePage;           // current system codepage
-   HWND  helpWnd;            // help window id
    Bool  focSysDisabled;     // focus system disabled
    Bool  focSysGranted;      // WinSetFocus() was called inside apc_widget_set_focused
    Bool  appTypePM;          // startup check, whether our application is PM
    List  eventHooks;         // event hook list
    Byte  msgMask[100];       // 800 user-defined messages allowed
-
+   int   socketThread;       // the socket thread ID
+   HMTX  socketMutex;        // mutex for the socket thread
+   Bool  socketPostSync;     // post-message flag for the socket thread
+   List  files;              // files, participating in select()
 } OS2Guts;
 
 extern OS2Guts guts;
@@ -287,6 +293,7 @@ typedef struct _DrawableData
      TimerData     timer;
      WindowData    window;
      PrinterData   prn;
+     int           file;
      HRGN          imgCachedRegion;      // Image specific field
    } s;
 } DrawableData, *PDrawableData;
@@ -373,5 +380,12 @@ extern void *create_fontid_hash       ( void);
 extern void destroy_fontid_hash       ( void *hash);
 extern int get_fontid_from_hash       ( void *hash, const PFont font, SIZEF *sz, int *vectored);
 extern void add_fontid_to_hash        ( void *hash, int id, const PFont font, const SIZEF *sz, int vectored);
+
+extern USHORT font_enc2cp( const char * encoding);
+extern char * font_cp2enc( USHORT codepage);
+
+
+extern void socket_rehash ( void);
+
 
 #endif

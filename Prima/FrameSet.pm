@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
 #  Created by:
 #     Vadim Belman <voland@lflat.org>
 #
-#  $Id: FrameSet.pm,v 1.2 2002/02/15 12:41:28 dk Exp $
+#  $Id: FrameSet.pm,v 1.3 2002/05/14 13:22:21 dk Exp $
 use strict;
 use Prima;
 use Prima::Const;

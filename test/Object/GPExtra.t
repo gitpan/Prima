@@ -1,4 +1,4 @@
-# $Id: GPExtra.t,v 1.4 2001/05/02 10:44:07 dk Exp $
+# $Id: GPExtra.t,v 1.5 2002/03/12 09:24:47 dk Exp $
 print "1..5 linePattern,lineWidth,fillPattern,dithering,rop paint\n";
 
 my $x = Prima::DeviceBitmap-> create( monochrome => 1, width => 8, height => 8);
@@ -37,11 +37,10 @@ $x-> backColor( cl::White);
 $x-> fillPattern( fp::SimpleDots);
 $x-> bar( 0, 0, 7, 7);
 $x-> fillPattern( fp::Solid);
-$bl = 0;
-for ( $i = 0; $i < 8; $i++) {
-   $bl++ if $x-> pixel( $i, 4) == 0;
-}
-ok( $bl == 4);
+$bl = $x-> image;
+$bl-> type( im::Byte);
+$bl = $bl-> sum;
+ok( $bl > 6000 && $bl < 10000 );
 
 # 4
 $x-> color( cl::White);

@@ -1,6 +1,6 @@
 #! /usr/bin/perl -w
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: iv.pl,v 1.15 2001/10/25 11:21:10 dk Exp $
+#  $Id: iv.pl,v 1.19 2002/05/16 11:46:33 dk Exp $
 #
 =pod 
 =item NAME
@@ -109,10 +109,10 @@ sub menuadd
       $_[0]-> menu-> insert(
          [
            ['~Edit' => [
-              ['~Copy' => 'Ctrl+Ins' => km::Ctrl|kb::Insert => sub {
+              ['~Copy' => 'Ctrl+Ins' => km::Ctrl|kb::Insert , sub {
                  $::application-> Clipboard->image($_[0]->IV->image)
               }],
-              ['~Paste' => 'Shift+Ins' => km::Shift|kb::Insert => sub {
+              ['~Paste' => 'Shift+Ins' => km::Shift|kb::Insert , sub {
                  my $i = $::application-> Clipboard->image;
                  $_[0]->IV->image( $i) if $i;
                  status($_[0]);
@@ -185,28 +185,32 @@ sub freopen
    }
 }
 
+sub newwindow
+{
+   my ( $self, $filename, $i) = @_;
+   my $w = Prima::Window-> create(
+      onDestroy => \&iv_destroy,
+      menuItems => $self-> menuItems,
+      onMouseWheel => sub { iv_mousewheel( shift-> IV, @_)},
+      size         => [ $i-> width + 50, $i-> height + 50],
+   );
+   $winCount++;
+   $w-> insert( ImageViewer =>
+       size   => [ $w-> size],
+       %iv_prf,
+   );
+   $w-> IV-> image( $i);
+   $w-> IV-> {fileName} = $filename;
+   $w-> {omenuID} = $self-> {omenuID};
+   $w-> select;
+   status($w);
+}
+
 sub fnewopen
 {
-   my $self = $_[0]-> IV;
    my $dlg  = Prima::ImageOpenDialog-> create();
    my $i = $dlg-> load;
-   if ( $i) {
-      my $w = Prima::Window-> create(
-         onDestroy => \&iv_destroy,
-         menuItems => $_[0]-> menuItems,
-         onMouseWheel => sub { iv_mousewheel( shift-> IV, @_)},
-      );
-      $winCount++;
-      $w-> insert( ImageViewer =>
-          size   => [ $w-> size],
-          %iv_prf,
-      );
-      $w-> IV-> image( $i);
-      $w-> IV-> {fileName} = $dlg-> fileName;
-      $w-> {omenuID} = $self-> owner-> {omenuID};
-      $w-> select;
-      status($w);
-   }
+   newwindow( $_[0], $dlg-> fileName, $i) if $i;
    $dlg-> destroy;
 }
 
@@ -354,7 +358,7 @@ my $w = Prima::Window-> create(
    onMouseWheel => sub { iv_mousewheel( shift-> IV, @_)},
    menuItems => [
      [ file => '~File' => [
-        [ '~Open' =>  'F3'     => kb::F3     => \&fdopen],
+        [ '~Open' =>  'F3'     => kb::F3     , \&fdopen],
         [],
         [ 'E~xit' => 'Alt+X' => '@X' => sub {$::application-> close}],
      ]],
@@ -371,7 +375,12 @@ if ( @ARGV && $ARGV[0] =~ /^-z(\d+(\.\d*)?)$/) {
    $w->IV->zoom($1);
    shift @ARGV;
 }
-fload( $w, $ARGV[0]) if @ARGV;
+fload( $w, $ARGV[0]), shift if @ARGV;
+for ( @ARGV) {
+   my $i = Prima::Image-> load($_);
+   Prima::MsgBox::message("Cannot load $_:$@"), next unless $i;
+   newwindow( $w, $_, $i);
+}
 
 run Prima;
 

@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: os2guts.c,v 1.20 2002/01/03 14:04:44 dk Exp $
+ * $Id: os2guts.c,v 1.23 2002/05/14 13:22:32 dk Exp $
  */
 /* Created by:
      Dmitry Karasik <dk@plab.ku.dk>
@@ -164,6 +164,7 @@ window_subsystem_init( void)
    list_create( &guts. psList, 8, 8);
    list_create( &guts. winPsList, 8, 8);
    list_create( &guts. eventHooks, 1, 1);
+   list_create( &guts. files, 8, 8);
    guts. appLock = 0;
    guts. pointerLock = 0;
 
@@ -214,6 +215,15 @@ void
 window_subsystem_done( void)
 {
    HDC dc = GpiQueryDevice( guts. ps);
+
+   if ( guts. socketMutex) {
+      // appDead must be TRUE for this moment!
+      appDead = true;
+      DosCloseMutexSem( guts. socketMutex);
+   }
+
+   
+   list_destroy( &guts. files);
    list_destroy( &guts. eventHooks);
    list_destroy( &guts. transp);
    list_first_that( &guts. psList, freePS, nil);
@@ -521,9 +531,6 @@ generic_view_handler( HWND w, ULONG msg, MPARAM mp1, MPARAM mp2)
          return 0;
       case WM_FONTCHANGED:
          ev. cmd = cmFontChanged;
-         break;
-      case WM_VIEWHELP:
-         ev. cmd         = cmHelp;
          break;
       case WM_HELP:
          if ( apc_widget_is_responsive( self)) {

@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
 #  Modifications by:
 #     David Scott <dscott@dgt.com>
 #
-#  $Id: FileDialog.pm,v 1.17 2002/01/05 17:25:36 dk Exp $
+#  $Id: FileDialog.pm,v 1.18 2002/05/14 13:22:21 dk Exp $
 
 #  contains:
 #      

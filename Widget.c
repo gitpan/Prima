@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Widget.c,v 1.107 2002/02/15 15:41:28 dk Exp $
+ * $Id: Widget.c,v 1.114 2002/05/14 13:22:18 dk Exp $
  */
 
 #include "apricot.h"
@@ -81,7 +81,7 @@ Widget_init( Handle self, HV * profile)
    var-> tabOrder = -1;
 
    if ( !kind_of( var-> owner, CWidget)) {
-      croak("Illegal object reference passed to Widget::init");
+      croak("Illegal owner object reference passed to Widget::init");
       return;
    }
 
@@ -115,8 +115,8 @@ Widget_init( Handle self, HV * profile)
    my-> set_buffered           ( self, pget_B( buffered));
    my-> set_cursorVisible      ( self, pget_B( cursorVisible));
    my-> set_growMode           ( self, pget_i( growMode));
+   my-> set_helpContext        ( self, pget_c( helpContext));
    my-> set_hint               ( self, pget_c( hint));
-   my-> set_helpContext        ( self, pget_i( helpContext));
    my-> set_firstClick         ( self, pget_B( firstClick));
    {
       Point hotSpot;
@@ -252,10 +252,14 @@ Widget_update_sys_handle( Handle self, HV * profile)
 void
 Widget_done( Handle self)
 {
+   if ( var-> owner) 
+       CComponent( var->owner)-> detach( var-> owner, self, false);
    free( var-> text);
    apc_widget_destroy( self);
+   free( var-> helpContext);
    free( var-> hint);
    var-> text = nil;
+   var-> helpContext = nil;
    var-> hint = nil;
 
    list_destroy( &var-> widgets);
@@ -317,17 +321,14 @@ void
 Widget_cleanup( Handle self)
 {
    enter_method;
-   PComponent detachFrom = ( PComponent) var-> owner;
-   if ((( PApplication) application)-> hintUnder == self)
+   if ( application && (( PApplication) application)-> hintUnder == self)
       my-> set_hintVisible( self, 0);
 
    my-> first_that( self, kill_all, nil);
 
-   if ( var-> accelTable)
-      my-> detach( self, var-> accelTable, true);
+   my-> detach( self, var-> accelTable, true);
    var-> accelTable = nilHandle;
 
-   detachFrom-> self-> detach( var-> owner, self, false);
    my-> detach( self, var-> popupMenu, true);
    var-> popupMenu = nilHandle;
 
@@ -510,10 +511,6 @@ void Widget_handle_event( Handle self, PEvent event)
                 inherited-> end_paint( self);
           }
         break;
-      case cmHelp:
-        my-> notify( self, "<s", "Help");
-        if ( evOK) my-> help( self);
-        break;
       case cmEnable       :
         my-> notify( self, "<s", "Enable");
         break;
@@ -623,17 +620,9 @@ void Widget_handle_event( Handle self, PEvent event)
                   event-> key.code, event-> key. key, event-> key. mod, event-> key. repeat);
               objCheck;
               if ( evOK) {
-                 int key = CAbstractMenu-> translate_key( nilHandle, event-> key. code, event-> key. key, event-> key. mod);
-                 if ( my-> process_accel( self, key)) {
-                    my-> clear_event( self);
-                    return;
-                 }
-              }
-              objCheck;
-              if ( evOK && var-> owner) {
                  Event ev = *event;
                  ev. key. source = self;
-                 ev. cmd         = cmDelegateKey;
+                 ev. cmd         = var-> owner ? cmDelegateKey : cmTranslateAccel;
                  ev. key. subcmd = 0;
                  if ( !my-> message( self, &ev)) {
                     my-> clear_event( self);
@@ -642,9 +631,15 @@ void Widget_handle_event( Handle self, PEvent event)
                  objCheck;
               }
               if ( !evOK) break;
+
               {
                   Handle next = nilHandle;
                   switch( event-> key. key) {
+                  case kbF1:
+                  case kbHelp:
+                     my-> help( self);
+                     my-> clear_event( self);
+                     return;
                   case kbLeft: 
                      next = my-> next_positional( self, -1, 0);
                      break;
@@ -731,6 +726,14 @@ void Widget_handle_event( Handle self, PEvent event)
         }
         break;
       case cmTranslateAccel:
+        {
+           int key = CAbstractMenu-> translate_key( nilHandle, event-> key. code, event-> key. key, event-> key. mod);
+           if ( my-> first_that_component( self, find_accel, &key)) {
+              my-> clear_event( self);
+              return;
+           }
+           objCheck;
+        }
         my-> notify( self, "<siii", "TranslateAccel",
             event-> key.code, event-> key. key, event-> key. mod);
         break;
@@ -838,14 +841,46 @@ void Widget_handle_event( Handle self, PEvent event)
 Bool
 Widget_help( Handle self)
 {
-   long ctx = var-> helpContext;
-   if ( ctx == hmpOwner) {
-      PWidget next = ( PWidget) self;
-      while ( next && next-> helpContext == hmpOwner) next = ( PWidget) next-> owner;
-      ctx = next-> helpContext;
+   int len;
+   char * htx = var-> helpContext, *file = nil, *buf;
+
+/*
+   The help context string is a pod-styled link ( see perlpod ) :
+   "file/section". If the widget's helpContext begins with /,
+   it's clearly a sub-topic, and the leading content is to be
+   extracted up from the hierarchy. When a grouping widget 
+   does not have any help file related to, and does not wish that
+   its childrens' helpContext would be combined with the upper
+   helpContext, an empty string " " can be set
+ */
+
+   if ( strcmp( htx, " ") == 0) return false;
+
+   if ( *htx != 0 && *htx != '/') {
+      call_perl( application, "open_help", "s" , htx);
+      return true;
    }
-   if ( ctx == hmpNone) return true;
-   return apc_help_open_topic( application, ctx);
+
+   while ( PWidget( self)-> owner) {
+      self = PWidget( self)-> owner;
+      if ( strcmp( var-> helpContext, " ") == 0) return false;
+      if ( var-> helpContext[0] != 0 && var-> helpContext[0] != '/') {
+         file = var-> helpContext;
+         break;
+      }
+   }
+
+   if ( !file) return false;
+
+   len = strlen( file);
+   if ( file[ len - 1] == '/' && *htx) htx++;
+   buf = malloc( strlen( htx) + len + 1);
+   strcpy( buf, file);
+   strcat( buf, htx);
+   call_perl( application, "open_help", "s" , buf);
+   free( buf);
+
+   return true;
 }
 
 void
@@ -1342,8 +1377,8 @@ Widget_set( Handle self, HV * profile)
          if (order && !pexist(left))   av_push( order, newSVpv("left",0));
          if (order && !pexist(bottom)) av_push( order, newSVpv("bottom",0));
          prima_read_point( pget_sv( origin), set, 2, "RTC0087: Array panic on 'origin'");
-         pset_sv( left,   newSViv(set[0]));
-         pset_sv( bottom, newSViv(set[1]));
+         pset_i( left,   set[0]);
+         pset_i( bottom, set[1]);
          pdelete( origin);
       }
       if ( pexist( rect))
@@ -1354,10 +1389,10 @@ Widget_set( Handle self, HV * profile)
          if (order && !pexist(width)) av_push( order, newSVpv("width",0));
          if (order && !pexist(height)) av_push( order, newSVpv("height",0));
          prima_read_point( pget_sv( rect), rect, 4, "RTC0088: Array panic on 'rect'");
-         pset_sv( left,   newSViv( rect[0]));
-         pset_sv( bottom, newSViv( rect[1]));
-         pset_sv( width,  newSViv( rect[2] - rect[0]));
-         pset_sv( height, newSViv( rect[3] - rect[1]));
+         pset_i( left,   rect[0]);
+         pset_i( bottom, rect[1]);
+         pset_i( width,  rect[2] - rect[0]);
+         pset_i( height, rect[3] - rect[1]);
          pdelete( rect);
       }
       if ( pexist( size))
@@ -1366,8 +1401,8 @@ Widget_set( Handle self, HV * profile)
          if (order && !pexist(width)) av_push( order, newSVpv("width",0));
          if (order && !pexist(height)) av_push( order, newSVpv("height",0));
          prima_read_point( pget_sv( size), set, 2, "RTC0089: Array panic on 'size'");
-         pset_sv( width,  newSViv(set[0]));
-         pset_sv( height, newSViv(set[1]));
+         pset_i( width,  set[0]);
+         pset_i( height, set[1]);
          pdelete( size);
       }
 
@@ -1645,15 +1680,6 @@ Widget_get_parent_handle( Handle self)
    return newSVpv( buf, 0);
 }
 
-
-long int
-Widget_helpContext( Handle self, Bool set, long int helpContext)
-{
-   if ( !set)
-      return var-> helpContext;
-   return var-> helpContext = helpContext;
-}
-
 int
 Widget_hintVisible( Handle self, Bool set, int hintVisible)
 {
@@ -1790,7 +1816,6 @@ void Widget_on_enable( Handle self) {}
 void Widget_on_enddrag( Handle self, Handle target , int x , int y ) {}
 void Widget_on_fontchanged( Handle self) {}
 void Widget_on_enter( Handle self) {}
-void Widget_on_help( Handle self) {}
 void Widget_on_keydown( Handle self, int code , int key , int shiftState, int repeat ) {}
 void Widget_on_keyup( Handle self, int code , int key , int shiftState ) {}
 void Widget_on_menu( Handle self, Handle menu, char * variable) {}
@@ -2275,6 +2300,18 @@ Widget_focused( Handle self, Bool set, Bool focused)
       if ( var-> stage == csNormal && my-> get_selected( self))
          apc_widget_set_focused( nilHandle);
    return focused;
+}
+
+char *
+Widget_helpContext( Handle self, Bool set, char *helpContext)
+{
+   if (!set)
+      return var-> helpContext ? var-> helpContext : "";
+   if ( var-> stage > csFrozen) return "";
+
+   free( var-> helpContext);
+   var-> helpContext = duplicate_string( helpContext);
+   return "";
 }
 
 char *

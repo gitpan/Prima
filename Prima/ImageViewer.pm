@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: ImageViewer.pm,v 1.14 2001/04/30 15:25:52 dk Exp $
+#  $Id: ImageViewer.pm,v 1.16 2002/05/14 13:22:21 dk Exp $
 #
 use strict;
 use Prima::ScrollWidget;
@@ -144,7 +144,7 @@ sub on_paint
       $imX = $imXz / $iS * $iI;
    }
 
-   $canvas-> clear( $atx, $aty, $imXz, $imYz) if $self-> {icon};
+   $canvas-> clear( $atx, $aty, $atx + $imXz, $aty + $imYz) if $self-> {icon};
 
    $canvas-> put_image_indirect(
       $self->{image},

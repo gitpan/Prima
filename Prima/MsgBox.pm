@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: MsgBox.pm,v 1.15 2001/04/30 15:29:02 dk Exp $
+#  $Id: MsgBox.pm,v 1.17 2002/05/14 13:22:21 dk Exp $
 package Prima::MsgBox;
 
 use strict;
@@ -49,7 +49,7 @@ sub insert_buttons
    my $i;
    my @bConsts =  ( mb::Help, mb::Cancel, mb::Ignore, mb::Retry, mb::Abort, mb::No, mb::Yes, mb::Ok);
    my @bTexts  = qw( ~Help    ~Cancel     ~Ignore     ~Retry     ~Abort     ~No     ~Yes     ~OK);
-   my $helpTopic = defined $$extras{helpTopic} ? $$extras{helpTopic} : 0;
+   my $helpTopic = defined $$extras{helpTopic} ? $$extras{helpTopic} : 'Prima';
    my $defButton = defined $$extras{defButton} ? $$extras{defButton} : 0xFF;
    my $fresh;
    my $freshFirst;
@@ -80,8 +80,7 @@ sub insert_buttons
       if ( $bConsts[$i] == mb::Help)
       {
          $hpr{onClick} = sub {
-            message('No help available for this time');
-            # $helpTopic ...
+            $::application-> open_help( $helpTopic);
          };
          unless ( $dir)
          {

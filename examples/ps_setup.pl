@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#
+# $Id: ps_setup.pl,v 1.5 2002/05/14 13:22:26 dk Exp $
 =pod 
 =item NAME
 
@@ -35,7 +35,7 @@ Prints a PS document after setup dialog is finished.
 Whereas Prima::PS modules can be used on any platform,
 they serve as an only remedy on *nix systems when printing
 via Prima is desired. The Prima::PS interface can load user
-preferences from $HOME/.prima_printer file. This file is
+preferences from $HOME/.prima/printer file. This file is
 maintained by the PostScript output setup dialog.
 
 =cut
@@ -55,10 +55,10 @@ $x-> setup_dialog;
 
 for ( keys %z) {
    next if $_ eq 'devParms';
-   print "$_:$z{$_} => $x->{data}->{$_}\n";
+#   print "$_:$z{$_} => $x->{data}->{$_}\n";
 }
 for ( keys %p) {
-   print "$_:$p{$_} => $x->{data}->{devParms}->{$_}\n";
+#   print "$_:$p{$_} => $x->{data}->{devParms}->{$_}\n";
 }
 
 $x-> begin_doc;

@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Outlines.pm,v 1.31 2001/03/02 18:25:46 dk Exp $
+#  $Id: Outlines.pm,v 1.32 2002/05/14 13:22:21 dk Exp $
 
 # contains:
 #   OutlineViewer

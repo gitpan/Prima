@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: editor.pl,v 1.7 2002/02/07 15:51:40 dk Exp $
+#  $Id: editor.pl,v 1.9 2002/05/14 13:22:26 dk Exp $
 #
 
 =pod 
@@ -144,21 +144,21 @@ sub profile_default
       menuItems => [
          [ '~File' => [
             [ '~New'        => q(new_window)],
-            [ '~Open...'    => 'F3' => kb::F3 => q(open_file)],
-            [ '~Save'       => 'F2' => kb::F2 => q(save_file)],
+            [ '~Open...'    => 'F3' => kb::F3, q(open_file)],
+            [ '~Save'       => 'F2' => kb::F2, q(save_file)],
             [ 'Save ~as...' => q(save_as)],
             [],
              ['E~xit'        => 'Alt+X' => '@X' => sub {$::application-> close}]
          ]],
         [ '~Edit' => [
-            ['~Cut'   => 'Ctrl+Del'   => kb::NoKey => sub{$_[0]->{editor}->cut}],
-            ['C~opy'  => 'Ctrl+Ins'   => kb::NoKey => sub{$_[0]->{editor}->copy}],
-            ['~Paste' => 'Shift+Ins'  => kb::NoKey => sub{$_[0]->{editor}->paste}],
-            ['~Delete' => 'Shift+Del' => kb::NoKey => sub{$_[0]->{editor}->delete_block}],
+            ['~Cut'   => 'Ctrl+Del'   => kb::NoKey, sub{$_[0]->{editor}->cut}],
+            ['C~opy'  => 'Ctrl+Ins'   => kb::NoKey, sub{$_[0]->{editor}->copy}],
+            ['~Paste' => 'Shift+Ins'  => kb::NoKey, sub{$_[0]->{editor}->paste}],
+            ['~Delete' => 'Shift+Del' => kb::NoKey, sub{$_[0]->{editor}->delete_block}],
             [],
-            ['~Find...' => 'Esc'      => kb::Esc   => q(find)],
-            ['~Replace...'=> 'Ctrl+S' => '^S'      => q(replace)],
-            ['Find ~next' => 'Ctrl+L' => '^L'      => q(find_next)],
+            ['~Find...' => 'Esc'      => kb::Esc   , q(find)],
+            ['~Replace...'=> 'Ctrl+S' => '^S'      , q(replace)],
+            ['Find ~next' => 'Ctrl+L' => '^L'      , q(find_next)],
         ]],
         ['~Options' => [
             [ 'syx' => '~Syntax hilite' => sub{ $_[0]->{editor}-> syntaxHilite( $_[0]->menu-> syx-> toggle)}],

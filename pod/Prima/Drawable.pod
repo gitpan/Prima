@@ -1,3 +1,5 @@
+=for rcs $Id: Drawable.pod,v 1.9 2002/05/14 13:22:32 dk Exp $
+
 =head1 NAME
 
 Drawable - 2-D graphic interface
@@ -248,8 +250,8 @@ A combination of C<fs::> ( font style ) constants. The constants hight
    fs::Bold
    fs::Thin
    fs::Italic
-   fs::Underline
-   fs::StrikeOut
+   fs::Underlined
+   fs::StruckOut
    fs::Outline
 
 and can be OR-ed together to express the font style. 
@@ -393,6 +395,10 @@ Number of pixels between ascent and external leading lines.
 Negative if the ascent line is above the extenal leading line.
 
 
+=for podview <img src="leadings.gif" cut=1>
+
+=for html <p><img src="leadings.gif">
+
           ------------- external leading line
   
      $    ------------- ascent line
@@ -410,6 +416,8 @@ Negative if the ascent line is above the extenal leading line.
                  $
                  $
              $$$$  ---- descent line
+
+=for podview </cut>
 
 =item weight
 
@@ -466,7 +474,10 @@ Besides these characteristics, every font glyph has an ABC-metric,
 the three integer values that describe horizontal extents of a
 glyph's black part relative to the glyph extent:
 
-          A                   B    
+
+=for podview <img src="fontabc.gif" cut=1 >
+
+=for html <p><img src="fontabc.gif">
 
     .  .     .  .      .  .        .  .
     .  .     $$$.      .  .        .  .
@@ -487,9 +498,11 @@ glyph's black part relative to the glyph extent:
       B = 13                B = 10
       C = -3                C = 3
 
+=for podview </cut>
+
 A and C are negative, if a glyphs 'hangs' over it neighbors, 
-as shown in picture A. A and C values are positive, if a glyph contains 
-empty space in front or behind the neighbor glyphs, like in picture B. 
+as shown in picture on the left. A and C values are positive, if a glyph contains 
+empty space in front or behind the neighbor glyphs, like in picture on the right. 
 As can be seen, B is the width of a glyph's black part.
 
 ABC metrics returned by get_font_abc() method.
@@ -1048,7 +1061,7 @@ The result is an integer array reference, where every character
 glyph is referred by three integeres, each triad containing
 A, B and C values.
 
-For detailed explanation of ABC meaning, see L<"Fonts ABC metrics">;
+For detailed explanation of ABC meaning, see L<"Font ABC metrics">;
 
 Context used: font
 

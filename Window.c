@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Window.c,v 1.42 2002/02/06 13:14:06 dk Exp $
+ * $Id: Window.c,v 1.44 2002/05/14 13:22:18 dk Exp $
  */
 
 #include "apricot.h"
@@ -205,6 +205,17 @@ int
 Window_get_modal( Handle self)
 {
    return var-> modal;
+}
+
+Handle
+Window_get_modal_window( Handle self, int modalFlag, Bool next)
+{
+   if ( modalFlag == mtExclusive) {
+      return next ? var-> nextExclModal   : var-> prevExclModal;
+   } else if ( modalFlag == mtShared) {
+      return next ? var-> nextSharedModal : var-> prevSharedModal;
+   } 
+   return nilHandle;
 }
 
 Handle

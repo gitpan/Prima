@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Icon.c,v 1.30 2002/01/03 14:04:42 dk Exp $
+ * $Id: Icon.c,v 1.33 2002/05/14 13:22:16 dk Exp $
  */
 
 #include "apricot.h"
@@ -413,6 +413,8 @@ Icon_dup( Handle self)
    Handle h = inherited dup( self);
    PIcon  i = ( PIcon) h;
    memcpy( i-> mask, var-> mask, var-> maskSize);
+   i-> autoMasking = var-> autoMasking;
+   i-> maskColor   = var-> maskColor;
    return h;
 }
 
@@ -428,6 +430,11 @@ Icon_split( Handle self)
    pset_i( width,        var-> w);
    pset_i( height,       var-> h);
    pset_i( type,         imMono|imGrayScale);
+   pset_i( conversion,   var->conversion);
+   pset_i( hScaling,     is_opt( optHScaling));
+   pset_i( vScaling,     is_opt( optVScaling));
+   pset_i( preserveType, is_opt( optPreserveType));
+
    ret. andMask = Object_create( "Prima::Image", profile);
    sv_free(( SV *) profile);
    i = ( PImage) ret. andMask;

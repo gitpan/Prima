@@ -1,3 +1,4 @@
+# $Id: GPState.t,v 1.2 2002/05/14 13:22:34 dk Exp $
 print "1..22 color,backColor,fillPattern,lineEnd,lineWidth,linePattern,rop,rop2,transform,textOpaque,textOutBaseline,color,backColor,fillPattern,lineEnd,lineWidth,linePattern,rop,rop2,transform,textOpaque,textOutBaseline";
 
 my $a = Prima::Drawable-> create( width => 1, height => 1, type => im::RGB);

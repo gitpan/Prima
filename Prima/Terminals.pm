@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 #
 #  Created by Vadim Belman <voland@plab.ku.dk>
 #
-#  $Id: Terminals.pm,v 1.13 2000/10/18 11:58:00 tobez Exp $
+#  $Id: Terminals.pm,v 1.15 2002/05/14 13:22:22 dk Exp $
 
 use strict;
 use Prima::Const;
@@ -55,25 +55,25 @@ use vars qw( @ISA);
 }
 
 my $defaultAccelItems = [
-    ['Line begin' => 'Home' => kb::Home => 'Home'],
-    ['Line end' => 'End' => kb::End => 'End'],
-    ['Cursor left' => 'Left' => kb::Left => 'cursorLeft'],
-    ['Cursor right' => 'Right' => kb::Right => 'cursorRight'],
-    ['Cursor up' => 'Up' => kb::Up => 'cursorUp'],
-    ['Cursor down' => 'Down' => kb::Down => 'cursorDown'],
-    ['Cursor left by word' => 'Ctrl-Left' => ( km::Ctrl | kb::Left) => 'wordLeft'],
-    ['Cursor right by word' => 'Ctrl-Right' => ( km::Ctrl | kb::Right) => 'wordRight'],
-    ['Ins' => 'Ins' => kb::Insert => 'toggleInsMode'],
-    ['Delete char' => 'Del' => kb::Delete => 'deleteChar'],
-    ['Delete left char' => 'Backspace' => kb::Backspace => 'deleteLeftChar'],
+    ['Line begin' => 'Home' => kb::Home,  'Home'],
+    ['Line end' => 'End' => kb::End, 'End'],
+    ['Cursor left' => 'Left' => kb::Left, 'cursorLeft'],
+    ['Cursor right' => 'Right' => kb::Right, 'cursorRight'],
+    ['Cursor up' => 'Up' => kb::Up, 'cursorUp'],
+    ['Cursor down' => 'Down' => kb::Down, 'cursorDown'],
+    ['Cursor left by word' => 'Ctrl-Left' => ( km::Ctrl | kb::Left), 'wordLeft'],
+    ['Cursor right by word' => 'Ctrl-Right' => ( km::Ctrl | kb::Right), 'wordRight'],
+    ['Ins' => 'Ins' => kb::Insert, 'toggleInsMode'],
+    ['Delete char' => 'Del' => kb::Delete, 'deleteChar'],
+    ['Delete left char' => 'Backspace' => kb::Backspace, 'deleteLeftChar'],
     ['Delete word right' => 'Alt-W' => '@W' => 'deleteWordRight'],
-    ['Delete word left' => 'Ctrl-Backspace' => ( km::Ctrl | kb::Backspace) => 'deleteWordLeft'],
-    ['Delete word inplace' => 'Ctrl-Del' => ( km::Ctrl | kb::Delete) => 'deleteWord'],
+    ['Delete word left' => 'Ctrl-Backspace' => ( km::Ctrl | kb::Backspace), 'deleteWordLeft'],
+    ['Delete word inplace' => 'Ctrl-Del' => ( km::Ctrl | kb::Delete), 'deleteWord'],
     ['Delete up to line begin' => 'Ctrl-U' => '^U' => 'deleteToLineBegin'],
     ['Delete up to line end' => 'Ctrl-K' => '^K' => 'deleteToLineEnd'],
-    ['Execute command' => 'Enter' => kb::Enter => 'enterPressed'],
-    ['Previous prompt' => 'Ctrl-Up' => ( km::Ctrl | kb::Up) => 'previousPrompt'],
-    ['Next prompt' => 'Ctrl-Down' => ( km::Ctrl | kb::Down) => 'nextPrompt'],
+    ['Execute command' => 'Enter' => kb::Enter, 'enterPressed'],
+    ['Previous prompt' => 'Ctrl-Up' => ( km::Ctrl | kb::Up), 'previousPrompt'],
+    ['Next prompt' => 'Ctrl-Down' => ( km::Ctrl | kb::Down), 'nextPrompt'],
 ];
 
 #\subsection{profile\_default}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_font.c,v 1.49 2002/02/06 13:09:23 dk Exp $
+ * $Id: apc_font.c,v 1.53 2002/05/14 13:22:34 dk Exp $
  */
 
 /***********************************************************/
@@ -120,23 +120,6 @@ font_query_name( XFontStruct * s, PFontInfo f)
       f-> font. encoding[0] = 0;
    }
 }   
-
-static Bool 
-copy_hash_lists( PList list, int keyLen, void * key, void * dummy) 
-{
-   if ( list-> items[0]) {
-      int i;
-      for ( i = 2; i < list-> count; i++) {
-         PFontInfo f = &guts. font_info[(int)(list-> items[i])];
-         strncat( f-> font. name, " ", 256);
-         strncat( f-> font. name, f-> xname + f-> info_offset, 256);
-         strlwr( f-> lc_name, f-> font. name);
-         f-> flags. generic = false;
-      } 
-   }
-   plist_destroy( list);
-   return false;
-}
 
 Bool
 prima_init_font_subsystem( void)
@@ -983,8 +966,8 @@ PICK_AGAIN:
       /* detailing underline things */
       if ( XGetFontProperty( s, XA_UNDERLINE_POSITION, &v) && v) {
          XCHECKPOINT;
-         underlinePos = v;
-      } else
+         underlinePos =  -s-> descent + v;
+      } else 
          underlinePos = - s-> descent + 1;
       
       if ( XGetFontProperty( s, XA_UNDERLINE_THICKNESS, &v) && v) {
@@ -993,7 +976,10 @@ PICK_AGAIN:
       } else
          underlineThickness = 1;
 
-      
+      underlinePos -= underlineThickness;
+      if ( -underlinePos + underlineThickness / 2 > s-> descent) 
+         underlinePos = -s-> descent + underlineThickness / 2;
+
       build_font_key( &key, font, bySize); 
  /* printf("add to :%d.%d.{%d}.%s\n", f-> font.height, f-> font.size, f-> font. style, f-> font.name); */
       if ( !add_font_to_cache( &key, f, name, s, underlinePos, underlineThickness))

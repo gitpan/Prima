@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,6 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
+ * $Id: img.h,v 1.7 2002/05/14 13:22:30 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 
@@ -53,6 +54,7 @@ typedef struct _ImgLoadFileInstance {
   Bool            loadExtras; 
   Bool            loadAll;
   Bool            noImageData;
+  Bool            iconUnmask;
   HV            * extras;         /* profile applied to all frames */
 
   /* user-specified data - applied to every frame */

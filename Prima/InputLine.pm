@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #  Modifications by Anton Berezin <tobez@tobez.org>
 #
-#  $Id: InputLine.pm,v 1.21 2001/04/30 15:26:43 dk Exp $
+#  $Id: InputLine.pm,v 1.23 2002/05/14 13:22:21 dk Exp $
 
 package Prima::InputLine;
 use vars qw(@ISA);
@@ -464,9 +464,7 @@ sub x2offset
    $x -= $self->{atDrawX} + $self-> {borderWidth} + 1;
    return $self->{firstChar} if $x <= 0;
    return $self->{firstChar} + length( $self->{line}) if $x >= $self->{lineWidth};
-
-   my $wrapRec = $self-> text_wrap( $self->{line}, $x, tw::ReturnChunks);
-   return $self->{firstChar} + $$wrapRec[1];
+   return $self->{firstChar} + $self-> text_wrap( $self->{line}, $x, tw::ReturnFirstLineLength);
 }
 
 sub on_mousedown

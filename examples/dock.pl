@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: dock.pl,v 1.6 2001/10/25 11:21:10 dk Exp $
+#  $Id: dock.pl,v 1.8 2002/05/14 13:22:26 dk Exp $
 #
 
 =pod 
@@ -410,7 +410,7 @@ $i-> register_panel( 'Banner' => {
 });   
 
 
-my $resFile = ( $ENV{HOME} || '.') . '/.demo_dock';
+my $resFile = Prima::path('demo_dock');
 
 # after all that, creating window ( the window itself is of small importance...)
 

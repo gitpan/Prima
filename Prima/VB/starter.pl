@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -23,13 +23,14 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: starter.pl,v 1.6 2000/05/17 10:28:45 tobez Exp $
+# $Id: starter.pl,v 1.8 2002/05/14 13:22:25 dk Exp $
 use Prima qw(Application VB::VBLoader);
 
 die "format: perl starter.pl file.fm\n" unless @ARGV;
 
 my %ret = Prima::VB::VBLoader::AUTOFORM_CREATE( $ARGV[0],
   'Form1' => {
+     onDestroy => sub { $::application-> close },
   }
 );
 

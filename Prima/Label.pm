@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Label.pm,v 1.13 2001/12/06 13:01:45 dk Exp $
+#  $Id: Label.pm,v 1.15 2002/05/14 13:22:21 dk Exp $
 package Prima::Label;
 use vars qw(@ISA);
 @ISA = qw(Prima::Widget);
@@ -231,7 +231,7 @@ sub reset_lines
    my $maxLines = int($self-> height / $self-> font-> height);
    $maxLines++ if $self->{showPartial} and (($self-> height % $self-> font-> height) > 0);
    my $opt   = tw::NewLineBreak|tw::ReturnLines|tw::WordBreak|tw::CalcMnemonic|tw::ExpandTabs|tw::CalcTabs;
-   my $width = -1;
+   my $width = 1000000;
    $opt |= tw::CollapseTilde unless $self->{showAccelChar};
    $width = $self-> width if $self->{wordWrap};
    my $lines = $self-> text_wrap( $self-> text, $width, $opt);

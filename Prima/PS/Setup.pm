@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
+#  $Id: Setup.pm,v 1.7 2002/05/14 13:22:24 dk Exp $
 #
 #  Setup dialog management
 
@@ -44,7 +45,9 @@ sub sdlg_export
    $p-> {copies}     = $d-> CopyCount-> text;
    $p-> {page}       = $d-> PaperSize-> text;
    $p-> {devParms}   = { map { my $j = $i-> [ $hk{ $_}]; @$j[0,3] } keys %{$self-> {data}-> {devParms}}};
+   $p-> {useDeviceFontsOnly} = $i-> [ $hk{UseDeviceFontsOnly}]-> [3];
    $p-> {useDeviceFonts} = $i-> [ $hk{UseDeviceFonts}]-> [3];
+   $p-> {useDeviceFonts} = 1 if $p-> {useDeviceFontsOnly};
    $p-> {spoolerType} = $d-> Spool-> index;
    $p-> {spoolerData} = $d-> Spool-> bring(( $p-> {spoolerType} == lpr) ? 'LParams' : 'CmdLine')-> text;
 }
@@ -69,7 +72,9 @@ sub sdlg_import
       $j-> [3] = $p-> {devParms}->{$_};
    }
 
+   $i-> [ $hk{UseDeviceFontsOnly}]-> [3] = $p-> {useDeviceFontsOnly};
    $i-> [ $hk{UseDeviceFonts}]-> [3] = $p-> {useDeviceFonts};
+   $i-> [ $hk{UseDeviceFonts}]-> [3] = 1 if $p-> {useDeviceFontsOnly}; 
 
    for ( @$i) {
       if ( $$_[2] == 0) {
@@ -96,8 +101,8 @@ sub sdlg_exec
    my $self = $_[0];
    
    unless ( defined $self-> {setupDlg}) {
-      require Prima::VB::VBLoader;
-      require Prima::MsgBox;
+      eval "use Prima::VB::VBLoader"; die "$@\n" if $@;
+      eval "use Prima::MsgBox"; die "$@\n" if $@;
       my $fi = Prima::find_image( 'Prima::PS', 'setup.fm');
       unless ( defined $fi) { Prima::message( "Cannot find resource: Prima::PS::setup.fm"); return }
       eval { $self-> {setupDlg} = { Prima::VB::VBLoader::AUTOFORM_CREATE( $fi,
@@ -197,6 +202,14 @@ sub sdlg_exec
            my $n = $self-> {resFile};
            my $x = $_[0]-> owner-> Profiles;
            $self-> sdlg_export( $self-> {vprinters}-> { $x-> get_items( $x-> focusedItem)});
+           unless ( -f $n) {
+              my $x = $n;
+              $x =~ s/[\\\/]?[^\\\/]+$//;
+              unless ( -d $x) {
+                 eval "use File::Path"; die "$@\n" if $@;
+                 File::Path::mkpath( $x);
+              }
+           }
         SAVE:   
            unless ( open F, "> $n") {
               goto SAVE if Prima::MsgBox::message_box( $self-> {setupDlg}-> text,

@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -23,10 +23,11 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Menu.cls,v 1.7 2000/05/17 10:28:22 tobez Exp $
+# $Id: Menu.cls,v 1.9 2002/06/17 09:51:20 dk Exp $
 
 object Prima::Menu ( Prima::AbstractMenu)
 {
    property Bool selected;
+   method void   set( HV * profile);
    c_only void   update_sys_handle( HV * profile);
 }

@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: global.c,v 1.75 2002/01/24 15:16:16 dk Exp $
+ * $Id: global.c,v 1.77 2002/05/14 13:22:36 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -222,7 +222,7 @@ window_subsystem_init()
    guts. pointerSize. x   = GetSystemMetrics( SM_CXCURSOR);
    guts. pointerSize. y   = GetSystemMetrics( SM_CYCURSOR);
    list_create( &guts. transp, 8, 8);
-   // list_create( &guts. files, 8, 8);
+   list_create( &guts. files, 8, 8);
    list_create( &guts. sockets, 8, 8);
    list_create( &guts. eventHooks, 1, 1);
 
@@ -272,7 +272,7 @@ window_subsystem_init()
 void
 window_subsystem_done()
 {
-   // list_destroy( &guts. files);
+   list_destroy( &guts. files);
 
    if ( guts. socketMutex) {
       // appDead must be TRUE for this moment!

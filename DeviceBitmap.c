@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: DeviceBitmap.c,v 1.11 2000/05/17 10:28:18 tobez Exp $
+ * $Id: DeviceBitmap.c,v 1.12 2002/05/14 13:22:16 dk Exp $
  */
 
 #include "apricot.h"

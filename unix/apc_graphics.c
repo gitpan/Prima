@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_graphics.c,v 1.92 2002/01/03 14:04:44 dk Exp $
+ * $Id: apc_graphics.c,v 1.97 2002/06/17 09:51:20 dk Exp $
  */
 
 /***********************************************************/
@@ -276,9 +276,7 @@ prima_cleanup_drawable_after_painting( Handle self)
    XX-> paint_dashes = nil;
    XX-> paint_ndashes = 0;
    XF_IN_PAINT(XX) = false;
-   if ( XX-> flags. reload_font) {
-      PDrawable( self)-> font = XX-> saved_font;
-   }
+   PDrawable( self)-> font = XX-> saved_font;
    if ( XX-> paint_region) {
       XDestroyRegion( XX-> paint_region);
       XX-> paint_region = nil;
@@ -419,6 +417,7 @@ apc_gp_init( Handle self)
 Bool
 apc_gp_done( Handle self)
 {
+   if ( !X(self)) return false;
    if ( guts. dynamicColors) {
       prima_palette_free( self, true);
       free(X(self)-> palette);
@@ -1564,6 +1563,8 @@ apc_gp_text_out( Handle self, const char* text, int x, int y, int len)
    if ( PObject( self)-> options. optInDrawInfo) return false;
    if ( !XF_IN_PAINT(XX)) return false;
 
+   if ( len == 0) return true;
+
    /* paint background if opaque */
    if ( XX-> flags. paint_opaque) {
       int i;
@@ -1572,6 +1573,8 @@ apc_gp_text_out( Handle self, const char* text, int x, int y, int len)
       memcpy( &fp, apc_gp_get_fill_pattern( self), sizeof( FillPattern));
       XSetForeground( DISP, XX-> gc, XX-> back. primary);
       XX-> flags. brush_back = 0;
+      XX-> flags. brush_fore = 1; 
+      XX-> fore. balance = 0;
       XSetFunction( DISP, XX-> gc, GXcopy);
       apc_gp_set_fill_pattern( self, fillPatterns[fpSolid]);
       for ( i = 0; i < 4; i++) {
@@ -1583,10 +1586,9 @@ apc_gp_text_out( Handle self, const char* text, int x, int y, int len)
       
       apc_gp_fill_poly( self, 4, p);
       apc_gp_set_rop( self, XX-> paint_rop);
-      XSetForeground( DISP, XX-> gc, XX-> fore. primary);
-      XX-> flags. brush_fore = 1;
+      apc_gp_set_color( self, XX-> fore. color);
       apc_gp_set_fill_pattern( self, fp);
-      free( p);
+      free( p); 
    }  
 
    if ( PDrawable( self)-> font. direction != 0) 

@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: apricot.h,v 1.140 2002/02/15 15:41:28 dk Exp $ */
+/* $Id: apricot.h,v 1.146 2002/05/14 13:22:30 dk Exp $ */
 
 #ifndef _APRICOT_H_
 #define _APRICOT_H_
@@ -47,7 +47,6 @@
 #ifdef _MSC_VER
    #define BROKEN_COMPILER       1
    #define BROKEN_PERL_PLATFORM  1
-   #define __INLINE__            __inline
    #define snprintf              _snprintf
    #define vsnprintf             _vsnprintf
    #define stricmp               _stricmp
@@ -58,18 +57,9 @@
    #define BROKEN_PERL_PLATFORM  1
    #define BROKEN_COMPILER       1
    extern double                 NAN;
-   #define __INLINE__
-#elif defined(sgi) && !defined(__GNUC__)
-   #define __INLINE__           
-#else
-   #define __INLINE__            __inline__
 #endif
 
-#if !defined(__unix) && defined(unix)
-#define __unix unix
-#endif    
-
-#ifdef __unix   /* This is wrong, not every unix */
+#if PRIMA_PLATFORM == 3
    extern double NAN;
 #endif
 
@@ -79,6 +69,12 @@
 
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
+#ifdef HAVE_SYS_BITYPES_H
+#include <sys/bitypes.h>
+#endif
+#ifdef HAVE_SYS_INTTYPES_H
+#include <sys/inttypes.h>
 #endif
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
@@ -318,40 +314,42 @@ typedef long Color;
 #include "Types.h"
 
 #if !defined(HAVE_INT8_T)
-typedef signed char     int8_t;
+typedef I8 int8_t;
 #endif
 #if !defined(HAVE_INT16_T)
-typedef signed short    int16_t;
+typedef I16  int16_t;
 #endif
 #if !defined(HAVE_INT32_T)
-typedef signed long     int32_t;
+typedef I32  int32_t;
 #endif
 #if !defined(HAVE_UINT8_T)
 #if defined(HAVE_U_INT8_T)
 typedef u_int8_t        uint8_t;
 #else
-typedef unsigned char   uint8_t;
+typedef U8 uint8_t;
 #endif
 #endif
 #if !defined(HAVE_UINT16_T)
 #if defined(HAVE_U_INT16_T)
 typedef u_int16_t       uint16_t;
 #else
-typedef unsigned short  uint16_t;
+typedef U16 uint16_t;
 #endif
 #endif
 #if !defined(HAVE_UINT32_T)
 #if defined(HAVE_U_INT32_T)
 typedef u_int32_t       uint32_t;
 #else
-typedef unsigned long   uint32_t;
+typedef U32 uint32_t;
 #endif
 #endif
 #if !defined(HAVE_UINT64_T)
 #if defined(HAVE_U_INT64_T)
 typedef u_int64_t       uint64_t;
+#elif defined U64
+typedef U64 uint64_t;
 #else
-typedef unsigned long   uint64_t;
+typedef unsigned long uint64_t;
 #endif
 #endif
 
@@ -645,8 +643,6 @@ START_TABLE(cm,UV)
 CM(Valid)
 #define cmQuit           0x00000001
 CM(Quit)
-#define cmHelp           0x00000002     /* WM_HELP analog */
-CM(Help)
 #define cmClose         (0x00000005|ctDiscardable)
 CM(Close)
 #define cmCreate        (0x0000000A|ctPassThrough)
@@ -1265,8 +1261,6 @@ extern SV **temporary_prf_Sv;
 
 #ifdef __GNUC__
 #define SvBOOL(sv) ({ SV *svsv = sv; SvTRUE(svsv);})
-#elif defined(__BORLANDC__) || defined(sgi)
-extern Bool SvBOOL( SV *sv);
 #else
 __INLINE__ Bool
 SvBOOL( SV *sv)
@@ -2273,31 +2267,6 @@ apc_timer_stop( Handle self);
 extern ApiHandle
 apc_timer_get_handle( Handle self);
 
-/* Help */
-#define HMP(const_name) CONSTANT(hmp,const_name)
-START_TABLE(hmp,IV)
-#define  hmpNone                     0
-HMP(None)
-#define  hmpOwner                   -1
-HMP(Owner)
-#define  hmpMain                    -2
-HMP(Main)
-#define  hmpContents                -3
-HMP(Contents)
-#define  hmpExtra                   -4
-HMP(Extra)
-END_TABLE(hmp,IV)
-#undef HMP
-
-extern Bool
-apc_help_open_topic( Handle self, long command);
-
-extern Bool
-apc_help_close( Handle self);
-
-extern Bool
-apc_help_set_file( Handle self, const char* helpFile);
-
 /* Messages */
 #define mbError        0x0100
 #define mbWarning      0x0200
@@ -2792,6 +2761,8 @@ TW(WordBreak)
 TW(ExpandTabs)
 #define twCollapseTilde   0x100    /* remove ~ from line */
 TW(CollapseTilde)
+#define twReturnFirstLineLength 0x220 
+TW(ReturnFirstLineLength)
 #define twDefault         (twNewLineBreak|twCalcTabs|twExpandTabs|twReturnLines|twWordBreak)
 TW(Default)
 END_TABLE(tw,UV)

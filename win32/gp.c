@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: gp.c,v 1.63 2002/01/03 14:04:46 dk Exp $
+ * $Id: gp.c,v 1.70 2002/05/16 11:42:58 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #ifndef _APRICOT_H_
@@ -325,7 +325,7 @@ apc_gp_fill_chord( Handle self, int x, int y, int dX, int dY, double angleStart,
           ps, ELLIPSE_RECT_SUPERINCLUSIVE, ARC_ANGLED_SUPERINCLUSIVE
       ))) apiErr;
    } else {
-      old = SelectObject( ps, CreatePen( PS_SOLID, 1, sys stylus. pen. lopnColor));
+      old = SelectObject( ps, CreatePen( PS_SOLID, 1, sys stylus. brush. lb. lbColor));
       while ( compl--)
          if ( !( ok = Ellipse( ps, ELLIPSE_RECT))) apiErr;
       if ( !( ok = !needf || Chord(
@@ -350,7 +350,7 @@ apc_gp_fill_ellipse( Handle self, int x, int y, int dX, int dY)
       old  = SelectObject( ps, hPenHollow);
       if ( !( ok = Ellipse( ps, ELLIPSE_RECT_SUPERINCLUSIVE))) apiErr;
    } else {
-      old = SelectObject( ps, CreatePen( PS_SOLID, 1, sys stylus. pen. lopnColor));
+      old = SelectObject( ps, CreatePen( PS_SOLID, 1, sys stylus. brush. lb. lbColor));
       if ( !( ok = Ellipse( ps, ELLIPSE_RECT))) apiErr;
    }
    old = SelectObject( ps, old);
@@ -387,7 +387,7 @@ apc_gp_fill_poly( Handle self, int numPts, Point * points)
    for ( i = 0; i < numPts; i++) points[ i]. y = dy - points[ i]. y - 1;
 
    if ( !stylus_complex( &sys stylus, ps)) {
-      HPEN old = SelectObject( ps, CreatePen( PS_SOLID, 1, sys stylus. pen. lopnColor));
+      HPEN old = SelectObject( ps, CreatePen( PS_SOLID, 1, sys stylus. brush. lb. lbColor));
       STYLUS_USE_BRUSH( ps);
       if ( !( ok = Polygon( ps, ( POINT *) points, numPts))) apiErr;
       DeleteObject( SelectObject( ps, old));
@@ -492,7 +492,7 @@ apc_gp_fill_sector( Handle self, int x, int y, int dX, int dY, double angleStart
           pts[ 0]. x, pts[ 0]. y
       ))) apiErr;
    } else {
-      old = SelectObject( ps, CreatePen( PS_SOLID, 1, sys stylus. pen. lopnColor));
+      old = SelectObject( ps, CreatePen( PS_SOLID, 1, sys stylus. brush. lb. lbColor));
       while ( compl--)
          if ( !( ok = Ellipse( ps, ELLIPSE_RECT))) apiErr;
       if ( !( ok = !needf || Pie(
@@ -787,16 +787,10 @@ apc_gp_stretch_image( Handle self, Handle image, int x, int y, int xFrom, int yF
    // saving bitmap and palette ( if available) to both dc and xdc.
    p3 = dsys( image) pal;
 
-   if ( p3) {
-      if ( db)
-         p1 = nil;
-      else {
-         if ( dc)
-            p1 = SelectPalette( dc, p3, 0);
-         else
-            p1 = nil;
-      }
-   }
+   if ( p3 && !db && dc) 
+      p1 = SelectPalette( dc, p3, 0);
+   else
+      p1 = nil;
 
    if ( db)
       b1 = nil;
@@ -820,6 +814,8 @@ apc_gp_stretch_image( Handle self, Handle image, int x, int y, int xFrom, int yF
    } else {
       XBITMAPINFO xbi;
       BITMAPINFO * bi = image_get_binfo( deja, &xbi);
+      if ( bi-> bmiHeader. biClrUsed > 0)
+         bi-> bmiHeader. biClrUsed = bi-> bmiHeader. biClrImportant = PImage(deja)-> palSize;
       if ( StretchDIBits( xdc, x, ly - y - yDestLen, xDestLen, yDestLen,
             xFrom, yFrom,
             xLen, yLen, ((PImage) deja)-> data, bi,
@@ -859,6 +855,7 @@ apc_gp_text_out( Handle self, const char * text, int x, int y, int len)
    int bk  = GetBkMode( ps);
    int opa = is_apt( aptTextOpaque) ? OPAQUE : TRANSPARENT;
    int div = 32768L / (var font. maximalWidth ? var font. maximalWidth : 1);
+   if ( div <= 0) div = 1;
 
    STYLUS_USE_TEXT( ps);
    if ( opa != bk) SetBkMode( ps, opa);
@@ -1280,13 +1277,14 @@ apc_gp_get_text_width( Handle self, const char* text, int len, Bool addOverhang)
    if ( len == 0) return 0;
 
    /* width more that 32K returned incorrectly by Win32 core */
-   if (( div = 32768L / ( var font. maximalWidth ? var font. maximalWidth : 1)))
+   if (( div = 32768L / ( var font. maximalWidth ? var font. maximalWidth : 1)) == 0)
       div = 1;
-   
+
    while ( offset < len) {
       int chunk_len = ( offset + div > len) ? ( len - offset) : div;
       if ( !GetTextExtentPoint32( sys ps, text + offset, chunk_len, &sz)) apiErr;
       ret += sz. cx;
+      if ( !IS_NT && offset > 0) ret -= sys tmOverhang;
       offset += div;
    }
    
@@ -1299,7 +1297,7 @@ apc_gp_get_text_width( Handle self, const char* text, int len, Bool addOverhang)
          if ( abc[1]. abcC < 0) ret -= abc[1]. abcC;
       } else if ( IS_NT)
          ret += sys tmOverhang;
-   } else if ( !IS_NT)
+   } else if ( !IS_NT) 
       ret -= sys tmOverhang;
    return ret;
 }
@@ -1445,8 +1443,8 @@ apc_gp_set_fill_pattern( Handle self, FillPattern pattern)
    }
    memcpy( &sys fillPattern, pattern, sizeof( FillPattern));
    if (( *p1 == 0) && ( *p2 == 0)) {
-      s-> brush. lb. lbStyle = BS_NULL;
-      s-> brush. lb. lbColor = s-> pen. lopnColor;
+      s-> brush. lb. lbStyle = BS_SOLID;
+      s-> brush. lb. lbColor = GetBkColor( ps);
       s-> brush. lb. lbHatch = 0;
       s-> brush. backColor   = 0;
       memset( s-> brush. pattern, 0, sizeof( s-> brush. pattern));
@@ -1581,13 +1579,14 @@ apc_gp_set_palette( Handle self)
       sys p256 = nil;
    }
 
-   if ( !sys ps) return true;
    pal = palette_create( self);
-   if ( pal)
-      SelectPalette( sys ps, pal, 0);
-   else
-      SelectPalette( sys ps, sys stockPalette, 1);
-   RealizePalette( sys ps);
+   if ( sys ps) {
+      if ( pal)
+         SelectPalette( sys ps, pal, 0);
+      else
+         SelectPalette( sys ps, sys stockPalette, 1);
+      RealizePalette( sys ps);
+   }
    if ( sys pal) DeleteObject( sys pal);
    sys pal = pal;
    return true;

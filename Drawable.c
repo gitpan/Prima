@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Drawable.c,v 1.63 2002/02/02 11:37:02 dk Exp $
+ * $Id: Drawable.c,v 1.70 2002/05/14 13:22:16 dk Exp $
  */
 
 #include "apricot.h"
@@ -555,6 +555,8 @@ Drawable_do_text_wrap( Handle self, TextWrapRec *t, PFontABC abc)
    } else                                                 \
       ret[ t-> count++] = c;                              \
    start += l;                                            \
+   if (( t-> options & twReturnFirstLineLength) == twReturnFirstLineLength) \
+      return ret;                                         \
 }
 
 /* determining ~ character location */
@@ -630,7 +632,14 @@ Drawable_do_text_wrap( Handle self, TextWrapRec *t, PFontABC abc)
                 lAdd( i + 1);
           } else {
              unsigned char * c;
+             Bool quickReturn = (( t-> options & twReturnFirstLineLength) == twReturnFirstLineLength);
+             if ( quickReturn) {
+                t-> options &= ~twReturnFirstLineLength;
+                t-> options |= twReturnChunks;
+             }
              lAdd( i);
+             if ( quickReturn) t-> options |= twReturnFirstLineLength;
+
              if ( t-> options & twWordBreak)
              {
                 /* checking whether break was at word boundary */
@@ -662,9 +671,19 @@ Drawable_do_text_wrap( Handle self, TextWrapRec *t, PFontABC abc)
                       else
                          c[ j] = 0;
                       i -= len - j - 1;
+                   } else if ( t-> options & twBreakSingle) { 
+                      /* cannot be split, return nothing */
+                      int j;
+                      if (!( t-> options & twReturnChunks)) {
+                         for ( j = 0; j < t-> count; j++) free( ret[ j]);
+                         ret[ 0] = duplicate_string("");
+                      }
+                      t-> count = 0;
+                      return ret;
                    }
                 }
              }
+             if ( quickReturn) return ret;
              i--; /* repeat again */
           }
           w = 0;
@@ -739,6 +758,7 @@ Drawable_text_wrap( Handle self, char * text, int width, int options, int tabInd
    av = newAV();
    if ( t. tabIndent < 0) t. tabIndent = 0;
    if ( t. textLen   < 0) t. textLen   = strlen( t. text);
+   if ( t. width     < 0) t. width = 0;
 
    if ( my-> get_font_abc == Drawable_get_font_abc) {
       gpENTER;
@@ -771,6 +791,15 @@ Drawable_text_wrap( Handle self, char * text, int width, int options, int tabInd
    
    c = Drawable_do_text_wrap( self, &t, abc);
    free( abc);
+
+   if (( t. options & twReturnFirstLineLength) == twReturnFirstLineLength) {
+      int rlen = 0;
+      if ( c) {
+         if ( t. count > 0) rlen = (int) c[ 1];
+         free( c);
+      }
+      return newSViv(( IV) rlen);
+   }
 
    if ( !c) return nilSV;
 

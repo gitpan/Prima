@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
+#  $Id: Drawable.pm,v 1.11 2002/05/14 13:22:24 dk Exp $
 #
 use strict;
 use Prima;
@@ -111,8 +112,7 @@ this behavior depends on a particular PS interpreter.
 =item ::useDeviceFontsOnly
 
 If 1, the system fonts, available from Prima::Application
-interfaces can not be used. This property is not to be mapped
-into the user-tunable setup dialog. Its usage is designed for
+interfaces can not be used. It is designed for
 developers and the outside-of-Prima applications that wish to
 use PS generation module without graphics. If 1, C<::useDeviceFonts>
 is set to 1 automatically.
@@ -186,13 +186,6 @@ sub cmd_rgb
    }
 }
 
-sub color_check
-{
-   return $_[1] unless $_[0]-> {grayscale};
-   my ( $r, $g, $b) = ((($_[1] & 0xff0000) >> 16) / 255, (($_[1] & 0xff00) >> 8) / 255, ($_[1] & 0xff)/255);
-   return 65793 * ( 0.31 * $r + 0.5 * $g + 0.18 * $b); 
-}
-
 =head2 Internal routines
 
 =item emit
@@ -215,6 +208,7 @@ sub save_state
    my $self = $_[0];
    
    $self-> {saveState} = {};
+   $self-> set_font( $self-> get_font) if $self-> {useDeviceFonts};
    $self-> {saveState}-> {$_} = $self-> $_() for qw( 
       color backColor fillPattern lineEnd linePattern lineWidth
       rop rop2 textOpaque textOutBaseline font
@@ -620,7 +614,7 @@ sub spool
 sub color
 {
    return $_[0]-> SUPER::color unless $#_;
-   $_[0]-> SUPER::color($_[0]-> color_check( $_[1]));
+   $_[0]-> SUPER::color( $_[1]);
    return unless $_[0]-> {canDraw};
    $_[0]-> {changed}-> {fill} = 1;
 }
@@ -781,13 +775,18 @@ sub pageDevice
 sub useDeviceFonts
 {
    return $_[0]-> {useDeviceFonts} unless $#_;
+   if ( $_[1]) {
+      delete $_[0]-> {font}-> {width};
+      $_[0]-> set_font( $_[0]-> get_font);
+   }
    $_[0]-> {useDeviceFonts} = $_[1] unless $_[0]-> get_paint_state;
+   $_[0]-> {useDeviceFonts} = 1 if $_[0]-> {useDeviceFontsOnly};
 }
 
 sub useDeviceFontsOnly
 {
    return $_[0]-> {useDeviceFontsOnly} unless $#_;
-   $_[0]-> useDeviceFonts(1) if $_[0]-> {useDeviceFontsOnly} = $_[1];
+   $_[0]-> useDeviceFonts(1) if $_[0]-> {useDeviceFontsOnly} = $_[1] && !$_[0]-> get_paint_state;
 }
 
 sub grayscale 
@@ -1017,8 +1016,7 @@ sub text_out
        }      
 
        if ( $self-> {changed}-> {font}) {
-          my $szf = int( 7227 * $self->{font}->{size} / $self-> {resolution}-> [0] + 0.5) / 100;
-          $self-> emit( "/$fn findfont $szf scalefont setfont");
+          $self-> emit( "/$fn findfont $self->{font}->{size} scalefont setfont");
           $self-> {changed}-> {font} = 0;
        }
    }
@@ -1321,10 +1319,13 @@ sub get_font
 sub set_font 
 {
    my ( $self, $font) = @_;
+   $font = { %$font }; 
    my $n = exists($font-> {name}) ? $font-> {name} : $self-> {font}-> {name};
    $n = $self-> {useDeviceFonts} ? $Prima::PS::Fonts::defaultFontName : 'Default'
       unless defined $n;
 
+   $font-> {height} = int(( $font-> {size} * $self-> {resolution}-> [1]) / 72.27 + 0.5)
+      if exists $font->{size};
 
    if ( $self-> {useDeviceFontsOnly} || !$::application ||
          ( $self-> {useDeviceFonts} && 
@@ -1355,7 +1356,9 @@ sub set_font
         )
      )
    {
-      $self-> {font} = Prima::PS::Fonts::font_pick( $font, $self-> {font}); 
+      $self-> {font} = Prima::PS::Fonts::font_pick( $font, $self-> {font}, 
+         resolution => $self-> {resolution}-> [1]); 
+      $self-> {fontCharHeight} = $self-> {font}-> {charheight};
       $self-> {docFontMap}-> {$self-> {font}-> {docname}} = 1; 
       $self-> {typeFontMap}-> {$self-> {font}-> {name}} = 1; 
       $self-> {fontWidthDivisor} = $self-> {font}-> {maximalWidth};
@@ -1363,10 +1366,14 @@ sub set_font
    } else {
       my $wscale = $font-> {width};
       delete $font-> {width};
+      delete $font-> {size};
+      delete $self-> {font}-> {size};
       $self-> {font} = Prima::Drawable-> font_match( $font, $self-> {font});
+      $self-> {font}-> {size} = int( $self-> {font}-> {height} * 72.27 / $self-> {resolution}-> [1] + 0.5);
       $self-> {typeFontMap}-> {$self-> {font}-> {name}} = 2; 
       $self-> {fontWidthDivisor} = $self-> {font}-> {width};
       $self-> {font}-> {width} = $wscale if $wscale;
+      $self-> {fontCharHeight} = $self-> {font}-> {height};
    }
    $self-> {changed}-> {font} = 1;
    $self-> {plate}-> destroy, $self-> {plate} = undef if $self-> {plate};
@@ -1391,7 +1398,6 @@ sub plate
       $f{pitch} = fp::Default unless $f{pitch} == fp::Fixed;
       $f{name} = $fontmap{$f{name}} if exists $fontmap{$f{name}};
    }
-   # $f{height} = 72.27 * $self->{font}->{height} / $self-> {resolution}-> [0];
    delete $f{size};
    delete $f{width};
    delete $f{direction};
@@ -1499,18 +1505,14 @@ sub get_rmap
    my $c = $_[0]-> {font}-> {chardata};
    my $le = $_[0]-> {localeEncoding};
    my $nd = $c-> {'.notdef'};
-   my $fs = $_[0]-> {font}-> {size} / 1000;
+   my $fs = $_[0]-> {font}-> {height} / $_[0]-> {fontCharHeight};
    if ( defined $nd) {
+      $nd = [ @$nd ];
       $$nd[$_] *= $fs for 1..3;
    } else {
       $nd = [0,0,0,0];
    }
 
-#  for ( keys %$c) {
-#     next if $c-> {$_}->[0] < 0;
-#     $rmap[$c-> {$_}->[0]] = $c->{$_};
-#  }
- 
    my ( $f, $l) = ( $_[0]-> {font}-> {firstChar}, $_[0]-> {font}-> {lastChar});
    my $i;
    my $abc;

@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: img_conv.h,v 1.17 2001/07/25 14:21:29 dk Exp $
+ * $Id: img_conv.h,v 1.20 2002/05/14 13:22:30 dk Exp $
  */
 
 #include "Image.h"
@@ -262,6 +262,7 @@ typedef void SimpleConvProc( Byte * srcData, Byte * dstData, int count);
 typedef SimpleConvProc *PSimpleConvProc;
 
 extern void ibc_repad( Byte * source, Byte * dest, int srcLineSize, int dstLineSize, int srcDataSize, int dstDataSize, int srcBPP, int dstBPP, void * bit_conv_proc);
+extern void img_put( Handle dest, Handle src, int dstX, int dstY, int srcX, int srcY, int dstW, int dstH, int srcW, int srcH, int rop);
 
 /* internal maps */
 extern Byte     map_stdcolorref    [ 256];
@@ -292,7 +293,7 @@ extern Byte     map_halftone8x8_64 [  64];
    Byte * srcData = var->data;                                    \
    Byte colorref[ 256]
 
-#if defined (__BORLANDC__) || ( defined (sgi) && !defined (__GNUC__))
+#if defined (__BORLANDC__)
 #define BCWARN
 #else
 #define BCWARN                                                   \

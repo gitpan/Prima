@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Timer.c,v 1.17 2002/01/10 20:42:32 dk Exp $
+ * $Id: Timer.c,v 1.19 2002/05/14 13:22:18 dk Exp $
  */
 
 #include "apricot.h"
@@ -89,6 +89,7 @@ Timer_stop( Handle self)
 void
 Timer_done( Handle self)
 {
+   CComponent( var-> owner)-> detach( var-> owner, self, false);
    apc_timer_destroy( self);
    inherited done( self);
 }
@@ -97,7 +98,6 @@ void
 Timer_cleanup( Handle self)
 {
    my-> stop( self);
-   CComponent( var-> owner)-> detach( var-> owner, self, false);
    inherited cleanup( self);
 }
 

@@ -1,3 +1,5 @@
+=for rcs $Id: gencls.pod,v 1.3 2002/05/14 13:22:32 dk Exp $
+
 =head1 NAME
 
 gencls - class interface compiler for Prima core modules

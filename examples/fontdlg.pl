@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: fontdlg.pl,v 1.12 2002/01/25 18:15:28 dk Exp $
+#  $Id: fontdlg.pl,v 1.15 2002/05/14 13:22:26 dk Exp $
 #
 package fontdlg;
 
@@ -141,8 +141,9 @@ my $re_size = sub {
       } else {
          push ( @sizes, $_->{size});
       }
-   }
-   @sizes = sort { $a <=> $b } keys %{{(map { $_ => 1 } @sizes)}};
+   }   
+   my %k = map { $_ => 1 } @sizes;
+   @sizes = sort { $a <=> $b } keys %k;
    @sizes = (10) unless scalar @sizes;
 
    my $i;
@@ -461,9 +462,18 @@ $w-> insert( Widget =>
       $_[1]-> color( $fore);
       my $probe = "AaBbCcZz";
       $probe = $_[1]-> font-> size.".".$_[1]-> font-> name;
-      #$probe = join('', map { chr } 140..160);
+      my @box = @{$_[1]-> get_text_box( $probe)};
+      pop @box;
+      pop @box;
       my $width = $_[1]-> get_text_width( $probe);
-      $_[1]-> text_out( $probe, ( $x - $width) / 2, ( $y - $_[1]-> font-> height) / 2);
+      my ( $ox, $oy) = (( $x - $width) / 2, ( $y - $_[1]-> font-> height) / 2);
+      $box[$_] += $ox for 0,2,4,6; 
+      $box[$_] += $oy for 1,3,5,7; 
+      @box[4,5,6,7] = @box[6,7,4,5];
+      $_[1]-> color( cl::Yellow);
+      $_[1]-> fillpoly(\@box);
+      $_[1]-> color( cl::Black);
+      $_[1]-> text_out( $probe, $ox, $oy);
    },
    onFontChanged => sub {
       unless ( defined $w-> {exampleFontSet})

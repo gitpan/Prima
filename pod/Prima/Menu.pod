@@ -1,3 +1,5 @@
+=for rcs $Id: Menu.pod,v 1.2 2002/05/14 13:22:32 dk Exp $
+
 =head1 NAME
 
 Menu - pull-down and pop-up menu objects

@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Classes.pm,v 1.47 2002/01/05 17:25:37 dk Exp $
+# $Id: Classes.pm,v 1.52 2002/05/14 13:22:24 dk Exp $
 use strict;
 package Prima::VB::Classes;
 
@@ -201,7 +201,7 @@ sub profile_default
       sizeMin    => [11,11],
       selectingButtons => 0,
       accelItems => [
-         ['altpopup',0,0, km::Shift|km::Ctrl|kb::F9 => sub{
+         ['altpopup',0,0, km::Shift|km::Ctrl|kb::F9, sub{
              $_[0]-> altpopup;
              $_[0]-> clear_event;
          }],
@@ -920,7 +920,7 @@ sub prf_types
       widget        => ['currentWidget', 'selectedWidget'],
       pointer       => ['pointer',],
       growMode      => ['growMode'],
-      uiv           => ['helpContext'],
+      string        => ['helpContext'],
       text          => ['text', 'hint'],
       selectingButtons=> ['selectingButtons'],
       widgetClass   => ['widgetClass'],
@@ -2523,7 +2523,7 @@ sub write
    my ( $class, $id, $data) = @_;
    return $VB::writeMode ? "sub { $data}" :
        'Prima::VB::VBLoader::GO_SUB(\''.Prima::VB::Types::generic::quotable($data). 
-       "','$Prima::VB::VBLoader::eventContext[0]', '$id')";
+       "\n','$Prima::VB::VBLoader::eventContext[0]', '$id')";
 }
 
 package Prima::VB::Types::FMAction;
@@ -2918,6 +2918,7 @@ sub item_changed
          $self->{sync} = undef;
       }
    }
+
 }
 
 #use Data::Dumper;
@@ -2969,6 +2970,13 @@ sub set
 #print Dumper( $setData);
    $self-> {B}-> items( $setData);
    $self-> {sync} = 0;
+}
+
+sub change
+{
+   my $self = $_[0];
+   $self-> SUPER::change;
+   $VB::form-> menuItems( $self-> get) if $VB::form && $self-> {widget} == $VB::form;
 }
 
 sub get

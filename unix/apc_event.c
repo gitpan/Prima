@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_event.c,v 1.63 2002/01/26 10:41:15 dk Exp $
+ * $Id: apc_event.c,v 1.74 2002/05/14 13:22:34 dk Exp $
  */
 
 /***********************************************************/
@@ -341,7 +341,7 @@ process_wm_sync_data( Handle self, WMSyncData * wmsd)
    }
    
    if ( size_changed && XX-> flags. want_visible) {
-      int qx = guts. displaySize.x * 3 / 4, qy = guts. displaySize.y * 3 / 4;
+      int qx = guts. displaySize.x * 4 / 5, qy = guts. displaySize.y * 4 / 5;
       bzero( &e, sizeof( Event));
       if ( !XX-> flags. zoomed) {
          if ( XX-> size. x > qx && XX-> size. y > qy) {
@@ -526,16 +526,18 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
    was_sent = ev-> xany. send_event;
 
    switch ( ev-> type) {
-   case KeyPress: {
-      guts. last_time = ev-> xkey. time;
-      if (prima_no_input(XX, false, true)) return;
-      handle_key_event( self, &ev-> xkey, &e, &keysym, false);
-      break;
-   }
+   case KeyPress: 
    case KeyRelease: {
       guts. last_time = ev-> xkey. time;
-      if (prima_no_input(XX, false, false)) return;
-      handle_key_event( self, &ev-> xkey, &e, &keysym, true);
+      if ( !ev-> xkey. send_event && self != guts. focused && guts. focused) {
+         /* bypass pointer-driven input */
+         Handle newself = self;
+         while ( PComponent(newself)-> owner && newself != guts. focused)
+            newself = PComponent(newself)-> owner;
+         if ( newself == guts. focused) XX = X(self = newself);
+      } 
+      if (prima_no_input(XX, false, ev-> type == KeyPress)) return;
+      handle_key_event( self, &ev-> xkey, &e, &keysym, ev-> type == KeyRelease);
       break;
    }
    case ButtonPress: {
@@ -605,6 +607,8 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
            guts.last_button_event.type == ButtonRelease &&
            bev-> window == guts.last_button_event.window &&
            bev-> button == guts.last_button_event.button &&
+           bev-> button != guts. mouse_wheel_up &&
+           bev-> button != guts. mouse_wheel_down &&
            bev-> time - guts.last_button_event.time <= guts.click_time_frame) {
  	  e. cmd = cmMouseClick;
           e. pos. dblclk = true;
@@ -644,18 +648,29 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
       if ( e. cmd == cmMouseClick && e. pos. dblclk) {
          bzero( &guts.last_click, sizeof(guts.last_click));
          guts. last_button_event. type = 0;
-      }
+      } 
       
-      if ( e. cmd == cmMouseDown && !XX-> flags. first_click) {
-         Handle x = self, f = guts. focused ? guts. focused : application;
-         while ( !X(x)-> type. window && ( x != application)) x = (( PWidget) x)-> owner;
-         while ( !X(f)-> type. window && ( f != application)) f = (( PWidget) f)-> owner;
-         if ( x != f) {
-            e. cmd = 0;
-            if ((( PApplication) application)-> hintUnder == self) 
-               CWidget(self)-> set_hintVisible( self, 0);
-            if (( PWidget(self)-> options. optSelectable) && ( PWidget(self)-> selectingButtons & e. pos. button))
-               apc_widget_set_focused( self);
+      if ( e. cmd == cmMouseDown) {
+         if ( XX-> flags. first_click) {
+            if ( ! is_opt( optSelectable)) {
+               Handle x = self, f = guts. focused ? guts. focused : application;
+               while ( f && !X(f)-> type. window && ( f != application)) f = (( PWidget) f)-> owner;
+               while ( !X(x)-> type. window && X(x)-> flags. clip_owner &&
+                       x != application) x = (( PWidget) x)-> owner;
+               if ( x && x != f && X(x)-> type. window) 
+                  XSetInputFocus( DISP, PWidget(x)-> handle, RevertToParent, bev-> time);
+            }
+         } else {
+            Handle x = self, f = guts. focused ? guts. focused : application;
+            while ( !X(x)-> type. window && ( x != application)) x = (( PWidget) x)-> owner;
+            while ( !X(f)-> type. window && ( f != application)) f = (( PWidget) f)-> owner;
+            if ( x != f) {
+               e. cmd = 0;
+               if ((( PApplication) application)-> hintUnder == self) 
+                  CWidget(self)-> set_hintVisible( self, 0);
+               if (( PWidget(self)-> options. optSelectable) && ( PWidget(self)-> selectingButtons & e. pos. button))
+                  apc_widget_set_focused( self);
+            }
          }
       }
       break;
@@ -677,7 +692,6 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
    }
    case MotionNotify: {
       guts. last_time = ev-> xmotion. time;
-      if (prima_no_input(XX, true, false)) return;
       if ( guts. grab_widget != nilHandle && self != guts. grab_widget) {
          XWindow rx;
          XTranslateCoordinates( DISP, X_WINDOW, PWidget(guts. grab_widget)-> handle, 
@@ -718,7 +732,6 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
          XDefineCursor( DISP, XX-> udrawable, guts. null_pointer);
       }   
       guts. last_time = ev-> xcrossing. time;
-      if (prima_no_input(XX, true, false)) return;
       e. cmd = cmMouseEnter;
      CrossingEvent:
       if ( ev-> xcrossing. subwindow != None) return;
@@ -728,7 +741,6 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
    }
    case LeaveNotify: {
       guts. last_time = ev-> xcrossing. time;
-      if (prima_no_input(XX, true, false)) return;
       e. cmd = cmMouseLeave;
       goto CrossingEvent;
    }
@@ -817,6 +829,8 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
          TAILQ_INSERT_TAIL( &guts.paintq, XX, paintq_link);
          XX-> flags. paint_pending = true;
       }
+
+      process_transparents(self);
       return;
    }
    case GraphicsExpose: {
@@ -915,6 +929,14 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
             M(PWindow( self)-> menu)-> paint_pending = true;
             XResizeWindow( DISP, PComponent(PWindow( self)-> menu)-> handle, 
                ev-> xconfigure. width, XX-> menuHeight);
+            {   
+                XEvent e;
+                Handle menu = PWindow( self)-> menu;
+                e. type = ConfigureNotify;
+                e. xconfigure. width  = ev-> xconfigure. width;
+                e. xconfigure. height = XX-> menuHeight;
+                prima_handle_menu_event( &e, PAbstractMenu(menu)-> handle, menu);
+            }
          }
          M(PWindow( self)-> menu)-> w-> pos. x = ev-> xconfigure. x;
          M(PWindow( self)-> menu)-> w-> pos. y = ev-> xconfigure. y;
@@ -940,6 +962,8 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
       break;
    }
    case PropertyNotify: {
+      if ( guts. wm_translate_event) 
+	 guts. wm_translate_event( self, ev, &e);
       break;
    }
    case SelectionClear: 

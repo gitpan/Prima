@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: transparent.pl,v 1.7 2001/10/25 11:21:10 dk Exp $
+#  $Id: transparent.pl,v 1.9 2002/05/14 13:22:26 dk Exp $
 #
 =pod 
 =item NAME
@@ -65,6 +65,7 @@ $w = Prima::Window-> create(
          $canvas-> text_out("Hello!", $d + $i * 40, $d + $i * 40);
       }
    },
+   onDestroy => sub { $::application-> close},
 );
 
 $w-> insert( Timer =>

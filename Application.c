@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Application.c,v 1.53 2002/01/24 15:16:14 dk Exp $
+ * $Id: Application.c,v 1.60 2002/06/17 09:56:08 dk Exp $
  */
 
 #include "apricot.h"
@@ -84,13 +84,15 @@ Application_init( Handle self, HV * profile)
    var->  text = duplicate_string("");
    opt_set( optModalHorizon);
 
-   /* store printer info */
+   /* store extra info */
    {
       HV * hv = ( HV *) SvRV( var-> mate);
       hv_store( hv, "PrinterClass",  12, newSVpv( pget_c( printerClass),  0), 0);
       hv_store( hv, "PrinterModule", 13, newSVpv( pget_c( printerModule), 0), 0);
+      hv_store( hv, "HelpClass",     9,  newSVpv( pget_c( helpClass),     0), 0);
+      hv_store( hv, "HelpModule",    10, newSVpv( pget_c( helpModule),    0), 0);
    }
-   
+
    {
       HV * profile = newHV();
       static Timer_vmt HintTimerVmt;
@@ -132,16 +134,16 @@ Application_init( Handle self, HV * profile)
 void
 Application_done( Handle self)
 {
+   if ( self != application) return;
    unprotect_object( var-> hintTimer);
    unprotect_object( var-> hintWidget);
    list_destroy( &var->  modalHorizons);
    list_destroy( &var->  widgets);
-   free( var-> helpFile);
    free( var-> text);
    free( var-> hint);
-   var->  accelTable = 
+   var->  accelTable =
       var-> hintWidget = var-> hintTimer = nilHandle;
-   var->  helpFile   = var->  text    = var->  hint      = nil;
+   var->  text    = var->  hint      = nil;
    apc_application_destroy( self);
    CDrawable-> done( self);
    application = nilHandle;
@@ -150,7 +152,6 @@ Application_done( Handle self)
 void
 Application_cleanup( Handle self)
 {
-   my-> close_help( self);
    my-> first_that( self, kill_all, nil);
    if ( var-> icon)
       my-> detach( self, var-> icon, true);
@@ -188,6 +189,8 @@ Application_set( Handle self, HV * profile)
    pdelete( palette);
    pdelete( printerClass);
    pdelete( printerModule);
+   pdelete( helpClass);
+   pdelete( helpModule);
    pdelete( rect);
    pdelete( rigth);
    pdelete( selectable);
@@ -294,7 +297,7 @@ Application_fonts( Handle self, char * name, char * encoding)
 {
    int count, i;
    AV * glo = newAV();
-   PFont fmtx = apc_fonts( self, name[0] ? name : nil, 
+   PFont fmtx = apc_fonts( self, name[0] ? name : nil,
       encoding[0] ? encoding : nil, &count);
    for ( i = 0; i < count; i++) {
       SV * sv      = sv_Font2HV( &fmtx[ i]);
@@ -302,7 +305,7 @@ Application_fonts( Handle self, char * name, char * encoding)
       if ( name[0] == 0 && encoding[0] == 0) {
          /* Read specially-coded (const char*) encodings[] vector,
             stored in fmtx[i].encoding. First pointer is filled with 0s,
-            except the last byte which is a counter. Such scheme 
+            except the last byte which is a counter. Such scheme
             allows max 31 encodings per entry to be coded with sizeof(char*)==8.
             The interface must be re-implemented, but this requires
             either change in gencls syntax so arrays can be members of hashes,
@@ -310,10 +313,10 @@ Application_fonts( Handle self, char * name, char * encoding)
           */
          char ** enc = (char**) fmtx[i].encoding;
          unsigned char * shift = (unsigned char*) enc + sizeof(char *) - 1, j = *shift;
-         AV * loc = newAV(); 
-         pset_sv( encoding, newSVpv(*(++enc),0));
+         AV * loc = newAV();
+         pset_sv_noinc( encoding, newSVpv(( j > 0) ? *(++enc) : "", 0));
          while ( j--) av_push( loc, newSVpv(*(enc++),0));
-         pset_sv( encodings, newRV_noinc(( SV*) loc));
+         pset_sv_noinc( encodings, newRV_noinc(( SV*) loc));
       }
       pdelete( resolution);
       pdelete( codepage);
@@ -325,12 +328,12 @@ Application_fonts( Handle self, char * name, char * encoding)
 
 SV*
 Application_font_encodings( Handle self, char * encoding)
-{   
+{
    AV * glo = newAV();
    HE *he;
    PHash h = apc_font_encodings( self);
 
-   if ( !h) return newRV_noinc(( SV *) glo); 
+   if ( !h) return newRV_noinc(( SV *) glo);
    hv_iterinit(( HV*) h);
    for (;;)
    {
@@ -501,20 +504,6 @@ Application_icon( Handle self, Bool set, Handle icon)
    return nilHandle;
 }
 
-char *
-Application_helpFile( Handle self, Bool set, char * helpFile)
-{
-   if ( var-> stage > csFrozen) return "";
-   if ( !set)
-      return var-> helpFile ? var-> helpFile : "";
-
-   if ( var-> helpFile && ( strcmp( var->  helpFile, helpFile) == 0)) return "";
-   free( var-> helpFile);
-   var-> helpFile = duplicate_string( helpFile);
-   apc_help_set_file( self, helpFile);
-   return "";
-}
-
 Handle
 Application_get_focused_widget( Handle self)
 {
@@ -607,6 +596,18 @@ Application_insertMode( Handle self, Bool set, Bool insMode)
    if ( !set)
       return apc_sys_get_insert_mode();
    return apc_sys_set_insert_mode( insMode);
+}
+
+
+Handle 
+Application_get_modal_window( Handle self, int modalFlag, Bool topMost)
+{
+   if ( modalFlag == mtExclusive) {
+      return topMost ? var-> topExclModal   : var-> exclModal;
+   } else if ( modalFlag == mtShared) {
+      return topMost ? var-> topSharedModal : var-> sharedModal;
+   } 
+   return nilHandle;
 }
 
 Handle
@@ -785,9 +786,9 @@ Handle
 Application_top_frame( Handle self, Handle from)
 {
    while ( from) {
-      if ( kind_of( from, CWindow) && 
-             (( PWidget( from)-> owner == application) || !CWidget( from)-> get_clipOwner(from))                           
-         )                              
+      if ( kind_of( from, CWindow) &&
+             (( PWidget( from)-> owner == application) || !CWidget( from)-> get_clipOwner(from))
+         )
          return from;
       from = PWidget( from)-> owner;
    }
@@ -897,13 +898,6 @@ Application_popup_modal( Handle self)
    }
 
    return nilHandle;
-}
-
-long int
-Application_helpContext( Handle self, Bool set, long int context)
-{
-   if ( set && ( context == hmpOwner)) context = hmpNone;
-   return inherited helpContext( self, set, context);
 }
 
 Bool

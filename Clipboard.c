@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Clipboard.c,v 1.32 2002/01/21 21:16:01 dk Exp $
+ * $Id: Clipboard.c,v 1.34 2002/05/14 13:22:16 dk Exp $
  */
 
 #include "apricot.h"
@@ -88,6 +88,7 @@ Clipboard_init( Handle self, HV * profile)
 void
 Clipboard_done( Handle self)
 {
+   CComponent( application)-> detach( application, self, false);
    clipboards--;
    if ( clipboards == 0) {
       while( formatCount)
@@ -96,14 +97,6 @@ Clipboard_done( Handle self)
    apc_clipboard_destroy(self);
    inherited done( self);
 }
-
-void
-Clipboard_cleanup( Handle self)
-{
-   CComponent( application)-> detach( application, self, false);
-   inherited cleanup( self);
-}
-
 
 typedef Bool ActionProc ( Handle self, PClipboardFormatReg item, void * params);
 typedef ActionProc *PActionProc;

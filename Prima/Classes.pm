@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Classes.pm,v 1.64 2002/01/24 15:16:15 dk Exp $
+#  $Id: Classes.pm,v 1.68 2002/05/14 13:22:20 dk Exp $
 use Prima;
 use Prima::Const;
 
@@ -424,7 +424,7 @@ sub draw_text
       (( $flags & dt::ExpandTabs    ) ? ( tw::ExpandTabs | tw::CalcTabs) : 0)
    ;
 
-   my @lines = @{$canvas-> text_wrap( $string, ( $flags & dt::NoWordWrap) ? -1 : $w, $twFlags, $tabIndent)};
+   my @lines = @{$canvas-> text_wrap( $string, ( $flags & dt::NoWordWrap) ? 1000000 : $w, $twFlags, $tabIndent)};
    my $tildes;
    $tildes = pop @lines if $flags & dt::DrawMnemonic;
 
@@ -620,7 +620,6 @@ my %RNT = (
    EndDrag        => nt::Default,
    Enter          => nt::Default,
    FontChanged    => nt::Default,
-   Help           => nt::Default,
    Hide           => nt::Default,
    Hint           => nt::Default,
    KeyDown        => nt::Command,
@@ -669,7 +668,7 @@ sub notification_types { return \%RNT; }
    focused           => 0,
    growMode          => 0,
    height            => 100,
-   helpContext       => hmp::Owner,
+   helpContext       => '',
    hiliteBackColor   => cl::Hilite,
    hiliteColor       => cl::HiliteText,
    hint              => '',
@@ -1245,7 +1244,7 @@ sub profile_default
    my $def  = $_[ 0]-> SUPER::profile_default;
    my $unix = Prima::Application-> get_system_info->{apc} == apc::Unix;
    my %prf = (
-      autoClose      => 1,
+      autoClose      => 0,
       pointerType    => cr::Arrow,
       pointerVisible => 1,
       icon           => undef,
@@ -1257,8 +1256,6 @@ sub profile_default
       ownerShowHint  => 0,
       ownerPalette   => 0,
       showHint       => 1,
-      helpFile       => '',
-      helpContext    => hmp::None,
       hintClass      => 'Prima::HintWidget',
       hintColor      => cl::Black,
       hintBackColor  => 0xffff80,
@@ -1267,6 +1264,8 @@ sub profile_default
       modalHorizon   => 1,
       printerClass   => $unix ? 'Prima::PS::Printer' : 'Prima::Printer',
       printerModule  => $unix ? 'Prima::PS::Printer' : '',
+      helpClass      => 'Prima::HelpViewer',
+      helpModule     => 'Prima::HelpViewer',
    );
    @$def{keys %prf} = values %prf;
    return $def;
@@ -1320,5 +1319,29 @@ sub get_printer
 }
 
 sub hintFont      {($#_)?$_[0]->set_hint_font        ($_[1])  :return Prima::Font->new($_[0], "get_hint_font", "set_hint_font")}
+sub helpModule    {($#_)?$_[0]->{HelpModule} = $_[1] : return $_[0]->{HelpModule}}
+sub helpClass     {($#_)?$_[0]->{HelpClass}  = $_[1] : return $_[0]->{HelpClass}}
+
+sub help_init
+{
+   return 0 unless length $_[0]-> {HelpModule};
+   eval 'use ' . $_[0]-> {HelpModule} . ';';
+   die "$@" if $@;
+   return 1;
+}
+
+sub close_help
+{
+   return '' unless $_[0]-> help_init;
+   shift-> {HelpClass}-> close;
+}
+
+sub open_help
+{
+   my ( $self, $link) = @_;
+   return unless length $link;
+   return unless $self-> help_init;
+   return $self-> {HelpClass}-> open($link);
+}
 
 1;

@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Printer.c,v 1.17 2002/01/24 15:16:15 dk Exp $
+ * $Id: Printer.c,v 1.19 2002/05/14 13:22:18 dk Exp $
  */
 
 #include "apricot.h"
@@ -56,17 +56,10 @@ Printer_init( Handle self, HV * profile)
 void
 Printer_done( Handle self)
 {
+   CComponent( var-> owner)-> detach( var-> owner, self, false);
    apc_prn_destroy( self);
    inherited done( self);
 }
-
-void
-Printer_cleanup( Handle self)
-{
-   CComponent( var-> owner)-> detach( var-> owner, self, false);
-   inherited cleanup( self);
-}
-
 
 Bool
 Printer_begin_doc( Handle self, char * docName)

@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
+#  $Id: ImageDialog.pm,v 1.8 2002/06/13 15:29:21 dk Exp $
 #
 
 package Prima::ImageDialog;
@@ -138,9 +139,10 @@ sub update_preview
    return unless defined $x;
    $x = $self-> directory . $x;
    return unless -f $x;
-   $x = Prima::Image-> load( $x, 
+   $x = Prima::Icon-> load( $x, 
       loadExtras => 1, 
       wantFrames => 1, 
+      iconUnmask => 1,
       index => $s->{block} ? $s-> value : 0,
    );
    return unless defined $x;
@@ -396,7 +398,7 @@ sub save
    }
 
 # invoking filter dialog
-   if ( $self-> {codecFilters}-> [ $fi]) {
+   if ( $self-> filterDialog && $self-> {codecFilters}-> [ $fi]) {
       my $dlg = $self-> {codecFilters}-> [ $fi];
       $dlg-> notify( q(Change), $codec, $dup);
       unless ( $dlg-> execute == mb::OK) {

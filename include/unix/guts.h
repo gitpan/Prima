@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: guts.h,v 1.104 2002/02/06 13:09:23 dk Exp $ */
+/* $Id: guts.h,v 1.108 2002/05/14 13:22:30 dk Exp $ */
 
 #ifndef _UNIX_GUTS_H_
 #define _UNIX_GUTS_H_
@@ -460,6 +460,7 @@ typedef struct _UnixGuts
    XWindow                      grab_redirect;
    Handle                       grab_widget;
    Point                        grab_translate_mouse;
+   Handle                       grab_confine;
    int                          scroll_first;
    int                          scroll_next;
    Handle                       currentMenu;
@@ -491,6 +492,8 @@ typedef struct _UnixGuts
    TimerSysData                 sys_timers[ LAST_SYS_TIMER - FIRST_SYS_TIMER + 1];
    Bool                         applicationClose;
    char                         locale[32];
+   Atom                         net_wm_state, net_wm_state_skip_taskbar; 
+   Atom                         net_wm_state_maximized_vert, net_wm_state_maximized_horiz;
 } UnixGuts;
 
 extern UnixGuts guts;
@@ -618,6 +621,7 @@ typedef struct _drawable_sys_data
       unsigned sizeable                 : 1;
       unsigned size_determined          : 1;
       unsigned sync_paint               : 1;
+      unsigned task_listed              : 1;
       unsigned transparent              : 1;
       unsigned transparent_busy         : 1;
       unsigned want_visible             : 1;
@@ -830,6 +834,9 @@ prima_cursor_tick( void);
 extern void
 prima_no_cursor( Handle self);
 
+extern Cursor
+prima_null_pointer( void);
+
 extern Bool
 prima_one_loop_round( Bool wait, Bool careOfApplication);
 
@@ -892,6 +899,9 @@ prima_send_cmSize( Handle self, Point oldSize);
 
 extern Bool
 prima_no_input( PDrawableSysData XX, Bool ignore_horizon, Bool beep);
+
+extern void
+process_transparents( Handle self);
 
 extern Bool
 apc_window_set_visible( Handle self, Bool show);

@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: guts.h,v 1.12 2001/10/28 17:24:19 dk Exp $ */
+/* $Id: guts.h,v 1.13 2002/05/14 13:22:30 dk Exp $ */
 #ifndef _GUTS_H_
 #define _GUTS_H_
 

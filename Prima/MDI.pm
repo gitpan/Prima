@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: MDI.pm,v 1.21 2002/02/14 12:39:55 dk Exp $
+#  $Id: MDI.pm,v 1.22 2002/05/14 13:22:21 dk Exp $
 package Prima::MDI;
 
 # contains:

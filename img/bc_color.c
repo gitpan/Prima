@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: bc_color.c,v 1.10 2001/07/25 14:21:28 dk Exp $
+ * $Id: bc_color.c,v 1.12 2002/05/14 13:22:28 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 
@@ -259,7 +259,7 @@ bc_nibble_mono_cr( register Byte * source, register Byte * dest, register int co
       c = *source++;  d  = ( colorref[ c & 0xF] << 6) | ( colorref[ c >> 4] << 7);
       c = *source++;  d |= ( colorref[ c & 0xF] << 4) | ( colorref[ c >> 4] << 5);
       c = *source++;  d |= ( colorref[ c & 0xF] << 2) | ( colorref[ c >> 4] << 3);
-      c = *source++;  *dest++ = d | ( colorref[ c & 0xF] << 1) | colorref[ c >> 4];
+      c = *source++;  *dest++ = d | colorref[ c & 0xF] |( colorref[ c >> 4] << 1);
    }
    count &= 7;
    if ( count)

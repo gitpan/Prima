@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: DockManager.pm,v 1.3 2000/10/18 11:57:51 tobez Exp $
+#  $Id: DockManager.pm,v 1.4 2002/05/14 13:22:20 dk Exp $
 #
 # contains
 #    DockManager

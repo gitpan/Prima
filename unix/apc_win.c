@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_win.c,v 1.50 2002/02/06 22:12:42 dk Exp $
+ * $Id: apc_win.c,v 1.57 2002/06/17 16:42:15 dk Exp $
  */
 
 /***********************************************************/
@@ -38,6 +38,49 @@
 #include "Window.h"
 #include "Application.h"
 
+static void
+apc_window_task_listed( Handle self, Bool task_list)
+{
+   DEFXX;
+   Atom data[32], type, * prop;
+   int count = 0, format;
+   XClientMessageEvent ev;
+   unsigned long i, n, left;
+
+   if ( XGetWindowProperty( DISP, X_WINDOW, guts. net_wm_state, 0, 32, false, XA_ATOM,
+          &type, &format, &n, &left, (unsigned char**)&prop) == Success) {
+     if ( prop) {
+         if ( n > 32) n = 32;
+         for ( i = 0; i < n; i++) 
+            if ( prop[i] != guts. net_wm_state_skip_taskbar)
+               data[ count++] = prop[i];
+         XFree(( unsigned char *) prop);
+      }
+   }
+
+   XX-> flags. task_listed = ( task_list ? 1 : 0);
+   bzero( &ev, sizeof(ev));
+   ev. type = ClientMessage;
+   ev. display = DISP;
+   ev. window = X_WINDOW;
+   ev. message_type = guts. net_wm_state;
+   ev. format = 32;
+   /*
+      _NET_WM_STATE_REMOVE        0    // remove/unset property 
+      _NET_WM_STATE_ADD           1    // add/set property 
+      _NET_WM_STATE_TOGGLE        2    // toggle property  
+    */
+   ev. data. l[0] = task_list ? 0 : 1;
+   ev. data. l[1] = ( long) guts. net_wm_state_skip_taskbar;
+   ev. data. l[2] = 0;
+   XSendEvent( DISP, guts. root, false, 0, (XEvent*)&ev);
+   XCHECKPOINT;
+
+   if ( !task_list) data[ count++] = guts. net_wm_state_skip_taskbar;
+
+   XChangeProperty( DISP, X_WINDOW, guts. net_wm_state, XA_ATOM, 32,
+       PropModeReplace, ( unsigned char *) data, count);
+} 
 
 Bool
 apc_window_create( Handle self, Handle owner, Bool sync_paint, int border_icons,
@@ -52,9 +95,12 @@ apc_window_create( Handle self, Handle owner, Bool sync_paint, int border_icons,
 
    if ( border_style != bsSizeable) border_style = bsDialog;
 
+
    if ( X_WINDOW) { /* recreate request */
       XX-> flags. sizeable = ( border_style == bsSizeable) ? 1 : 0;
       apc_widget_set_size_bounds( self, PWidget(self)-> sizeMin, PWidget(self)-> sizeMax);
+      if (( task_list ? 1 : 0) != ( XX-> flags. task_listed ? 1 : 0))
+         apc_window_task_listed( self, task_list);
       return true; 
    }   
 
@@ -126,11 +172,13 @@ apc_window_create( Handle self, Handle owner, Bool sync_paint, int border_icons,
    XX-> flags. clip_owner = false;
    XX-> flags. sync_paint = sync_paint;
    XX-> flags. process_configure_notify = true;
+   XX-> flags. task_listed = 1;
 
    XX-> above = nilHandle;
    XX-> owner = real_owner;
    apc_component_fullname_changed_notify( self);
    prima_send_create_event( X_WINDOW);
+   apc_window_task_listed( self, task_list);
    if ( border_style == bsSizeable) XX-> flags. sizeable = 1;
 
    /* setting initial size */
@@ -271,7 +319,7 @@ apc_window_get_icon( Handle self, Handle icon)
       HV * profile = newHV();
       Handle mask = Object_create( "Prima::Image", profile);
       sv_free(( SV *) profile);
-      CImage( mask)-> create_empty( mask, ax, ay, ( ad == 1) ? 1 : guts. qdepth);
+      CImage( mask)-> create_empty( mask, ax, ay, ( ad == 1) ? imBW : guts. qdepth);
       ret = prima_std_query_image( mask, and);
       if (( PImage( mask)-> type & imBPP) != 1)
          CImage( mask)-> type( mask, true, imBW);
@@ -305,8 +353,7 @@ apc_window_get_window_state( Handle self)
 Bool
 apc_window_get_task_listed( Handle self)
 {
-   /* TransientForHint might be the closest definition to this */
-   return true;
+   return X(self)-> flags. task_listed;
 }
 
 Bool
@@ -555,13 +602,13 @@ prima_window_reset_menu( Handle self, int newMenuHeight)
 {
    DEFXX;
    int ret = true;
-   int oh = XX-> menuHeight;
    if ( newMenuHeight != XX-> menuHeight) {
+      int oh = XX-> menuHeight;
       XX-> menuHeight = newMenuHeight;
       if ( PWindow(self)-> stage <= csNormal && XX-> flags. size_determined)
          ret = window_set_client_size( self, XX-> size.x, XX-> size.y);
       else
-         XX-> size. y -= newMenuHeight + oh;
+         XX-> size. y -= newMenuHeight - oh;
       
      if ( XX-> shape_extent. x != 0 || XX-> shape_extent. y != 0) {
         int ny = XX-> size. y + XX-> menuHeight - XX-> shape_extent. y;
@@ -721,11 +768,14 @@ apc_window_set_window_state( Handle self, int state)
    }
    
    if ( state == wsMaximized && !XX-> flags. zoomed) {
+      int dx = ( XX-> decorationSize. x > 0 ) ? XX-> decorationSize. x : 2;
+      int dy = ( XX-> decorationSize. y > 0 ) ? XX-> decorationSize. y : 20;
       XX-> zoomRect. left   = XX-> origin.x;
       XX-> zoomRect. bottom = XX-> origin.y;
       XX-> zoomRect. right  = XX-> size.x;
       XX-> zoomRect. top    = XX-> size.y;
-      apc_window_set_rect( self, 0, 0, guts. displaySize.x, guts. displaySize.y - XX-> menuHeight);
+      apc_window_set_rect( self, dx * 2, dy * 2, 
+              guts. displaySize.x - dx * 4, guts. displaySize. y - XX-> menuHeight - dy * 4);
    }
 
    if ( !XX-> flags. withdrawn) {
@@ -779,7 +829,7 @@ window_start_modal( Handle self, Bool shared, Handle insert_before)
    apc_widget_set_visible( self, true);
    apc_window_activate( self);
    selectee = CWindow(self)->get_selectee( self);
-   if ( selectee != self) Widget_selected( selectee, true, true);
+   if ( selectee && selectee != self) Widget_selected( selectee, true, true);
    prima_simple_message( self, cmExecute, true);
    guts. modal_count++;
    return true;

@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_app.c,v 1.77 2002/02/06 13:09:23 dk Exp $
+ * $Id: apc_app.c,v 1.79 2002/05/14 13:22:34 dk Exp $
  */
 
 /***********************************************************/
@@ -177,7 +177,11 @@ window_subsystem_init( void)
 
    guts. ri_head = guts. ri_tail = 0;
    DISP = XOpenDisplay( nil);
-   if (!DISP) return false;
+   if (!DISP) {
+      char * disp = getenv("DISPLAY");
+      fprintf( stderr, "Error: Can't open display: %s\n", disp ? disp : "");
+      return false;
+   }
    XSetErrorHandler( x_error_handler);
    guts.main_error_handler = x_error_handler;
    (void)x_io_error_handler;

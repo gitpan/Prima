@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_img.c,v 1.65 2002/01/19 16:18:52 dk Exp $
+ * $Id: apc_img.c,v 1.68 2002/05/14 13:22:35 dk Exp $
  */
 /*
  * System dependent image routines (unix, x11)
@@ -1135,7 +1135,7 @@ put_pixmap( Handle self, Handle pixmap, int dst_x, int dst_y, int src_x, int src
    XCopyArea( DISP, YY-> gdrawable, XX-> gdrawable, XX-> gc,
               src_x, YY->size.y + YY-> menuHeight - src_y - h,
               w, h,
-              dst_x, REVERT(dst_y) - h + 1);
+              dst_x, XX->size.y + XX-> menuHeight - dst_y - h);
    XCHECKPOINT;
    return true;
 }
@@ -1149,7 +1149,7 @@ apc_gp_put_image( Handle self, Handle image, int x, int y, int xFrom, int yFrom,
    XGCValues gcv;
    ImageCache *cache = nil;
    Bool mono, icon = false, tempResult = false;
-   PrimaXImage * result;
+   PrimaXImage * result = nil;
 
    if ( PObject( self)-> options. optInDrawInfo) return false;
    if ( !XF_IN_PAINT(XX)) return false;
@@ -1159,7 +1159,7 @@ apc_gp_put_image( Handle self, Handle image, int x, int y, int xFrom, int yFrom,
    if ( yFrom + yLen > img-> h) yLen = img-> h - yFrom;
    if ( xLen <= 0 || yLen <= 0) return false;
   
-   if ( XT_IS_DBM(X(image))) {
+   if ( XT_IS_DBM(X(image)) || PObject( image)-> options. optInDraw) {
       HV * profile;
       XImage * i;
       if (
@@ -1210,10 +1210,10 @@ apc_gp_put_image( Handle self, Handle image, int x, int y, int xFrom, int yFrom,
       }
    } else {
       mono = (( img-> type & imBPP) == 1) || ( guts. idepth == 1);
+      icon = XT_IS_ICON(X(image));
       cache = prima_create_image_cache( img, self, CACHE_AUTODETECT);
       if ( !cache) return false;
       result = cache-> image;
-      icon   = cache-> icon != nil;
    }
    
    if ( guts. dynamicColors) {
@@ -1255,6 +1255,7 @@ apc_gp_put_image( Handle self, Handle image, int x, int y, int xFrom, int yFrom,
    } else {
       func = prima_rop_map( rop);
    }
+
    if ( func != ofunc)
       XSetFunction( DISP, XX-> gc, func);
    
@@ -1296,6 +1297,7 @@ apc_gp_put_image( Handle self, Handle image, int x, int y, int xFrom, int yFrom,
                      x, REVERT(y) - yLen + 1, xLen, yLen);
    if ( func != ofunc)
       XSetFunction( DISP, XX-> gc, ofunc);
+
    if ( tempResult)
       prima_free_ximage( result);
    return true;
@@ -1318,8 +1320,10 @@ apc_image_begin_paint( Handle self)
    XCHECKPOINT;
    XX-> type. icon = 0;
    prima_prepare_drawable_for_painting( self, false);
+   PObject( self)-> options. optInDraw = 0;
    apc_gp_put_image( self, self, 0, 0, 0, 0, img-> w, img-> h, ropCopyPut);
    /*                ^^^^^ ^^^^    :-)))  */
+   PObject( self)-> options. optInDraw = 1;
    XX-> type. icon = icon;
    return true;
 }
@@ -1941,7 +1945,7 @@ apc_gp_stretch_image( Handle self, Handle image,
       src_h = img-> h - src_y;
    }
    if ( src_w == 0 || src_h == 0) return false;
-   if ( XT_IS_DBM(X(image))) {
+   if ( XT_IS_DBM(X(image)) || PObject( image)-> options. optInDraw) {
       XImage * i;
       if ( XT_IS_PIXMAP(X(image)) && XT_IS_BITMAP(X(self))) {
          Handle obj;

@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Prima.pm,v 1.34 2002/02/15 13:17:33 dk Exp $
+#  $Id: Prima.pm,v 1.40 2002/06/26 11:57:15 dk Exp $
 
 package Prima;
 
@@ -43,7 +43,7 @@ BEGIN {
     }
 }
 
-$VERSION = '1.04';
+$VERSION = '1.06';
 bootstrap Prima $VERSION;
 unless ( UNIVERSAL::can('Prima', 'init')) {
    $::application = 0;
@@ -93,6 +93,30 @@ sub import
    }
 }
 
+# returns a preferred path for the toolkit configuration files,
+# or, if a filename given, returns the name appended to the path
+# and proofs that the path exists
+sub path
+{
+   my $path;
+   if ( exists $ENV{HOME}) {
+      $path = "$ENV{HOME}/.prima";
+   } elsif ( $^O =~ /win32/ && exists $ENV{WINDIR}) {
+      $path = "$ENV{WINDIR}/.prima";
+   } else {
+      $path = "/.prima";
+   }
+
+   if ( $_[0]) {
+      unless ( -d $path) {
+         eval "use File::Path"; die "$@\n" if $@;
+         File::Path::mkpath( $path);
+      }
+      $path .= "/$_[0]";
+   }
+
+   return $path;
+}
 
 1;
 

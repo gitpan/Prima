@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Window.cls,v 1.17 2002/02/06 13:14:06 dk Exp $
+# $Id: Window.cls,v 1.19 2002/05/14 13:22:18 dk Exp $
 
 object Prima::Window( Prima::Widget)
 {
@@ -63,6 +63,7 @@ object Prima::Window( Prima::Widget)
    method   Handle   get_horizon();
    method   Font     get_menu_font();
    method   int      get_modal();
+   method   Handle   get_modal_window( int modalFlag = mtExclusive, Bool next = true);
    c_only   void     handle_event ( PEvent event);
    method   void     init( HV * profile);
    import   SV *     notification_types();

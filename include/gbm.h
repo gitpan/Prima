@@ -53,6 +53,8 @@ gbm_read_data may only be legally invoked after an immediately preceeding
 gbm_read_palette. In the case of a 24bpp file (which therefore has no
 palette), gbm_read_data is additionally allowed to follow a gbm_read_header.
 
+$Id: gbm.h,v 1.4 2002/05/14 13:22:30 dk Exp $
+
 */
 
 #ifndef GBM_H

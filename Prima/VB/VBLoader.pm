@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: VBLoader.pm,v 1.14 2002/01/04 11:03:57 dk Exp $
+# $Id: VBLoader.pm,v 1.16 2002/05/14 13:22:25 dk Exp $
 package Prima::VB::VBLoader;
 use strict;
 use vars qw($builderActive $fileVersion @eventContext);
@@ -50,7 +50,11 @@ sub check_version
 
 sub GO_SUB
 {
-   return $_[0] if $builderActive;
+   if ( $builderActive) {
+      my $x = $_[0];
+      $x =~ s/\n$//s;
+      return $x;
+   }
    my $x = eval "sub { $_[0] }";
    if ( $@) {
       @eventContext = ( $_[1], $_[2]);

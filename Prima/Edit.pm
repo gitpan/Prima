@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Edit.pm,v 1.32 2001/11/02 23:13:12 dk Exp $
+#  $Id: Edit.pm,v 1.34 2002/05/14 13:22:20 dk Exp $
 #
 # edit block types
 package bt;
@@ -742,8 +742,8 @@ sub point2xy
    {
       my $ofsx = $ofs + $x;
       $ofsx = $self->{maxLineWidth} if $ofsx > $self->{maxLineWidth};
-      my $blocks = $self-> text_wrap( $chunk, $ofsx, tw::CalcTabs|tw::BreakSingle, $self->{tabIndent});
-      $rx = length( $$blocks[ 0]) if scalar @{$blocks};
+      $rx = $self-> text_wrap( $chunk, $ofsx, 
+          tw::CalcTabs|tw::BreakSingle|tw::ReturnFirstLineLength, $self->{tabIndent});
    }
    return $self-> make_physical( $rx, $ry), $inBounds;
 }

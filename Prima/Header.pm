@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #  Modifications by Anton Berezin <tobez@tobez.org>
 #
-#  $Id: Header.pm,v 1.8 2000/10/18 11:57:54 tobez Exp $
+#  $Id: Header.pm,v 1.10 2002/05/14 13:22:21 dk Exp $
 
 package Prima::Header;
 
@@ -333,10 +333,11 @@ sub on_mousemove
       return unless defined $p;
       return if $p == $o;
       $self-> {clickAllowed} = 0;
+      my $newpos;
       if ( $self-> {widths}->[$p] > $self-> {widths}->[$o]) {
          $ppos[$self-> {vertical} ? 1 : 0] +=
             ( $self-> {widths}->[$p] - $self-> {widths}->[$o]) * (( $p > $o) ? 1 : -1);
-         $self-> pointerPos( @ppos);
+         $newpos = 1;
       }
 
       splice( @{$self-> {items}}, $p, 0, splice( @{$self-> {items}}, $o, 1));
@@ -344,6 +345,7 @@ sub on_mousemove
       $self-> {tabId} = $p;
       $self-> repaint;
       $self-> notify(q(MoveItem), $o, $p);
+      $self-> pointerPos( @ppos) if $newpos;
    } else {
       my @sz = $self-> size;
       my $d = $self-> {vertical} ? $y : $x;

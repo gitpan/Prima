@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: StdDlg.pm,v 1.19 2002/01/05 17:25:36 dk Exp $
+#  $Id: StdDlg.pm,v 1.21 2002/05/14 13:22:22 dk Exp $
 
 
 
@@ -51,7 +51,7 @@ sub AUTOLOAD
 {
    my ($method) = $Prima::ColorDialog::AUTOLOAD =~ /::([^:]+)$/;
    delete ${Prima::ColorDialog::}{AUTOLOAD};
-   require Prima::ColorDialog;
+   eval "use Prima::ColorDialog"; die "$@\n" if $@;
    shift->$method(@_);
 }
 
@@ -61,7 +61,7 @@ sub AUTOLOAD
 {
    my ($method) = $Prima::FontDialog::AUTOLOAD =~ /::([^:]+)$/;
    delete ${Prima::FontDialog::}{AUTOLOAD};
-   require Prima::FontDialog;
+   eval "use Prima::FontDialog"; die "$@\n" if $@;
    shift->$method(@_);
 }
 
@@ -74,7 +74,7 @@ sub AUTOLOAD
    delete ${Prima::OpenDialog::}{AUTOLOAD};
    delete ${Prima::SaveDialog::}{AUTOLOAD};
    delete ${Prima::ChDirDialog::}{AUTOLOAD};
-   require Prima::FileDialog;
+   eval "use Prima::FileDialog"; die "$@\n" if $@;
    shift->$method(@_);
 }
 
@@ -86,7 +86,7 @@ sub AUTOLOAD
    delete ${Prima::OpenDialog::}{AUTOLOAD};
    delete ${Prima::SaveDialog::}{AUTOLOAD};
    delete ${Prima::ChDirDialog::}{AUTOLOAD};
-   require Prima::FileDialog;
+   eval "use Prima::FileDialog"; die "$@\n" if $@;
    shift->$method(@_);
 }
 
@@ -98,7 +98,7 @@ sub AUTOLOAD
    delete ${Prima::OpenDialog::}{AUTOLOAD};
    delete ${Prima::SaveDialog::}{AUTOLOAD};
    delete ${Prima::ChDirDialog::}{AUTOLOAD};
-   require Prima::FileDialog;
+   eval "use Prima::FileDialog"; die "$@\n" if $@;
    shift->$method(@_);
 }
 
@@ -113,7 +113,7 @@ sub AUTOLOAD
    my ($method) = $Prima::FindDialog::AUTOLOAD =~ /::([^:]+)$/;
    delete ${Prima::FindDialog::}{AUTOLOAD};
    delete ${Prima::ReplaceDialog::}{AUTOLOAD};
-   require Prima::EditDialog;
+   eval "use Prima::EditDialog"; die "$@\n" if $@;
    shift->$method(@_);
 }
 
@@ -124,7 +124,7 @@ sub AUTOLOAD
    my ($method) = $Prima::ReplaceDialog::AUTOLOAD =~ /::([^:]+)$/;
    delete ${Prima::FindDialog::}{AUTOLOAD};
    delete ${Prima::ReplaceDialog::}{AUTOLOAD};
-   require Prima::EditDialog;
+   eval "use Prima::EditDialog"; die "$@\n" if $@;
    shift->$method(@_);
 }
 
@@ -134,7 +134,7 @@ sub AUTOLOAD
 {
    my ($method) = $Prima::PrintSetupDialog::AUTOLOAD =~ /::([^:]+)$/;
    delete ${Prima::PrintSetupDialog::}{AUTOLOAD};
-   require Prima::PrintDialog;
+   eval "use Prima::PrintDialog"; die "$@\n" if $@;
    shift->$method(@_);
 }
 
@@ -145,7 +145,7 @@ sub AUTOLOAD
    my ($method) = $Prima::ImageOpenDialog::AUTOLOAD =~ /::([^:]+)$/;
    delete ${Prima::ImageOpenDialog::}{AUTOLOAD};
    delete ${Prima::ImageSaveDialog::}{AUTOLOAD};
-   require Prima::ImageDialog;
+   eval "use Prima::ImageDialog"; die "$@\n" if $@;
    shift->$method(@_);
 }
 
@@ -156,7 +156,7 @@ sub AUTOLOAD
    my ($method) = $Prima::ImageSaveDialog::AUTOLOAD =~ /::([^:]+)$/;
    delete ${Prima::ImageOpenDialog::}{AUTOLOAD};
    delete ${Prima::ImageSaveDialog::}{AUTOLOAD};
-   require Prima::ImageDialog;
+   eval "use Prima::ImageDialog"; die "$@\n" if $@;
    shift->$method(@_);
 }
 

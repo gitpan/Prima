@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: menu.pl,v 1.10 2001/10/25 11:21:10 dk Exp $
+#  $Id: menu.pl,v 1.12 2002/05/14 13:22:26 dk Exp $
 #
 
 =pod 
@@ -73,7 +73,7 @@ sub create_menu
    $img-> load( "$1/Hand.gif");
    return [
       [ "~File" => [
-          [ "Anonymous" => "Ctrl+D" => '^d' => sub { print "sub!";}],   # anonymous sub
+          [ "Anonymous" => "Ctrl+D" => '^d' => sub { print "sub!\n";}],   # anonymous sub
           [ $img => sub {
              my $img = $_[0]-> menu-> image( $_[1]);
              my @r = @{$img-> palette};

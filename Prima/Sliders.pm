@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Sliders.pm,v 1.26 2001/12/06 13:10:22 dk Exp $
+#  $Id: Sliders.pm,v 1.27 2002/05/14 13:22:22 dk Exp $
 
 # contains:
 #   SpinButton

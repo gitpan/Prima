@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: amba.pl,v 1.10 2001/10/27 22:14:10 dk Exp $
+#  $Id: amba.pl,v 1.12 2002/05/14 13:22:26 dk Exp $
 #
 use Prima 'MsgBox', Application => { name => 'Chess puzzle' };
 
@@ -71,7 +71,7 @@ my $w = Prima::Window-> create(
       ["~Help" => sub{
           my $txt = 'Chess puzzle. Objective is to put figures so they could reach every cell upon the board';
           Prima::MsgBox::message( $txt, mb::OK | mb::Cancel, {
-             buttons => { mb::Cancel => {
+             buttons => { mb::Cancel , {
                 text => '~Solution',
                 onClick => sub {
                    Prima::MsgBox::message('Use Ctrl + mouse doubleclick on the board ', mb::OK);

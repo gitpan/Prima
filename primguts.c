@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: primguts.c,v 1.77 2002/01/24 15:19:57 dk Exp $
+ * $Id: primguts.c,v 1.85 2002/05/14 13:22:18 dk Exp $
  */
 /* Guts library, main file */
 
@@ -199,14 +199,6 @@ snprintf( char *buf, size_t len, const char *format, ...)
 }
 #endif
 
-#if defined(__BORLANDC__) || defined(sgi) 
-Bool
-SvBOOL( SV *sv)
-{
-   return SvTRUE(sv);
-}
-#endif
-
 #ifdef PERL_CALL_SV_DIE_BUG_AWARE
 
 I32
@@ -229,7 +221,7 @@ clean_perl_call_method( char* methname, I32 flags)
       CLOSE_G_EVAL;
       croak( SvPV( GvSV( errgv), na));
    }
-   
+
    if ( !( flags & G_EVAL)) { CLOSE_G_EVAL; }
    return ret;
 }
@@ -254,7 +246,7 @@ clean_perl_call_pv( char* subname, I32 flags)
       CLOSE_G_EVAL;
       croak( SvPV( GvSV( errgv), na));
    }
-   
+
    if ( !( flags & G_EVAL)) { CLOSE_G_EVAL; }
    return ret;
 }
@@ -461,8 +453,7 @@ XS( destroy_mate)
       }
       else
       {
-         (( PAnyObject) self)-> killPtr = killChain;
-         killChain = ( PAnyObject) self;
+         free(( void*) self);
       }
    }
    XSRETURN_EMPTY;
@@ -901,7 +892,7 @@ call_perl_indirect( Handle self, char *subName, const char *format, Bool c_decl,
             PUB_CHECK;
             CLOSE_G_EVAL;
             croak( SvPV( GvSV( errgv), na));    /* propagate */
-         } 
+         }
          CLOSE_G_EVAL;
 #else
          retCount = ( coderef) ?
@@ -932,7 +923,7 @@ call_perl_indirect( Handle self, char *subName, const char *format, Bool c_decl,
             PUB_CHECK;
             CLOSE_G_EVAL;
             croak( SvPV( GvSV( errgv), na));    /* propagate */
-         } 
+         }
          CLOSE_G_EVAL;
 #else
          if ( coderef) perl_call_sv(( SV *) subName, G_DISCARD);
@@ -1109,7 +1100,7 @@ SV** temporary_prf_Sv;
 Bool dolbug;
 Bool waitBeforeQuit;
 
-#if defined(BROKEN_COMPILER) || defined(__unix)
+#if defined(BROKEN_COMPILER) || (PRIMA_PLATFORM == apcUnix)
 double NAN;
 #endif
 
@@ -1189,7 +1180,6 @@ register_constants( void)
    register_dt_constants();
    register_cr_constants();
    register_sbmp_constants();
-   register_hmp_constants();
    register_tw_constants();
    register_fds_constants();
    register_fdo_constants();
@@ -1214,7 +1204,7 @@ XS( boot_Prima)
 
 #define TYPECHECK(s1,s2) \
   if (sizeof(s1) != (s2)) { \
-      printf("Error: type %s is %d bytes long (expected to be %d)", #s1, sizeof(s1), s2); \
+      printf("Error: type %s is %d bytes long (expected to be %d)", #s1, (int)sizeof(s1), s2); \
       ST(0) = &sv_no; \
       XSRETURN(1); \
   }
@@ -1233,7 +1223,7 @@ XS( boot_Prima)
       NAN = nan. d;
    }
 #endif /* BROKEN_COMPILER */
-#ifdef __unix
+#if PRIMA_PLATFORM == apcUnix
    {
       /* What we actually need here is not unix */
       /* We need the control over mathematical exceptions, that's it */
@@ -1246,7 +1236,7 @@ NAN = 0.0;
       /* fpresetsticky(FP_X_INV|FP_X_DZ);
          fpsetmask(FP_X_INV|FP_X_DZ); */
    }
-#endif /* __unix */
+#endif 
 
    list_create( &staticObjects, 16, 16);
    if ( !window_subsystem_init()) {
@@ -1328,7 +1318,7 @@ ctx_remap_def( int value, int *table, Bool direct, int default_value)
 
       /* First way build hash */
       hash = ( PRemapHash)  malloc( sizeof(RemapHash) + sizeof( PRemapHashNode) * (32-1) + sizeof( RemapHashNode) * sz);
-      if ( !hash) return default_value;  
+      if ( !hash) return default_value;
       bzero( hash, sizeof(RemapHash) + sizeof( PRemapHashNode) * (32-1));
       tbl = table;
       next = ( PRemapHashNode )(((char *)hash) + sizeof(RemapHash) + sizeof( PRemapHashNode) * (32-1));
@@ -1764,7 +1754,7 @@ hash_first_that( PHash h, void * action, void * params, int * pKeyLen, void ** p
 #ifdef PARANOID_MALLOC
 #undef malloc
 #undef free
-#ifndef __unix
+#if PRIMA_PLATFORM != apcUnix
 #define HAVE_FTIME
 #endif
 
@@ -1851,7 +1841,7 @@ _test_free( void *ptr, int ln, char *fil, Handle self)
 }
 
 /* to make freaking Windows happy */
-#ifndef __unix
+#if PRIMA_PLATFORM != apcUnix
 
 #undef list_create
 #undef plist_create
@@ -1862,7 +1852,7 @@ PList plist_create( int size, int delta) {}
 
 #endif /* PARANOID_MALLOC */
 
-#ifndef unix
+#if PRIMA_PLATFORM != apcUnix
 int
 debug_write( const char *format, ...)
 {

@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: files.c,v 1.6 2001/08/03 13:39:47 dk Exp $
+ * $Id: files.c,v 1.8 2002/05/14 13:22:36 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include <winsock.h>
@@ -109,7 +109,7 @@ socket_select( void *dummy)
             }
       } else
          // nothing to 'select', sleeping
-         Sleep( socketTimeout. tv_sec * 1000000 + socketTimeout. tv_usec / 1000);
+         Sleep( socketTimeout. tv_sec * 1000 + socketTimeout. tv_usec / 1000);
    }
 
    // if somehow failed, making restart possible

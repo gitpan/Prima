@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
 #
 #  Main widget description
 #
-# $Id: Widget.cls,v 1.42 2001/12/30 10:19:23 dk Exp $
+# $Id: Widget.cls,v 1.44 2002/05/14 13:22:18 dk Exp $
 
 object Prima::Widget( Prima::Drawable)
 {
@@ -36,7 +36,7 @@ object Prima::Widget( Prima::Drawable)
    int       cursorLock;               # cursor lock count
    NPoint    designScale;              # font width and height for view design
    int       growMode;                 # growing flags, see gmGrowXXX
-   long      helpContext;              # help context
+   char   *  helpContext;              # help context string
    char   *  hint;                     # hint tag text
    int       lockCount;                # lock count
    Font      popupFont;                # font for popup menu
@@ -73,9 +73,9 @@ object Prima::Widget( Prima::Drawable)
    property  int    growMode;
    property  Bool   firstClick;
    property  Bool   focused;
+   property  char*  helpContext;
    property  char*  hint;
    property  int    hintVisible;
-   property  long   helpContext;
    property  int    left;
    property  Handle popup;
    property  SV *   popupItems;

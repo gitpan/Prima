@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,7 +22,7 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  *
- * $Id: misc.c,v 1.12 2002/01/03 14:04:44 dk Exp $
+ * $Id: misc.c,v 1.14 2002/05/14 13:22:31 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #define INCL_DOSFILEMGR
@@ -439,27 +439,6 @@ apc_widget_user_profile( char * name, Handle owner)
 {
    return nil;
 }
-
-/* XXX no file events at the time */
-
-Bool
-apc_file_attach( Handle self)
-{
-   return false;
-}
-
-Bool
-apc_file_detach( Handle self)
-{
-   return false;
-}
-
-Bool
-apc_file_change_mask( Handle self)
-{
-   return false;
-}
-
 
 Bool
 hwnd_check_limits( int x, int y, Bool uint)

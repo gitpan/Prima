@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Object.c,v 1.24 2001/11/02 23:10:45 dk Exp $
+ * $Id: Object.c,v 1.26 2002/05/14 13:22:17 dk Exp $
  */
 
 #include "apricot.h"
@@ -128,6 +128,7 @@ void
 Object_destroy( Handle self)
 {
    SV *mate, *object = nil;
+   int enter_stage = var-> stage;
 
    if ( var-> stage > csNormal && var-> stage != csHalfDead)
       return;
@@ -175,7 +176,7 @@ Object_destroy( Handle self)
     /*  ENTER;
         SAVEINT recursiveCall; */
       protect_chain( owner = var-> owner, 1);
-      my-> cleanup( self);
+      if ( enter_stage > csConstructing) my-> cleanup( self);
       if ( var-> stage == csHalfDead) {
          var-> stage = csFinalizing;
          my-> done( self);

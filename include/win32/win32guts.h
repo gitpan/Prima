@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: win32guts.h,v 1.54 2002/01/24 15:16:16 dk Exp $ */
+/* $Id: win32guts.h,v 1.55 2002/05/14 13:22:31 dk Exp $ */
 
 #ifndef _WIN32_H_
 #define _WIN32_H_

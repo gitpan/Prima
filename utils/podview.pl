@@ -1,6 +1,5 @@
-#! /usr/bin/perl
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -24,21 +23,30 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: vb.pl,v 1.4 2000/10/18 11:58:28 tobez Exp $
+#  $Id: podview.pl,v 1.1 2002/04/02 21:41:06 dk Exp $
 #
 
-my $rc;
-foreach my $pth ( @INC) {
-    my $VBpath = "$pth/Prima/VB/VB.pl";
-    if ( -f $VBpath) {
-	$rc = require $VBpath;
-	if ( ! defined $rc) {
-	    if ( $!) {
-		die "Cannot read $VBpath: $!";
-	    }
-	    die "$VBpath execution failed: $@";
-	}
-	last;
-    }
+use strict;
+use Prima;
+use Prima::HelpViewer;
+use Prima::Application;
+
+package SoleHelpViewer;
+use vars qw(@ISA);
+@ISA = qw(Prima::PodViewWindow);
+
+sub on_destroy
+{
+   $_[0]-> SUPER::on_destroy;
+   $::application-> close unless @Prima::HelpViewer::helpWindows;
 }
-exit;
+
+package main;
+
+$Prima::HelpViewer::windowClass = 'SoleHelpViewer';
+
+my $htx = ( @ARGV ? $ARGV[0] : 'Prima' );
+$htx .= '/' unless $htx =~ /\//;
+$::application-> open_help( $htx);
+
+run Prima;

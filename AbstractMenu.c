@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,13 +23,14 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: AbstractMenu.c,v 1.44 2002/01/07 21:39:44 dk Exp $
+ * $Id: AbstractMenu.c,v 1.48 2002/06/17 09:51:20 dk Exp $
  */
 
 #include "apricot.h"
 #include "AbstractMenu.h"
 #include "Image.h"
 #include "Menu.h"
+#include "Widget.h"
 #include <AbstractMenu.inc>
 
 #ifdef __cplusplus
@@ -373,6 +374,8 @@ void
 AbstractMenu_init( Handle self, HV * profile)
 {
    inherited init( self, profile);
+   if ( !kind_of( var-> owner, CWidget)) 
+      croak("Illegal owner object reference passed to AbstractMenu::init");
    ((( PComponent) var-> owner)-> self)-> attach( var-> owner, self);
    var-> anchored = kind_of( self, CMenu);
    my-> update_sys_handle( self, profile);
@@ -384,6 +387,7 @@ AbstractMenu_init( Handle self, HV * profile)
 void
 AbstractMenu_done( Handle self)
 {
+   ((( PComponent) var-> owner)-> self)-> detach( var-> owner, self, false);
    if ( var-> system) apc_menu_destroy( self);
    my-> dispose_menu( self, var-> tree);
    var-> tree = nil;
@@ -394,7 +398,6 @@ void
 AbstractMenu_cleanup( Handle self)
 {
    if ( my-> get_selected( self)) my-> set_selected( self, false);
-   ((( PComponent) var-> owner)-> self)-> detach( var-> owner, self, false);
    inherited cleanup( self);
 }
 
@@ -407,6 +410,8 @@ AbstractMenu_set( Handle self, HV * profile)
    if ( pexist( owner))
    {
       postOwner = pget_H( owner);
+      if ( !kind_of( postOwner, CWidget))
+         croak("RTC003F: Illegal object reference passed to AbstractMenu::set_owner");
       my-> migrate( self, postOwner);
    }
    if ( pexist( selected))
@@ -641,7 +646,7 @@ AbstractMenu_enabled( Handle self, Bool set, char * varName, Bool enabled)
    if ( m == nil) return false;
    if ( !set)
       return m ? !m-> disabled : false;
-   if ( m-> divider || m-> down) return false;
+   if (m-> divider) return false;
    m-> disabled = !enabled;
    if ( m-> id > 0)
       if ( var-> stage <= csNormal && var-> system)

@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: imgscale.c,v 1.16 2001/07/25 14:21:28 dk Exp $
+ * $Id: imgscale.c,v 1.18 2002/05/14 13:22:28 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "img_conv.h"
@@ -265,14 +265,16 @@ ic_stretch( int type, Byte * srcData, int srcW, int srcH, Byte * dstData, int w,
    if ( !xStretch && !yStretch && ( w > 0))
    {
       int y;
-      int xMin = ( srcLine > dstLine) ? dstLine : srcLine;
+      int xMin = (( type & imBPP) < 8) ? 
+                  ( srcLine > dstLine) ? dstLine : srcLine :
+                  (((( srcW > absw) ? absw : srcW) * ( type & imBPP)) / 8);
       if ( srcW < w || srcH < absh) memset( dstData, 0, dstLine * absh);
       if ( h < 0)
       {
          dstData += dstLine * ( yMin - 1);
          dstLine =- dstLine;
       }
-      for ( y = 0; y < yMin; y++, srcData += srcLine, dstData += dstLine)
+      for ( y = 0; y < yMin; y++, srcData += srcLine, dstData += dstLine) 
          memcpy( dstData, srcData, xMin);
       return;
    }
@@ -280,7 +282,9 @@ ic_stretch( int type, Byte * srcData, int srcW, int srcH, Byte * dstData, int w,
 /* y-only stretch case */
    if ( !xStretch && yStretch && ( w > 0))
    {
-      int xMin = ( srcLine > dstLine) ? dstLine : srcLine;
+      int xMin = (( type & imBPP) < 8) ? 
+         ( srcLine > dstLine) ? dstLine : srcLine :
+         (((( srcW > absw) ? absw : srcW) * ( type & imBPP)) / 8);
       count. l = 0;
       if ( srcW < w) memset( dstData, 0, dstLine * absh);
       if ( h < 0)

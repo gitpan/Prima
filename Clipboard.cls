@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -23,13 +23,12 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Clipboard.cls,v 1.12 2002/01/21 21:16:01 dk Exp $
+# $Id: Clipboard.cls,v 1.14 2002/05/14 13:22:16 dk Exp $
 
 object Prima::Clipboard( Prima::Component)
 {
    int openCount;
 
-   method void   cleanup();
    method void   clear();
    method void   close();
    method void   deregister_format( char * format);

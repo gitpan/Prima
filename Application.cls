@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -23,14 +23,13 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Application.cls,v 1.28 2002/01/24 15:16:14 dk Exp $
+# $Id: Application.cls,v 1.31 2002/05/14 13:22:16 dk Exp $
 
 object Prima::Application( Prima::Widget)
 {
    ColorSet  colors;
    Handle    hintTimer;
    Handle    hintWidget;
-   char *    helpFile;
    Handle    icon;
    Bool      autoClose;
 
@@ -42,8 +41,6 @@ object Prima::Application( Prima::Widget)
    property  Bool   focused;
    property  Handle icon;
    property  Bool   insertMode;
-   property  char * helpFile;
-   property  long   helpContext;
    property  int    growMode;
    property  Color  hintColor;
    property  Color  hintBackColor;
@@ -74,7 +71,6 @@ object Prima::Application( Prima::Widget)
    method void   bring_to_front();
    method void   cleanup();
    method Bool   close();
-   method Bool   close_help()                                 => apc_help_close;
    method void   done();
    method void   detach( Handle objectHandle, Bool kill);
    method void   end_paint();
@@ -91,12 +87,12 @@ object Prima::Application( Prima::Widget)
    method Handle get_widget_from_handle( SV * handle);
    method Handle get_hint_widget();
    static Font   get_message_font( char * dummy = "");
+   method Handle get_modal_window( int modalFlag = mtExclusive, Bool topMost = true);
    method Point  get_scroll_rate();
    static SV *   get_system_info( char * dummy = "");
    static int    get_system_value( char * dummy = "", int sysValue = 0);
    method Bool   go( void)   => apc_application_go;
    c_only void   handle_event ( PEvent event);
-   method Bool   help_context( long context)   => apc_help_open_topic;
    method void   hide();
    method void   init( HV * profile);
    method Bool   lock()                        => apc_application_lock;

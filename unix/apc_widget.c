@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_widget.c,v 1.77 2002/02/06 22:12:42 dk Exp $
+ * $Id: apc_widget.c,v 1.84 2002/05/14 13:22:35 dk Exp $
  */
 
 /***********************************************************/
@@ -148,7 +148,7 @@ EXIT:
    return ret;
 }   
 
-static void
+void
 process_transparents( Handle self)
 {
    int i;
@@ -668,6 +668,8 @@ apc_widget_invalidate_rect( Handle self, Rect *rect)
    DEFXX;
 
    if ( rect) {
+      SORT( rect-> left,   rect-> right);
+      SORT( rect-> bottom, rect-> top);
       r. x = rect-> left;
       r. width = rect-> right - rect-> left;
       r. y = XX-> size. y + XX-> menuHeight - rect-> top;
@@ -711,6 +713,8 @@ apc_widget_scroll( Handle self, int horiz, int vert,
    XCHECKPOINT;
    
    if ( confine) {
+      SORT( confine-> left,   confine-> right);
+      SORT( confine-> bottom, confine-> top);
       src_x = confine-> left;
       src_y = XX-> size. y - confine-> top;
       w = confine-> right - src_x;
@@ -729,7 +733,10 @@ apc_widget_scroll( Handle self, int horiz, int vert,
 
    if (clip) {
       XRectangle cpa;
-     
+
+      SORT( clip-> left,   clip-> right);
+      SORT( clip-> bottom, clip-> top);
+
       r. x = clip-> left;
       r. y = REVERT( clip-> top) + 1;
       r. width = clip-> right - clip-> left;
@@ -818,6 +825,8 @@ apc_widget_set_capture( Handle self, Bool capture, Handle confineTo)
    if ( capture) {
       XWindow z = X_WINDOW;
       Time t = guts. last_time;
+      Cursor cursor = XX-> flags. pointer_obscured ? prima_null_pointer() : 
+            (( XX-> pointer_id == crUser) ?  XX-> user_pointer : XX-> actual_pointer);
       if ( confineTo && PWidget(confineTo)-> handle)
 	 confine_to = PWidget(confineTo)-> handle;
 AGAIN:      
@@ -826,7 +835,7 @@ AGAIN:
 			| ButtonReleaseMask
 			| PointerMotionMask
 			| ButtonMotionMask, GrabModeAsync, GrabModeAsync,
-			confine_to, None, t);
+			confine_to, cursor, t);
       XCHECKPOINT;
       if ( r != GrabSuccess) {
          XWindow root = guts. root, rx;
@@ -845,8 +854,9 @@ AGAIN:
          guts. grab_redirect = nilHandle;
          return false;
       } else {
-	 XX-> flags. grab = true;
-         guts. grab_widget = self;
+	 XX-> flags. grab   = true;
+         guts. grab_widget  = self;
+         guts. grab_confine = confineTo;
       }
    } else if ( XX-> flags. grab) {
       guts. grab_redirect = nilHandle;
@@ -918,6 +928,15 @@ apc_widget_set_focused( Handle self)
    }
    XGetInputFocus( DISP, &xfoc, &rev);
    if ( xfoc == focus) return true;
+
+   { /* code for no-wm environment */
+      Handle who = ( Handle) hash_fetch( guts.windows, (void*)&xfoc, sizeof(xfoc)), x = self;
+      while ( who && XT_IS_WINDOW(X(who))) who = PComponent( who)-> owner;
+      while ( x && !XT_IS_WINDOW(X(x)) && X(x)->flags.clip_owner) x = PComponent( x)-> owner;
+      if ( x && x != application && x != who && XT_IS_WINDOW(X(x)))
+         XSetInputFocus( DISP, PComponent(x)-> handle, RevertToNone, CurrentTime);
+   }
+
    XSetInputFocus( DISP, focus, RevertToParent, CurrentTime);
    XCHECKPOINT;
    
@@ -1026,6 +1045,28 @@ apc_widget_set_shape( Handle self, Handle mask)
    return true;
 }
 
+/* Used instead of XUnmapWindow sometimes because when a focused
+   widget gets hidden, the X server's revert_to is sometimes
+   weirdly set to RevertToPointerRoot ( mwm is the guilty one ) */
+static void
+apc_XUnmapWindow( Handle self)
+{
+   Handle z = guts. focused;
+   while ( z) {
+      if ( z == self) {
+         if (PComponent(self)-> owner) {
+            z = PComponent(self)-> owner;
+            while ( z && !X(z)-> type. window) z = PComponent(z)-> owner;
+            if ( z && z != application)
+               XSetInputFocus( DISP, PComponent(z)-> handle, RevertToNone, CurrentTime);
+         }
+         break;
+      }
+      z = PComponent(z)-> owner;
+   }
+   XUnmapWindow( DISP, X_WINDOW);
+}
+
 void
 prima_send_cmSize( Handle self, Point oldSize)
 {
@@ -1104,7 +1145,7 @@ apc_widget_set_size( Handle self, int width, int height)
          XX-> flags. falsely_hidden = 0;
       }   
    } else {
-      if ( XX-> flags. want_visible) XUnmapWindow( DISP, X_WINDOW);  
+      if ( XX-> flags. want_visible) apc_XUnmapWindow( self);  
       XMoveResizeWindow( DISP, X_WINDOW, x, y, ( width == 0) ? 1 : width, ( height == 0) ? 1 : height);
       XX-> flags. falsely_hidden = 1;
    }   
@@ -1179,7 +1220,7 @@ apc_widget_set_rect( Handle self, int x, int y, int width, int height)
          XX-> flags. falsely_hidden = 0;
       }   
    } else {
-      if ( XX-> flags. want_visible) XUnmapWindow( DISP, X_WINDOW);  
+      if ( XX-> flags. want_visible) apc_XUnmapWindow( self);
       XMoveResizeWindow( DISP, X_WINDOW, x, y, ( width == 0) ? 1 : width, ( height == 0) ? 1 : height);
       XX-> flags. falsely_hidden = 1;
    }   
@@ -1229,7 +1270,7 @@ apc_widget_set_visible( Handle self, Bool show)
       if ( show)
          XMapWindow( DISP, X_WINDOW);
       else
-         XUnmapWindow( DISP, X_WINDOW);
+         apc_XUnmapWindow( self);
       XCHECKPOINT;
    }
    if ( oldShow != ( show ? 1 : 0))
@@ -1287,6 +1328,10 @@ apc_widget_validate_rect( Handle self, Rect rect)
    XRectangle r;
    DEFXX;
    Region rgn;
+
+   SORT( rect. left,   rect. right);
+   SORT( rect. bottom, rect. top);
+
 
    r. x = rect. left;
    r. width = rect. right - rect. left;

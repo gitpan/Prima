@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,7 +22,8 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
+ * 
+ * $Id: apc_timer.c,v 1.4 2002/05/14 13:22:35 dk Exp $
  */
 
 #include "unix/guts.h"
@@ -139,6 +140,7 @@ apc_timer_start( Handle self)
       if ( before) {
 	 if ( before-> older) {
 	    sys-> older = before-> older;
+            before-> older-> younger = sys;
 	 } else {
 	    guts. oldest = sys;
 	 }

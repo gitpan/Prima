@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@plab.ku.dk>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Const.pm,v 1.10 2002/01/05 17:25:36 dk Exp $
+#  $Id: Const.pm,v 1.12 2002/05/14 13:22:20 dk Exp $
 package Prima::Const;
 use Prima '';
 use Carp;
@@ -69,7 +69,6 @@ package gui; *AUTOLOAD = \&Prima::Const::AUTOLOAD;	# GUI types
 package dt; *AUTOLOAD =  \&Prima::Const::AUTOLOAD;	# Drives types & draw_text constants
 package cr; *AUTOLOAD =  \&Prima::Const::AUTOLOAD;	# Pointer ( Cursor Resources) id's
 package sbmp; *AUTOLOAD =\&Prima::Const::AUTOLOAD;	# System bitmaps index
-package hmp; *AUTOLOAD = \&Prima::Const::AUTOLOAD;	# help manager pages constants
 package tw; *AUTOLOAD =  \&Prima::Const::AUTOLOAD;	# text wrapping constants
 package fds; *AUTOLOAD = \&Prima::Const::AUTOLOAD;	# find/replace dialog scope type
 package fdo; *AUTOLOAD = \&Prima::Const::AUTOLOAD;	# find/replace dialog options

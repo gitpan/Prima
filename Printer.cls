@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Printer.cls,v 1.13 2002/01/24 15:16:15 dk Exp $
+# $Id: Printer.cls,v 1.15 2002/05/14 13:22:18 dk Exp $
 
 object Prima::Printer( Prima::Drawable)
 {
@@ -35,7 +35,6 @@ object Prima::Printer( Prima::Drawable)
    method Bool   begin_doc( char * docName = "");
    method Bool   begin_paint();
    method Bool   begin_paint_info();
-   method void   cleanup();
    method void   done();
    method void   end_doc();
    method void   end_paint();

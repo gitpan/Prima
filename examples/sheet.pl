@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: sheet.pl,v 1.3 2001/10/25 11:21:10 dk Exp $
+#  $Id: sheet.pl,v 1.5 2002/05/14 13:22:26 dk Exp $
 #
 =pod 
 =item NAME
@@ -48,7 +48,7 @@ use Prima;
 use Prima::Header;
 use Prima::Application;
 
-my $w = Prima::Window-> create;
+my $w = Prima::Window-> create( onDestroy => sub { $::application-> close});
 
 my @items;
 

@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ExtLists.pm,v 1.13 2001/07/04 11:34:41 dk Exp $
+#  $Id: ExtLists.pm,v 1.14 2002/05/14 13:22:21 dk Exp $
 
 # contains:
 #   CheckList

@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,6 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
+ * $Id: apc_clipboard.c,v 1.6 2002/05/14 13:22:34 dk Exp $
  */
 
 #include "unix/guts.h"
@@ -381,7 +382,7 @@ apc_clipboard_get_data( Handle self, long id, STRLEN *length)
       
       if ( !XGetGeometry( DISP, px, &foo, &bar, &bar, &x, &y, &bar, &d))
          return nil;
-      CImage( img)-> create_empty( img, x, y, ( d == 1) ? 1 : guts. qdepth);
+      CImage( img)-> create_empty( img, x, y, ( d == 1) ? imBW : guts. qdepth);
       if ( !prima_std_query_image( img, px)) return nil;
       ret = (void*)1;
    } else {

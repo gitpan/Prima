@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
+ * Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: printers.c,v 1.9 2002/01/03 14:04:44 dk Exp $
+ * $Id: printers.c,v 1.10 2002/05/14 13:22:32 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 /* apc.c --- apc/ api for os/2 */
