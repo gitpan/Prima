@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: sheet.pl,v 1.6 2002/09/06 13:25:43 dk Exp $
+#  $Id: sheet.pl,v 1.7 2003/04/05 21:47:48 dk Exp $
 #
 =pod 
 =item NAME
@@ -90,7 +90,6 @@ my $l = $w-> insert( DetailedList =>
    origin => [0,0],
    size   => [ $w-> size],
    growMode => gm::Client,
-   hScroll => 1,
    items   => \@items,
    headers => [ 'Service' , 'Port', 'Protocol', 'Description'],
    columns => 4,

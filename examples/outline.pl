@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: outline.pl,v 1.11 2002/05/14 13:22:26 dk Exp $
+#  $Id: outline.pl,v 1.12 2003/04/05 21:47:48 dk Exp $
 #
 =pod 
 =item NAME
@@ -72,7 +72,6 @@ popupItems => [
 path => '.',
 origin => [0,0],
 buffered => 1,
-hScroll => 1,
 size=>[200,200],growMode => gm::Client,
 onSelectItem => sub {
    my ($self, $index) = @_;

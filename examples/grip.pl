@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: grip.pl,v 1.10 2002/05/14 13:22:26 dk Exp $
+#  $Id: grip.pl,v 1.11 2003/04/05 21:47:48 dk Exp $
 #
 
 =pod 
@@ -192,8 +192,6 @@ $w-> insert( ImageViewer =>
    origin => [ 0, 0],
    size   => [ $w-> size],
    growMode => gm::Client,
-   hScroll => 1,
-   vScroll => 1,
    name    => 'IV',
    valignment  => ta::Center,
    alignment   => ta::Center,

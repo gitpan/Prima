@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: clip.c,v 1.28 2003/01/12 16:38:24 dk Exp $
+ * $Id: clip.c,v 1.30 2003/04/23 09:15:24 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -148,7 +148,7 @@ apc_clipboard_get_data( Handle self, long id, PClipboardDataRec c)
          }
          break;
       case CF_TEXT:
-         if ( wantUnicodeInput && IS_NT && IsClipboardFormatAvailable( CF_UNICODETEXT)) {
+         if ( wantUnicodeInput && HAS_WCHAR && IsClipboardFormatAvailable( CF_UNICODETEXT)) {
              WCHAR *ptr, *p;
              int i, len, size;
              char *utf;
@@ -201,8 +201,8 @@ apc_clipboard_get_data( Handle self, long id, PClipboardDataRec c)
              len = strlen( ptr);
              c-> text. length = 0;
              if ((c-> text. text = ( char *) malloc( len))) {
-                for ( i = 0; i < len; i++)
-                   if ( ptr[i] != '\r' || ( i > 0 && ptr[i-1] != '\n')) 
+                for ( i = 0; i < len; i++) 
+                   if ( ptr[i] != '\r' || (( i < len) && (ptr[i+1] != '\n'))) 
                       c-> text. text[c-> text. length++] = ptr[i];
                 ret = true;
              } 
@@ -266,10 +266,10 @@ apc_clipboard_set_data( Handle self, long id, PClipboardDataRec c)
             HGLOBAL glob, oemglob;
 
             for ( i = 0; i < c-> text. length; i++) 
-               if (c-> text. text[i] == '\n' && c-> text. text[i+1] != '\r') 
+               if (c-> text. text[i] == '\n' && ( i == 0 || c-> text. text[i-1] != '\r')) 
                   cr++;
 
-            if ( !IS_NT || !c-> text. utf8) {
+            if ( !HAS_WCHAR || !c-> text. utf8) {
                glob    = GlobalAlloc( GMEM_DDESHARE, ulen + cr + 1);
                oemglob = GlobalAlloc( GMEM_DDESHARE, ulen + cr + 1);
                if ( glob)    ptr    = GlobalLock( glob);
@@ -285,7 +285,7 @@ apc_clipboard_set_data( Handle self, long id, PClipboardDataRec c)
                   } else {
                      dst = ( char *) ptr;
                      for ( i = 0; i < c-> text. length; i++) {
-                        if ( c-> text. text[i] == '\n' && c-> text. text[i+1] != '\r') 
+                        if ( c-> text. text[i] == '\n' && ( i == 0 || c-> text. text[i-1] != '\r')) 
                            *(dst++) = '\r';
                         *(dst++) = c-> text. text[i];
                      }
@@ -306,7 +306,7 @@ apc_clipboard_set_data( Handle self, long id, PClipboardDataRec c)
                }
             }
             
-            if ( IS_NT) {
+            if ( HAS_WCHAR) {
                if (( glob = GlobalAlloc( GMEM_DDESHARE, ( ulen + 1) * sizeof( WCHAR)))) {
                   if (( ptr = GlobalLock( glob))) {
                      if ( c-> text. utf8)

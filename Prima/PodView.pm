@@ -25,7 +25,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: PodView.pm,v 1.21 2002/12/16 10:57:28 dk Exp $
+#  $Id: PodView.pm,v 1.22 2003/04/04 21:10:41 dk Exp $
 
 use strict;
 use Prima;
@@ -1028,9 +1028,6 @@ sub add
             }
          } else { # close
             if ( $$_[1] eq 'i' || $$_[1] eq 'f' || $$_[1] eq 'b') {
-               if (( $val{fontStyle} & fs::Italic) && !( $stack{fontStyle}->[-1] & fs::Italic)) {
-                  push @$g, tb::moveto( 0.5, 0, tb::X_DIMENSION_FONT_HEIGHT);
-               }
                push @$g, tb::fontStyle( $val{fontStyle} = pop @{$stack{fontStyle}});
             } elsif ( $$_[1] eq 'c') {
                my $z = $styles->[STYLE_CODE];

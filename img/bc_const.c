@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: bc_const.c,v 1.11 2002/11/05 15:53:12 dk Exp $
+ * $Id: bc_const.c,v 1.12 2003/03/21 23:46:59 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 
@@ -497,6 +497,7 @@ REPEAT_CALC:
       }
    if ( big_pal != palette) {
       cm_squeeze_palette( big_pal, count, palette, *max_pal_size);
+      count = *max_pal_size;
       free( big_pal);
    }
    free( map);

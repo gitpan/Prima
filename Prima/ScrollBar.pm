@@ -30,7 +30,7 @@
 #  Documentation by:
 #     Anton Berezin  <tobez@tobez.org>
 #
-#  $Id: ScrollBar.pm,v 1.15 2002/10/17 20:30:52 dk Exp $
+#  $Id: ScrollBar.pm,v 1.16 2003/04/14 10:35:46 dk Exp $
 
 package Prima::ScrollBar;
 use vars qw(@ISA @stdMetrics);
@@ -110,8 +110,12 @@ sub set
       delete $profile{partial};
       delete $profile{whole};
    }
-   if ( exists $profile{min} and exists $profile{max}) {
-      $self-> set_bounds($profile{max}, $profile{max});
+   if ( exists $profile{min} or exists $profile{max}) {
+      my ( $min, $max) = (
+         exists($profile{min}) ? $profile{min} : $self->{min},
+         exists($profile{max}) ? $profile{max} : $self->{max},
+      );
+      $self-> set_bounds($min,$max);
       delete $profile{min};
       delete $profile{max};
    }

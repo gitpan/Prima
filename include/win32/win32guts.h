@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: win32guts.h,v 1.56 2002/10/31 12:56:38 dk Exp $ */
+/* $Id: win32guts.h,v 1.57 2003/03/26 22:18:49 dk Exp $ */
 
 #ifndef _WIN32_H_
 #define _WIN32_H_
@@ -46,6 +46,7 @@ typedef HANDLE WINHANDLE;
 #define IS_WIN32S  (BOOL)(!(IS_NT) && (LOBYTE(LOWORD(guts. version))<4))
 #define IS_WIN95   (BOOL)(!(IS_NT) && !(IS_WIN32S))
 #define IS_WIN98   (BOOL)( guts. is98)
+#define HAS_WCHAR  IS_NT
 
 #undef  HWND_DESKTOP
 #define HWND_DESKTOP         guts. desktopWindow
@@ -586,6 +587,8 @@ extern void         utf8_to_wchar( const char * utf8, WCHAR * u16, int length);
 extern WCHAR *      alloc_utf8_to_wchar( const char * utf8, int length);
 extern void         wchar2char( char * dest, WCHAR * src, int lim);
 extern void         char2wchar( WCHAR * dest, char * src, int lim);
+extern BOOL         gp_GetTextMetrics( HDC dc, LPTEXTMETRICW tm);
+extern void         textmetric_c2w( LPTEXTMETRICA from, LPTEXTMETRICW to);
 
 #ifdef __cplusplus
 }

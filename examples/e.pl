@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: e.pl,v 1.9 2002/05/14 13:22:26 dk Exp $
+#  $Id: e.pl,v 1.10 2003/04/05 21:47:48 dk Exp $
 #
 
 =pod 
@@ -55,8 +55,6 @@ sub profile_default
    my %d = %{$_[ 0]-> SUPER::profile_default};
    return {
       %d,
-      hScroll  => 1,
-      vScroll  => 1,
       zoom     => 1,
       growMode => gm::Client,
    }

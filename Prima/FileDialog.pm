@@ -29,7 +29,7 @@
 #  Modifications by:
 #     David Scott <dscott@dgt.com>
 #
-#  $Id: FileDialog.pm,v 1.24 2003/01/13 12:11:05 dk Exp $
+#  $Id: FileDialog.pm,v 1.25 2003/03/06 17:36:53 dk Exp $
 
 use strict;
 use Prima::Classes;
@@ -1277,7 +1277,7 @@ sub init
    $self->insert( Label =>
       name      => 'Directory',
       origin    => [ 10, 202],
-      growMode => gm::Ceiling,
+      growMode => gm::GrowLoY,
       autoWidth => 1,
       autoHeight => 1,
       text      => '~Directory',

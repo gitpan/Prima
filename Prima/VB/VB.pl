@@ -22,7 +22,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: VB.pl,v 1.72 2002/11/27 11:30:51 voland Exp $
+# $Id: VB.pl,v 1.73 2003/04/05 21:47:47 dk Exp $
 use strict;
 use Prima qw(StdDlg Notebooks MsgBox ComboBox ColorDialog IniFile);
 use Prima::VB::VBLoader;
@@ -229,7 +229,6 @@ sub init
    $self-> {plist} = $self-> {monger}-> insert_to_page( 0, OPropListViewer =>
       origin   => [ 0, 0],
       size     => [ 100, $sz[1] - $fh * 2],
-      hScroll  => 1,
       name       => 'PList',
       growMode   => gm::Client,
    );
@@ -237,7 +236,6 @@ sub init
    $self-> {elist} = $self-> {monger}-> insert_to_page( 1, OPropListViewer =>
       origin   => [ 0, 0],
       size     => [ 100, $sz[1] - $fh * 2],
-      hScroll  => 1,
       name       => 'EList',
       growMode   => gm::Client,
    );

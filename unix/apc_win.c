@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_win.c,v 1.65 2002/12/11 12:48:59 voland Exp $
+ * $Id: apc_win.c,v 1.67 2003/03/25 14:40:44 dk Exp $
  */
 
 /***********************************************************/
@@ -519,7 +519,6 @@ apc_window_set_client_pos( Handle self, int x, int y)
    hints. flags = USPosition;
    hints. x = x - XX-> decorationSize. x;
    hints. y = y - XX-> decorationSize. y;
-   apc_SetWMNormalHints( self, &hints);
    XMoveWindow( DISP, X_WINDOW, hints. x, hints. y);
           
    prima_wm_sync( self, ConfigureNotify);
@@ -553,10 +552,8 @@ window_set_client_size( Handle self, int width, int height)
    Bool implicit_move = false;
    Point post;
    
-   if ( !XX-> flags. zoomed) {
-      widg-> virtualSize. x = width;
-      widg-> virtualSize. y = height;
-  } 
+   widg-> virtualSize. x = width;
+   widg-> virtualSize. y = height;
 
    width = ( width > 0)
       ? (( width >= widg-> sizeMin. x)
@@ -609,10 +606,8 @@ apc_window_set_client_rect( Handle self, int x, int y, int width, int height)
    DEFXX;
    PWidget widg = PWidget( self);
    
-   if ( !XX-> flags. zoomed) {
-      widg-> virtualSize. x = width;
-      widg-> virtualSize. y = height;
-  } 
+   widg-> virtualSize. x = width;
+   widg-> virtualSize. y = height;
 
    width = ( width > 0)
       ? (( width >= widg-> sizeMin. x)

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: global.c,v 1.78 2002/10/31 12:56:41 dk Exp $
+ * $Id: global.c,v 1.79 2003/04/10 21:47:35 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -789,9 +789,6 @@ AGAIN:
       ev. pos. mod      = 0 |
         (( mp1 & MK_CONTROL ) ? kmCtrl   : 0) |
         (( mp1 & MK_SHIFT   ) ? kmShift  : 0) |
-        (( mp1 & MK_LBUTTON ) ? mbLeft   : 0) |
-        (( mp1 & MK_MBUTTON ) ? mbMiddle : 0) |
-        (( mp1 & MK_RBUTTON ) ? mbRight  : 0) |
         (( GetKeyState( VK_MENU) < 0) ? kmAlt : 0)
       ;
       break;

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: misc.c,v 1.25 2002/10/31 12:56:41 dk Exp $
+ * $Id: misc.c,v 1.26 2003/03/26 22:18:50 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -261,7 +261,7 @@ Bool
 apc_show_message( const char * message, Bool utf8)
 {
    Bool ret;
-   if ( utf8 && (message = ( char*)alloc_utf8_to_wchar( message, -1))) {
+   if ( HAS_WCHAR && utf8 && (message = ( char*)alloc_utf8_to_wchar( message, -1))) {
       ret = MessageBoxW( NULL, ( WCHAR*) message, ( WCHAR*)"P\0r\0i\0m\0a\0", MB_OK | MB_TASKMODAL | MB_SETFOREGROUND) != 0;
       free(( void*) message); 
    } else
@@ -358,8 +358,8 @@ apc_sys_get_value( int sysValue)
    case svYbsDialog       : return GetSystemMetrics( SM_CYDLGFRAME);
    case svShapeExtension  : return 1;
    case svColorPointer    : return guts. displayBMInfo. bmiHeader. biBitCount > 4;
-   case svCanUTF8_Input   : return 1;
-   case svCanUTF8_Output  : return 1;
+   case svCanUTF8_Input   : return HAS_WCHAR;
+   case svCanUTF8_Output  : return HAS_WCHAR;
    default:
       apcErr( errInvParams);
    }

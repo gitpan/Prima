@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Makefile.PL,v 1.143 2002/12/17 09:16:25 dk Exp $
+#  $Id: Makefile.PL,v 1.145 2003/03/25 21:47:52 dk Exp $
 #
 
 BEGIN {
@@ -2101,8 +2101,7 @@ FOOTER
     setup_variables;
     setup_paths;
     setup_defines;
-    setup_misc;
-
+    
     my $config_dir = "include/generic";
     my $config_h = "$config_dir/config.h";
     print "Creating $config_h\n";
@@ -2122,6 +2121,8 @@ EOF
 #endif
 EOF
     close CONFIG;
+    
+    setup_misc; # contains code dependant on config.h
 
     push @allrealclean, $config_h;
     push @allinstall, $config_h => $INSTALL_LIB . qd( "/CORE/generic");
@@ -2239,6 +2240,7 @@ $PrimaTarget: @allojects $extralibs
 \t${ \eval{ return join ' ', ld_command_line( $PrimaTarget, @allojects)}}
 
 test: all
+\t\@$^X -w test/startup.pl
 \t\@$^X -w test/Tester.pl
 
 

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: VBControls.pm,v 1.9 2002/10/05 14:14:05 dk Exp $
+# $Id: VBControls.pm,v 1.10 2003/04/05 21:47:47 dk Exp $
 package Prima::VB::VBControls;
 
 use strict;
@@ -228,7 +228,7 @@ sub on_drawitem
    $canvas-> clear( $left, $bottom, $right, $top);
    my $text = $me->{id}->[$index];
    my $x = $left + 2;
-   $canvas-> text_out( $text, $x, ($top + $bottom - $me->{fHeight}) / 2);
+   $canvas-> text_out( $text, $x, ($top + $bottom + 1 - $me->{fHeight}) / 2);
    $canvas-> backColor( $bc) if $hilite;
    $canvas-> color( $c) if $hilite || !$ena
 }
@@ -264,8 +264,6 @@ sub profile_default
       syntaxHilite => 1,
       wordWrap     => 0,
       text         => '',
-      hScroll      => 1,
-      vScroll      => 1,
       ownerFont    => 0,
    }
 }

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: mdi.pl,v 1.11 2002/05/14 13:22:26 dk Exp $
+#  $Id: mdi.pl,v 1.12 2003/04/05 21:47:48 dk Exp $
 #
 
 =pod 
@@ -111,8 +111,6 @@ $i->load('Hand.gif');
 $w-> client-> insert( ImageViewer =>
   origin => [0,0],
   size   => [ $w-> client-> size],
-  hScroll=> 1,
-  vScroll=> 1,
   growMode => gm::Client,
   image => $i,
 );

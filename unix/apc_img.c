@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_img.c,v 1.74 2003/01/16 22:09:55 dk Exp $
+ * $Id: apc_img.c,v 1.77 2003/03/21 23:49:46 dk Exp $
  */
 /*
  * System dependent image routines (unix, x11)
@@ -329,6 +329,7 @@ apc_image_begin_paint_info( Handle self)
     DEFXX;
     PImage img = PImage( self);
     Bool bitmap = (img-> type == imBW) || ( guts. idepth == 1);
+    if ( !DISP) return false;
     XX-> gdrawable = XCreatePixmap( DISP, guts. root, 1, 1, 
        bitmap ? 1 : guts. depth);
     XCHECKPOINT;
@@ -377,6 +378,7 @@ Bool
 apc_dbm_create( Handle self, Bool monochrome)
 {
    DEFXX;
+   if ( !DISP) return false;
    if ( guts. idepth == 1) monochrome = true;
    XX-> type.bitmap = !!monochrome;
    XX-> type.pixmap = !monochrome;
@@ -1036,7 +1038,7 @@ prima_create_image_cache( PImage img, Handle drawable, int type)
       pass-> self-> set_type(( Handle) pass, imByte);
    }
    
-   if ( target_bpp < 24 && img-> type != imBW) {
+   if ( target_bpp <= 8 && img-> type != imBW) {
       int bpp, colors = 0;
       RGBColor palbuf[256], *palptr = nil;
       if ( !dup) {
@@ -1285,8 +1287,8 @@ apc_gp_put_image( Handle self, Handle image, int x, int y, int xFrom, int yFrom,
    } else if ( mono) {
       unsigned long fore, back;
       if ( XT_IS_DBM(X(image))) {
-         fore = guts. monochromeMap[1];
-         back = guts. monochromeMap[0];
+         fore = XX-> back. primary;
+         back = XX-> fore. primary;
       } else {
          if ( guts. palSize > 0) {
             fore = prima_color_find( self,
@@ -1330,6 +1332,7 @@ apc_image_begin_paint( Handle self)
    int icon = XX-> type. icon;
    Bool bitmap = (img-> type  == imBW) || ( guts. idepth == 1);
 
+   if ( !DISP) return false;
    if (img-> w == 0 || img-> h == 0) return false;
    
    XX-> gdrawable = XCreatePixmap( DISP, guts. root, img-> w, img-> h,
@@ -2070,8 +2073,8 @@ apc_gp_stretch_image( Handle self, Handle image,
    } else if ( mono) {
       unsigned long fore, back;
       if ( XT_IS_DBM(X(image))) {
-         fore = guts. monochromeMap[1];
-         back = guts. monochromeMap[0];
+         fore = XX-> back. primary;
+         back = XX-> fore. primary;
       } else {
          if ( guts. palSize > 0) {
             fore = prima_color_find( self, 

@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: ImageDialog.pm,v 1.10 2002/10/17 20:30:51 dk Exp $
+#  $Id: ImageDialog.pm,v 1.12 2003/03/25 11:51:54 dk Exp $
 #
 
 package Prima::ImageDialog;
@@ -240,6 +240,7 @@ sub profile_default  {
       filter   => [ Prima::ImageDialog::filtered_codecs($codecs) ],
       image    => undef,
       filterDialog => 1,
+      noTestFileCreate => 1,
    }
 }
 
@@ -384,9 +385,9 @@ sub save
             my $x = "use $codec->{module};";
             eval $x;
             if ($@) {
-               Prima::MsgBox::message("Error invoking $codec->{fileShortType} filter dialog");
+               Prima::MsgBox::message("Error invoking $codec->{fileShortType} filter dialog:$@");
             } else {
-               $self-> {codecFilters}-> [$fi] = $codec-> {package}-> save_dialog;
+               $self-> {codecFilters}-> [$fi] = $codec-> {package}-> save_dialog( $codec);
             }
          }
       }    

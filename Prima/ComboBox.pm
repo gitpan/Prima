@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ComboBox.pm,v 1.26 2002/09/27 14:55:48 dk Exp $
+#  $Id: ComboBox.pm,v 1.28 2003/04/06 10:36:40 dk Exp $
 
 # combo styles
 package cs;
@@ -56,7 +56,8 @@ use constant DefButtonX => 17;
    autoHeight     => 1, focusedItem    => 1, hScroll        => 1,
    integralHeight => 1, items          => 1, itemHeight     => 1,
    topItem        => 1, vScroll        => 1, gridColor      => 1,
-   multiColumn    => 1, offset         => 1,
+   multiColumn    => 1, offset         => 1, autoHScroll    => 1,
+   autoVScroll    => 1,
 );
 
 %listDynas = ( onDrawItem => 1, onSelectItem => 1, );
@@ -84,6 +85,8 @@ sub profile_default
       %{Prima::ListBox->profile_default},
       %{$_[ 0]-> SUPER::profile_default},
       style          => cs::Simple,
+      autoHScroll    => 0,
+      autoVScroll    => 1,
       listVisible    => 0,
       caseSensitive  => 0,
       editHeight     => $f-> {height} + 2,
@@ -116,6 +119,8 @@ sub profile_check_in
       my $fh = exists $p->{font}->{height} ? $p->{font}->{height} : $default->{font}->{height};
       $p->{ editHeight } = $fh + 2 unless exists $p->{editHeight };
    }
+   $p-> {autoHScroll} = 0 if exists $p-> {hScroll};
+   $p-> {autoVScroll} = 0 if exists $p-> {vScroll};
 }
 
 sub init
@@ -139,7 +144,7 @@ sub init
       name   => 'InputLine',
       origin => [ 0, $h - $eh],
       size   => [ $w - (( $self-> {style} == cs::Simple) ? 0 : DefButtonX), $eh],
-      growMode    => gm::GrowHiX,
+      growMode    => gm::GrowHiX | gm::GrowLoY,
       selectable  => 1,
       tabStop     => 1,
       current     => 1,
@@ -148,6 +153,9 @@ sub init
       %{$profile{editProfile}},
    );
 
+   my %lp = %listProps;
+   delete $lp{hScroll} if $profile{autoHScroll};
+   delete $lp{vScroll} if $profile{autoVScroll};
    $self-> {list} = $self-> insert( $profile{listClass} =>
       name         => 'List',
       origin       => [ 0, 0],
@@ -160,7 +168,7 @@ sub init
       visible      => $self-> {style} == cs::Simple,
       delegations  => $profile{listDelegations},
       (map { $_ => $profile{$_}} grep { exists $profile{$_} ? 1 : 0} keys %listDynas),
-      (map { $_ => $profile{$_}} keys %listProps),
+      (map { $_ => $profile{$_}} keys %lp),
       %{$profile{listProfile}},
    );
 

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_event.c,v 1.79 2003/01/16 13:23:33 dk Exp $
+ * $Id: apc_event.c,v 1.80 2003/03/07 13:07:33 dk Exp $
  */
 
 /***********************************************************/
@@ -357,6 +357,7 @@ process_wm_sync_data( Handle self, WMSyncData * wmsd)
    if ( wmsd-> size. x != XX-> size. x || wmsd-> size. y != XX-> size. y + XX-> menuHeight) {
       XX-> size. x = wmsd-> size. x;
       XX-> size. y = wmsd-> size. y - XX-> menuHeight;
+      PWidget( self)-> virtualSize = XX-> size; 
       /* printf("got size to %d %d by %d\n", XX-> size.x, XX-> size.y, wmsd-> eventType); */
       prima_send_cmSize( self, old_size);
       if ( PObject( self)-> stage == csDead) return false; 

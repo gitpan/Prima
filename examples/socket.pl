@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: socket.pl,v 1.4 2002/05/14 13:22:26 dk Exp $
+#  $Id: socket.pl,v 1.5 2003/04/05 21:47:48 dk Exp $
 #
 =pod 
 =item NAME
@@ -55,8 +55,6 @@ my $e = $w-> insert( Edit =>
    origin => [ 0, 30],
    size => [ $w-> width, $w-> height - 30],
    text => '',
-   hScroll => 1,
-   vScroll => 1,
    growMode => gm::Client,
    wordWrap => 1,
 );

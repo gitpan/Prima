@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Drawable.c,v 1.78 2003/01/14 09:19:48 dk Exp $
+ * $Id: Drawable.c,v 1.79 2003/03/25 21:33:56 dk Exp $
  */
 
 #include "apricot.h"
@@ -909,7 +909,7 @@ Drawable_text_wrap( Handle self, SV * text, int width, int options, int tabInden
       t. utf8_textLen = t. textLen = textLen;
    }
    t. width     = ( width < 0) ? 0 : width;
-   t. tabIndent = ( tabIndent < 0) ? 0 : t. tabIndent;
+   t. tabIndent = ( tabIndent < 0) ? 0 : tabIndent;
    t. options   = options;
    retChunks    = t. options & twReturnChunks;
    t. ascii     = &var-> font_abc_ascii;

@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: iv.pl,v 1.20 2002/11/05 15:53:11 dk Exp $
+#  $Id: iv.pl,v 1.21 2003/04/05 21:47:48 dk Exp $
 #
 =pod 
 =item NAME
@@ -61,8 +61,6 @@ my $winCount  = 1;
 my %iv_prf = (
    origin => [ 0, 0],
    growMode => gm::Client,
-   hScroll => 1,
-   vScroll => 1,
    quality => 1,
    name    => 'IV',
    valignment  => ta::Middle,

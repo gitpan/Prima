@@ -26,7 +26,7 @@
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #  Modifications by Anton Berezin <tobez@tobez.org>
 #
-#  $Id: DetailedList.pm,v 1.15 2002/07/22 09:21:46 dk Exp $
+#  $Id: DetailedList.pm,v 1.16 2003/04/07 10:38:25 dk Exp $
 
 
 package Prima::DetailedList;
@@ -305,12 +305,7 @@ sub Header_SizeItem
       clipRect    => \@a,
    );
    $self-> {itemWidth} = $self-> {header}-> {maxWidth} - 1;
-   if ( $self-> {hScroll}) {
-      my $ov = $self-> {vScroll};
-      $self-> {vScroll} = 0; # speedup a bit
-      $self-> reset_scrolls;
-      $self-> {vScroll} = $ov;
-   }
+   $self-> reset_scrolls if $self-> {hScroll} || $self-> {autoHScroll};
 }
 
 sub widths {

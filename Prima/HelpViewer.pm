@@ -26,7 +26,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: HelpViewer.pm,v 1.22 2003/02/06 14:10:25 dk Exp $
+#  $Id: HelpViewer.pm,v 1.23 2003/03/14 14:59:17 dk Exp $
 
 use strict;
 use Prima;
@@ -123,7 +123,7 @@ sub load_link
          if ( $f < 0) {
             Prima::MsgBox::message("Cannot fork:$!"); 
          } elsif ( $f == 0) {
-            exec("$pg $link");
+            { exec("$pg $link"); }
             eval "use Prima;";
             Prima::MsgBox::message("Cannot execute $pg:$!");
             die "Cannot execute $pg:$!";
