@@ -1,4 +1,4 @@
-# $Id: Import.t,v 1.3 2000/10/18 11:58:20 tobez Exp $
+# $Id: Import.t,v 1.4 2004/05/07 10:03:24 dk Exp $
 print "1..8 import,bounds overset,bounds underset,im::fmtBGR,im::fmtIRGB,im::fmtRGBI,im::fmtIBGR,im::fmtBGRI,im::bpp8+palette";
 
 my $i = Prima::Image-> create( 
@@ -18,7 +18,7 @@ $i-> data( 'M');
 substr( $rgb, 0, 1) = 'M';
 ok( $i-> data eq $rgb);
 
-local $tester;
+my $tester;
 $tester = sub {
    my ( $s1, $s2, $format) = @_;
    my $new = $rgb;

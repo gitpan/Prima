@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_widget.c,v 1.92 2003/07/06 15:56:54 dk Exp $
+ * $Id: apc_widget.c,v 1.94 2004/06/04 16:09:53 dk Exp $
  */
 
 /***********************************************************/
@@ -436,12 +436,10 @@ apc_widget_destroy( Handle self)
       XX-> flags. paint_pending = false;
    }
    if ( XX-> recreateData) free( XX-> recreateData);
-   free(XX-> dashes);
-   XX-> dashes = nil;
-   XX-> ndashes = 0;
-   free(XX->paint_dashes);
-   XX-> paint_dashes = nil;
-   XX-> paint_ndashes = 0;
+   if ( XX-> invalid_region) {
+      XDestroyRegion( XX-> invalid_region);
+      XX-> invalid_region = nil;
+   }
    if ( X_WINDOW) {
       if ( guts. grab_redirect == XX-> client || guts. grab_redirect == X_WINDOW) 
          guts. grab_redirect = nilHandle;
@@ -971,10 +969,10 @@ apc_widget_set_focused( Handle self)
       while ( who && XT_IS_WINDOW(X(who))) who = PComponent( who)-> owner;
       while ( x && !XT_IS_WINDOW(X(x)) && X(x)->flags.clip_owner) x = PComponent( x)-> owner;
       if ( x && x != application && x != who && XT_IS_WINDOW(X(x)))
-         XSetInputFocus( DISP, PComponent(x)-> handle, RevertToNone, CurrentTime);
+         XSetInputFocus( DISP, PComponent(x)-> handle, RevertToNone, guts. currentFocusTime);
    }
 
-   XSetInputFocus( DISP, focus, RevertToParent, CurrentTime);
+   XSetInputFocus( DISP, focus, RevertToParent, guts. currentFocusTime);
    XCHECKPOINT;
    
    XSync( DISP, false);
@@ -1107,7 +1105,7 @@ apc_XUnmapWindow( Handle self)
             z = PComponent(self)-> owner;
             while ( z && !X(z)-> type. window) z = PComponent(z)-> owner;
             if ( z && z != application)
-               XSetInputFocus( DISP, PComponent(z)-> handle, RevertToNone, CurrentTime);
+               XSetInputFocus( DISP, PComponent(z)-> handle, RevertToNone, guts. currentFocusTime);
          }
          break;
       }

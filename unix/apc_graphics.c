@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_graphics.c,v 1.110 2004/04/30 11:44:48 dk Exp $
+ * $Id: apc_graphics.c,v 1.118 2004/07/20 13:59:59 dk Exp $
  */
 
 /***********************************************************/
@@ -143,6 +143,32 @@ prima_release_gc( PDrawableSysData selfxx)
    }
 }
 
+/* 
+   macros to multiply line pattern entries to line width in 
+   a more-less aestethic fashion :-)
+*/
+#define MAX_DASH_LEN 2048
+#define dDASH_FIX(line_width,source,length) \
+   int df_i, df_lw = line_width, df_len = length; \
+   char df_list[MAX_DASH_LEN], *df_src = (char*)source, *df_dst = df_list
+#define DASH_FIX \
+   if ( df_lw > 1) {\
+      int on = 0;\
+      if ( df_len > MAX_DASH_LEN) df_len = MAX_DASH_LEN;\
+      for ( df_i = 0; df_i < df_len; df_i++) {\
+	 unsigned int w = *((unsigned char*)df_src++);\
+	 if (( on = !on)) {\
+	    if ( w > 1) w *= df_lw;\
+	 } else {\
+	    w = w * df_lw + 1;\
+	 }\
+	 if ( w > 255) w = 255;\
+	 *((unsigned char*)df_dst++) = w;\
+      }\
+      df_src = df_list;\
+   }
+#define DASHES df_src, df_len
+
 void
 prima_prepare_drawable_for_painting( Handle self, Bool inside_on_paint)
 {
@@ -153,6 +179,7 @@ prima_prepare_drawable_for_painting( Handle self, Bool inside_on_paint)
 
    XF_IN_PAINT(XX) = true;
    XX-> btransform. x = XX-> btransform. y = 0;
+   XX-> gcv. ts_x_origin = XX-> gcv. ts_y_origin = 0;
    if ( inside_on_paint && XX-> udrawable && is_opt( optBuffered) && !is_opt( optInDrawInfo) ) {
       if ( XX-> invalid_region) {
          XClipBox( XX-> invalid_region, &r);
@@ -161,6 +188,7 @@ prima_prepare_drawable_for_painting( Handle self, Bool inside_on_paint)
          XX-> btransform. x = - r. x;
          XX-> btransform. y = r. y;
       } else {
+	 r. x = r. y = 0;
          XX-> bsize. x = w = XX-> size. x;
          XX-> bsize. y = h = XX-> size. y;
       }
@@ -168,6 +196,8 @@ prima_prepare_drawable_for_painting( Handle self, Bool inside_on_paint)
       XX-> gdrawable = XCreatePixmap( DISP, XX-> udrawable, w, h, guts.depth);
       XCHECKPOINT;
       if (!XX-> gdrawable) goto Unbuffered;
+      XX-> gcv. ts_x_origin = -r.x;
+      XX-> gcv. ts_y_origin = -r.y;
    } else if ( XX-> udrawable && !XX-> gdrawable) {
 Unbuffered:
       XX-> gdrawable = XX-> udrawable;
@@ -189,7 +219,9 @@ Unbuffered:
    XCHECKPOINT;
    
    if ( XX-> dashes) {
-      XSetDashes( DISP, XX-> gc, 0, (char *) XX-> dashes, XX-> ndashes);
+      dDASH_FIX( XX-> line_width, XX-> dashes, XX-> ndashes);
+      DASH_FIX;
+      XSetDashes( DISP, XX-> gc, 0, DASHES);
       XX-> paint_ndashes = XX-> ndashes;
       if (( XX-> paint_dashes = malloc( XX-> ndashes)))
          memcpy( XX-> paint_dashes, XX-> dashes, XX-> ndashes);
@@ -296,8 +328,10 @@ prima_cleanup_drawable_after_painting( Handle self)
       prima_free_rotated_entry( XX-> font);
       XX-> font-> refCnt = 0;
    }
-   free(XX->paint_dashes);
-   XX-> paint_dashes = nil;
+   if ( XX-> paint_dashes) {
+      free(XX->paint_dashes);
+      XX-> paint_dashes = nil;
+   }
    XX-> paint_ndashes = 0;
    XF_IN_PAINT(XX) = false;
    PDrawable( self)-> font = XX-> saved_font;
@@ -441,12 +475,18 @@ apc_gp_init( Handle self)
 Bool
 apc_gp_done( Handle self)
 {
-   if ( !X(self)) return false;
+   DEFXX;
+   if ( XX) return false;
+   if ( XX-> dashes) {
+      free(XX-> dashes);
+      XX-> dashes = nil;
+   }
+   XX-> ndashes = 0;
    if ( guts. dynamicColors) {
       prima_palette_free( self, true);
-      free(X(self)-> palette);
+      free(XX-> palette);
    }
-   prima_release_gc(X(self));
+   prima_release_gc(XX);
    return true;
 }
 
@@ -1067,7 +1107,7 @@ apc_gp_flood_fill( Handle self, int x, int y, Color color, Bool singleBorder)
    SHIFT( x, y);
    y = REVERT( y);
    color = prima_map_color( color, &hint);
-   prima_gp_get_clip_rect( self, &cr);
+   prima_gp_get_clip_rect( self, &cr, 1);
 
    s. clip. left   = cr. x;
    s. clip. top    = cr. y;
@@ -1315,6 +1355,11 @@ apc_gp_rectangle( Handle self, int x1, int y1, int x2, int y2)
    SORT( x1, x2); SORT( y1, y2);
    RANGE4(x1, y1, x2, y2);
    PURE_FOREGROUND;
+   if ( XX-> line_width > 0 &&
+	(XX-> line_width % 2) == 0) {
+      y2--;
+      y1--;
+   }
    XDrawRectangle( DISP, XX-> gdrawable, XX-> gc, x1, REVERT( y2), x2 - x1, y2 - y1);
    XCHECKPOINT;
    return true;
@@ -1466,9 +1511,14 @@ apc_gp_set_region( Handle self, Handle mask)
    XX-> clip_rect. x = 0;
    XX-> clip_rect. y = REVERT(img-> h);
    if ( !( region = region_create( mask))) goto EMPTY;
-   if ( XX-> paint_region) 
+   /* offset region if drawable is buffered */
+   XOffsetRegion( region, XX-> btransform. x, XX-> size.y - img-> h - XX-> btransform. y);
+   /* otherwise ( and only otherwise ), and if there's a
+      X11 clipping, intersect the region with it. X11 clipping
+      must not mix with the buffer clipping */
+   if (( !XX-> udrawable || XX-> udrawable == XX-> gdrawable) && 
+       XX-> paint_region) 
       XIntersectRegion( region, XX-> paint_region, region);
-   XOffsetRegion( region, XX-> btransform. x, XX-> size.y - img-> h + XX-> btransform. y);
    XSetRegion( DISP, XX-> gc, region);
    if ( XX-> flags. kill_current_region) 
       XDestroyRegion( XX-> current_region);
@@ -1809,7 +1859,7 @@ apc_gp_get_color( Handle self)
 
 /* returns rect in X coordinates BUT without menuHeight deviation */
 void
-prima_gp_get_clip_rect( Handle self, XRectangle *cr)
+prima_gp_get_clip_rect( Handle self, XRectangle *cr, Bool for_internal_paints)
 {
    DEFXX;
    XRectangle r;
@@ -1818,9 +1868,8 @@ prima_gp_get_clip_rect( Handle self, XRectangle *cr)
    cr-> y = 0;
    cr-> width = XX-> size.x;
    cr-> height = XX-> size.y;
-   if ( XF_IN_PAINT(XX) && ( XX-> invalid_region || XX-> paint_region)) {
-      XClipBox( XX-> invalid_region ? XX-> invalid_region : XX-> paint_region,
-                &r);
+   if ( XF_IN_PAINT(XX) && XX-> paint_region) {
+      XClipBox( XX-> paint_region, &r);
       prima_rect_intersect( cr, &r);
    }
    if ( XX-> clip_rect. x != 0
@@ -1828,6 +1877,11 @@ prima_gp_get_clip_rect( Handle self, XRectangle *cr)
         || XX-> clip_rect. width != XX-> size.x
         || XX-> clip_rect. height != XX-> size.y) {
       prima_rect_intersect( cr, &XX-> clip_rect);
+   }
+
+   if ( for_internal_paints) {
+      cr-> x += XX-> btransform. x;
+      cr-> y -= XX-> btransform. y;
    }
 }
 
@@ -1838,7 +1892,7 @@ apc_gp_get_clip_rect( Handle self)
    XRectangle cr;
    Rect r;
 
-   prima_gp_get_clip_rect( self, &cr);
+   prima_gp_get_clip_rect( self, &cr, 0);
    r. left = cr. x;
    r. top = XX-> size. y - cr. y - 1;
    r. bottom = r. top - cr. height + 1;
@@ -1930,6 +1984,26 @@ apc_gp_get_font_ranges( Handle self, int * count)
    return ret;
 }
 
+Bool
+apc_gp_get_fill_winding( Handle self)
+{
+   DEFXX;
+   int fill_rule;
+   XGCValues gcv;
+
+   if ( XF_IN_PAINT(XX)) {
+      if ( XGetGCValues( DISP, XX-> gc, GCFillRule, &gcv) == 0) {
+         warn( "UAG_006: error querying GC values");
+         fill_rule = EvenOddRule;
+      } else {
+         fill_rule = gcv. fill_rule;
+      }
+   } else {
+      fill_rule = XX-> gcv. fill_rule;
+   }
+   return fill_rule == WindingRule;
+}
+
 FillPattern *
 apc_gp_get_fill_pattern( Handle self)
 {
@@ -1958,6 +2032,30 @@ apc_gp_get_line_end( Handle self)
    else if ( cap == CapProjecting)
       return leSquare;
    return leFlat;
+}
+
+int
+apc_gp_get_line_join( Handle self)
+{
+   DEFXX;
+   int join;
+   XGCValues gcv;
+
+   if ( XF_IN_PAINT(XX)) {
+      if ( XGetGCValues( DISP, XX-> gc, GCJoinStyle, &gcv) == 0) {
+         warn( "UAG_006: error querying GC values");
+         join = JoinRound;
+      } else {
+         join = gcv. join_style;
+      }
+   } else {
+      join = XX-> gcv. join_style;
+   }
+   if ( join == JoinMiter)
+      return ljMiter;
+   else if ( join == JoinBevel)
+      return ljBevel;
+   return ljRound;
 }
 
 int
@@ -2227,6 +2325,24 @@ apc_gp_set_color( Handle self, Color color)
 }
 
 Bool
+apc_gp_set_fill_winding( Handle self, Bool fillWinding)
+{
+   DEFXX;
+   int fill_rule;
+   XGCValues gcv;
+
+   fill_rule = fillWinding ? WindingRule : EvenOddRule;
+   if ( XF_IN_PAINT(XX)) {
+      gcv. fill_rule = fill_rule;
+      XChangeGC( DISP, XX-> gc, GCFillRule, &gcv);
+      XCHECKPOINT;
+   } else {
+      XX-> gcv. fill_rule = fill_rule;
+   }
+   return true;
+}
+
+Bool
 apc_gp_set_fill_pattern( Handle self, FillPattern pattern)
 {
    DEFXX;
@@ -2268,6 +2384,30 @@ apc_gp_set_line_end( Handle self, int lineEnd)
 }
 
 Bool
+apc_gp_set_line_join( Handle self, int lineJoin)
+{
+   DEFXX;
+   int join = JoinRound;
+   XGCValues gcv;
+
+   if ( lineJoin == ljRound)
+      join = JoinRound;
+   else if ( lineJoin == ljBevel)
+      join = JoinBevel;
+   else if ( lineJoin == ljMiter)
+      join = JoinMiter;
+
+   if ( XF_IN_PAINT(XX)) {
+      gcv. join_style = join;
+      XChangeGC( DISP, XX-> gc, GCJoinStyle, &gcv);
+      XCHECKPOINT;
+   } else {
+      XX-> gcv. join_style = join;
+   }
+   return true;
+}
+
+Bool
 apc_gp_set_line_width( Handle self, int line_width)
 {
    DEFXX;
@@ -2275,11 +2415,15 @@ apc_gp_set_line_width( Handle self, int line_width)
 
    if ( XF_IN_PAINT(XX)) {
       XX-> line_width = gcv. line_width = line_width;
+      if ( !( XX-> paint_ndashes == 0 || (XX-> paint_ndashes == 1 && XX-> paint_dashes[0] == 1))) {
+	 dDASH_FIX( line_width, XX-> paint_dashes, XX-> paint_ndashes);
+	 DASH_FIX;
+	 XSetDashes( DISP, XX-> gc, 0, DASHES);
+      }
       XChangeGC( DISP, XX-> gc, GCLineWidth, &gcv);
       XCHECKPOINT;
    } else
       XX-> gcv. line_width = line_width;
-
    return true;
 }
 
@@ -2294,8 +2438,10 @@ apc_gp_set_line_pattern( Handle self, unsigned char *pattern, int len)
 	 gcv. line_style = LineSolid;
 	 XChangeGC( DISP, XX-> gc, GCLineStyle, &gcv);
       } else {
+	 dDASH_FIX(XX-> line_width, pattern, len);
+	 DASH_FIX;
 	 gcv. line_style = ( XX-> paint_rop2 == ropNoOper) ? LineOnOffDash : LineDoubleDash;
-	 XSetDashes( DISP, XX-> gc, 0, (char*)pattern, len);
+	 XSetDashes( DISP, XX-> gc, 0, DASHES);
 	 XChangeGC( DISP, XX-> gc, GCLineStyle, &gcv);
       }
       XX-> line_style = gcv. line_style;

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: global.c,v 1.85 2004/03/16 13:03:08 dk Exp $
+ * $Id: global.c,v 1.86 2004/05/07 10:03:25 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -81,7 +81,7 @@ DllMain( HINSTANCE hInstance, DWORD reason, LPVOID reserved)
 }
 
 Bool
-window_subsystem_init()
+window_subsystem_init( char * error_buf)
 {
    WNDCLASS  wc;
    HDC dc;

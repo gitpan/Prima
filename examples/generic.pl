@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: generic.pl,v 1.10 2003/08/01 09:45:30 dk Exp $
+#  $Id: generic.pl,v 1.11 2004/07/08 20:08:12 dk Exp $
 #
 
 =pod 
@@ -41,7 +41,7 @@ use strict;
 use Prima;
 use Prima::Application name => 'Generic';
 
-my $w = Prima::MainWindow-> create(
+my $w = new Prima::MainWindow(
     text => "Hello, world!",
     onPaint   => sub {
        my ( $self, $canvas) = @_;

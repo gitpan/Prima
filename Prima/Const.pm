@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@plab.ku.dk>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Const.pm,v 1.20 2003/07/30 17:45:56 dk Exp $
+#  $Id: Const.pm,v 1.23 2004/07/05 14:46:23 dk Exp $
 package Prima::Const;
 use Prima '';
 use Carp;
@@ -54,6 +54,7 @@ package gm; *AUTOLOAD =  \&Prima::Const::AUTOLOAD;	# grow modes
 package lp; *AUTOLOAD =  \&Prima::Const::AUTOLOAD;	# line pen styles
 package fp; *AUTOLOAD =  \&Prima::Const::AUTOLOAD;	# fill styles & font pitches
 package le; *AUTOLOAD =  \&Prima::Const::AUTOLOAD;	# line ends
+package lj; *AUTOLOAD =  \&Prima::Const::AUTOLOAD;	# line joins
 package fs; *AUTOLOAD =  \&Prima::Const::AUTOLOAD;	# font styles
 package fw; *AUTOLOAD =  \&Prima::Const::AUTOLOAD;	# font weights
 package bi; *AUTOLOAD =  \&Prima::Const::AUTOLOAD;	# border icons
@@ -162,23 +163,23 @@ See L<Prima::Widget/colorIndex>
 
 =item Direct color constants
 
-  mb::Black
-  mb::Blue
-  mb::Green
-  mb::Cyan
-  mb::Red
-  mb::Magenta
-  mb::Brown
-  mb::LightGray
-  mb::DarkGray
-  mb::LightBlue
-  mb::LightGreen
-  mb::LightCyan
-  mb::LightRed
-  mb::LightMagenta
-  mb::Yellow
-  mb::White
-  mb::Gray
+  cl::Black
+  cl::Blue
+  cl::Green
+  cl::Cyan
+  cl::Red
+  cl::Magenta
+  cl::Brown
+  cl::LightGray
+  cl::DarkGray
+  cl::LightBlue
+  cl::LightGreen
+  cl::LightCyan
+  cl::LightRed
+  cl::LightMagenta
+  cl::Yellow
+  cl::White
+  cl::Gray
 
 =item Indirect color constants
 
@@ -468,6 +469,14 @@ See L<Prima::Drawable/lineEnd>
   le::Flat
   le::Square
   le::Round
+
+=head2 lj::  - line join styles
+
+See L<Prima::Drawable/lineJoin>
+
+  lj::Round
+  lj::Bevel
+  lj::Miter
 
 =head2 lp::  - predefined line pattern styles
 

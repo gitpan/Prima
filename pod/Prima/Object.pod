@@ -1,4 +1,4 @@
-=for rcs $Id: Object.pod,v 1.9 2004/03/26 13:34:11 dk Exp $
+=for rcs $Id: Object.pod,v 1.12 2004/08/19 22:04:58 dk Exp $
 
 =head1 NAME
 
@@ -610,7 +610,7 @@ nt::Single-prototyped event is used:
 
 =head1 API
 
-=head2 Prima::Object
+=head2 Prima::Object methods
 
 =over 4
 
@@ -665,6 +665,11 @@ finishes. Never called directly.
 Note: the eventual child objects are destroyed inside done()
 call.
 
+=item get @PARAMETERS
+
+Returns hash where keys are @PARAMETERS and values are
+the corresponding object properties.
+
 =item init %PARAMETERS
 
 The most important stage of object creation process.
@@ -696,6 +701,10 @@ creation of several objects:
 
 With such syntax, all newly created objects would have $owner
 set to their 'owner' properties.
+
+=item new CLASS, %PARAMETERS
+
+Same as L<create>.
 
 =item profile_add PROFILE
 
@@ -758,9 +767,7 @@ Never called directly.
 
 =back
 
-=head2 Prima::Component
-
-B<Methods>
+=head2 Prima::Component methods
 
 =over 4
 
@@ -956,7 +963,7 @@ bound to REFERER object.
 
 =back
 
-B<Properties>
+=head2 Prima::Component properties
 
 =over 4
 
@@ -1035,7 +1042,7 @@ about the newcomer.
 
 =back
 
-B<Events>
+=head2 Prima::Component events
 
 =over 4
 

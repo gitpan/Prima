@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc.c,v 1.113 2004/03/13 20:59:21 dk Exp $
+ * $Id: apc.c,v 1.114 2004/05/27 21:18:15 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -1598,6 +1598,7 @@ apc_widget_begin_paint( Handle self, Bool insideOnPaint)
          sys ps  = dc;
          sys stockBM = SelectObject( dc, bm);
          sys bm = bm;
+         SetBrushOrgEx( dc, -r. left, -r. top, NULL);
          apc_gp_set_transform( self, -r. left, -r. top);
          sys transform2. x = r. left;
          sys transform2. y = r. top;

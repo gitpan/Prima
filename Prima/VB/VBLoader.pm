@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: VBLoader.pm,v 1.23 2004/01/14 09:03:28 dk Exp $
+# $Id: VBLoader.pm,v 1.25 2004/07/06 12:55:09 dk Exp $
 package Prima::VB::VBLoader;
 use strict;
 use Prima::Utils;
@@ -307,9 +307,6 @@ A more complicated but more proof code can be met in the toolkit:
        'Form1'     => { visible => 0, centered => 1},
      );
      die "$@\n" unless $form;
-        Prima::message("Error in setup resource: $@"); 
-        return;
-     }
 
 All form widgets can be supplied with custom parameters, all together combined
 in a hash of hashes and passed as the second parameter to C<VBLoad()> function.
@@ -326,6 +323,18 @@ after the creation, the widget hierarchy can be accessed in the standard way:
      );
      ...
      $form-> StartButton-> hide;
+
+In case a form is to be included not from a fm file but from other data source,
+L<AUTOFORM_REALIZE> call can be used to transform perl array into set of
+widgets:
+      
+      $form = AUTOFORM_REALIZE( [ Form1 => {
+         class   => 'Prima::Window',
+         parent  => 1,
+         profile => {
+            name => 'Form1',
+            size => [ 330, 421],
+         }], {});
 
 Real-life examples are met across the toolkit; for instance,
 F<Prima/PS/setup.fm> dialog is used by C<Prima::PS::Setup>.

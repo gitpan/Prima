@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Sliders.pm,v 1.34 2004/04/29 08:16:12 dk Exp $
+#  $Id: Sliders.pm,v 1.35 2004/09/02 09:29:51 dk Exp $
 
 # contains:
 #   SpinButton
@@ -379,7 +379,7 @@ sub profile_default
       spinClass      => 'Prima::AltSpinButton',
       editProfile    => {},
       spinProfile    => {},
-      editDelegations=> [qw(KeyDown Change MouseWheel)],
+      editDelegations=> [qw(KeyDown Change MouseWheel Enter Leave)],
       spinDelegations=> [qw(Increment)],
    }
 }
@@ -484,6 +484,18 @@ sub InputLine_Change
 {
    my ( $self, $edit) = @_;
    $self-> notify(q(Change));
+}
+
+sub InputLine_Enter
+{
+   my ( $self, $edit) = @_;
+   $self-> notify(q(Enter));
+}
+
+sub InputLine_Leave
+{
+   my ( $self, $edit) = @_;
+   $self-> notify(q(Leave));
 }
 
 sub set_bounds

@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: guts.h,v 1.132 2004/04/30 11:44:47 dk Exp $ */
+/* $Id: guts.h,v 1.138 2004/06/04 16:09:53 dk Exp $ */
 
 #ifndef _UNIX_GUTS_H_
 #define _UNIX_GUTS_H_
@@ -212,6 +212,7 @@ typedef struct CachedFont {
    int          refCnt;
 #ifdef USE_XFT
    XftFont     *xft;
+   XftFont     *xft_no_aa;
    XftFont     *xft_base;
 #endif
 } CachedFont, *PCachedFont;
@@ -291,6 +292,10 @@ struct  _drawable_sys_data;
                         |       GCClipMask      \
                         |       GCForeground    \
                         |       GCFunction      \
+                        |       GCJoinStyle     \
+                        |       GCFillRule      \
+                        |       GCTileStipXOrigin \
+                        |       GCTileStipYOrigin \
                         |       GCLineStyle     \
                         |       GCLineWidth     \
                         |       GCSubwindowMode )
@@ -583,6 +588,7 @@ typedef struct _UnixGuts
    int                          scroll_first;
    int                          scroll_next;
    Handle                       currentMenu;
+   Time                         currentFocusTime;
    Handle                       unfocusedMenu;
    int                          menu_timeout;
    XWindow                      root;
@@ -805,13 +811,13 @@ typedef struct _menu_sys_data
    PMenuWindow          focused;
 } MenuSysData, *PMenuSysData;
 
-#define cfTargets 2
-#define cfCOUNT   3
+#define cfTargets    (cfCustom  + 0)
+#define cfCOUNT      (cfTargets + 1)
 /* XXX not implemented
-#define cfPalette 3
-#define cfForeground 4
-#define cfBackground 5
-#define cfCOUNT 6
+#define cfPalette    (cfCustom  + 1)
+#define cfForeground (cfCustom  + 2)
+#define cfBackground (cfCustom  + 3)
+#define cfCOUNT      (cfCustom  + 4)
 */
 
 typedef struct {
@@ -907,16 +913,16 @@ extern void
 prima_release_gc( PDrawableSysData);
 
 extern Bool
-prima_init_clipboard_subsystem( void);
+prima_init_clipboard_subsystem( char * error_buf);
 
 extern Bool
-prima_init_font_subsystem( void);
+prima_init_font_subsystem( char * error_buf);
    
 extern Bool
 prima_font_subsystem_set_option( char *, char *);
 
 extern Bool
-prima_init_color_subsystem( void);
+prima_init_color_subsystem( char * error_buf);
 
 extern Bool
 prima_color_subsystem_set_option( char *, char *);
@@ -1047,7 +1053,7 @@ extern int
 prima_rop_map( int rop);
 
 extern void
-prima_gp_get_clip_rect( Handle self, XRectangle *cr);
+prima_gp_get_clip_rect( Handle self, XRectangle *cr, Bool for_internal_paints);
 
 extern XWindow
 prima_find_frame_window( XWindow w);

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_clipboard.c,v 1.18 2004/02/10 22:18:06 dk Exp $
+ * $Id: apc_clipboard.c,v 1.24 2004/05/19 13:44:26 dk Exp $
  */
 
 #include "unix/guts.h"
@@ -39,17 +39,21 @@
 #define CF_ASSIGN(i,a,b,c) CF_NAME(i)=(a);CF_TYPE(i)=(b);CF_FORMAT(i)=((Atom)c)
 
 Bool
-prima_init_clipboard_subsystem(void)
+prima_init_clipboard_subsystem(char * error_buf)
 {
    guts. clipboards = hash_create();
    
-   if ( !(guts. clipboard_formats = malloc( cfCOUNT * 3 * sizeof(Atom)))) return false;
+   if ( !(guts. clipboard_formats = malloc( cfCOUNT * 3 * sizeof(Atom)))) {
+      sprintf( error_buf, "No memory");
+      return false;
+   }
    guts. clipboard_formats_count = cfCOUNT;
-#if (cfText != 0) || (cfBitmap != 1)
+#if (cfText != 0) || (cfBitmap != 1) || (cfUTF8 != 2)
 #error broken clipboard type formats
 #endif  
 
    CF_ASSIGN(cfText, XA_STRING, XA_STRING, 8);
+   CF_ASSIGN(cfUTF8, UTF8_STRING, UTF8_STRING, 8);
    CF_ASSIGN(cfBitmap, XA_PIXMAP, XA_ATOM, 32);
    CF_ASSIGN(cfTargets, CF_TARGETS, XA_ATOM, 32);
 
@@ -116,7 +120,10 @@ apc_clipboard_create( Handle self)
 static void
 clipboard_free_data( void * data, int size, long id)
 {
-   if ( size <= 0) return;
+   if ( size <= 0) {
+      if ( size == 0 && data != nil) free( data);
+      return;
+   }
    if ( id == cfBitmap) {
       int i;
       Pixmap * p = (Pixmap*) data;
@@ -137,20 +144,14 @@ get_typename( long id, int index, Atom * type)
 {
    if ( type) *type = None;
    switch ( id) {
-   case cfText:
-      if ( !PApplication(application)-> wantUnicodeInput) break;
-      switch (index) {
-      case 0:
-         if ( type) *type = UTF8_STRING;
-         return UTF8_STRING;
-      case 1:
-         if ( type) *type = UTF8_MIME;
-         return UTF8_MIME;
-      case 2:
+   case cfUTF8:
+      if ( index > 1) return None;
+      if ( index == 0) {
          if ( type) *type = CF_TYPE(id);
          return CF_NAME(id);
-      default:
-         return None;
+      } else {
+         if ( type) *type = UTF8_MIME;
+         return UTF8_MIME;
       }
    case cfBitmap:
       if ( index > 1) return None;
@@ -258,6 +259,26 @@ apc_clipboard_close( Handle self)
    DEFCC;
    if ( !XX-> opened) return false;
    XX-> opened = false;
+
+   /* check if UTF8 is present and Text is not, and downgrade */
+   if ( XX-> need_write &&
+	XX-> internal[cfUTF8]. size > 0 &&
+	XX-> internal[cfText]. size == 0) {
+      char * src = XX-> internal[cfUTF8]. data;
+      int len    = utf8_length( src, src + XX-> internal[cfUTF8]. size);
+      if (( XX-> internal[cfText]. data = malloc( len))) {
+	  STRLEN charlen;
+	  U8 *dst;
+	  dst = XX-> internal[cfText]. data;
+          XX-> internal[cfText]. size = len;
+	  while ( len--) {
+             register UV u = utf8_to_uvchr(( U8*) src, &charlen);
+	     *(dst++) = ( u < 0x7f) ? u : '?'; /* XXX employ $LANG and iconv() */
+	     src += charlen;
+	  }
+      } 
+   }
+      
 
    if ( !XX-> inside_event) {
       int i;         
@@ -642,7 +663,8 @@ apc_clipboard_get_data( Handle self, long id, PClipboardDataRec c)
    }
    if ( size == 0 || data == nil) return false;
 
-   if ( id == cfBitmap) {
+   switch ( id) {
+   case cfBitmap: {
       Handle img = c-> image; 
       XWindow foo;
       Pixmap px = *(( Pixmap*)( data));
@@ -653,21 +675,28 @@ apc_clipboard_get_data( Handle self, long id, PClipboardDataRec c)
          return false;
       CImage( img)-> create_empty( img, x, y, ( d == 1) ? imBW : guts. qdepth);
       if ( !prima_std_query_image( img, px)) return false;
-   } else {
+      break;}
+   case cfText:
+   case cfUTF8: {
       void * ret = malloc( size);
       if ( !ret) {
          warn("Not enough memory: %d bytes\n", size);
          return false;
       }
       memcpy( ret, data, size);
-      if ( id == cfText) {
-         c-> text. text   = ( char * ) ret;
-         c-> text. length = size;
-         c-> text. utf8   = ( name == UTF8_STRING || name == UTF8_MIME);
-      } else {
-         c-> binary. data = ( Byte * ) ret;
-         c-> binary. length = size;
+      c-> data   = ret;
+      c-> length = size;
+      break;}
+   default: {
+      void * ret = malloc( size);
+      if ( !ret) {
+         warn("Not enough memory: %d bytes\n", size);
+         return false;
       }
+      memcpy( ret, data, size);
+      c-> data = ( Byte * ) ret;
+      c-> length = size;
+      break;}
    }
    return true;
 }
@@ -695,19 +724,11 @@ apc_clipboard_set_data( Handle self, long id, PClipboardDataRec c)
       } else
          return false;
       break;}
-   case cfText:{
-      if ( !( XX-> internal[id]. data = malloc( c-> text. length))) 
-         return false;
-      XX-> internal[id]. size = c-> text. length;
-      memcpy( XX-> internal[id]. data, c-> text. text, c-> text. length);
-      if ( c-> text. utf8)
-         XX-> internal[id]. name = UTF8_STRING;
-      break;}
    default:
-      if ( !( XX-> internal[id]. data = malloc( c-> binary. length))) 
+      if ( !( XX-> internal[id]. data = malloc( c-> length))) 
          return false;
-      XX-> internal[id]. size = c-> binary. length;
-      memcpy( XX-> internal[id]. data, c-> binary. data, c-> binary. length);
+      XX-> internal[id]. size = c-> length;
+      memcpy( XX-> internal[id]. data, c-> data, c-> length);
       break;
    }
    XX-> need_write = true; 
@@ -823,18 +844,13 @@ prima_handle_selection_event( XEvent *ev, XWindow win, Handle self)
       if ( self) { 
          PClipboardSysData CC = C(self);
          Bool event = CC-> inside_event;
-         int format, downgrade_utf8 = 0, utf8_mime = 0;
+         int format, utf8_mime = 0;
 
          for ( i = 0; i < guts. clipboard_formats_count; i++) {
             if ( xe. xselection. target == CC-> internal[i]. name) {
                id = i;
                break;
-            } else if ( i == cfText && xe. xselection. target == CF_NAME(cfText)) {
-               /* when internal name == UTF8_STRING */
-               id = i;
-               downgrade_utf8 = 1;
-               break;
-            } else if ( i == cfText && xe. xselection. target == UTF8_MIME) {
+            } else if ( i == cfUTF8 && xe. xselection. target == UTF8_MIME) {
                id = i;
                utf8_mime = 1;
                break;
@@ -856,24 +872,27 @@ prima_handle_selection_event( XEvent *ev, XWindow win, Handle self)
          if ( utf8_mime) target = UTF8_MIME;
 
          if ( id == cfTargets) { 
-            int count = 0;
+            int count = 0, have_utf8 = 0;
             Atom * ci;
-            for ( i = 0; i < guts. clipboard_formats_count; i++) 
-               if ( i != cfTargets && CC-> internal[i]. size > 0)
+            for ( i = 0; i < guts. clipboard_formats_count; i++) {
+               if ( i != cfTargets && CC-> internal[i]. size > 0) {
                   count++;
-            if ( CC-> internal[cfText]. name == UTF8_STRING) count += 2;
+		  if ( i == cfUTF8) {
+		     count++;
+		     have_utf8 = 1;
+		  }
+	       }
+	    }
             detach_xfers( CC, cfTargets, true);
             clipboard_kill_item( CC-> internal, cfTargets);
             if (( CC-> internal[cfTargets]. data = malloc( count * sizeof( Atom)))) {
                CC-> internal[cfTargets]. size = count * sizeof( Atom);
                ci = (Atom*)CC-> internal[cfTargets]. data;
-               if ( CC-> internal[cfText]. name == UTF8_STRING) {
-                  *(ci++) = UTF8_STRING;
-                  *(ci++) = UTF8_MIME;
-               }
                for ( i = 0; i < guts. clipboard_formats_count; i++) 
                   if ( i != cfTargets && CC-> internal[i]. size > 0) 
                      *(ci++) = CF_NAME(i);
+               if ( have_utf8) 
+		  *(ci++) = UTF8_MIME;
             }
          }
         
@@ -928,42 +947,12 @@ prima_handle_selection_event( XEvent *ev, XWindow win, Handle self)
                if ( !ok) size = reqlen;
             } 
 
-            if ( downgrade_utf8) {
-               int length = utf8_length( data, data + CC-> internal[cfText]. size);
-               char * dest = malloc( length ), *src = (char*) CC-> internal[cfText]. data;
-               if ( dest) {
-                  int l = length;
-                  STRLEN charlen;
-                  char * x = dest;
-                  while ( l--) {
-                     register UV u = utf8_to_uvchr(( U8*) src, &charlen);
-                     *(x++) = ( u < 0x7f) ? u : '?';
-                     src += charlen;
-                  }
-                  if ( target == XA_INCR) {
-                     void * save_data = CC-> internal[cfText]. data;
-                     int    save_size = CC-> internal[cfText]. size;
-                     CC-> internal[cfText]. data = ( unsigned char*) dest;
-                     CC-> internal[cfText]. size = length;
-                     detach_xfers( CC, cfText, false);
-                     CC-> internal[cfText]. data = save_data;
-                     CC-> internal[cfText]. size = save_size;
-                     downgrade_utf8 = false;
-                  } else {
-                     data = ( unsigned char*) dest;
-                     size = length;
-                  }
-               } else
-                  downgrade_utf8 = false;
-            }
-
             XChangeProperty( 
                xe. xselection. display,
                xe. xselection. requestor,
                prop, target, format, mode, data, size);
             Cdebug("clipboard: store prop %s\n", XGetAtomName( DISP, prop));
             xe. xselection. property = prop;
-            if ( downgrade_utf8) free( data);
          }
 
          /* content of PIXMAP or BITMAP is seemingly gets invalidated

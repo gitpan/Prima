@@ -34,7 +34,7 @@
  * of this code, and for a DISCLAIMER OF ALL WARRANTIES.
  * ---------------------------------------------------------------------
  *
- * $Id: Drawable.c,v 1.88 2003/12/30 23:39:18 dk Exp $
+ * $Id: Drawable.c,v 1.92 2004/08/01 16:00:00 dk Exp $
  */
 
 #include "apricot.h"
@@ -64,8 +64,10 @@ Drawable_init( Handle self, HV * profile)
    var-> w = var-> h = 0;
    my-> set_color        ( self, pget_i ( color));
    my-> set_backColor    ( self, pget_i ( backColor));
+   my-> set_fillWinding  ( self, pget_B ( fillWinding));
    my-> set_fillPattern  ( self, pget_sv( fillPattern));
    my-> set_lineEnd      ( self, pget_i ( lineEnd));
+   my-> set_lineJoin     ( self, pget_i ( lineJoin));
    my-> set_linePattern  ( self, pget_sv( linePattern));
    my-> set_lineWidth    ( self, pget_i ( lineWidth));
    my-> set_region       ( self, pget_H ( region));
@@ -217,14 +219,16 @@ Drawable_font_add( Handle self, Font * source, Font * dest)
    Bool useEnc    = strcmp( source-> encoding, C_STRING_UNDEF) != 0;
 
    /* assignning values */
-   if ( useHeight) dest-> height    = source-> height;
-   if ( useWidth ) dest-> width     = source-> width;
-   if ( useDir   ) dest-> direction = source-> direction;
-   if ( useStyle ) dest-> style     = source-> style;
-   if ( usePitch ) dest-> pitch     = source-> pitch;
-   if ( useSize  ) dest-> size      = source-> size;
-   if ( useName  ) strcpy( dest-> name, source-> name);
-   if ( useEnc   ) strcpy( dest-> encoding, source-> encoding);
+   if ( dest != source) {
+      if ( useHeight) dest-> height    = source-> height;
+      if ( useWidth ) dest-> width     = source-> width;
+      if ( useDir   ) dest-> direction = source-> direction;
+      if ( useStyle ) dest-> style     = source-> style;
+      if ( usePitch ) dest-> pitch     = source-> pitch;
+      if ( useSize  ) dest-> size      = source-> size;
+      if ( useName  ) strcpy( dest-> name, source-> name);
+      if ( useEnc   ) strcpy( dest-> encoding, source-> encoding);
+   }
 
    /* nulling dependencies */
    if ( !useHeight && useSize)
@@ -455,27 +459,26 @@ Drawable_text_out( Handle self, SV * text, int x, int y, int len)
    return apc_gp_text_out( self, c_text, x, y, len, utf8);
 }
 
-static Bool
-polypoints( Handle self, SV * points, char * procName, int mod, Bool (*procPtr)(Handle,int,Point*))
+Point *
+Drawable_polypoints( SV * points, char * procName, int mod, int * n_points)
 {
    AV * av;
    int i, count;
    Point * p;
-   Bool ret;
 
    if ( !SvROK( points) || ( SvTYPE( SvRV( points)) != SVt_PVAV)) {
-      warn("RTC0050: Invalid array reference passed to Drawable::%s", procName);
-      return false;
+      warn("RTC0050: Invalid array reference passed to %s", procName);
+      return nil;
    }
    av = ( AV *) SvRV( points);
    count = av_len( av) + 1;
    if ( count % mod) {
       warn("RTC0051: Drawable::%s: Number of elements in an array must be a multiple of %d",
            procName, mod);
-      return false;
+      return nil;
    }
    count /= 2;
-   if ( count < 2) return false;
+   if ( count < 2) return nil;
    if (!( p = allocn( Point, count))) return false;
    for ( i = 0; i < count; i++)
    {
@@ -484,33 +487,44 @@ polypoints( Handle self, SV * points, char * procName, int mod, Bool (*procPtr)(
        if (( psvx == nil) || ( psvy == nil)) {
           free( p);
           warn("RTC0052: Array panic on item pair %d on Drawable::%s", i, procName);
-          return false;
+          return nil;
        }
        p[ i]. x = SvIV( *psvx);
        p[ i]. y = SvIV( *psvy);
    }
-   ret = procPtr( self, count, p);
-   free( p);
-   return ret;
+   *n_points = count;
+   return p;
 }
 
+static Bool
+polypoints( Handle self, SV * points, char * procName, int mod, Bool (*procPtr)(Handle,int,Point*))
+{
+   int count;
+   Point * p;
+   Bool ret = false;
+   if (( p = Drawable_polypoints( points, procName, mod, &count))) {
+      ret = procPtr( self, count, p);
+      free( p);
+   }
+   return ret;
+}
 
 Bool
 Drawable_polyline( Handle self, SV * points)
 {
-   return polypoints( self, points, "polyline", 2, apc_gp_draw_poly);
+   return polypoints( self, points, "Drawable::polyline", 2, apc_gp_draw_poly);
 }
 
 Bool
 Drawable_lines( Handle self, SV * points)
 {
-   return polypoints( self, points, "lines", 4, apc_gp_draw_poly2);
+   return polypoints( self, points, "Drawable::lines", 4, apc_gp_draw_poly2);
 }
 
 Bool
 Drawable_fillpoly( Handle self, SV * points)
 {
-   return polypoints( self, points, "fillpoly", 2, apc_gp_fill_poly);
+   return polypoints( self, points, "Drawable::fillpoly", 2, apc_gp_fill_poly);
 }
 
 /*
@@ -771,13 +785,51 @@ fill_spline( Handle self, int count, Point * points)
 Bool
 Drawable_spline( Handle self, SV * points)
 {
-   return polypoints( self, points, "spline", 2, spline);
+   return polypoints( self, points, "Drawable::spline", 2, spline);
 }
 
 Bool
 Drawable_fill_spline( Handle self, SV * points)
 {
-   return polypoints( self, points, "fill_spline", 2, fill_spline);
+   return polypoints( self, points, "Drawable::fill_spline", 2, fill_spline);
+}
+
+SV * 
+Drawable_render_spline( SV * obj, SV * points, int precision)
+{
+   int i, n_p, array_size;
+   Point static_array[STATIC_ARRAY_SIZE], *array, *p;
+   AV * av;
+   
+   if ( precision < 0) {
+      Handle self;
+      self = gimme_the_mate( obj);
+      precision = self ? var-> splinePrecision : 24;
+   }
+
+   av = newAV();
+   p = Drawable_polypoints( points, "Drawable::render_spline", 2, &n_p);
+   if ( p) {
+      array_size = TkMakeBezierCurve( NULL, n_p, precision, NULL);
+      if ( array_size >= STATIC_ARRAY_SIZE) {
+         if ( !( array = malloc( array_size * sizeof( Point)))) {
+            warn("Not enough memory");
+	    free( p);
+            return newRV_noinc(( SV *) av);
+         }
+      } else 
+        array = static_array;
+
+      array_size = TkMakeBezierCurve((int*) p, n_p, precision, array);
+      for ( i = 0; i < array_size; i++) {
+         av_push( av, newSViv( array[i]. x));
+         av_push( av, newSViv( array[i]. y));
+      }
+      if ( array != static_array) free( array);
+      free( p);
+   }
+
+   return newRV_noinc(( SV *) av);
 }
 
 int
@@ -1287,12 +1339,28 @@ Drawable_clipRect( Handle self, Bool set, Rect clipRect)
    return clipRect;
 }
 
+Bool
+Drawable_fillWinding( Handle self, Bool set, Bool fillWinding)
+{
+   if (!set) return apc_gp_get_fill_winding( self);
+   apc_gp_set_fill_winding( self, fillWinding);
+   return fillWinding;
+}
+
 int
 Drawable_lineEnd( Handle self, Bool set, int lineEnd)
 {
    if (!set) return apc_gp_get_line_end( self);
    apc_gp_set_line_end( self, lineEnd);
    return lineEnd;
+}
+
+int
+Drawable_lineJoin( Handle self, Bool set, int lineJoin)
+{
+   if (!set) return apc_gp_get_line_join( self);
+   apc_gp_set_line_join( self, lineJoin);
+   return lineJoin;
 }
 
 int

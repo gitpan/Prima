@@ -26,7 +26,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: HelpViewer.pm,v 1.30 2004/03/13 21:13:08 dk Exp $
+#  $Id: HelpViewer.pm,v 1.35 2004/08/21 10:34:18 dk Exp $
 
 use strict;
 use Prima;
@@ -87,7 +87,7 @@ sub load_file
    }
    $o-> status('');
    $o-> update;
-   $o-> update_menu($ret == 1);
+   $o-> update_menu($ret);
 
    return $ret;
 }
@@ -196,7 +196,10 @@ sub profile_default
            ['~Open' => 'Ctrl+O' => '^O' => 'load_dialog' ],
            ['~Go to...' => 'G' => 'G' => 'goto' ],
            ['~New window' => 'Ctrl+N' => '^N' => 'new_window'],
-           [],
+           ['~Run' => [
+	      ['p-class' => 'filter_p_class'],
+	   ]],
+	   [],
            ['~Print ...' => 'Ctrl+P' => '^P' => 'print'],
            [],
            ['~Close window' => 'Ctrl-W' => '^W' => sub { $_[0]-> close }],
@@ -220,6 +223,7 @@ sub profile_default
              $_[0]-> update;
              $inifile-> section('View')-> {FullText} = $_[0]-> {text}-> topicView ? 0 : 1;
           }],
+          ['-src' => 'View so~urce' => 'Ctrl+U' => '^U' => 'view_source'],
           [],
           ['~Find...' => 'Ctrl+F' => '^F' => 'find'],
           ['Find ~again' => 'Ctrl+L' => '^L' => 'find2'],
@@ -391,6 +395,7 @@ sub on_destroy
    my $self = $_[0];
    @Prima::HelpViewer::helpWindows = grep { $_ != $self } @Prima::HelpViewer::helpWindows;
    $inifile-> write;
+   $self-> {source_mate}-> close if $self-> {source_mate};
 }
 
 sub load_dialog
@@ -423,6 +428,23 @@ sub new_window
    $new-> {text}-> update_view;
    $new-> {text}-> load_bookmark( $self-> {text}-> make_bookmark);
    $new-> select;
+}
+
+sub filter_p_class
+{
+   eval "use Prima::MsgBox"; die "$@\n" if $@;
+   my $self = $_[0];
+   my $ret = Prima::MsgBox::input_box('Run p-class', 'Enter Prima class, or leave empty to see the options list:', '');
+   return unless defined $ret;
+   my $content = `p-class $ret`;
+   unless ( length $content) {
+      Prima::message("'p-class $ret' returned no data");
+      return;
+   }
+   $content = "=pod\n\n$content\n\n=cut" if $content !~ /=pod/m;
+   $self-> {text}-> load_content( $content) if defined $ret;
+   $self-> update_menu(1);
+   $self-> text( $self-> {stext} . ' - ' . $ret);
 }
 
 sub history
@@ -517,7 +539,7 @@ sub update_menu
    $m-> remove( $$_[0]) for @{$m-> get_items('doc')};
    my $t = $self-> {text};
 
-   if ( $loaded_ok && scalar @{$t->{topics}}) {
+   if ( $loaded_ok == 1 && scalar @{$t->{topics}}) {
       my @array;
       my $current = \@array;
       my $level = 0;
@@ -537,7 +559,8 @@ sub update_menu
 	    $level = $depth;
             @$last = (@$last[0,1], $current = [[@$last],[]]);
 	 } elsif ( scalar @stack) {
-	    ($level, $current) = @{pop @stack};
+	    ($level, $current) = @{pop @stack} 
+	       while $level > $depth && @stack;
 	 } else {
 	    $level = 0;
 	    $current = \@array;
@@ -546,8 +569,10 @@ sub update_menu
       }
       $m-> insert( \@array, 'doc', 0);
       $m-> doc-> enabled(1);
+      $m-> src-> enabled(1);
    } else {
       $m-> doc-> enabled(0);
+      $m-> src-> enabled($loaded_ok > 0);
    }
 }
 
@@ -810,7 +835,7 @@ sub print
       $self-> {text}-> {fontPalette}-> [1]-> {name} = $printer_font->{name};
    }
 
-   $self-> {text}-> print( $p, sub {
+   my $ok = $self-> {text}-> print( $p, sub {
       $self-> status("Printing page $pc. Press ESC to cancel");
       $pc++;
       $::application-> yield;
@@ -818,7 +843,7 @@ sub print
       1;
    });
    
-   if ( $self-> {printing} > 0) {
+   if ( $ok) {
       $p-> end_doc;
       $self-> status("Printing done");
    } else {
@@ -913,6 +938,47 @@ sub set_encoding
    $t-> format(1);
 }
 
+sub view_source
+{
+   my $self = $_[0];
+   if ( $self-> {source_mate}) {
+      $self-> {source_mate}-> bring_to_front;
+      return;
+   }
+   eval "use Prima::Edit";
+   if ( $@) {
+      Prima::message($@);
+      return;
+   }
+   my $ff = $self->{text}->{source_file};
+   return unless defined $ff;
+   unless ( open F, $ff) {
+      Prima::message("Cannot read $ff:$!");
+      return;
+   }
+   local $/;
+   my $src = <F>;
+   close F;
+   my $w = Prima::Window-> create(
+      packPropagate => 0,
+      text          => $ff,
+      onDestroy     => sub { $self-> {source_mate} = undef },
+   );
+   my %font = (
+      %{$self->{text}->{fontPalette}->[1]},
+      size => $self-> {text}-> {defaultFontSize},
+   );
+   $w-> insert( 'Prima::Edit',
+      pack         => { expand => 1, fill => 'both'},
+      textRef      => \$src,
+      font         => \%font,
+      readOnly     => 1,
+      syntaxHilite => 1,
+   );
+   $self-> {source_mate} = $w;
+   $self-> {source_mate}-> bring_to_front;
+}
+
 1;
 
 __END__
@@ -959,6 +1025,20 @@ directories.
 =item New window
 
 Opens the new viewer window with the same context.
+
+=item Run
+
+Commands in this group call external processes
+
+=over
+
+=item p-class
+
+p-class is Prima utility for displaying the widget class hierachies.
+The command asks for Prima class to display the hierachy information 
+for.
+
+=back
 
 =item Print
 

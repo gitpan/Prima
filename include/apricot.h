@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: apricot.h,v 1.170 2004/02/23 19:03:09 dk Exp $ */
+/* $Id: apricot.h,v 1.172 2004/05/27 08:24:54 dk Exp $ */
 
 #ifndef _APRICOT_H_
 #define _APRICOT_H_
@@ -2244,19 +2244,13 @@ apc_kbd_get_state( Handle self);
 #define cfText     0
 #define cfBitmap   1
 #define cfImage    cfBitmap
-#define cfCustom   2
+#define cfUTF8     2
+#define cfCustom   3
 
-typedef union {
-   struct {
-      char * text;
-      STRLEN length;
-      Bool   utf8;
-   } text;
+typedef struct {
    Handle image;
-   struct {
-      Byte * data;
-      STRLEN length;
-   } binary;
+   Byte * data;
+   STRLEN length;
 } ClipboardDataRec, *PClipboardDataRec;
 
 extern PList
@@ -2572,6 +2566,18 @@ LE(Square)
 LE(Round)
 END_TABLE(le,UV)
 #undef LE
+
+/* line joins */
+#define LJ(const_name) CONSTANT(lj,const_name)
+START_TABLE(lj,UV)
+#define    ljRound          0
+LJ(Round)
+#define    ljBevel          1
+LJ(Bevel)
+#define    ljMiter          2
+LJ(Miter)
+END_TABLE(lj,UV)
+#undef LJ
 
 /* line patterns */
 #define LP(const_name) CONSTANT(lp,const_name)
@@ -3133,6 +3139,9 @@ apc_gp_get_font_abc( Handle self, int firstChar, int lastChar, Bool unicode);
 extern unsigned long *
 apc_gp_get_font_ranges( Handle self, int * count);
 
+extern Bool
+apc_gp_get_fill_winding( Handle self);
+
 extern FillPattern *
 apc_gp_get_fill_pattern( Handle self);
 
@@ -3141,6 +3150,9 @@ apc_gp_get_handle( Handle self);
 
 extern int
 apc_gp_get_line_end( Handle self);
+
+extern int
+apc_gp_get_line_join( Handle self);
 
 extern int
 apc_gp_get_line_width( Handle self);
@@ -3191,6 +3203,9 @@ extern Bool
 apc_gp_set_color( Handle self, Color color);
 
 extern Bool
+apc_gp_set_fill_winding( Handle self, Bool fillWinding);
+
+extern Bool
 apc_gp_set_fill_pattern( Handle self, FillPattern pattern);
 
 extern Bool
@@ -3198,6 +3213,9 @@ apc_gp_set_font( Handle self, PFont font);
 
 extern Bool
 apc_gp_set_line_end( Handle self, int lineEnd);
+
+extern Bool
+apc_gp_set_line_join( Handle self, int lineJoin);
 
 extern Bool
 apc_gp_set_line_width( Handle self, int lineWidth);

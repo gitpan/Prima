@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Makefile.PL,v 1.166 2004/03/26 16:31:13 voland Exp $
+#  $Id: Makefile.PL,v 1.171 2004/06/07 13:45:58 dk Exp $
 #
 
 BEGIN {
@@ -998,10 +998,12 @@ apc_gp_get_back_color
 apc_gp_get_bpp
 apc_gp_get_clip_rect
 apc_gp_get_color
+apc_gp_get_fill_winding
 apc_gp_get_fill_pattern
 apc_gp_get_font_abc
 apc_gp_get_handle
 apc_gp_get_line_end
+apc_gp_get_line_join
 apc_gp_get_line_pattern
 apc_gp_get_line_width
 apc_gp_get_nearest_color
@@ -1025,8 +1027,10 @@ apc_gp_set_back_color
 apc_gp_set_clip_rect
 apc_gp_set_color
 apc_gp_set_fill_pattern
+apc_gp_set_fill_winding
 apc_gp_set_font
 apc_gp_set_line_end
+apc_gp_set_line_join
 apc_gp_set_line_pattern
 apc_gp_set_line_width
 apc_gp_set_palette
@@ -1542,7 +1546,26 @@ PRIGRAPH_WARNING
        }
     }
 
-    die <<NOCODECS unless @ACTIVE_CODECS || $WANTNOCODECS;
+    unless ( @ACTIVE_CODECS || $WANTNOCODECS) {
+       if ( $Win32 || $OS2) {
+          open F, "> Makefile";
+          my $dep = $Win32 ? 'win32' : 'os2';
+          print F <<DUMB_MAKE;
+# This makefile is created deliberately empty in case 
+# Makefile.PL was run from under CPAN shell, which scans
+# Makefile for uresolved dependencies
+# 
+# PREREQ_PM => { Prima::prigraph::$dep=>q[0] }
+#
+all:
+\t$^X Makefile.PL
+\tmake
+
+test: all
+DUMB_MAKE
+          close F;
+       }
+     die <<NOCODECS;
 
 ** No image codecs found. Use
 
@@ -1552,7 +1575,11 @@ to ignore this error. Note that in this configuration Prima
 will not be able to work with graphic files. Please follow
 the instructions in README file.
 
+If you are under CPAN shell and are asked to follow Prima::prigraph 
+dependencies, do so and re-run 'install Prima' afterwards.
+
 NOCODECS
+    }
 
     push @Prima_exports, 'bzero' unless $DEFINES{HAVE_BZERO};
     # Setting up translation tables for quoting string for different make utilities.
@@ -2427,7 +2454,6 @@ $PrimaTarget: @allojects $extralibs
 \t${ \eval{ return join ' ', ld_command_line( $PrimaTarget, @allojects)}}
 
 test: all
-\t\@$^X -w test/startup.pl
 \t\@$^X -w test/Tester.pl
 
 ppd:
@@ -2526,7 +2552,7 @@ EOF
           my ( $src, $dest) = splice( @allman, 0, 2);
           push @man_to_remove, $dest;
           $dest =~ m/([^\/]+)\.(\d+)$/;
-	  print  MAKE "\t\@echo $1.$2\n";
+	  print  MAKE "\t\@echo $dest" . (length( $Config{gzip} ) ? '.gz' : ''). "\n";
           printf MAKE $cmd, $2, $src, $dest;
        }
        if ( length $Config{gzip}) { s/$/.gz/ for @man_to_remove }

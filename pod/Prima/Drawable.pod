@@ -1,4 +1,4 @@
-=for rcs $Id: Drawable.pod,v 1.19 2003/12/30 23:39:23 dk Exp $
+=for rcs $Id: Drawable.pod,v 1.22 2004/08/19 22:04:58 dk Exp $
 
 =head1 NAME
 
@@ -609,6 +609,14 @@ Note: C<::clipRect> can not be used while the object is in the paint-disabled st
 its context is neither recorded nor used as a template 
 ( see L<"Graphic context and canvas">).
 
+=item fillWinding BOOLEAN
+
+Affect filling style of complex polygonal shapes filled by C<fillpoly>.
+If 1, the filled shape contains no holes; otherwise, holes are present
+where the shape edges cross.
+
+Default value: 0
+
 =item fillPattern ( [ @PATTERN ] ) or ( fp::XXX )
 
 Selects 8x8 fill pattern that affects primitives that plot filled shapes:
@@ -684,7 +692,18 @@ can be one of
   le::Square
   le::Round
 
-constants. le::Round is the default value.
+  constants. le::Round is the default value.
+
+=item lineJoin VALUE
+
+Selects a line joining style for polygons. VALUE 
+can be one of
+
+  lj::Round
+  lj::Bevel
+  lj::Miter
+
+constants. lj::Round is the default value.
 
 =item linePattern PATTERN
 
@@ -829,7 +848,7 @@ Selects the width of a canvas.
 
 =back
 
-=head2 Graphic primitives
+=head2 Graphic primitives methods
 
 =over 4
 
@@ -932,7 +951,7 @@ Example:
 
    $d-> fillpoly([ 0, 0, 15, 20, 30, 0]); # triangle
 
-Context used: color, backColor, fillPattern, rop, rop2
+Context used: color, backColor, fillPattern, rop, rop2, fillWinding
 
 See also: polyline().
 
@@ -955,7 +974,7 @@ Example:
 
 Context used: color, backColor, fillPattern, rop, rop2, splinePrecision
 
-See also: spline, splinePrecision
+See also: spline, splinePrecision, render_spline
 
 =item flood_fill X, Y, COLOR, SINGLEBORDER = 1
 
@@ -999,7 +1018,7 @@ No context is used.
 Draws a polygonal area defined by POLYGON set of points.
 POLYGON must present an array of integer pair in (X,Y) format.
 
-Context used: color, backColor, linePattern, lineWidth, lineEnd, rop, rop2
+Context used: color, backColor, linePattern, lineWidth, lineJoin, lineEnd, rop, rop2
 
 See also: fillpoly().
 
@@ -1064,7 +1083,7 @@ POLYGON must present an array of integer pair in (X,Y) format.
 
 Context used: color, backColor, linePattern, lineWidth, lineEnd, rop, rop2
 
-See also: fill_spline, splinePrecision.
+See also: fill_spline, splinePrecision, render_spline.
 
 =item stretch_image X, Y, DEST_WIDTH, DEST_HEIGHT, OBJECT, [ ROP ]
 
@@ -1247,6 +1266,17 @@ to consequent text_out() call so the conjoint string would plot
 as if it was a part of TEXT.
 
 Context used: font
+
+=item render_spline VERTICES, [ PRECISION ]
+
+Renders cubic spline from set of VERTICES to a polyline with given precision.
+The method can be called as static, i.e.  with no object initialized. PRECISION
+integer, if not given, is read from C<splinePrecision> property if the method
+was called on an alive object; in case of static call, default value 24 is
+used.
+
+The method is internally used by C<spline> and C<fill_spline>, and is provided
+for cases when these are insufficient.
 
 =item text_wrap TEXT, WIDTH, OPTIONS, TAB_INDENT = 8, LEN = -1
 

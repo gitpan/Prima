@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_event.c,v 1.89 2004/02/08 20:31:57 dk Exp $
+ * $Id: apc_event.c,v 1.92 2004/06/04 16:09:53 dk Exp $
  */
 
 /***********************************************************/
@@ -795,8 +795,25 @@ wm_event( Handle self, XEvent *xev, PEvent ev)
                return false;
             }
             if ( selectee && selectee != self) XMapRaised( DISP, PWidget(selectee)-> handle);
-            XSetInputFocus( DISP, X_WINDOW, RevertToParent, CurrentTime);
-            if ( selectee) Widget_selected( selectee, true, true);
+	    if ( !guts. currentMenu) {
+   	       if ( selectee) {
+                  int rev;
+                  XWindow focus = None;
+		  Handle selectee2 = Widget_get_selectee( selectee);
+		  if ( selectee2) {
+                     XGetInputFocus( DISP, &focus, &rev);
+		     /* protection against openbox who fires WM_TAKE_FOCUS no matter what */
+                     if ( selectee2 && focus != None && focus == PWidget(selectee2)-> handle)
+		        return false;
+		  }
+	       }
+	       if ( !guts. currentMenu) {
+	          guts. currentFocusTime = xev-> xclient. data. l[1];
+	          XSetInputFocus( DISP, X_WINDOW, RevertToParent, xev-> xclient. data. l[1]);
+	          if ( selectee) Widget_selected( selectee, true, true);
+	          guts. currentFocusTime = CurrentTime;
+	       }
+	    }
             return false;
          }
       }
@@ -1651,6 +1668,8 @@ copy_events( Handle self, PList events, WMSyncData * w, int eventType)
       }
       if ( x-> type != DEAD_BEEF) 
          list_add( events, ( Handle) x);
+      else
+	 free( x);
    }
    return ret;
 }

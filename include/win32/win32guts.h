@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: win32guts.h,v 1.61 2004/01/21 22:53:10 dk Exp $ */
+/* $Id: win32guts.h,v 1.62 2004/05/27 08:24:55 dk Exp $ */
 
 #ifndef _WIN32_H_
 #define _WIN32_H_
@@ -107,6 +107,7 @@ typedef HANDLE SOCKETHANDLE;
 
 #define exsLinePattern  1
 #define exsLineEnd      2
+#define exsLineJoin     4
 
 #define stbPen          1
 #define stbBrush        2
@@ -260,8 +261,10 @@ typedef struct _PrinterData
 typedef struct _PaintSaveData
 {
    Color       lbs[2];
+   Bool        fillWinding;
    int         lineWidth;
    int         lineEnd;
+   int         lineJoin;
    unsigned char * linePattern;
    int         linePatternLen;
    FillPattern fillPattern;
@@ -285,6 +288,7 @@ typedef struct _EXTPEN
    Bool            actual;
    DWORD           style;
    DWORD           lineEnd;
+   DWORD           lineJoin;
    PatResource  *  patResource;
 } EXTPEN, *PEXTPEN;
 
@@ -372,8 +376,10 @@ typedef struct _DrawableData
 
    /* HDC attributes storage outside paint mode */
    Color          lbs[2];
+   Bool           fillWinding;
    int            lineWidth;
    int            lineEnd;
+   int            lineJoin;
    unsigned char *linePattern;
    int            linePatternLen;
    unsigned char *linePattern2;

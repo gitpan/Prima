@@ -22,7 +22,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: VB.pl,v 1.77 2004/01/09 18:53:07 dk Exp $
+# $Id: VB.pl,v 1.78 2004/09/03 13:49:59 dk Exp $
 use strict;
 use Prima qw(StdDlg Notebooks MsgBox ComboBox ColorDialog IniFile Utils);
 use Prima::VB::VBLoader;
@@ -1760,7 +1760,7 @@ sub load_file
    }
    $VB::form-> prf_set( %{$mf->{profile}});
    $VB::inspector->{selectorChanging} = 1 if $VB::inspector;
-   my $loaded = 1;
+   my $loaded;
    $self-> push_widgets( sub {
      $loaded++;
      $self-> text( sprintf( "Loaded %d%%", ($loaded / $maxwij) * 100)); 

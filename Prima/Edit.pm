@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Edit.pm,v 1.43 2004/01/11 10:18:28 dk Exp $
+#  $Id: Edit.pm,v 1.46 2004/07/26 08:30:28 dk Exp $
 #
 # edit block types
 package bt;
@@ -135,7 +135,28 @@ sub profile_default
       hiliteNumbers     => cl::Green,
       hiliteQStrings    => cl::LightBlue,
       hiliteQQStrings   => cl::LightBlue,
-      hiliteIDs         => [[qw(auto break case char const continue default do double enum else extern float for goto if int long main register return short signed sizeof static struct switch typedef union unsigned void volatile while)], cl::Blue],
+      hiliteIDs         => [[qw(
+abs accept alarm atan2 bind binmode bless caller chdir chmod chomp chop chown
+chr chroot close closedir connect continue cos crypt defined
+delete die do dump each endgrent endhostent endnetent endprotoent endpwent
+endservent eof eval exec exists exit exp fcntl fileno flock for fork format
+formline getc getgrent getgrgid getgrnam gethostbyaddr gethostbyname gethostent
+getlogin getnetbyaddr getnetbyname getnetent getpeername getpgrp getppid
+getpriority getprotobyname getprotobynumber getprotoent getpwent getpwnam
+getpwuid getservbyname getservbyport getservent getsockname getsockopt glob
+gmtime goto grep hex if import index int ioctl join keys kill last lc lcfirst
+length link listen local localtime log lstat m map mkdir msgctl msgget msgrcv
+msgsnd my next no oct open opendir ord our pack package pipe pop pos print
+printf prototype push q qq qr quotemeta qw qx rand read readdir readline
+readlink readpipe recv redo ref rename require reset return reverse rewinddir
+rindex rmdir s scalar seek seekdir select semctl semget semop send setgrent
+sethostent setnetent setpgrp setpriority setprotoent setpwent setservent
+setsockopt shift shmctl shmget shmread shmwrite shutdown sin sleep socket
+socketpair sort splice split sprintf sqrt srand stat study sub substr symlink
+syscall sysopen sysread sysseek system syswrite tell telldir tie tied time
+times tr truncate uc ucfirst umask undef unless unlink unpack unshift untie use 
+utime values vec wait waitpid wantarray warn while write y
+      )], cl::Blue],
       hiliteChars       => ['~!@#$%^&*()+-=[]{};:\'"\\|?.,<>/', cl::Blue],
       hiliteREs         => [ '(#.*)$', cl::Gray, '(\/\/.*)$', cl::Gray],
       hScroll           => 0,
@@ -1459,7 +1480,7 @@ sub copy
 {
    my $self = $_[0];
    my $text = $self->get_selected_text;
-   $::application-> Clipboard-> store( 'Text', $text) if defined $text;
+   $::application-> Clipboard-> text($text) if defined $text;
 }
 
 sub get_selected_text
@@ -1553,7 +1574,7 @@ sub paste
 {
    my $self = $_[0];
    return if $self->{readOnly};
-   $self-> insert_text( $::application-> Clipboard-> fetch( 'Text'), 1);
+   $self-> insert_text( $::application-> Clipboard-> text, 1);
 }
 
 sub make_logical

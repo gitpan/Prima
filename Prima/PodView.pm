@@ -25,7 +25,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: PodView.pm,v 1.28 2004/03/16 13:25:17 dk Exp $
+#  $Id: PodView.pm,v 1.34 2004/08/20 12:57:29 dk Exp $
 
 use strict;
 use Prima;
@@ -305,7 +305,7 @@ sub load_link
    my $doBookmark;
 
    unless ( defined $t) { # page / section / item
-      my ( $page, $section, $item, $lead_slash) = ( '', undef, 1, '');
+      my ( $page, $section, $item, $lead_slash) = ( '', '', 1, '');
 
       if ( $s =~ /^file:\/\/(.*)$/) {
          $page = $1;
@@ -550,12 +550,14 @@ Error loading '$manpage' : $!
 
 ERROR
       $m =~ s/^\\=/=/gm;
+      undef $self-> {source_file};
       $self-> message( $m, 1);
       return 0;
    }
 
    $self-> pointer( cr::Wait);
    $self-> {manpath} = $path;
+   $self-> {source_file} = $manpage;
    $self-> open_read;
    $self-> read($_) while <F>;
    close F;
@@ -577,6 +579,17 @@ ERROR
       return 2;
    }
    return 1;
+}
+
+sub load_content 
+{
+   my ( $self, $content) = @_;
+   my $path = '';
+   $self-> {manpath} = '';
+   undef $self-> {source_file};
+   $self-> open_read;
+   $self-> read($content);
+   return $self-> close_read( $self-> {topicView});
 }
 
 
@@ -1315,7 +1328,8 @@ sub print
    my ( $self, $canvas, $callback) = @_;
    
    my ( $min, $max, $linkIdStart) = @{$self-> {modelRange}};
-   return if $min >= $max;
+   return 1 if $min >= $max;
+   my $ret = 0;
 
    goto ABORT if $callback && ! $callback->();
 
@@ -1351,26 +1365,28 @@ sub print
          if ( $y < $$b[ tb::BLK_HEIGHT]) {
             if ( $$b[ tb::BLK_HEIGHT] < $formatHeight) {
                goto ABORT if $callback && ! $callback->();
-               $canvas-> new_page;
+               goto ABORT unless $canvas-> new_page;
                $y = $formatHeight - $$b[ tb::BLK_HEIGHT];
                $self-> block_draw( $canvas, $b, $indent, $y);
             } else { 
                $y -= $$b[ tb::BLK_HEIGHT];
                while ( $y < 0) {
                   goto ABORT if $callback && ! $callback->();
-                  $canvas-> new_page;
+                  goto ABORT unless $canvas-> new_page;
                   $self-> block_draw( $canvas, $b, $indent, $y);
                   $y += $formatHeight;
                }
             }
          } else {
             $y -= $$b[ tb::BLK_HEIGHT];
-            $self-> block_draw( $canvas, $b, $indent, $y);
+            goto ABORT unless $self-> block_draw( $canvas, $b, $indent, $y);
          }
       }
    }
 
+   $ret = 1;
 ABORT:
+   return $ret;
 }
 
 sub select_text_offset
@@ -1508,7 +1524,7 @@ and is in turn base for the toolkit's default help viewer L<Prima::HelpViewer>.
 The package consists of the several logically separated parts. These include
 file locating and loading, formatting and navigation.
 
-=head2 Content 
+=head2 Content methods
 
 The basic access to the content is not bound to the file system. The POD
 content can be supplied without any file to the viewer. Indeed, the file
@@ -1598,6 +1614,7 @@ otherwise the poor-man-drawings would be selected.
 =item close_read
 
 Closes the reading mode and starts the text rendering by calling C<format>.
+Returns C<undef> if there is no POD context, 1 otherwise.
 
 =back
 
@@ -1666,7 +1683,7 @@ C<STYLE_LINK> and C<STYLE_CODE>:
 
 The default colors in the styles are mapped into these entries.
 
-=head2 Links and navigation
+=head2 Link and navigation methods
 
 Prima::PodView provides a hand-icon mouse pointer highlight for the link
 entries and as an interactive part, the link documents or topics are loaded
@@ -1691,10 +1708,15 @@ If unsuccessful, displays an error.
 LINK is a text in format of L<perlpod> C<LE<lt>E<gt>> link: "manpage/section".
 Loads the manpage, if necessary, and selects the section.
 
-=item load_bookmark
+=item load_bookmark BOOKMARK
 
 Loads a bookmark string, prepared by L<make_bookmark> function. 
 Used internally.
+
+=item load_content CONTENT
+
+Loads content into the viewer. Returns C<undef> is there is no POD 
+context, 1 otherwise.
 
 =item make_bookmark [ WHERE ]
 

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Printer.c,v 1.21 2003/06/05 18:47:00 dk Exp $
+ * $Id: Printer.c,v 1.22 2004/08/20 21:12:44 dk Exp $
  */
 
 #include "apricot.h"
@@ -87,19 +87,21 @@ Printer_begin_doc( Handle self, char * docName)
    return ok;
 }
 
-void
+Bool
 Printer_new_page( Handle self)
 {
-   if ( !is_opt( optInDraw)) return;
-   apc_prn_new_page( self);
+   if ( !is_opt( optInDraw)) return false;
+   return apc_prn_new_page( self);
 }
 
-void
+Bool
 Printer_end_doc( Handle self)
 {
-   if ( !is_opt( optInDraw)) return;
-   apc_prn_end_doc( self);
+   Bool ret;
+   if ( !is_opt( optInDraw)) return false;
+   ret = apc_prn_end_doc( self);
    inherited end_paint( self);
+   return ret;
 }
 
 void

@@ -26,7 +26,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: TextView.pm,v 1.16 2003/07/03 15:00:14 tobez Exp $
+#  $Id: TextView.pm,v 1.18 2004/08/19 22:04:57 dk Exp $
 
 use strict;
 use Prima;
@@ -854,6 +854,7 @@ sub block_draw
 {
    my ( $self, $canvas, $b, $x, $y) = @_;
    my ( $i, $lim) = ( tb::BLK_START, scalar @$b);
+   my $ret = 1;
 
    my $cmd;
    my ( $t, $o) = ( $self-> {text}, $$b[ tb::BLK_TEXT_OFFSET]);
@@ -878,7 +879,7 @@ sub block_draw
                $self-> realize_state( $canvas, \@state, tb::REALIZE_COLORS); 
                $c_taint = 1;
             }
-            $canvas-> text_out( substr( $$t, $o + $$b[$i + 1], $$b[$i + 2]), 
+            $ret = $canvas-> text_out( substr( $$t, $o + $$b[$i + 1], $$b[$i + 2]), 
                               $x, $y, $$b[ $i + 2]);
          }
          $x += $$b[ $i + 3];
@@ -907,6 +908,8 @@ sub block_draw
          $c_taint = undef;
       }
    }
+
+   return $ret;
 }
 
 sub xy2info
@@ -1722,7 +1725,7 @@ As can be noticed, these opcodes are far not enough for the full-weight rich tex
 viewer. However, the new opcodes can be created using C<tb::opcode>, that accepts
 the opcode length and returns the new opcode value.
 
-=head2 Rendering
+=head2 Rendering methods
 
 =over
 
@@ -1761,7 +1764,7 @@ CANVAS can be an arbitrary C<Prima::Drawable> descendant.
 
 =back
 
-=head2 Coordinate system
+=head2 Coordinate system methods
 
 Prima::TextView employs two its own coordinate systems:
 (X,Y)-document and (TEXT_OFFSET,BLOCK)-block. 

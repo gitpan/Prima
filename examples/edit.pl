@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: edit.pl,v 1.13 2003/08/01 09:45:30 dk Exp $
+#  $Id: edit.pl,v 1.15 2004/05/04 21:07:12 dk Exp $
 #
 
 =pod 
@@ -38,7 +38,7 @@ Demonstrates use of a standard input line widget
 =cut
 
 
-use Prima 'InputLine', Application => { name => 'InputLine sample' };
+use Prima 'InputLine', Application => { name => 'InputLine sample', wantUnicodeInput => 1 };
 
 my $w = Prima::MainWindow-> create( size => [ 700, 300]);
 

@@ -1,4 +1,4 @@
-=for rcs $Id: X11.pod,v 1.4 2004/05/03 12:41:20 dk Exp $
+=for rcs $Id: X11.pod,v 1.7 2004/06/02 14:05:55 dk Exp $
 
 =head1 NAME
 
@@ -59,6 +59,25 @@ that use only OS-independent parts of Prima, such as image subsystem or PostScri
 generator, in environments where X is not present, for example, a CGI script.
 Obviously, any attempt to create instance of C<Prima::Application> or otherwise
 access X-depended code under such conditions causes the program to abort.
+
+There are alternatives to use the command switch. First, there is module C<Prima::noX11>
+for the same purpose but more convenient to use as
+
+   perl -MPrima::noX11
+
+construct. Second, there is a technique to continue execution even if connection
+to a X server failed:
+
+   eval 'use Prima;';
+   unless ( $@) {
+      print "X11 enabled\n";
+   } else {
+      die $@ unless $@ =~ /can't open display/i;
+      print "X11 disabled\n";
+   }
+
+This technique may be useful to programs that use Prima imaging functionality
+and may or may not use windowing capabilites.
 
 =back
 
@@ -508,14 +527,14 @@ although not by default.
 
    Prima::Application-> wantUnicodeInput(1)
 
-is the documented ( see L<Prima::Application> ) way to initiate UTF8 clipboard
+is the easiest ( see L<Prima::Application> ) way to initiate UTF8 clipboard
 text exchange.
 
 =head1 Other XRDB resources
 
 =head2 Timeouts
 
-Raw X11 provides no such GUI helpers and double-click event, cursor, or menu.
+Raw X11 provides no such GUI helpers as double-click event, cursor, or menu.
 Neither does it provide the related time how often, for example, a cursor would
 blink. Therefore Prima emulates these, but allows the user to reprogram the
 corresponding timeouts. Prima recognizes the following properties, accessible
@@ -648,7 +667,7 @@ X - XRDB
 
 =item *
 
-A - all together
+A - all of the above
 
 =back
 
@@ -657,8 +676,8 @@ Example:
    --debug=xf
 
 Also, the built-in X API C<XSynchronize> call, which enables X protocol
-synchronization ( at expense of operation slowdown ) is activated with
-C<--sync> command-line argument, and can be used to ease eventual debugging.
+synchronization ( at expense of operation slowdown though ) is activated with
+C<--sync> command-line argument, and can be used to ease the debugging.
 
 =head1 AUTHOR
 

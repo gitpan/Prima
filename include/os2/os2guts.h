@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: os2guts.h,v 1.18 2002/05/14 13:22:30 dk Exp $ */
+/* $Id: os2guts.h,v 1.19 2004/05/27 10:06:47 dk Exp $ */
 
 #ifndef _OS2GUTS_H_
 #define _OS2GUTS_H_
@@ -230,8 +230,10 @@ typedef struct _PrinterData
 typedef struct _PaintSaveData
 {
    Color       lbs[2];
+   Bool        fillWinding;
    int         lineWidth;
    int         lineEnd;
+   int         lineJoin;
    unsigned char *linePattern;
    int         linePatternLen;
    FillPattern fillPattern;
@@ -259,8 +261,10 @@ typedef struct _DrawableData
    int             bpp;
 // HPS data
    Color           lbs[2];
+   Bool            fillWinding;
    int             lineWidth;
    int             lineEnd;
+   int             lineJoin;
    unsigned char * linePattern;
    int             linePatternLen;
    FillPattern     fillPattern;

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Application.c,v 1.72 2003/11/10 17:04:45 dk Exp $
+ * $Id: Application.c,v 1.73 2004/05/19 13:44:26 dk Exp $
  */
 
 #include "apricot.h"
@@ -142,9 +142,9 @@ Application_done( Handle self)
    list_destroy( &var->  widgets);
    free( var-> text);
    free( var-> hint);
-   var->  accelTable =
-      var-> hintWidget = var-> hintTimer = nilHandle;
-   var->  text    = var->  hint      = nil;
+   free( var-> helpContext);
+   var-> accelTable = var-> hintWidget = var-> hintTimer = nilHandle;
+   var-> text = var->  hint = var-> helpContext = nil;
    apc_application_destroy( self);
    CDrawable-> done( self);
    application = nilHandle;

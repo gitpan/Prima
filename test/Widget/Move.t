@@ -1,4 +1,4 @@
-# $Id: Move.t,v 1.8 2003/06/04 11:29:33 dk Exp $
+# $Id: Move.t,v 1.9 2004/05/07 10:03:24 dk Exp $
 print "1..10 onMove message - pass 1,correct movement,parameters consistency - pass 1,child move,child move consistency,onMove message - pass 2,parameters consistency - pass 2,gmDontCare,recreate consistency,scroll children\n";
 
 my $dong2 = 0;
@@ -12,7 +12,7 @@ my $wx = Prima::Window-> create(
 );
 
 
-my $wl = $wx-> insert( Prima::Widget =>
+my $wl = $wx-> insert( 'Prima::Widget' =>
    clipOwner => 0,
    growMode  => 0,
    onMove => sub { $dong2 = 1; __end_wait(); shift; @mrep2 = scalar(@mrep2) ? ( @mrep2[0,1], @_[2,3]) : @_;  },

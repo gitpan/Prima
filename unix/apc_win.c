@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_win.c,v 1.78 2004/02/11 08:41:56 dk Exp $
+ * $Id: apc_win.c,v 1.79 2004/06/04 16:09:53 dk Exp $
  */
 
 /***********************************************************/
@@ -459,7 +459,7 @@ apc_window_activate( Handle self)
       prima_wm_sync( self, MapNotify);
    XGetInputFocus( DISP, &xfoc, &rev);
    if ( xfoc == X_WINDOW || xfoc == XX-> client) return true;
-   XSetInputFocus( DISP, XX-> client, RevertToParent, CurrentTime);
+   XSetInputFocus( DISP, XX-> client, RevertToParent, guts. currentFocusTime);
    XCHECKPOINT;
 
    XSync( DISP, false);

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: calendar.pl,v 1.4 2003/08/27 08:20:33 dk Exp $
+#  $Id: calendar.pl,v 1.5 2004/07/08 20:08:12 dk Exp $
 #
 
 =pod 
@@ -44,7 +44,7 @@ use Prima::Application name => 'Calendar';
 use Prima::Calendar;
 
 my $cal;
-my $w = Prima::MainWindow-> create(
+my $w = new Prima::MainWindow(
     text => "Calendar example",
     size => [ 200, 200],
     menuItems => [[ "~Options" => [

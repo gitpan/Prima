@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: gp.c,v 1.80 2003/07/28 09:27:34 dk Exp $
+ * $Id: gp.c,v 1.83 2004/05/29 07:09:33 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #ifndef _APRICOT_H_
@@ -580,6 +580,13 @@ apc_gp_rectangle( Handle self, int x1, int y1, int x2, int y2)
       gp_line( self, x2, y2, x2, y1 + 1, draw);
    } else {
       check_swap( y1, y2);
+      if ( sys stylus. pen. lopnWidth. x > 1 &&
+           (sys stylus. pen. lopnWidth. x % 2) == 0
+	 ) {
+	 /* change up-winding to down-winding */
+	 y1--;
+	 y2--;
+      }
       if ( !( ok = Rectangle( sys ps, x1, sys lastSize. y - y1, x2 + 1, sys lastSize. y - y2 - 1))) apiErr;
    }
    SelectObject( ps, old);
@@ -1273,11 +1280,42 @@ apc_gp_get_clip_rect( Handle self)
    return rr;
 }
 
+Bool
+apc_gp_get_fill_winding( Handle self)
+{
+   objCheck 0;
+   if ( ! sys ps) return sys fillWinding;
+   return GetPolyFillMode( sys ps) == WINDING;
+}
+
+static int ctx_le2PS_ENDCAP[] = {
+    leRound,          PS_ENDCAP_ROUND             ,
+    leSquare,         PS_ENDCAP_SQUARE            ,
+    leFlat,           PS_ENDCAP_FLAT              ,
+    endCtx
+};
+
 int
 apc_gp_get_line_end( Handle self)
 {
    objCheck 0;
-   return sys lineEnd;
+   if ( !sys ps) return sys lineEnd;
+   return ctx_remap_def( sys stylus. extPen. lineEnd, ctx_le2PS_ENDCAP, false, leRound);
+}
+
+static int ctx_lj2PS_JOIN[] = {
+    ljRound,          PS_JOIN_ROUND             ,
+    ljBevel,          PS_JOIN_BEVEL             ,
+    ljMiter,          PS_JOIN_MITER             ,
+    endCtx
+};
+
+int
+apc_gp_get_line_join( Handle self)
+{
+   objCheck 0;
+   if ( !sys ps) return sys lineJoin;
+   return ctx_remap_def( sys stylus. extPen. lineJoin, ctx_lj2PS_JOIN, false, ljRound);
 }
 
 int
@@ -1685,7 +1723,7 @@ apc_gp_get_transform( Handle self)
    if ( !GetViewportOrgEx( sys ps, (POINT*)&p)) apiErr;
    p. y = -p. y;
    p. x += sys transform2. x;
-   p. y += sys transform2. y;
+   p. y -= sys transform2. y;
    return p;
 }
 
@@ -1753,6 +1791,17 @@ apc_gp_set_color( Handle self, Color color)
 }
 
 Bool
+apc_gp_set_fill_winding( Handle self, Bool fillWinding)
+{
+   objCheck false;
+   if ( sys ps) 
+      SetPolyFillMode( sys ps, fillWinding ? WINDING : ALTERNATE);
+   else
+      sys fillWinding = fillWinding;
+   return true;
+}
+
+Bool
 apc_gp_set_fill_pattern( Handle self, FillPattern pattern)
 {
    objCheck false;
@@ -1809,13 +1858,6 @@ apc_gp_get_fill_pattern( Handle self)
    return sys ps ? &sys fillPattern : &sys fillPattern2;
 }
 
-static int ctx_le2PS_ENDCAP[] = {
-    leRound,          PS_ENDCAP_ROUND             ,
-    leSquare,         PS_ENDCAP_SQUARE            ,
-    leFlat,           PS_ENDCAP_FLAT              ,
-    endCtx
-};
-
 Bool
 apc_gp_set_line_end( Handle self, int lineEnd)
 {
@@ -1825,6 +1867,21 @@ apc_gp_set_line_end( Handle self, int lineEnd)
       PEXTPEN ep        = &s-> extPen;
       ep-> lineEnd      = ctx_remap_def( lineEnd, ctx_le2PS_ENDCAP, true, PS_ENDCAP_ROUND);
       if (( ep-> actual  = stylus_extpenned( s, 0 & exsLineEnd)))
+         ep-> style = stylus_get_extpen_style( s);
+      stylus_change( self);
+   }
+   return true;
+}
+
+Bool
+apc_gp_set_line_join( Handle self, int lineJoin)
+{
+   objCheck false;
+   if ( !sys ps) sys lineJoin = lineJoin; else {
+      PStylus s         = &sys stylus;
+      PEXTPEN ep        = &s-> extPen;
+      ep-> lineJoin     = ctx_remap_def( lineJoin, ctx_lj2PS_JOIN, true, PS_JOIN_ROUND);
+      if (( ep-> actual = stylus_extpenned( s, 0 & exsLineJoin)))
          ep-> style = stylus_get_extpen_style( s);
       stylus_change( self);
    }

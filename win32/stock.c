@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: stock.c,v 1.71 2003/07/28 09:27:34 dk Exp $
+ * $Id: stock.c,v 1.72 2004/05/27 08:24:55 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 /*
@@ -185,6 +185,8 @@ stylus_extpenned( PStylus s, int excludeFlags)
       ext |= s-> pen. lopnStyle == PS_USERSTYLE;
    if ( !( excludeFlags & exsLineEnd))
       ext |= s-> extPen. lineEnd != PS_ENDCAP_ROUND;
+   if ( !( excludeFlags & exsLineJoin))
+      ext |= s-> extPen. lineJoin != PS_JOIN_ROUND;
    return ext;
 }
 
@@ -209,7 +211,7 @@ stylus_complex( PStylus s, HDC dc)
 DWORD
 stylus_get_extpen_style( PStylus s)
 {
-   return s-> extPen. lineEnd | s-> pen. lopnStyle | PS_GEOMETRIC;
+   return s-> extPen. lineEnd | s-> pen. lopnStyle | s-> extPen. lineJoin | PS_GEOMETRIC;
 }
 
 PPatResource
@@ -1615,8 +1617,10 @@ hwnd_enter_paint( Handle self)
 
    apc_gp_set_text_opaque( self, is_apt( aptTextOpaque));
    apc_gp_set_text_out_baseline( self, is_apt( aptTextOutBaseline));
+   apc_gp_set_fill_winding( self, sys fillWinding);
    apc_gp_set_line_width( self, sys lineWidth);
    apc_gp_set_line_end( self, sys lineEnd);
+   apc_gp_set_line_join( self, sys lineJoin);
    apc_gp_set_line_pattern( self,
        ( Byte*)(( sys linePatternLen > 3) ? sys linePattern : ( Byte*)&sys linePattern),
        sys linePatternLen);
@@ -1625,8 +1629,10 @@ hwnd_enter_paint( Handle self)
    apc_gp_set_transform( self, sys transform. x, sys transform. y);
    apc_gp_set_fill_pattern( self, sys fillPattern2);
    sys psd-> font           = var font;
+   sys psd-> fillWinding    = sys fillWinding;
    sys psd-> lineWidth      = sys lineWidth;
    sys psd-> lineEnd        = sys lineEnd;
+   sys psd-> lineJoin       = sys lineJoin;
    sys psd-> linePattern    = sys linePattern;
    sys psd-> linePatternLen = sys linePatternLen;
    sys psd-> rop            = sys rop;
@@ -1661,8 +1667,10 @@ hwnd_leave_paint( Handle self)
    }
    if ( sys psd != nil) {
       var font           = sys psd-> font;
+      sys fillWinding    = sys psd-> fillWinding;
       sys lineWidth      = sys psd-> lineWidth;
       sys lineEnd        = sys psd-> lineEnd;
+      sys lineJoin       = sys psd-> lineJoin;
       sys linePattern    = sys psd-> linePattern;
       sys linePatternLen = sys psd-> linePatternLen;
       sys rop            = sys psd-> rop;

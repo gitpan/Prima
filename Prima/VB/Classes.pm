@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Classes.pm,v 1.69 2004/01/12 23:19:16 dk Exp $
+# $Id: Classes.pm,v 1.73 2004/09/03 15:04:31 dk Exp $
 use strict;
 package Prima::VB::Classes;
 
@@ -664,9 +664,11 @@ sub on_mouseup
             my @org = $self-> owner-> client_to_screen( @{$self-> {sav}});
             $org[0] = $self->{prevRect}->[0] - $org[0];
             $org[1] = $self->{prevRect}->[1] - $org[1];
-            for ( @{$self->{extraWidgets}}) {
-               next if $_ == $self;
-               $_-> origin( $_-> left + $org[0], $_-> bottom + $org[1]);
+            for my $wij ( @{$self->{extraWidgets}}) {
+               next if $wij == $self;
+	       my @o = $wij-> origin;
+               $wij-> origin( $o[0] + $org[0], $o[1] + $org[1]);
+	       $wij-> maintain_children_origin( @o);
             }
          }
          $VB::form-> text( $VB::form->{saveHdr});
@@ -873,10 +875,11 @@ sub prf_types
       fillPattern   => ['fillPattern'],
       font          => ['font'],
       lineEnd       => ['lineEnd'],
+      lineJoin      => ['lineJoin'],
       linePattern   => ['linePattern'],
       lineWidth     => ['lineWidth'],
       rop           => ['rop', 'rop2'],
-      bool          => ['textOutBaseline', 'textOpaque'],
+      bool          => ['textOutBaseline', 'textOpaque', 'fillWinding'],
       point         => ['translate'],
       palette       => ['palette'],
       image         => ['region'],
@@ -919,9 +922,11 @@ sub prf_adjust_default
       rect
 
       lineEnd
+      lineJoin
       linePattern
       lineWidth
       fillPattern
+      fillWinding
       region
       rop
       rop2
@@ -2707,7 +2712,7 @@ sub new_item
 {
 }
 
-sub new
+sub newnode
 {
    my $f = $_[0]-> focusedItem;
    my ( $x, $l) = $_[0]-> get_item( $f);
@@ -2877,7 +2882,7 @@ sub open
       size   => [ 100, $h - $divx - 6],
       growMode => gm::Ceiling,
       popupItems => [
-         ['~New' => q(new),],
+         ['~New' => q(newnode),],
          ['~Make node' => q(makenode),],
          ['Convert to ~separator' => q(makeseparator),],
          ['~Delete' => q(del),],
@@ -3128,6 +3133,7 @@ sub set
       push( @$set, \@record);
    };
    $traverse->( $_, $setData) for @$data;
+   undef $traverse;
 #print "set:";
 #print Dumper( $setData);
    $self-> {B}-> items( $setData);
@@ -3195,6 +3201,7 @@ sub get
       push @$ret, \@in;
    };
    $traverse->( $_, $retData) for @{$self->{B}-> items};
+   undef $traverse;
 #print "get:";
 #print Dumper( $retData);
    return $retData;
@@ -3245,6 +3252,7 @@ sub write
       $c .= "], \n";
    };
    $traverse->( $_, 0) for @$data;
+   undef $traverse;
    return "\n[$c]";
 }
 
@@ -3335,7 +3343,7 @@ sub open
       size   => [ $w - 1, $h - $fh - 4],
       growMode => gm::Client,
       popupItems => [
-         ['~New' => q(new),],
+         ['~New' => q(newnode),],
          ['~Make node' => q(makenode),],
          ['~Delete' => q(del),],
       ],
@@ -3410,6 +3418,7 @@ sub write
       $c .= "],\n";
    };
    $traverse->($_, 0) for @$data;
+   undef $traverse;
    return "\n[$c]";
 }
 

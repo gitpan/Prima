@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Prima.pm,v 1.63 2004/05/04 18:53:13 dk Exp $
+#  $Id: Prima.pm,v 1.70 2004/10/03 13:54:30 dk Exp $
 
 package Prima;
 
@@ -34,7 +34,7 @@ require DynaLoader;
 use vars qw($VERSION @ISA $__import);
 @ISA = qw(DynaLoader);
 sub dl_load_flags { 0x00 }
-$VERSION = '1.15';
+$VERSION = '1.16';
 bootstrap Prima $VERSION;
 unless ( UNIVERSAL::can('Prima', 'init')) {
    $::application = 0;
@@ -109,7 +109,7 @@ Prima - a perl graphic toolkit
 
   use Prima qw(Application Buttons);
 
-  Prima::MainWindow-> create(
+  new Prima::MainWindow(
       text     => 'Hello world!',
       size     => [ 200, 200],
   )-> insert( Button =>
@@ -187,7 +187,11 @@ is finished.
 
 The window is created by invoking 
 
-  Prima::Window-> create()
+   new Prima::Window();
+
+or
+
+   Prima::Window-> create()
 
 code with the additional parameters. Actually, all Prima objects are created by such a
 scheme. The class name is passed as the first parameter, and a custom set
@@ -195,7 +199,7 @@ of parameters is passed afterwards. These parameters are usually
 represented in a hash syntax, although actually passed as an array.
 The hash syntax is preferred for the code readability:
 
-   $new_object = Class-> create(
+   $new_object = new Class(
      parameter => value,
      parameter => value,
      ...
@@ -218,7 +222,7 @@ here, C<::text> property accepts a string, C<::size> - an anonymous array
 of two integers and C<onClick> - a sub.
 
 onXxxx are special properties that form a class of I<events>, 
-which share the C<create> syntax, and are additive when 
+which share the C<new>/C<create> syntax, and are additive when 
 the regular properties are substitutive (read more in L<Prima::Object>). 
 Events are called in the object context when a specific condition occurs. 
 The C<onClick> event here, for example, is called when the 
@@ -285,6 +289,8 @@ L<Prima::Widget::place> - Tk::place geometry manager
 
 L<Prima::Window> - top-level window management
 
+L<Prima::Clipboard> - GUI interprocess data exchange
+
 L<Prima::Menu> - pull-down and pop-up menu objects
 
 L<Prima::Timer> - programmable periodical events 
@@ -305,13 +311,13 @@ L<Prima::ComboBox> - combo box widget
 
 L<Prima::DetailedList> - multi-column list viewer with controlling header widget
 
+L<Prima::DetailedOutline> - a multi-column outline viewer with controlling header widget
+
 L<Prima::DockManager> - advanced dockable widgets
 
 L<Prima::Docks> - dockable widgets
 
 L<Prima::Edit> - text editor widget
-
-L<Prima::EventHook> - event filtering
 
 L<Prima::ExtLists> - listbox with checkboxes
 
@@ -405,7 +411,11 @@ L<Prima::Make> - module for automated Makefile creation
 
 =item Miscellaneous
 
+L<Prima::faq> - frequently asked questions 
+
 L<Prima::Const> - predefined toolkit constants 
+
+L<Prima::EventHook> - event filtering
 
 L<Prima::IniFile> - support of Windows-like initialization files
 
@@ -415,18 +425,32 @@ L<Prima::StdBitmap> - shared access to the standard toolkit bitmaps
 
 L<Prima::Stress> - stress test module
 
+L<Prima::Tie> - tie widget properties to scalars or arrays
+
 L<Prima::Utils> - miscellaneous routines
 
 L<Prima::Widgets> - miscellaneous widget classes
 
 L<Prima::gp-problems> - Graphic subsystem portability issues
 
+L<Prima::X11> - usage guide for X11 environment
+
+=item Class information
+
+The Prima manual pages often provide information for more than one Prima class.
+To quickly find out the manual page of a desired class, as well as display the
+inheritance information, use C<p-class> command. The command can produce output in
+text and pod formats; the latter feature is used by the standard Prima documentation
+viewer C<podview> ( see File/Run/p-class ).
+
 =back
 
 =head1 COPYRIGHT
 
-Copyright 1997, 2002 The Protein Laboratory, University of Copenhagen. All
+Copyright 1997, 2003 The Protein Laboratory, University of Copenhagen. All
 rights reserved.
+
+Copyright 2004 Dmitry Karasik. All rights reserved. 
 
 This library is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

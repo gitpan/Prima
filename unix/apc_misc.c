@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_misc.c,v 1.97 2003/11/24 10:21:48 dk Exp $
+ * $Id: apc_misc.c,v 1.98 2004/05/19 13:44:26 dk Exp $
  */
 
 /***********************************************************/
@@ -374,6 +374,15 @@ apc_component_create( Handle self)
 Bool
 apc_component_destroy( Handle self)
 {
+   DEFXX;
+   if ( XX-> q_instance_name) {
+      free( XX-> q_instance_name);
+      XX-> q_instance_name = nil;
+   }
+   if ( XX-> q_class_name) {
+      free( XX-> q_class_name);
+      XX-> q_class_name = nil;
+   }
    free( PComponent( self)-> sysData);
    PComponent( self)-> sysData = nil;
    X_WINDOW = nilHandle;

@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Classes.pm,v 1.85 2004/02/11 15:13:10 dk Exp $
+#  $Id: Classes.pm,v 1.90 2004/07/08 20:08:12 dk Exp $
 use Prima;
 use Prima::Const;
 
@@ -36,6 +36,8 @@ package Prima::Object;
 use vars qw(@hooks);
 use strict;
 use Carp;
+
+sub new { shift->create(@_) }
 
 sub CREATE
 {
@@ -82,6 +84,15 @@ sub set {
       $_[0]-> $sub_set( $_[$i+1]);
    }
    return;
+}
+
+sub get
+{
+   my $self = shift;
+   map {
+      my @val = $self-> $_();
+      $_ => ((1 == @val) ? $val[0] : \@val)
+   } @_;
 }
 
 package Prima::Font;
@@ -257,7 +268,17 @@ sub profile_default
    $def->{name} = 'Clipboard';
    return $def;
 }
-sub text  { $#_ ? $_[0]-> store( 'Text',  $_[1]) : return $_[0]-> fetch('Text')  }
+sub text
+{ 
+   if ($#_) {
+      $_[0]-> store( 'Text',  $_[1]);
+   } else {
+      my $text;
+      $::application-> notify( 'PasteText', $_[0], \$text);
+      return $text;
+   }
+}
+
 sub image { $#_ ? $_[0]-> store( 'Image', $_[1]) : return $_[0]-> fetch('Image') }
 
 # class Drawable
@@ -273,6 +294,7 @@ sub profile_default
    my %prf = (
       color           => cl::Black,
       backColor       => cl::White,
+      fillWinding     => 0,
       fillPattern     => fp::Solid,
       font            => {
          height      => 16,
@@ -285,6 +307,7 @@ sub profile_default
          encoding    => "",
       },
       lineEnd         => le::Round,
+      lineJoin        => lj::Round,
       linePattern     => lp::Solid,
       lineWidth       => 0,
       owner           => undef,
@@ -1310,6 +1333,15 @@ package Prima::Application;
 use vars qw(@ISA @startupNotifications);
 @ISA = qw(Prima::Widget);
 
+{
+my %RNT = (
+   %{Prima::Widget->notification_types()},
+   PasteText   => nt::Action,
+);
+
+sub notification_types { return \%RNT; }
+}
+
 sub profile_default
 {
    my $def  = $_[ 0]-> SUPER::profile_default;
@@ -1414,6 +1446,16 @@ sub open_help
    return unless length $link;
    return unless $self-> help_init;
    return $self-> {HelpClass}-> open($link);
+}
+
+sub on_pastetext
+{
+   my ( $self, $clipboard, $ref) = @_;
+   if ( $self-> wantUnicodeInput) {
+      return if defined ( $$ref = $clipboard-> fetch( 'UTF8'));
+   }
+   $$ref = $clipboard-> fetch( 'Text');
+   undef;
 }
 
 1;

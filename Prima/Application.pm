@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Application.pm,v 1.25 2003/11/10 17:04:47 dk Exp $
+#  $Id: Application.pm,v 1.26 2004/05/04 21:07:12 dk Exp $
 
 package main;
 
@@ -343,6 +343,27 @@ in widgets.
 Selects if the system is allowed to generate key codes in unicode. 
 Returns the effective state of the unicode input flag, which cannot be
 changed if perl or operating system do not support UTF8. 
+
+If 1, C<Prima::Clipboard::text> property may return UTF8 text
+from system clipboards is available.
+
+Default value: 0
+
+=back
+
+=head2 Events
+
+=over
+
+=item PasteText $CLIPBOARD, $$TEXT_REF
+
+The notification queries C<$CLIPBOARD> for text content and stores in
+C<$$TEXT_REF>. Default action is that C<'Text'> format is queried if
+C<wantUnicodeInput> is unset. Otherwise, C<'UTF8'> format is queried
+beforehand.
+
+The C<PasteText> mechanism is devised to ease defining text unicode/ascii
+conversion between clipboard and standard widgets, in a standard way.
 
 =back
 

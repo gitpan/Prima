@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_menu.c,v 1.45 2004/03/16 13:03:08 dk Exp $
+ * $Id: apc_menu.c,v 1.46 2004/05/29 21:45:58 dk Exp $
  */
 
 /***********************************************************/
@@ -1092,6 +1092,7 @@ AGAIN:
       guts. currentMenu = self;
       if ( first && ( ev-> type == ButtonPress) && ( !send_cmMenu( self, nil)))
          return;
+      if ( !first && ( ev-> type == ButtonPress)) return;
       apc_timer_stop( MENU_TIMER);
       menu_select_item( XX, w, px);
       if ( !ev-> xbutton. send_event) {

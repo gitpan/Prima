@@ -25,13 +25,15 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ComboBox.pm,v 1.30 2003/08/22 11:02:26 tobez Exp $
+#  $Id: ComboBox.pm,v 1.33 2004/09/02 19:41:00 dk Exp $
 
 # combo styles
 package cs;
 use constant Simple       =>  0;
 use constant DropDown     =>  1;
 use constant DropDownList =>  2;
+
+use strict;
 
 package Prima::ComboBox;
 
@@ -197,6 +199,7 @@ sub on_create
 
 sub on_size { $_[0]-> listVisible(0); }
 sub on_move { $_[0]-> listVisible(0); }
+sub on_hide { $_[0]-> listVisible(0); }
 
 
 sub List_Leave
@@ -528,7 +531,7 @@ sub set_list_visible
    my ( $self, $nlv) = @_;
    return if ( $self->{list}-> visible == $nlv) ||
              ( $self->{style} == cs::Simple) ||
-             ( !$self-> visible);
+             ( !$self-> visible && $nlv);
    my ( $list, $edit) = ( $self->{list}, $self->{edit});
    if ( $nlv)
    {

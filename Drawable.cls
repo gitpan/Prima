@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Drawable.cls,v 1.34 2003/12/30 23:39:18 dk Exp $
+# $Id: Drawable.cls,v 1.36 2004/07/30 21:25:01 dk Exp $
 
 use Types;
 
@@ -40,9 +40,11 @@ object Prima::Drawable ( Prima::Component)
    property     Color         backColor;
    property     Color         color;
    property     Rect          clipRect;
+   property     Bool          fillWinding;
    property     SV * 	      fillPattern;
    property     int           height;
    property     int           lineEnd;
+   property     int           lineJoin;
    property     SV *          linePattern;
    property     int           lineWidth;
    property     SV *          palette;
@@ -83,6 +85,7 @@ object Prima::Drawable ( Prima::Component)
    method SV *  get_physical_palette();
    method int   get_text_width( SV * text, int len = -1, Bool addOverhang = 0);
    method SV *  get_text_box( SV * text, int len = -1);
+   static SV *  render_spline( SV * obj, SV * points, int precision = -1);
 
    # operators
    method Bool  arc( int x, int y, int dX, int dY, double startAngle, double endAngle) => apc_gp_arc;

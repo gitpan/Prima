@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Application.cls,v 1.37 2003/11/10 17:04:45 dk Exp $
+# $Id: Application.cls,v 1.38 2004/05/04 19:15:15 dk Exp $
 
 object Prima::Application( Prima::Widget)
 {
@@ -99,6 +99,7 @@ object Prima::Application( Prima::Widget)
    method Bool   lock()                        => apc_application_lock;
    method void   insert_behind( Handle widget);
    method Handle next();
+   import SV *   notification_types();
    method Handle prev();
    method void   send_to_back();
    import void   setup();
