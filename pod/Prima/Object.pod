@@ -1,8 +1,8 @@
-=for rcs $Id: Object.pod,v 1.4 2002/05/14 13:22:32 dk Exp $
+=for rcs $Id: Object.pod,v 1.5 2002/09/25 13:31:21 dk Exp $
 
 =head1 NAME
 
-Object and Component - Prima toolkit base classes
+Prima::Object - Prima toolkit base classes
 
 =head1 DESCRIPTION
 

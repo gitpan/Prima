@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: sheet.pl,v 1.5 2002/05/14 13:22:26 dk Exp $
+#  $Id: sheet.pl,v 1.6 2002/09/06 13:25:43 dk Exp $
 #
 =pod 
 =item NAME
@@ -69,7 +69,7 @@ if ( defined $fname) {
    while (<F>) {
       next if /^#/;
       chomp;
-      s/\t/\s/g;
+      s/\t/ /g;
       next unless /^(\w+)\s+(\d+)(\\|\/)(\w+)\s+?\#\s*(.*)$/;
       push ( @items, [ $1, $2, $4, $5]);
    }

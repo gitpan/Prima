@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: editor.pl,v 1.9 2002/05/14 13:22:26 dk Exp $
+#  $Id: editor.pl,v 1.10 2002/07/09 15:17:11 dk Exp $
 #
 
 =pod 
@@ -347,7 +347,7 @@ sub find_dialog
    push( @props, q(replaceText)) unless $findStyle;
    if ( $fd) { for( @props) { $prf{$_} = $fd->{$_}}}
    $findDialog = Prima::FindDialog-> create unless $findDialog;
-   $findDialog-> set( %prf);
+   $findDialog-> set( %prf, findStyle => $findStyle);
    $findDialog-> Find-> items($fd->{findItems});
    $findDialog-> Replace-> items($fd->{replaceItems}) unless $findStyle;
    my $ret = 0;

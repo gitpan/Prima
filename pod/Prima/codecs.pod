@@ -1,8 +1,8 @@
-=for rcs $Id: codecs.pod,v 1.6 2002/06/03 09:23:04 dk Exp $
+=for rcs $Id: codecs.pod,v 1.7 2002/09/25 13:31:21 dk Exp $
 
 =head1 NAME
 
-How to write a codec for Prima image subsystem
+Prima::codecs - How to write a codec for Prima image subsystem
 
 =head1 DESCRIPTION
 

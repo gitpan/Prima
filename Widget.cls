@@ -26,7 +26,7 @@
 #
 #  Main widget description
 #
-# $Id: Widget.cls,v 1.44 2002/05/14 13:22:18 dk Exp $
+# $Id: Widget.cls,v 1.45 2002/07/09 15:17:09 dk Exp $
 
 object Prima::Widget( Prima::Drawable)
 {
@@ -56,6 +56,7 @@ object Prima::Widget( Prima::Drawable)
 # properties
    property  SV *   accelItems;
    property  Handle accelTable;
+   property  Bool   autoEnableChildren;
    property  Color  backColor;
    property  int    bottom;
    property  Bool   briefKeys;

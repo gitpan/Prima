@@ -24,8 +24,11 @@
  * SUCH DAMAGE.
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
-/* $Id: codec_png.c,v 1.5 2002/05/14 13:22:28 dk Exp $ */
+/* $Id: codec_png.c,v 1.6 2002/09/13 10:46:59 dk Exp $ */
 
+#ifdef HAVE_CONFIG_H
+#include <generic/config.h>
+#endif
 #define Z_PREFIX 
 #include <png.h>
 #undef Byte

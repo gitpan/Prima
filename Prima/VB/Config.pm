@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Config.pm,v 1.11 2002/05/14 13:22:25 dk Exp $
+# $Id: Config.pm,v 1.12 2002/07/22 10:52:38 dk Exp $
 package Prima::VB::Config;
 
 sub pages
@@ -271,6 +271,13 @@ sub classes
       page     => 'General',
       module   => 'Prima::VB::CoreClasses',
       class    => 'Prima::VB::DetailedList',
+   },
+   Prima::Calendar => {
+      icon     => 'VB::classes.gif:32',
+      RTModule => 'Prima::Calendar',
+      page     => 'Additional',
+      module   => 'Prima::VB::CoreClasses',
+      class    => 'Prima::VB::Calendar',
    },
    );
 }

@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: guts.h,v 1.108 2002/05/14 13:22:30 dk Exp $ */
+/* $Id: guts.h,v 1.109 2002/09/04 08:47:06 dk Exp $ */
 
 #ifndef _UNIX_GUTS_H_
 #define _UNIX_GUTS_H_
@@ -294,6 +294,15 @@ typedef struct _WmGenericData {
 #define LPAL_MASK(i)  (3<<(((i)&3)*2))
 #define LPAL_SET(i,j) (((j)&3)<<(((i)&3)*2))
 #define LPAL_GET(i,j) (((j)>>(((i)&3)*2))&3)
+
+extern int
+prima_lpal_get( Byte * palette, int index);
+
+extern void
+prima_lpal_set( Byte * palette, int index, int rank);
+
+#define wlpal_get(widget,index)      prima_lpal_get(X(widget)->palette,index)
+#define wlpal_set(widget,index,rank) prima_lpal_set(X(widget)->palette,index,rank)
 
 /* Every color cell in guts.palette is assigned a rank. Its purpose
  is to maintain reasonable sharing of available system colors.

@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: apricot.h,v 1.146 2002/05/14 13:22:30 dk Exp $ */
+/* $Id: apricot.h,v 1.149 2002/09/13 10:46:59 dk Exp $ */
 
 #ifndef _APRICOT_H_
 #define _APRICOT_H_
@@ -60,7 +60,9 @@
 #endif
 
 #if PRIMA_PLATFORM == 3
+#ifndef NAN
    extern double NAN;
+#endif
 #endif
 
 #ifdef WORD
@@ -224,6 +226,10 @@ extern "C" {
       #define dup    win32_dup
    #endif
    #ifdef PerlIO_stderr    /* ActiveState quirks */
+      #if (PERL_VERSION == 8) /* broken stderr definition */
+         #undef stderr
+         #define stderr PerlIO_stderr()
+      #endif
       #if (PERL_VERSION >= 6) /* broken fprintf definition */
          #define fprintf PerlIO_printf
       #else
@@ -1507,7 +1513,8 @@ typedef struct _ObjectOptions_ {
    unsigned optInDraw              : 1;   /* Drawable */
    unsigned optInDrawInfo          : 1;
    unsigned optTextOutBaseLine     : 1;
-   unsigned optBriefKeys           : 1;   /* Widget */
+   unsigned optAutoEnableChildren  : 1;   /* Widget */
+   unsigned optBriefKeys           : 1;
    unsigned optBuffered            : 1;
    unsigned optModalHorizon        : 1;
    unsigned optOwnerBackColor      : 1;

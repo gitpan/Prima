@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Image.c,v 1.104 2002/06/19 13:30:14 dk Exp $
+ * $Id: Image.c,v 1.105 2002/07/24 22:51:52 tobez Exp $
  */
 
 #include "img.h"
@@ -1142,7 +1142,7 @@ Image_map( Handle self, Color color)
         (( type & imBPP) < 8) ||
         (
            ( type != imRGB) &&
-           ( type != imRGB | imGrayScale)
+           ( type != (imRGB | imGrayScale))
         )
       ) {
       if ( type & imGrayScale)

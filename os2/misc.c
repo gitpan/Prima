@@ -22,7 +22,7 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  *
- * $Id: misc.c,v 1.14 2002/05/14 13:22:31 dk Exp $
+ * $Id: misc.c,v 1.15 2002/09/02 15:13:16 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #define INCL_DOSFILEMGR
@@ -428,7 +428,7 @@ apc_system_action( const char* params)
       (void)i;
    }
    else if ( strnicmp( params, "echo", 4) == 0) {
-      printf((char*) params);
+      printf( "%s", (char*) params);
    }
    return ret;
 }

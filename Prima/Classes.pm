@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Classes.pm,v 1.68 2002/05/14 13:22:20 dk Exp $
+#  $Id: Classes.pm,v 1.70 2002/07/15 07:03:03 dk Exp $
 use Prima;
 use Prima::Const;
 
@@ -36,14 +36,6 @@ package Prima::Object;
 use strict;
 use Carp;
 
-
-sub debug_write
-{
-   shift if ref $_[0];
-   open( F, ">>c:/POPUPHOG.OS2");
-   print F @_, "\n";
-   close( F);
-}
 
 sub CREATE
 {
@@ -65,22 +57,6 @@ sub profile_add
 {
    my ($self,$profile) = @_;
    my $default  = $_[0]-> profile_default;
-   if (0){
-   for ( keys %$default)
-   {
-      next unless /^-(.*)$/;
-      next if exists $default->{$1};      # ignore '-' in this case
-      $default->{$1}=$default->{$_};
-      delete $default->{$_};
-   }
-   for ( keys %$profile)
-   {
-      next unless /^-(.*)$/;
-      next if exists $profile->{$1};      # ignore '-' in this case
-      $profile->{$1}=$profile->{$_};
-      delete $profile->{$_};
-   }
-   }
 
    $self-> profile_check_in( $profile, $default);
    delete @$default{keys %$profile};
@@ -432,7 +408,7 @@ sub draw_text
 
    my @clipSave;
    my $fh = $canvas-> font-> height +
-            (( $flags & dt::QueryHeight) ? $canvas-> font-> externalLeading : 0);
+            (( $flags & dt::UseExternalLeading) ? $canvas-> font-> externalLeading : 0);
    my ( $linesToDraw, $retVal);
    my $valign = $flags & 0xC;
 
@@ -649,6 +625,7 @@ sub notification_types { return \%RNT; }
 %WidgetProfile = (
    accelTable        => undef,
    accelItems        => undef,
+   autoEnableChildren=> 0,
    backColor         => cl::Normal,
    briefKeys         => 1,
    buffered          => 0,
@@ -752,6 +729,8 @@ sub profile_check_in
 
    $p->{showHint} = 1 if ( defined $owner) && ( defined $::application) && ( $owner == $::application) &&
       ( exists $p->{ ownerShowHint} ? $p->{ ownerShowHint} : $default->{ ownerShowHint});
+
+   $p->{enabled} = $owner-> enabled if defined $owner && $owner-> autoEnableChildren;
 
    (my $cls = ref $self) =~ s/^Prima:://;
 
@@ -1345,3 +1324,29 @@ sub open_help
 }
 
 1;
+
+__DATA__
+
+=pod
+
+=head1 NAME
+
+Prima::Classes - binder module for the built-in classes.
+
+=head1 DESCRIPTION
+
+C<Prima::Classes> and L<Prima::Const> is a minimal set of perl modules needed for
+the toolkit. Since the module provides bindings for the core classes, it is required
+to be included in every Prima-related module and program.
+
+=head1 AUTHOR
+
+Dmitry Karasik, E<lt>dmitry@karasik.eu.orgE<gt>.
+
+=head1 SEE ALSO
+
+L<Prima>, L<Prima::Const>
+
+
+=cut
+

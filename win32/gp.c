@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: gp.c,v 1.70 2002/05/16 11:42:58 dk Exp $
+ * $Id: gp.c,v 1.71 2002/09/06 13:13:57 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #ifndef _APRICOT_H_
@@ -140,13 +140,13 @@ adjust_line_end( int  x1, int  y1, int * x2, int * y2, Bool forth)
 
 #define check_swap( parm1, parm2) if ( parm1 > parm2) { int parm3 = parm1; parm1 = parm2; parm2 = parm3;}
 
-#define ELLIPSE_RECT x - ( dX - 1) / 2, y - dY / 2, x + dX / 2 + 1, y + (dY - 1) / 2 + 1
-#define ELLIPSE_RECT_SUPERINCLUSIVE x - ( dX - 1) / 2, y - dY / 2, x + dX / 2 + 2, y + (dY - 1) / 2 + 2
-#define ARC_COMPLETE x + dX / 2 + 1, y, x + dX / 2 + 1, y
-#define ARC_ANGLED   x + cos( angleStart / GRAD) * dX / 2 + 0.5, y - sin( angleStart / GRAD) * dY / 2 + 0.5, \
-                     x + cos( angleEnd / GRAD) * dX / 2 + 0.5,   y - sin( angleEnd / GRAD) * dY / 2 + 0.5
-#define ARC_ANGLED_SUPERINCLUSIVE   x + cos( angleStart / GRAD) * dX / 2 + 0.5, y - sin( angleStart / GRAD) * dY / 2 + 0.5, \
-                     x + cos( angleEnd / GRAD) * dX / 2 + 1.5,   y - sin( angleEnd / GRAD) * dY / 2 + 1.5
+#define ELLIPSE_RECT (int)(x - ( dX - 1) / 2), (int)(y - dY / 2), (int)(x + dX / 2 + 1), (int)(y + (dY - 1) / 2 + 1)
+#define ELLIPSE_RECT_SUPERINCLUSIVE (int)(x - ( dX - 1) / 2), (int)(y - dY / 2), (int)(x + dX / 2 + 2), (int)(y + (dY - 1) / 2 + 2)
+#define ARC_COMPLETE (int)(x + dX / 2 + 1), y, (int)(x + dX / 2 + 1), y
+#define ARC_ANGLED   (int)(x + cos( angleStart / GRAD) * dX / 2 + 0.5), (int)(y - sin( angleStart / GRAD) * dY / 2 + 0.5), \
+                     (int)(x + cos( angleEnd / GRAD) * dX / 2 + 0.5),   (int)(y - sin( angleEnd / GRAD) * dY / 2 + 0.5)
+#define ARC_ANGLED_SUPERINCLUSIVE   (int)(x + cos( angleStart / GRAD) * dX / 2 + 0.5), (int)(y - sin( angleStart / GRAD) * dY / 2 + 0.5), \
+                     (int)(x + cos( angleEnd / GRAD) * dX / 2 + 1.5),   (int)(y - sin( angleEnd / GRAD) * dY / 2 + 1.5)
 
 
 Bool

@@ -23,11 +23,58 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: starter.pl,v 1.9 2002/09/18 20:04:43 dk Exp $
-use Prima qw(Application VB::VBLoader);
+#  $Id: calendar.pl,v 1.1 2002/07/17 11:39:16 dk Exp $
+#
 
-die "format: perl starter.pl file.fm\n" unless @ARGV;
+=pod 
+=item NAME
 
-my $ret = Prima::VBLoad( $ARGV[0] );
-die "$@\n" unless $ret;
-$ret-> execute;
+Standard calendar widget
+
+=item FEATURES
+
+Demonstrates usage of Prima::Calendar. 
+Note the special check of C<useLocale> success.
+
+=cut
+
+use strict;
+use Prima;
+use Prima::Application name => 'Calendar';
+use Prima::Calendar;
+
+my $cal;
+my $w = Prima::Window-> create(
+    text => "Calendar example",
+    onDestroy => sub { $::application-> close},
+    size => [ 200, 200],
+    menuItems => [[ "~Options" => [
+       [ 'locale', 'Use ~locale', 'Ctrl+L', '^L', sub {
+          my ( $self, $mid) = @_;
+          my $newstate;
+          $cal-> useLocale( $newstate = $self-> menu-> toggle( $mid));
+          $cal-> notify(q(Change));
+          return unless $newstate && !$cal-> useLocale;
+          $self-> menu-> uncheck( $mid);
+          Prima::message("Selecting 'locale' failed");
+       }],
+       [ 'Re~set to current date', 'Ctrl+R', '^R', sub {
+          $cal-> date_from_time( localtime( time));
+       }],
+    ]]],
+);
+
+$cal = $w-> insert( Calendar =>
+   origin    => [ 0,0],
+   size      => [ $w-> size],
+   growMode  => gm::Client,
+   useLocale => 1,
+   onChange  => sub {
+      $w-> text( "Calendar - ".$cal-> date_as_string);
+   },
+);
+
+$w-> menu-> locale-> check if $cal-> useLocale;
+
+run Prima;
+

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_img.c,v 1.68 2002/05/14 13:22:35 dk Exp $
+ * $Id: apc_img.c,v 1.70 2002/09/04 08:47:07 dk Exp $
  */
 /*
  * System dependent image routines (unix, x11)
@@ -464,8 +464,10 @@ void
 prima_mirror_bytes( unsigned char *data, int dataSize)
 {
    Byte *mirrored_bits = mirror_bits();
-   while ( dataSize--)
-      *(data++) = mirrored_bits[*data];
+   while ( dataSize--) {
+      *data = mirrored_bits[*data];
+      data++;
+   }
 }
 
 static Bool
@@ -934,8 +936,10 @@ cache_remap_8( Image*img, ImageCache* cache)
 {
    int sz = img-> h * cache-> image-> bytes_per_line_alias;
    Byte * p = cache-> image-> data_alias;
-   while ( sz--) 
-      *(p++) = guts. mappingPlace[ *p];
+   while ( sz--) {
+      *p = guts. mappingPlace[ *p];
+      p++;
+   }
 }
 
 static void
@@ -943,10 +947,12 @@ cache_remap_4( Image*img, ImageCache* cache)
 {
    int sz = img-> h * cache-> image-> bytes_per_line_alias;
    Byte * p = cache-> image-> data_alias;
-   while ( sz--) 
-      *(p++) = 
+   while ( sz--) {
+      *p = 
          guts. mappingPlace[(*p) & 0xf] |
         (guts. mappingPlace[((*p) & 0xf0) >> 4] << 4);
+      p++;
+   }
 }
 
 static void
@@ -957,7 +963,10 @@ cache_remap_1( Image*img, ImageCache* cache)
    if ( guts. mappingPlace[0] == guts. mappingPlace[1]) 
       memset( p, sz, (guts. mappingPlace[0] == 0) ? 0 : 0xff);
    else if ( guts. mappingPlace[0] != 0)  
-      while ( sz--) *(p++) = ~(*p);
+      while ( sz--) {
+         *p = ~(*p);
+         p++;
+      }
 }
 
 
@@ -1072,7 +1081,7 @@ prima_create_image_cache( PImage img, Handle drawable, int type)
               pass-> palette[i].g,
               pass-> palette[i].b
             ), -1, nil, maxRank);
-          if ( p && (( p[LPAL_ADDR(j)] & LPAL_MASK(j)) == 0))
+          if ( p && ( prima_lpal_get( p, j) == RANK_FREE))
              prima_color_add_ref(( Handle) img, j, RANK_LOCKED);
       }
       
@@ -1218,13 +1227,10 @@ apc_gp_put_image( Handle self, Handle image, int x, int y, int xFrom, int yFrom,
    
    if ( guts. dynamicColors) {
       int i;
-      Byte * p1 = X(image)-> palette;
-      Byte * p2 = XX-> palette;
-      for ( i = 0; i < guts. palSize; i++) {
-         if ((( p1[LPAL_ADDR(i)] & LPAL_MASK(i)) == 0) &&
-             (( p2[LPAL_ADDR(i)] & LPAL_MASK(i)) != 0))
+      for ( i = 0; i < guts. palSize; i++) 
+         if (( wlpal_get( image, i) == RANK_FREE) &&
+             ( wlpal_get( self,  i) != RANK_FREE))
             prima_color_add_ref( self, i, RANK_LOCKED);
-      }
    }
    SHIFT( x, y);
    if ( XGetGCValues( DISP, XX-> gc, GCFunction, &gcv) == 0) 
@@ -1990,13 +1996,10 @@ apc_gp_stretch_image( Handle self, Handle image,
 
    if ( guts. dynamicColors) {
       int i;
-      Byte * p1 = X(image)-> palette;
-      Byte * p2 = XX-> palette;
-      for ( i = 0; i < guts. palSize; i++) {
-         if ((( p1[LPAL_ADDR(i)] & LPAL_MASK(i)) == 0) &&
-             (( p2[LPAL_ADDR(i)] & LPAL_MASK(i)) != 0))
+      for ( i = 0; i < guts. palSize; i++) 
+         if (( wlpal_get( image, i) == RANK_FREE) &&
+             ( wlpal_get( self,  i) != RANK_FREE))
             prima_color_add_ref( self, i, RANK_LOCKED);
-      }
    }
    
    SHIFT( dst_x, dst_y);

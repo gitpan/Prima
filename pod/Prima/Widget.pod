@@ -1,8 +1,8 @@
-=for rcs $Id: Widget.pod,v 1.5 2002/05/14 13:22:32 dk Exp $
+=for rcs $Id: Widget.pod,v 1.8 2002/09/25 13:31:21 dk Exp $
 
 =head1 NAME
 
-Widget - window management
+Prima::Widget - window management
 
 =head1 DESCRIPTION 
 
@@ -980,6 +980,15 @@ can be done either via C<accelTable(undef)> or C<destroy()> call.
 
 See also: C<accelItems>
 
+=item autoEnableChildren BOOLEAN
+
+If TRUE, all immediate children widgets maintain the same
+C<enabled> state as the widget. This property is useful for
+the group-like widgets ( ComboBox, SpinEdit etc ), that employ their
+children for visual representation.
+
+Default value: 0
+
 =item backColor COLOR
 
 In widget paint state, reflects background color in the graphic context.
@@ -1857,6 +1866,40 @@ then the help is forced to be unavailable for all the children
 widgets.
 
 See also: C<helpContext>
+
+=item insert CLASS, %PROFILE [[ CLASS, %PROFILE], ... ]
+
+Creates one or more widgets with C<owner> property set to the 
+caller widget, and returns the list of references to the newly 
+created widgets. 
+
+Has two calling formats:
+
+=over
+
+=item Single widget
+
+  $parent-> insert( 'Child::Class',
+     name => 'child',
+     ....
+  );
+
+=item Multiple widgets
+
+  $parent-> insert( 
+    [
+       'Child::Class1',
+          name => 'child1',
+          ....
+    ],
+    [
+       'Child::Class2',
+          name => 'child2',
+          ....
+    ],
+  );
+
+=back
 
 =item insert_behind OBJECT
 

@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Drawable.pm,v 1.11 2002/05/14 13:22:24 dk Exp $
+#  $Id: Drawable.pm,v 1.13 2002/09/23 11:14:26 dk Exp $
 #
 use strict;
 use Prima;
@@ -130,11 +130,16 @@ my %RNT = (
 sub notification_types { return \%RNT; }
 }
 
+
 sub profile_default
 {
    my $def = $_[ 0]-> SUPER::profile_default;
    my %prf = (
       copies           => 1,
+      font             => {
+         %{$def->{font}},
+         name => $Prima::PS::Fonts::defaultFontName,
+      },
       grayscale        => 0,
       pageDevice       => undef,
       pageSize         => [ 598, 845],
@@ -151,6 +156,14 @@ sub profile_default
    return $def;
 }
 
+sub profile_check_in
+{
+   my ( $self, $p, $default) = @_;
+   Prima::Component::profile_check_in( $self, $p, $default);
+   $p-> { font} = {} unless exists $p->{ font};
+   $p-> { font} = Prima::Drawable-> font_match( $p->{ font}, $default->{ font}, 0);
+}
+
 sub init
 {
    my $self = shift;
@@ -162,6 +175,7 @@ sub init
    $self-> {copies}      = 1;
    $self-> {rotate}      = 1;
    $self-> {font}        = {};
+   $self-> {useDeviceFonts} = 1;
    my %profile = $self-> SUPER::init(@_);
    $self-> $_( $profile{$_}) for qw( grayscale copies pageDevice 
       useDeviceFonts rotate reversed useDeviceFontsOnly);

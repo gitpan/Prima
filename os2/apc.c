@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc.c,v 1.37 2002/05/14 13:22:31 dk Exp $
+ * $Id: apc.c,v 1.38 2002/09/02 15:13:16 dk Exp $
  */
 /* Created by:
          Dmitry Karasik <dk@plab.ku.dk>
@@ -2313,8 +2313,7 @@ apc_show_message( const char * message)
       KbdCharIn( &key, IO_WAIT, 0);
       VioEndPopUp(0);
    } else {
-      fprintf( stderr, message);
-      fprintf( stderr, "\n");
+      fprintf( stderr, "%s\n", message);
    }
    return true;
 }

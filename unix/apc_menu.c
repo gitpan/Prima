@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_menu.c,v 1.28 2002/05/14 13:22:35 dk Exp $
+ * $Id: apc_menu.c,v 1.29 2002/07/27 21:00:43 dk Exp $
  */
 
 /***********************************************************/
@@ -148,6 +148,19 @@ static void
 menu_window_delete_downlinks( PMenuSysData XX, PMenuWindow wx)
 {
    PMenuWindow w = wx-> next;
+   {
+      XRectangle r;
+      Region rgn;
+      r. x = 0;
+      r. y = 0;
+      r. width  = guts. displaySize. x; 
+      r. height = guts. displaySize. y; 
+      rgn = XCreateRegion();
+      XUnionRectWithRegion( &r, rgn, rgn);
+      XSetRegion( DISP, guts. menugc, rgn);
+      XDestroyRegion( rgn);
+      XSetForeground( DISP, guts. menugc, XX->c[ciBack]);
+   }
    while ( w) {
       PMenuWindow xw = w-> next;
       hash_delete( guts. menu_windows, &w-> w, sizeof( w-> w), false);

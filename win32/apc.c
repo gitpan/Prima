@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc.c,v 1.99 2002/05/16 11:42:58 dk Exp $
+ * $Id: apc.c,v 1.100 2002/09/06 13:13:57 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -2843,10 +2843,10 @@ apc_message( Handle self, PEvent ev, Bool post)
                    if ( ev-> key. mod & kmCtrl  ) mp1 = VK_CONTROL; else
                       return false;
                 } else {
-                   SHORT c = VkKeyScan( ev-> key. code);
+                   SHORT c = VkKeyScan(( CHAR ) ev-> key. code);
                    if ( c == -1) {
                       HKL kl = guts. keyLayout ? guts. keyLayout : GetKeyboardLayout( 0);
-                      c = VkKeyScanEx( ev-> key. code, kl);
+                      c = VkKeyScanEx(( CHAR) ev-> key. code, kl);
                       if ( c == -1) return false;
                       scan = MapVirtualKeyEx( LOBYTE( c), 0, kl);
                    } else {

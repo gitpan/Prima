@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: CoreClasses.pm,v 1.25 2002/05/14 13:22:25 dk Exp $
+# $Id: CoreClasses.pm,v 1.28 2002/07/22 10:52:38 dk Exp $
 package Prima::VB::CoreClasses;
 use strict;
 
@@ -229,6 +229,13 @@ sub classes
         page     => 'General',
         module   => 'Prima::VB::CoreClasses',
         class    => 'Prima::VB::DetailedList',
+     },
+     'Prima::Calendar' => {
+        icon     => 'VB::classes.gif:32',
+        RTModule => 'Prima::Calendar',
+        page     => 'Additional',
+        module   => 'Prima::VB::CoreClasses',
+        class    => 'Prima::VB::Calendar',
      },
    );
 }
@@ -797,7 +804,7 @@ sub prf_types
    my $pt = $_[ 0]-> SUPER::prf_types;
    my %de = (
       bool       => [qw(caseSensitive literal autoSelect autoHeight)],
-      uiv        => [qw(entryHeight listHeight focusedItem)],
+      uiv        => [qw(editHeight listHeight focusedItem)],
       comboStyle => ['style'],
       string     => ['text'],
       items      => ['items'],
@@ -949,7 +956,7 @@ sub prf_adjust_default
       accelItems     selection
       cursorX        markers
       cursorY        textRef
-      modified       firstCol
+      modified       topLine
       offset
       selection
       selEnd
@@ -1998,4 +2005,43 @@ sub prf_widths  { $_[0]-> repaint; }
 sub prf_headers { $_[0]-> prf_set( columns => scalar @{$_[0]-> prf('headers')}); }
 
 
+package Prima::VB::Calendar;
+use vars qw(@ISA);
+@ISA = qw( Prima::VB::CommonControl);
+
+sub prf_types
+{
+   my $pt = $_[ 0]-> SUPER::prf_types;
+   my %de = (
+      date   => [ 'date' ],
+      bool   => ['useLocale'],
+      iv     => [ 'day', 'year', 'month' ],
+   );
+   $_[0]-> prf_types_add( $pt, \%de);
+   return $pt;
+}
+
+sub on_paint
+{
+   my ( $self, $canvas) = @_;
+   my ( $fh, $fw) = ( $canvas-> font-> height, $canvas-> font-> maximalWidth * 2);
+   my @sz = $canvas-> size;
+   $canvas-> clear;
+   $canvas-> rectangle( 5, 5, $sz[0] - 6, $sz[1] - 17 - $fh * 3);
+   $canvas-> rectangle( 5, $sz[1] - $fh * 2 - 10, $sz[0] - 110, $sz[1] - $fh - 6);
+   $canvas-> rectangle( $sz[0] - 105, $sz[1] - $fh * 2 - 10, $sz[0] - 5, $sz[1] - $fh - 6);
+   $canvas-> clipRect( 6, 6, $sz[0] - 7, $sz[1] - 18 - $fh * 3);
+   my ( $xd, $yd) = ( int(( $sz[0] - 10 ) / 7), int(( $sz[1] - $fh * 4 - 22 ) / 7));
+   $yd = $fh if $yd < $fh;
+   $xd = $fw if $xd < $fw;
+   my ( $x, $y, $i) = ( 5 + $xd/2,  $sz[1] - 17 - $fh * 4, 0);
+   for ( 1 .. 31 ) {
+      $canvas-> text_out( $_, $x, $y);
+      $x += $xd;
+      next unless $i++ == 6;
+      ( $x, $y, $i) = ( 5 + $xd/2, $y - $yd, 0);
+   }
+   $canvas-> clipRect( 0, 0, @sz);
+   $self-> common_paint($canvas);
+}
 1;

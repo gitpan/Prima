@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ExtLists.pm,v 1.14 2002/05/14 13:22:21 dk Exp $
+#  $Id: ExtLists.pm,v 1.16 2002/07/22 09:21:46 dk Exp $
 
 # contains:
 #   CheckList
@@ -149,10 +149,53 @@ sub vector
    $self-> repaint;
 }
 
-sub on_change
-{
+#sub on_change
+#{
 #  my ( $self, $index, $state) = @_;
-}
+#}
 
 1;
+
+__DATA__
+
+=pod
+
+=head1 NAME
+
+Prima::ExtLists - extended functionality for list boxes
+
+=head1 DESCRIPTION 
+
+The module is intended to be a collection of list boxes with
+particular enhancements. Currently the only package is contained
+is C<Prima::CheckList> class.
+
+=head1 Prima::CheckList
+
+Provides a list box, where each item is equipped with a check box.
+The check box state can interactively be toggled by the enter key;
+also the list box reacts differently by click and double click.
+
+=head2 Properties
+
+=over
+
+=item vector VEC
+
+VEC is a vector scalar, where each bit corresponds to the check state
+of each list box item. 
+
+See also: L<perlfunc/vec>.
+
+=back
+
+=head1 AUTHOR
+
+Dmitry Karasik, E<lt>dmitry@karasik.eu.orgE<gt>.
+
+=head1 SEE ALSO
+
+L<Prima>, L<Prima::Lists>, F<examples/extlist.pl>
+
+=cut 
 

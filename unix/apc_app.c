@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_app.c,v 1.79 2002/05/14 13:22:34 dk Exp $
+ * $Id: apc_app.c,v 1.80 2002/06/26 12:40:15 dk Exp $
  */
 
 /***********************************************************/
@@ -518,6 +518,14 @@ apc_application_get_os_info( char *system, int slen,
 {
    static struct utsname name;
    static Bool fetched = false;
+
+#ifndef SYS_NMLN
+#ifdef _SYS_NAMELEN
+#define SYS_NMLN _SYS_NAMELEN
+#elif
+#define SYS_NMLN 64
+#endif
+#endif   
 
    if (!fetched) {
       if ( uname(&name)!=0) {

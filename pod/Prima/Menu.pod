@@ -1,8 +1,8 @@
-=for rcs $Id: Menu.pod,v 1.2 2002/05/14 13:22:32 dk Exp $
+=for rcs $Id: Menu.pod,v 1.4 2002/09/25 13:31:21 dk Exp $
 
 =head1 NAME
 
-Menu - pull-down and pop-up menu objects
+Prima::Menu - pull-down and pop-up menu objects
 
 =head1 DESCRIPTION 
 
@@ -525,14 +525,14 @@ the beginning, thus.
 
 Returns no value.
 
-=item popup X_OFFSET, Y_OFFSET, LEFT = 0, BOTTOM = 0, RIGHT = 0, TOP = 0
+=item popup X_OFFSET, Y_OFFSET, [ LEFT = 0, BOTTOM = 0, RIGHT = 0, TOP = 0 ]
 
 Only in Prima::Popup
 
 Executes the system-driven pop-up menu, in location near 
 (X_OFFSET,Y_OFFSET) pixel on the screen, with items from C<::items>
 tree. The pop-up menu is hinted to be positioned so that
-the rectangle, defined by (LEFT,BOTTOM)-(RIGHT,TOP) coordinates
+the rectangle, defined by (LEFT,BOTTOM) - (RIGHT,TOP) coordinates
 is not covered by the first-level menu. This is useful when a pop-up
 menu is triggered by a button widget, for example.
 

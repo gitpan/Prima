@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dev.c,v 1.44 2002/05/14 22:00:48 dk Exp $
+ * $Id: dev.c,v 1.45 2002/09/06 13:13:57 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -694,7 +694,7 @@ image_make_icon_handle( Handle img, Point size, Point * hotSpot, Bool forPointer
       r = forPointer ?
          CreateCursor( guts. instance, ii. xHotspot, ii. yHotspot,
             size.x, size.y, mask, i-> data) :
-         CreateIcon( guts. instance, size.x, size.y, 1, i-> type & imBPP,
+         CreateIcon( guts. instance, size.x, size.y, 1, ( Byte)(i-> type & imBPP),
             mask, i-> data);
       if ( notAnIcon) free( mask);
       if ( !r) {

@@ -1,4 +1,4 @@
-#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2f002 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -22,7 +22,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: VB.pl,v 1.59 2002/05/14 13:22:25 dk Exp $
+# $Id: VB.pl,v 1.65 2002/09/25 13:08:55 dk Exp $
 use strict;
 use Prima qw(StdDlg Notebooks MsgBox ComboBox ColorDialog IniFile);
 use Prima::VB::VBLoader;
@@ -250,16 +250,30 @@ sub init
    return %profile;
 }
 
+sub on_size
+{
+   my ( $self, $ox, $oy, $x, $y) = @_;
+   return if $x == $ox;
+   my $d = $self-> bring('Div');
+   return unless $d;
+   $self-> {div_ratio} = $d-> left / ( $x || 1 ) unless $self-> {div_ratio};
+   $d-> left( $x * $self-> {div_ratio});
+   $self-> {lock_div_ratio} = 1;
+   $self-> Div_Change( $d);
+   delete $self-> {lock_div_ratio};
+}
+
 sub Div_Change
 {
    my $self = $_[0];
-   my $right = $self-> Div-> right;
-   $self-> {monger}-> width( $self-> Div-> left);
-   $self-> {mtabs}-> width( $self-> Div-> left);
+   my ( $left, $right) = ( $self-> Div-> left, $self-> Div-> right);
+   $self-> {monger}-> width( $left);
+   $self-> {mtabs}-> width( $left);
    $self-> Panel-> set(
       width => $self-> width - $right,
       left  => $right,
    );
+   $self-> {div_ratio} = $left / ( $self-> width || 1 ) unless $self-> {lock_div_ratio};
 }
 
 sub set_monger_index
@@ -1427,7 +1441,7 @@ sub add_widgets
       filter => [['Packages' => '*.pm'], [ 'All files' => '*']],
    );
    return unless $d-> execute;
-   my @r = Prima::VB::CfgMaint::add_package( $d-> fileName);
+   my @r = Prima::VB::CfgMaint::add_module( $d-> fileName);
    Prima::MsgBox::message( "Error:$r[1]"), return unless $r[0];
    $self->{classes} = {%Prima::VB::CfgMaint::classes};
    $self->{pages}   = [@Prima::VB::CfgMaint::pages];
@@ -1483,7 +1497,7 @@ sub get_typerec
 {
    my ( $self, $type, $valPtr) = @_;
    unless ( defined $type) {
-      my $rwx = 'generic';
+      my $rwx = 'fallback';
       if ( defined $valPtr && defined $$valPtr) {
          if ( ref($$valPtr)) {
             if (( ref($$valPtr) eq 'ARRAY') || ( ref($$valPtr) eq 'HASH')) {
@@ -1500,7 +1514,7 @@ sub get_typerec
    my $t = $self-> {typerecs};
    return $t->{$type} if exists $t->{type};
    my $ns = \%Prima::VB::Types::;
-   my $rwx = exists $ns->{$type.'::'} ? $type : 'generic';
+   my $rwx = exists $ns->{$type.'::'} ? $type : 'fallback';
    $rwx = 'Prima::VB::Types::'.$rwx;
    $t->{$type} = $rwx;
    return $rwx;
@@ -2184,7 +2198,7 @@ __END__
 
 =head1 NAME
 
-Visual Builder for the Prima toolkit
+VB - Visual Builder for the Prima toolkit
 
 =head1 DESCRIPTION
 
@@ -2199,12 +2213,10 @@ A form file typically has I<.fm> extension, an can be loaded
 by using L<Prima::VB::VBLoader> module. The following example
 is the only content of the C<starter.pl> wrapper
 
-   Prima::VB::VBLoader::AUTOFORM_CREATE( $ARGV[0],
-     'Form1' => {
-        onDestroy => sub { $::application-> close },
-     }
-   );
-   run Prima;
+   use Prima qw(Application VB::VBLoader);
+   my $ret = Prima::VBLoad( $ARGV[0] );
+   die "$@\n" unless $ret;
+   $ret-> execute;
    
 and is usually sufficient for executing a form file.
 
@@ -2251,7 +2263,8 @@ This command is aliased to an 'open folder' icon on the panel.
 Stores the form into a file. The user here can select a type 
 of the file to be saved. If the form is saved as I<.fm> form
 file, then it can be re-loaded either in the builder or in the
-user program. If the form is saved as I<.pl> program, then it
+user program ( see L<Prima::VB::VBLoader> for details ). 
+If the form is saved as I<.pl> program, then it
 can not be loaded; instead, the program can be run immediately
 without the builder or any supplementary code.
 
@@ -2499,6 +2512,10 @@ event means, use the documentation on the class of interest; L<Prima::Widget> is
 start because it encompasses the ground C<Prima::Widget> functionality. 
 The other widgets are ( hopefully ) documented in their modules, for example,
 C<Prima::ScrollBar> documentation can be found in L<Prima::ScrollBar>.
+
+=head1 SEE ALSO
+
+L<Prima>, L<Prima::VB::VBLoader> 
 
 =head1 AUTHOR
 

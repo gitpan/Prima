@@ -26,7 +26,7 @@
 #  Module for simulated extreme situations, useful for testing.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Stress.pm,v 1.2 2002/05/14 13:22:22 dk Exp $
+#  $Id: Stress.pm,v 1.3 2002/09/17 21:10:05 dk Exp $
 #
 use strict;
 use Prima;
@@ -45,3 +45,35 @@ sub get_default_font
 }
 
 1;
+
+__DATA__
+
+=pod
+
+=head1 NAME
+
+Prima::Stress - stress test module
+
+=head1 DESCRIPTION
+
+The module is intended for use in test purposes, to check the functionality of
+a program or a module under particular conditions that
+might be overlooked during the design. Currently, the only stress factor implemented
+is change of the default font size, which is set to different value every time 
+the module is invoked.
+
+To use the module functionality it is enough to include a typical
+
+   use Prima::Stress;
+
+code, or, if the program is invoked by calling perl, by using
+
+   perl -MPrima::Stress program
+
+syntax. The module does not provide any methods.
+
+=head1 AUTHOR
+
+Dmitry Karasik E<lt>dmitry@karasik.eu.orgkE<gt>,
+
+=cut

@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: EditDialog.pm,v 1.6 2002/05/14 13:22:21 dk Exp $
+#  $Id: EditDialog.pm,v 1.8 2002/07/16 13:13:25 dk Exp $
 
 #  contains:
 #      FindDialog
@@ -97,6 +97,7 @@ sub init
       text   => 'R~eplace:',
       focusLink => $self-> Replace,
       enabled   => !$profile{findStyle},
+      name      => 'ReplaceLabel',
    );
 
    my $o = $self-> insert( CheckBoxGroup =>
@@ -250,6 +251,16 @@ sub options     {($#_)?$_[0]->Options->value($_[1])  :return $_[0]->Options->val
 sub findText    {($#_)?$_[0]->Find->text($_[1])   :return $_[0]->Find->text}
 sub replaceText {($#_)?$_[0]->Replace->text($_[1]):return $_[0]->Replace->text}
 
+sub findStyle
+{
+   return $_[0]-> {findStyle} unless $#_;
+   return if $_[0]-> {findStyle} == $_[1];
+   my ( $self, $style) = @_;
+   $self-> {findStyle} = ( $style ? 1 : 0 );
+   $self-> $_-> enabled( ! $style ) for qw( Replace ReplaceLabel ChangeAll);
+   $self-> Options-> Prompt-> enabled( !$style);
+}
+
 package Prima::ReplaceDialog;
 use vars qw(@ISA);
 @ISA = qw(Prima::FindDialog);
@@ -264,3 +275,103 @@ sub profile_default
 }
 
 1;
+
+__DATA__
+
+=head1 NAME
+
+Prima::FindDialog, Prima::ReplaceDialog - standard interface dialogs
+to find and replace options selection.
+
+=head1 DESCRIPTION
+
+The module provides two classes - Prima::FindDialog and Prima::ReplaceDialog;
+Prima::ReplaceDialog is exactly same as Prima::FindDialog except that 
+its default L<findStyle> property value is set to 0. One can use a dialog-caching
+technique, abritrating between L<findStyle> value 0 and 1, and use only one
+instance of Prima::FindDialog.
+
+The module does not provide the actual search algorithm; this must be implemented
+by the programmer. The toolkit currently include some facilitation to the problem - 
+the part of algorithm for C<Prima::Edit> class is found in L<Prima::Edit/find>,
+and the another part - in F<examples/editor.pl> example program. L<Prima::HelpWindow>
+also uses the module, and realizes its own searching algorithm.
+
+=head1 SYNOPSIS
+
+   use Prima::StdDlg;
+   
+   my $dlg = Prima::FindDialog-> create( findStyle => 0);
+   my $res = $dlg-> execute;
+   if ( $res == mb::Ok) {
+      print $dlg-> findText, " is to be found\n";
+   } elsif ( $res == mb::ChangeAll) {
+      print "all occurences of ", $dlg-> findText, " is to be replaced by ", $dlg-> replaceText;
+   } 
+
+The C<mb::ChangeAll> constant, one of possible results of C<execute> method, is
+defined in L<Prima::StdDlg> module. Therefore it is recommended to include this
+module instead.
+
+=head1 API
+
+=head2 Properties
+
+All the properties select the user-assigned values, except
+L<findStyle>.
+
+=over
+
+=item findText STRING
+
+Selects the text string to be found. 
+
+Default value: ''
+
+=item findStyle BOOLEAN
+
+If 1, the dialog provides only 'find text' interface. If 0,
+the dialog provides also 'replace text' interface.
+
+Default value: 1 for C<Prima::FindDialog>, 0 for C<Prima::ReplaceDialog>.
+
+=item options INTEGER
+
+Combination of C<fdo::> constants. For the detailed description see L<Prima::Edit/find>.
+
+  fdo::MatchCase
+  fdo::WordsOnly
+  fdo::RegularExpression
+  fdo::BackwardSearch
+  fdo::ReplacePrompt
+
+Default value: 0
+
+=item replaceText STRING
+
+Selects the text string that is to replace the found text.
+
+Default value: ''
+
+=item scope
+
+One of C<fds::> constants. Represents the scope of the search: it can be started
+from the cursor position, of from the top or of the bottom of the text.
+
+  fds::Cursor
+  fds::Top
+  fds::Bottom
+
+Default value: C<fds::Cursor>
+
+=back
+
+=head1 AUTHOR
+
+Dmitry Karasik, E<lt>dmitry@karasik.eu.orgE<gt>.
+
+=head1 SEE ALSO
+
+L<Prima>, L<Prima::Window>, L<Prima::StdDlg>, L<Prima::Edit>, L<Prima::HelpWindow>, F<examples/editor.pl>
+
+=cut 

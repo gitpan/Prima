@@ -26,7 +26,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: HelpViewer.pm,v 1.10 2002/05/07 10:56:58 dk Exp $
+#  $Id: HelpViewer.pm,v 1.14 2002/09/25 13:08:54 dk Exp $
 
 use strict;
 use Prima;
@@ -715,6 +715,18 @@ sub print
    my $pc = 1;
    $self-> {printing} = 1;
 
+   my @font;
+   my $sec = $inifile-> section('View');
+   my $printer_font = $p-> get_font;
+   unless ( length $sec-> {VariableFont}) {
+      $font[0] = $self-> {text}-> {fontPalette}-> [0]-> {name};
+      $self-> {text}-> {fontPalette}-> [0]-> {name} = $printer_font->{name};
+   }
+   unless ( length $sec-> {FixedFont}) {
+      $font[1] = $self-> {text}-> {fontPalette}-> [1]-> {name};
+      $self-> {text}-> {fontPalette}-> [1]-> {name} = $printer_font->{name};
+   }
+
    $self-> {text}-> print( $p, sub {
       $self-> status("Printing page $pc. Press ESC to cancel");
       $pc++;
@@ -730,6 +742,10 @@ sub print
       $self-> status("Printing aborted");
       $p-> abort_doc;
    }
+
+   for ( 0, 1) {
+      $self-> {text}-> {fontPalette}-> [$_]-> {name} = $font[$_] if defined $font[$_];
+   }
    
    $self-> {printing} = undef;
 }
@@ -740,12 +756,7 @@ sub setup_dialog
    my $self = $_[0];
    my $t = $self-> {text};
    unless ( defined $setupdlg) {
-      my $fi = Prima::find_image( 'Prima', 'HelpViewer.fm');
-      unless ( defined $fi) { Prima::message( "Cannot find resource: Prima::HelpViewer.fm"); return }
-      eval { $setupdlg = { Prima::VB::VBLoader::AUTOFORM_CREATE( $fi,
-        'Form1'     => { visible => 0, centered => 1},
-      )}-> {Form1}};
-      if ( $@) { Prima::message("Error in setup resource: $@"); return }
+      Prima::message("$@"), return unless $setupdlg = Prima::VBLoad( 'Prima::HelpViewer.fm');
    }
 
    my $sec = $inifile-> section('View');
@@ -826,8 +837,7 @@ __END__
 
 =head1 NAME
 
-Prima::HelpViewer, the built-in pod file browser,
-version 1.00
+Prima::HelpViewer - the built-in pod file browser
 
 =head1 USAGE
 
@@ -848,6 +858,7 @@ detailed description:
 =over
 
 =item File
+
 =over
 
 =item Open
@@ -885,6 +896,7 @@ Closes all help viewer windows.
 =back 
 
 =item View
+
 =over
 
 =item Increase font
@@ -918,6 +930,7 @@ The following commands provide a simple vi-style text search functionality -
 character keys ?,/,n,N bound to the commands below:
 
 =over
+
 =item Forward
 
 Presents an input line where a text can be entered; the text search is 
@@ -944,6 +957,7 @@ Presents a setup dialog, where the user can select appropriate fonts and colors.
 =back
 
 =item Go
+
 =over
 
 =item Back
@@ -970,6 +984,7 @@ Moves to the next topic within a manpage.
 =back
 
 =item Help
+
 =over
 
 =item About

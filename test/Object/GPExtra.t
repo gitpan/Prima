@@ -1,4 +1,4 @@
-# $Id: GPExtra.t,v 1.5 2002/03/12 09:24:47 dk Exp $
+# $Id: GPExtra.t,v 1.6 2002/09/10 10:38:18 dk Exp $
 print "1..5 linePattern,lineWidth,fillPattern,dithering,rop paint\n";
 
 my $x = Prima::DeviceBitmap-> create( monochrome => 1, width => 8, height => 8);
@@ -51,7 +51,7 @@ $bl = 0;
 for ( $i = 0; $i < 8; $i++) {
    $bl++ if $x-> pixel( $i, 4) == 0;
 }
-ok( $bl == 4);
+ok( $bl > 2 && $bl < 6);
 
 # 5
 $x-> color( cl::White);

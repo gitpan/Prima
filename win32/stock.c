@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: stock.c,v 1.62 2002/05/15 11:53:44 dk Exp $
+ * $Id: stock.c,v 1.63 2002/09/06 13:13:58 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 /*
@@ -2202,7 +2202,7 @@ gp_arc( Handle self, int x, int y, int dX, int dY, double angleStart, double ang
           abs( dX / 2  * (( qend == 3) ? -1 : 1) - xend);
        if ( qe2 <= qstart) qe2 += 4;
        for ( i = qstart + 1; i < qe2; i++)
-          llen += abs( 2 * (( i % 2) ? ( dX / 2 + 0.5) : ( dY / 2 + 0.5)));
+          llen += abs((float)( 2 * (( i % 2) ? ( dX / 2 + 0.5) : ( dY / 2 + 0.5))));
     }
 
     // drawing arc

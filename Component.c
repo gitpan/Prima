@@ -23,11 +23,11 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Component.c,v 1.49 2002/05/24 14:32:16 dk Exp $
+ * $Id: Component.c,v 1.50 2002/09/13 10:46:58 dk Exp $
  */
 
-#include <ctype.h>
 #include "apricot.h"
+#include <ctype.h>
 #include "Component.h"
 #include <Component.inc>
 

@@ -24,8 +24,10 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Printer.pm,v 1.9 2002/05/14 13:22:24 dk Exp $
+#  $Id: Printer.pm,v 1.10 2002/09/25 13:08:55 dk Exp $
 #
+=pod
+
 =head1 NAME
 
 Prima::PS::Printer - PostScript interface to Prima::Printer

@@ -25,7 +25,7 @@
  
  Created by Dmitry Karasik <dk@plab.ku.dk> 
 
- $Id: codec_Xpm.c,v 1.1 2002/05/14 12:38:26 dk Exp $
+ $Id: codec_Xpm.c,v 1.2 2002/09/10 10:35:08 dk Exp $
 
  */
 
@@ -160,13 +160,12 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
       int i, j;
       PHash c = hash_create();
       XpmColor * x = l-> image. colorTable;
-      unsigned int offsets[5] = {
-         (unsigned long)(&x-> c_color) - (unsigned long)x,
-         (unsigned long)(&x-> g_color) - (unsigned long)x,
-         (unsigned long)(&x-> g4_color) - (unsigned long)x,
-         (unsigned long)(&x-> m_color) - (unsigned long)x,
-         (unsigned long)(&x-> symbolic) - (unsigned long)x
-      };
+      unsigned int offsets[5];
+      offsets[0] = (unsigned long)(&x-> c_color)  - (unsigned long)x;
+      offsets[1] = (unsigned long)(&x-> g_color)  - (unsigned long)x;
+      offsets[2] = (unsigned long)(&x-> g4_color) - (unsigned long)x;
+      offsets[3] = (unsigned long)(&x-> m_color)  - (unsigned long)x;
+      offsets[4] = (unsigned long)(&x-> symbolic) - (unsigned long)x;
       for ( i = 0; i < l-> image. ncolors; i++, x++) {
          for ( j = 0; j < 5; j++) {
             char * s = *((char**)((char *)x + offsets[j]));
