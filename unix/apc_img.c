@@ -1,4 +1,4 @@
-/*-
+/*
  * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_img.c,v 1.57 2001/04/30 15:15:39 dk Exp $
+ * $Id: apc_img.c,v 1.62 2001/07/26 22:22:51 dk Exp $
  */
 /*
  * System dependent image routines (unix, x11)
@@ -34,9 +34,9 @@
 #include "Icon.h"
 #include "DeviceBitmap.h"
 
-#define REVERT(a)	({ XX-> size. y + XX-> menuHeight - (a) - 1; })
-#define SHIFT(a,b)	({ (a) += XX-> gtransform. x + XX-> btransform. x; \
-                           (b) += XX-> gtransform. y + XX-> btransform. y; })
+#define REVERT(a)	( XX-> size. y + XX-> menuHeight - (a) - 1 )
+#define SHIFT(a,b)	{ (a) += XX-> gtransform. x + XX-> btransform. x; \
+                           (b) += XX-> gtransform. y + XX-> btransform. y; }
 /* Multiple evaluation macro! */
 #define REVERSE_BYTES_32(x) ((((x)&0xff)<<24) | (((x)&0xff00)<<8) | (((x)&0xff0000)>>8) | (((x)&0xff000000)>>24))
 #define REVERSE_BYTES_16(x) ((((x)&0xff)<<8 ) | (((x)&0xff00)>>8))
@@ -943,6 +943,7 @@ cache_remap_1( Image*img, ImageCache* cache)
       while ( sz--) *(p++) = ~(*p);
 }
 
+
 ImageCache*
 prima_create_image_cache( PImage img, Handle drawable, int type)
 {
@@ -1038,23 +1039,22 @@ prima_create_image_cache( PImage img, Handle drawable, int type)
    }
 
    if (( guts. palSize > 0) && (( pass-> type & imBPP) != 24)) {
-      int i, maxRank = drawable ? RANK_NORMAL : RANK_FREE;
+      int i, maxRank = RANK_FREE;
       Byte * p = X((Handle)img)-> palette;
       if ( type == CACHE_LOW_RES) {
          drawable = application;
          maxRank = RANK_LOCKED; 
       }
-      // make mapping to all colors except RANK_NORMAL 
-      // to promote Widget::palette() usage
+               
       for ( i = 0; i < pass-> palSize; i++) {
-         int j = guts. mappingPlace[i] = prima_color_find(( Handle) img, 
+         int j = guts. mappingPlace[i] = prima_color_find( nilHandle,
             RGB_COMPOSITE( 
               pass-> palette[i].r,
               pass-> palette[i].g,
               pass-> palette[i].b
             ), -1, nil, maxRank);
-         if ( p && (( p[LPAL_ADDR(j)] & LPAL_MASK(j)) == 0))
-            prima_color_add_ref(( Handle) img, j, RANK_LOCKED);
+          if ( p && (( p[LPAL_ADDR(j)] & LPAL_MASK(j)) == 0))
+             prima_color_add_ref(( Handle) img, j, RANK_LOCKED);
       }
       
       switch(target_bpp){
@@ -1165,7 +1165,7 @@ apc_gp_put_image( Handle self, Handle image, int x, int y, int xFrom, int yFrom,
          tempResult = true;
          ls = ( i-> bytes_per_line > result-> bytes_per_line_alias) ? 
             result-> bytes_per_line_alias : i-> bytes_per_line;
-         src = i-> data;
+         src = ( unsigned char *) i-> data;
          dst = result-> data_alias;
          for ( j = 0; j < yLen; j++, src += i-> bytes_per_line, dst += result-> bytes_per_line_alias) 
             memcpy( dst, src, ls);
@@ -1315,8 +1315,8 @@ convert_16_to_24( XImage *i, PImage img)
       line = (Pixel24*)(img-> data + y*img-> lineSize);
       for ( x = 0; x < w; x++) {
          line-> a0 = (((*d & guts. visual. blue_mask)  >> guts. blue_shift) << 8) >> guts. blue_range; 
-         line-> a1 = (((*d & guts. visual. green_mask) >> guts. green_shift) << 8) >> guts. blue_range;
-         line-> a2 = (((*d & guts. visual. red_mask)   >> guts. red_shift) << 8) >> guts. blue_range;
+         line-> a1 = (((*d & guts. visual. green_mask) >> guts. green_shift) << 8) >> guts. green_range;
+         line-> a2 = (((*d & guts. visual. red_mask)   >> guts. red_shift) << 8) >> guts. red_range;
 	 d++; line++;
       }
    }
@@ -1337,8 +1337,8 @@ convert_32_to_24( XImage *i, PImage img)
          for ( x = 0; x < w; x++) {
             dd = REVERSE_BYTES_32(*d);
             line-> a0 = (((dd & guts. visual. blue_mask)  >> guts. blue_shift) << 8) >> guts. blue_range; 
-            line-> a1 = (((dd & guts. visual. green_mask) >> guts. green_shift) << 8) >> guts. blue_range;
-            line-> a2 = (((dd & guts. visual. red_mask)   >> guts. red_shift) << 8) >> guts. blue_range;
+            line-> a1 = (((dd & guts. visual. green_mask) >> guts. green_shift) << 8) >> guts. green_range;
+            line-> a2 = (((dd & guts. visual. red_mask)   >> guts. red_shift) << 8) >> guts. red_range;
             d++; line++;
          }
       }
@@ -1348,8 +1348,8 @@ convert_32_to_24( XImage *i, PImage img)
          line = (Pixel24*)(img-> data + y*img-> lineSize);
          for ( x = 0; x < w; x++) {
             line-> a0 = (((*d & guts. visual. blue_mask)  >> guts. blue_shift) << 8) >> guts. blue_range; 
-            line-> a1 = (((*d & guts. visual. green_mask) >> guts. green_shift) << 8) >> guts. blue_range;
-            line-> a2 = (((*d & guts. visual. red_mask)   >> guts. red_shift) << 8) >> guts. blue_range;
+            line-> a1 = (((*d & guts. visual. green_mask) >> guts. green_shift) << 8) >> guts. green_range;
+            line-> a2 = (((*d & guts. visual. red_mask)   >> guts. red_shift) << 8) >> guts. red_range;
             d++; line++;
          }
       }
@@ -1546,7 +1546,7 @@ static Bool mbsInitialized = false;
 static Byte set_bits[ByteValues];
 static Byte clear_bits[ByteValues];
 
-static void mbs_init_bits()
+static void mbs_init_bits(void)
 {
    if ( !mbsInitialized) {
       int i;
@@ -1655,15 +1655,15 @@ static void mbs_##type##_in( type * srcData, type * dstData, Bool xreverse,    \
     }                                                                   \
 }   
 
-BS_BYTEEXPAND( Pixel8);
-BS_BYTEEXPAND( Pixel16);
-BS_BYTEEXPAND( Pixel24);
-BS_BYTEEXPAND( Pixel32);
+BS_BYTEEXPAND( Pixel8)
+BS_BYTEEXPAND( Pixel16)
+BS_BYTEEXPAND( Pixel24)
+BS_BYTEEXPAND( Pixel32)
 
-BS_BYTEIMPACT( Pixel8);
-BS_BYTEIMPACT( Pixel16);
-BS_BYTEIMPACT( Pixel24);
-BS_BYTEIMPACT( Pixel32);
+BS_BYTEIMPACT( Pixel8)
+BS_BYTEIMPACT( Pixel16)
+BS_BYTEIMPACT( Pixel24)
+BS_BYTEIMPACT( Pixel32)
 
 
 static void mbs_copy( Byte * srcData, Byte * dstData, Bool xreverse,  
@@ -1712,7 +1712,7 @@ stretch_calculate_seed( int ssize, int tsize,
    if ( cend > asize)        cend = asize;
    
    if ( asize < ssize) {
-      step. l = (double) asize / ssize * 0x10000;
+      step. l = (double) asize / ssize * UINT16_PRECISION;
       last    = -1;
       while ( t != cend) {
          if ( count.i.i > last) {
@@ -1729,7 +1729,7 @@ stretch_calculate_seed( int ssize, int tsize,
          s++;
       }
    } else {
-      step. l = (double) ssize / asize * 0x10000;
+      step. l = (double) ssize / asize * UINT16_PRECISION;
       last    = 0;
       while ( t != cend) {
          if ( count.i.i > last) {

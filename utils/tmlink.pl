@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: tmlink.pl,v 1.5 2000/10/18 11:58:28 tobez Exp $
+#  $Id: tmlink.pl,v 1.6 2001/07/25 14:21:31 dk Exp $
 #
 # TMLINK
 #
@@ -120,9 +120,9 @@ my $f = ( defined $incFile) ? \*FILE : \*STDOUT;
 my $fName = defined $incFile ? $incFile : '.Untitled.tml';
 
 print $f <<HEAD;
-// This file was automatically generated.
-// Do not edit, you'll loose your changes anyway.
-/*  file: $fName   */
+/* This file was automatically generated.
+   Do not edit, you'll loose your changes anyway.
+   file: $fName   */
 HEAD
 
 for ( sort keys %funcs) {

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Image.c,v 1.89 2001/05/02 10:41:52 dk Exp $
+ * $Id: Image.c,v 1.93 2001/07/25 14:21:27 dk Exp $
  */
 
 #include "img.h"
@@ -352,7 +352,7 @@ Image_set_extended_data( Handle self, HV * profile)
    
    data = SvPV( pget_sv( data), dataSize);
 
-   // parameters check
+   /* parameters check */
    pexistType = pexist( type) && ( newType = pget_i( type)) != var-> type;
    pexistLine = pexist( lineSize) && ( lineSize = pget_i( lineSize)) != var-> lineSize;
 
@@ -364,20 +364,20 @@ Image_set_extended_data( Handle self, HV * profile)
    if ( is_opt( optInDraw) || dataSize <= 0) 
       goto GOOD_RETURN;
 
-   // determine line size, if any
+   /* determine line size, if any */
    if ( pexistLine) {
       if ( lineSize <= 0) {
          warn( "Image::set_data: invalid lineSize:%d passed", lineSize);
          goto GOOD_RETURN;
       }   
-      if ( !pexistType) { // plain repadding
+      if ( !pexistType) { /* plain repadding */
          ibc_repad(( Byte*) data, var-> data, lineSize, var-> lineSize, dataSize, var-> dataSize, 0, 0, nil);
          my-> update_change( self);
          goto GOOD_RETURN;
       }   
    }
 
-   // pre-fetch auto conversion, if set in same clause
+   /* pre-fetch auto conversion, if set in same clause */
    if ( pexist( preserveType))
        opt_assign( optPreserveType, pget_B( preserveType));
    if ( is_opt( optPreserveType))
@@ -404,16 +404,16 @@ Image_set_extended_data( Handle self, HV * profile)
        /* same code as in ::set_data */
       memcpy( var->data, data, dataSize > var->dataSize ? var->dataSize : dataSize);
    else {
-      // if no explicit lineSize set, assuming x4 padding 
+      /* if no explicit lineSize set, assuming x4 padding */
       if ( lineSize == 0)
          lineSize = (( var-> w * ( newType & imBPP) + 31) / 32) * 4;
-      // copying using repadding routine
+      /* copying using repadding routine */
       ibc_repad(( Byte*) data, var-> data, lineSize, var-> lineSize, dataSize, var-> dataSize, 
                  ( newType & imBPP) / 8, ( var-> type & imBPP) / 8, proc
                );
    }   
    my-> update_change( self);
-   // if wanted to keep original type, restoring
+   /* if want to keep original type, restoring */
    if ( is_opt( optPreserveType))
       my-> set_type( self, oldType);
    
@@ -693,8 +693,8 @@ Image_resample( Handle self, double srcLo, double srcHi, double dstLo, double ds
    switch ( var->type)
    {
       case imByte:   rs_Byte_Byte     ( RSPARMS); break;
-      case imShort:  rs_short_short   ( RSPARMS); break;
-      case imLong:   rs_long_long     ( RSPARMS); break;
+      case imShort:  rs_Short_Short   ( RSPARMS); break;
+      case imLong:   rs_Long_Long     ( RSPARMS); break;
       case imFloat:  rs_float_float   ( RSPARMS); break;
       case imDouble: rs_double_double ( RSPARMS); break;
       default: return;
@@ -773,8 +773,8 @@ Image_preserveType( Handle self, Bool set, Bool preserveType)
    return false;
 }
 
-Color
-Image_pixel( Handle self, Bool set, int x, int y, Color color)
+long
+Image_pixel( Handle self, Bool set, int x, int y, long color)
 {
 #define BGRto32(pal) ((var->palette[pal].r<<16) | (var->palette[pal].g<<8) | (var->palette[pal].b))
    if (!set) {
@@ -782,6 +782,23 @@ Image_pixel( Handle self, Bool set, int x, int y, Color color)
          return inherited pixel(self,false,x,y,color);
       if ((x>=var->w) || (x<0) || (y>=var->h) || (y<0))
          return clInvalid;
+
+      if ( var-> type & imRealNumber) {
+         switch ( var-> type) {
+         case imFloat: {
+            float pf=*(float*)(var->data + (var->lineSize*y+x*sizeof(float)));
+            double rangeLo = my-> stats( self, false, isRangeLo, 0);
+            return ((pf - rangeLo)*INT32_MAX)/(var->stats[isRangeHi] - rangeLo);
+         }
+         case imDouble: {
+            double pd=*(double*)(var->data + (var->lineSize*y+x*sizeof(double)));
+            double rangeLo = my-> stats( self, false, isRangeLo, 0);
+            return ((pd - rangeLo)/(var->stats[isRangeHi] - rangeLo))*INT32_MAX;
+         }
+         default:
+            return 0;                        
+      }}
+      
       switch (var->type & imBPP) {
       case imbpp1:
          {
@@ -802,7 +819,7 @@ Image_pixel( Handle self, Bool set, int x, int y, Color color)
          }
       case imbpp16:
          {
-            short p=*(short*)(var->data + (var->lineSize*y+x*2));
+            Short p=*(Short*)(var->data + (var->lineSize*y+x*2));
             return p;
          }
       case imbpp24:
@@ -811,28 +828,7 @@ Image_pixel( Handle self, Bool set, int x, int y, Color color)
             return (p.r<<16) | (p.g<<8) | p.b;
          }
       case imbpp32:
-         {
-            long p;
-            if (var->type & imRealNumber) {
-               float pf=*(float*)(var->data + (var->lineSize*y+x*4));
-               double rangeLo = my-> stats( self, false, isRangeLo, 0);
-               p=((pf - rangeLo)*LONG_MAX)/(var->stats[isRangeHi] - rangeLo);
-            }
-            else {
-               p=*(long*)(var->data + (var->lineSize*y+x*4));
-            }
-            return p;
-         }
-      case imbpp64:
-         {
-            double pd=*(double*)(var->data + (var->lineSize*y+x*8));
-            double rangeLo;
-            if ((var->type & imComplexNumber) || (var->type & imTrigComplexNumber)) {
-               return 0;
-            }
-            rangeLo = my-> stats( self, false, isRangeLo, 0);
-            return ((pd - rangeLo)/(var->stats[isRangeHi] - rangeLo))*LONG_MAX;
-         }
+         return *(Long*)(var->data + (var->lineSize*y+x*4));
       default:
          return 0;
       }
@@ -846,6 +842,27 @@ Image_pixel( Handle self, Bool set, int x, int y, Color color)
       if ((x>=var->w) || (x<0) || (y>=var->h) || (y<0)) {
          return color;
       }
+
+      if ( var-> type & imRealNumber) {
+         switch ( var-> type) {
+         case imFloat:  {
+            double rangeLo = my-> stats( self, false, isRangeLo, 0);
+            *(float*)(var->data+(var->lineSize*y+x*sizeof(float)))=(((float)color)/(INT32_MAX))*(var->stats[isRangeHi]-rangeLo)+rangeLo;
+            break;
+         }   
+         case imDouble: {
+            double rangeLo = my-> stats( self, false, isRangeLo, 0);
+            *(double*)(var->data+(var->lineSize*y+x*sizeof(double)))=(((double)color)/(INT32_MAX))*(var->stats[isRangeHi]-rangeLo)+rangeLo;
+            break;
+         }   
+         default:
+            return color;
+         }
+         my->update_change( self);
+         return color;
+      }
+      
+      
       switch (var->type & imBPP) {
       case imbpp1  :
          {
@@ -881,32 +898,14 @@ Image_pixel( Handle self, Bool set, int x, int y, Color color)
          }
          break;
       case imbpp16 :
-         {
-            *(short*)(var->data+(var->lineSize*y+(x<<1)))=color;
-         }
+         *(Short*)(var->data+(var->lineSize*y+(x<<1)))=color;
          break;
       case imbpp24 :
-         {
-            LONGtoBGR(color,rgb);
-            memcpy((var->data + (var->lineSize*y+x*3)),&rgb,sizeof(RGBColor));
-         }
+         LONGtoBGR(color,rgb);
+         memcpy((var->data + (var->lineSize*y+x*3)),&rgb,sizeof(RGBColor));
          break;
       case imbpp32 :
-         {
-            if (var->type & imRealNumber) {
-               double rangeLo = my-> stats( self, false, isRangeLo, 0);
-               *(float*)(var->data+(var->lineSize*y+(x<<2)))=(((float)color)/(LONG_MAX))*(var->stats[isRangeHi]-rangeLo)+rangeLo;
-            }
-            else {
-               *(long*)(var->data+(var->lineSize*y+(x<<2)))=color;
-            }
-         }
-         break;
-      case imbpp64 :
-         if (var->type & imRealNumber) {
-            double rangeLo = my-> stats( self, false, isRangeLo, 0);
-            *(double*)(var->data+(var->lineSize*y+(x<<2)))=(((double)color)/(LONG_MAX))*(var->stats[isRangeHi]-rangeLo)+rangeLo;
-         }
+         *(Long*)(var->data+(var->lineSize*y+(x<<2)))=color;
          break;
       default:
          return color;

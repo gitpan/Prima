@@ -26,7 +26,7 @@
 #
 #  Main widget description
 #
-# $Id: Widget.cls,v 1.40 2001/01/10 11:49:46 dk Exp $
+# $Id: Widget.cls,v 1.41 2001/07/04 11:29:36 dk Exp $
 
 object Prima::Widget( Prima::Drawable)
 {
@@ -74,7 +74,7 @@ object Prima::Widget( Prima::Drawable)
    property  Bool   firstClick;
    property  Bool   focused;
    property  char*  hint;
-   property  Bool   hintVisible;
+   property  int    hintVisible;
    property  long   helpContext;
    property  int    left;
    property  Handle popup;
@@ -165,7 +165,6 @@ object Prima::Widget( Prima::Drawable)
    method   void     setup();
    method   void     show();
    method   void     show_cursor();
-   method   void     show_hint();
    method   Bool     showing()                       => apc_widget_is_showing;
    method   Bool     unlock();
    method   void     update_view();

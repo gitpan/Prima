@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Drawable.cls,v 1.26 2000/05/17 10:28:20 tobez Exp $
+# $Id: Drawable.cls,v 1.27 2001/06/15 15:24:15 dk Exp $
 
 use Types;
 
@@ -44,7 +44,7 @@ object Prima::Drawable ( Prima::Component)
    property     SV *          linePattern;
    property     int           lineWidth;
    property     SV *          palette;
-   property     Color         pixel( int x, int y);
+   property     long          pixel( int x, int y);
    property     Handle        region;
    property     Point         resolution;
    property     int           rop;

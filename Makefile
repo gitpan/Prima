@@ -65,140 +65,143 @@ include/generic/Widget.h: Makefile Widget.cls utils/gencls.pl Prima/Gencls.pm in
 include/generic/Window.h: Makefile Window.cls utils/gencls.pl Prima/Gencls.pm include/generic/Widget.h Widget.cls include/generic/Drawable.h Drawable.cls include/generic/Component.h Component.cls include/generic/Object.h Object.cls 
 	perl utils/gencls.pl --inc --h --tml Window.cls include/generic
 
-AbstractMenu.o: Makefile AbstractMenu.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/AbstractMenu.h include/generic/Component.h include/generic/Object.h include/generic/Image.h include/generic/Drawable.h include/generic/Menu.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oAbstractMenu.o AbstractMenu.c
+AbstractMenu.o: Makefile AbstractMenu.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/AbstractMenu.h include/generic/Image.h include/generic/Menu.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oAbstractMenu.o AbstractMenu.c
 
-AccelTable.o: Makefile AccelTable.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/AccelTable.h include/generic/AbstractMenu.h include/generic/Component.h include/generic/Object.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oAccelTable.o AccelTable.c
+AccelTable.o: Makefile AccelTable.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/AccelTable.h include/generic/Widget.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oAccelTable.o AccelTable.c
 
-Application.o: Makefile Application.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Timer.h include/generic/Component.h include/generic/Object.h include/generic/Window.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Types.h include/generic/Image.h include/generic/Drawable.h include/generic/Application.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oApplication.o Application.c
+Application.o: Makefile Application.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Timer.h include/generic/Window.h include/generic/Image.h include/generic/Application.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oApplication.o Application.c
 
-Clipboard.o: Makefile Clipboard.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Application.h include/generic/Image.h include/generic/Drawable.h include/generic/Clipboard.h include/generic/Component.h include/generic/Object.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oClipboard.o Clipboard.c
+Clipboard.o: Makefile Clipboard.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Application.h include/generic/Image.h include/generic/Clipboard.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oClipboard.o Clipboard.c
 
-Component.o: Makefile Component.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Component.h include/generic/Object.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oComponent.o Component.c
+Component.o: Makefile Component.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Component.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oComponent.o Component.c
 
-DeviceBitmap.o: Makefile DeviceBitmap.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/DeviceBitmap.h include/generic/Drawable.h include/generic/Types.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oDeviceBitmap.o DeviceBitmap.c
+DeviceBitmap.o: Makefile DeviceBitmap.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/DeviceBitmap.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oDeviceBitmap.o DeviceBitmap.c
 
-Drawable.o: Makefile Drawable.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Drawable.h include/generic/Image.h include/generic/Drawable.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oDrawable.o Drawable.c
+Drawable.o: Makefile Drawable.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Drawable.h include/generic/Image.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oDrawable.o Drawable.c
 
-File.o: Makefile File.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/File.h include/generic/Component.h include/generic/Object.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oFile.o File.c
+File.o: Makefile File.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/File.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oFile.o File.c
 
-Icon.o: Makefile Icon.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Icon.h include/generic/Image.h include/generic/Drawable.h include/generic/Types.h include/img_conv.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oIcon.o Icon.c
+Icon.o: Makefile Icon.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Icon.h include/img_conv.h include/generic/Image.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oIcon.o Icon.c
 
-Image.o: Makefile Image.c include/img.h include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Image.h include/generic/Drawable.h include/img_conv.h include/generic/Clipboard.h include/generic/Component.h include/generic/Object.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oImage.o Image.c
+Image.o: Makefile Image.c include/img.h include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Image.h include/img_conv.h include/generic/Image.h include/generic/Clipboard.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oImage.o Image.c
 
-Menu.o: Makefile Menu.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Window.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Types.h include/generic/Menu.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oMenu.o Menu.c
+Menu.o: Makefile Menu.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Window.h include/generic/Menu.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oMenu.o Menu.c
 
 Object.o: Makefile Object.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Object.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oObject.o Object.c
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oObject.o Object.c
 
-Popup.o: Makefile Popup.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Popup.h include/generic/AbstractMenu.h include/generic/Component.h include/generic/Object.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oPopup.o Popup.c
+Popup.o: Makefile Popup.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Popup.h include/generic/Widget.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oPopup.o Popup.c
 
-Printer.o: Makefile Printer.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Printer.h include/generic/Drawable.h include/generic/Types.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oPrinter.o Printer.c
+Printer.o: Makefile Printer.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Printer.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oPrinter.o Printer.c
 
-Timer.o: Makefile Timer.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Timer.h include/generic/Component.h include/generic/Object.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oTimer.o Timer.c
+Timer.o: Makefile Timer.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Timer.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oTimer.o Timer.c
 
 Utils.o: Makefile Utils.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Utils.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oUtils.o Utils.c
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oUtils.o Utils.c
 
-Widget.o: Makefile Widget.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Application.h include/generic/Icon.h include/generic/Image.h include/generic/Drawable.h include/generic/Types.h include/generic/Popup.h include/generic/AbstractMenu.h include/generic/Component.h include/generic/Object.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Window.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Types.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oWidget.o Widget.c
+Widget.o: Makefile Widget.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Application.h include/generic/Icon.h include/generic/Popup.h include/generic/Widget.h include/generic/Window.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oWidget.o Widget.c
 
-Window.o: Makefile Window.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Window.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Types.h include/generic/Menu.h include/generic/Icon.h include/generic/Image.h include/generic/Drawable.h include/generic/Types.h include/generic/Application.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oWindow.o Window.c
+Window.o: Makefile Window.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/generic/Window.h include/generic/Menu.h include/generic/Icon.h include/generic/Application.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oWindow.o Window.c
 
-primguts.o: Makefile primguts.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/guts.h include/generic/Object.h include/generic/Component.h include/generic/Object.h include/generic/File.h include/generic/Component.h include/generic/Object.h include/generic/Clipboard.h include/generic/Component.h include/generic/Object.h include/generic/DeviceBitmap.h include/generic/Drawable.h include/generic/Types.h include/generic/Drawable.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Window.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Types.h include/generic/Image.h include/generic/Drawable.h include/generic/Icon.h include/generic/Image.h include/generic/Drawable.h include/generic/Types.h include/generic/AbstractMenu.h include/generic/Component.h include/generic/Object.h include/generic/AccelTable.h include/generic/AbstractMenu.h include/generic/Component.h include/generic/Object.h include/generic/Menu.h include/generic/Popup.h include/generic/AbstractMenu.h include/generic/Component.h include/generic/Object.h include/generic/Application.h include/generic/Timer.h include/generic/Component.h include/generic/Object.h include/generic/Utils.h include/generic/Printer.h include/generic/Drawable.h include/generic/Types.h include/generic/thunks.tinc
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oprimguts.o primguts.c
+primguts.o: Makefile primguts.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/guts.h include/generic/Object.h include/generic/Component.h include/generic/File.h include/generic/Clipboard.h include/generic/DeviceBitmap.h include/generic/Drawable.h include/generic/Widget.h include/generic/Window.h include/generic/Image.h include/generic/Icon.h include/generic/AbstractMenu.h include/generic/AccelTable.h include/generic/Menu.h include/generic/Popup.h include/generic/Application.h include/generic/Timer.h include/generic/Utils.h include/generic/Printer.h include/img_conv.h include/generic/Image.h include/generic/thunks.tinc
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oprimguts.o primguts.c
 
-img/bc_color.o: Makefile img/bc_color.c include/img_conv.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/bc_color.o img/bc_color.c
+img/bc_color.o: Makefile img/bc_color.c include/img_conv.h include/generic/Image.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/bc_color.o img/bc_color.c
 
-img/bc_const.o: Makefile img/bc_const.c include/img_conv.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/bc_const.o img/bc_const.c
+img/bc_const.o: Makefile img/bc_const.c include/img_conv.h include/generic/Image.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/bc_const.o img/bc_const.c
 
-img/bc_extra.o: Makefile img/bc_extra.c include/img_conv.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/bc_extra.o img/bc_extra.c
+img/bc_extra.o: Makefile img/bc_extra.c include/img_conv.h include/generic/Image.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/bc_extra.o img/bc_extra.c
 
-img/codec_X11.o: Makefile img/codec_X11.c include/img.h include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Image.h include/generic/Drawable.h include/img_conv.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/codec_X11.o img/codec_X11.c
+img/codec_X11.o: Makefile img/codec_X11.c include/img.h include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Image.h include/img_conv.h include/generic/Image.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/codec_X11.o img/codec_X11.c
 
-img/codec_jpeg.o: Makefile img/codec_jpeg.c include/img.h include/img_conv.h include/generic/Image.h include/generic/Drawable.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/codec_jpeg.o img/codec_jpeg.c
+img/codec_jpeg.o: Makefile img/codec_jpeg.c include/img.h include/img_conv.h include/generic/Image.h include/generic/Image.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/codec_jpeg.o img/codec_jpeg.c
 
-img/codec_ungif.o: Makefile img/codec_ungif.c include/img.h include/img_conv.h include/generic/Image.h include/generic/Drawable.h include/generic/Icon.h include/generic/Image.h include/generic/Drawable.h include/generic/Types.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/codec_ungif.o img/codec_ungif.c
+img/codec_png.o: Makefile img/codec_png.c include/img.h include/img_conv.h include/generic/Image.h include/generic/Icon.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/codec_png.o img/codec_png.c
+
+img/codec_ungif.o: Makefile img/codec_ungif.c include/img.h include/img_conv.h include/generic/Image.h include/generic/Image.h include/generic/Icon.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/codec_ungif.o img/codec_ungif.c
 
 img/codecs.o: Makefile img/codecs.c include/img.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/codecs.o img/codecs.c
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/codecs.o img/codecs.c
 
-img/conv.o: Makefile img/conv.c include/img_conv.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/conv.o img/conv.c
+img/conv.o: Makefile img/conv.c include/img_conv.h include/generic/Image.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/conv.o img/conv.c
 
-img/ic_conv.o: Makefile img/ic_conv.c include/img_conv.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/ic_conv.o img/ic_conv.c
+img/ic_conv.o: Makefile img/ic_conv.c include/img_conv.h include/generic/Image.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/ic_conv.o img/ic_conv.c
 
-img/img.o: Makefile img/img.c include/img.h include/img_conv.h include/generic/Image.h include/generic/Drawable.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/img.o img/img.c
+img/img.o: Makefile img/img.c include/img.h include/img_conv.h include/generic/Image.h include/generic/Image.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/img.o img/img.c
 
-img/imgscale.o: Makefile img/imgscale.c include/img_conv.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/imgscale.o img/imgscale.c
+img/imgscale.o: Makefile img/imgscale.c include/img_conv.h include/generic/Image.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/imgscale.o img/imgscale.c
 
-img/imgtype.o: Makefile img/imgtype.c include/img_conv.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/imgtype.o img/imgtype.c
+img/imgtype.o: Makefile img/imgtype.c include/img_conv.h include/generic/Image.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -oimg/imgtype.o img/imgtype.c
 
-unix/apc_app.o: Makefile unix/apc_app.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Image.h include/generic/Drawable.h include/img_conv.h include/generic/Application.h include/generic/File.h include/generic/Component.h include/generic/Object.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_app.o unix/apc_app.c
+unix/apc_app.o: Makefile unix/apc_app.c include/apricot.h include/generic/config.h include/dbmalloc.h include/generic/Types.h include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Image.h include/img_conv.h include/generic/Image.h include/generic/Application.h include/generic/File.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_app.o unix/apc_app.c
 
-unix/apc_clipboard.o: Makefile unix/apc_clipboard.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Image.h include/generic/Drawable.h include/img_conv.h include/generic/Application.h include/generic/Clipboard.h include/generic/Component.h include/generic/Object.h include/generic/Icon.h include/generic/Image.h include/generic/Drawable.h include/generic/Types.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_clipboard.o unix/apc_clipboard.c
+unix/apc_clipboard.o: Makefile unix/apc_clipboard.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Image.h include/img_conv.h include/generic/Image.h include/generic/Application.h include/generic/Clipboard.h include/generic/Icon.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_clipboard.o unix/apc_clipboard.c
 
-unix/apc_event.o: Makefile unix/apc_event.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Image.h include/generic/Drawable.h include/img_conv.h include/generic/AbstractMenu.h include/generic/Component.h include/generic/Object.h include/generic/Application.h include/generic/Window.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Types.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_event.o unix/apc_event.c
+unix/apc_event.o: Makefile unix/apc_event.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Image.h include/img_conv.h include/generic/Image.h include/generic/AbstractMenu.h include/generic/Application.h include/generic/Window.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_event.o unix/apc_event.c
 
-unix/apc_font.o: Makefile unix/apc_font.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Image.h include/generic/Drawable.h include/img_conv.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_font.o unix/apc_font.c
+unix/apc_font.o: Makefile unix/apc_font.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Image.h include/img_conv.h include/generic/Image.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_font.o unix/apc_font.c
 
-unix/apc_graphics.o: Makefile unix/apc_graphics.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Image.h include/generic/Drawable.h include/img_conv.h include/generic/Image.h include/generic/Drawable.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_graphics.o unix/apc_graphics.c
+unix/apc_graphics.o: Makefile unix/apc_graphics.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Image.h include/img_conv.h include/generic/Image.h include/generic/Image.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_graphics.o unix/apc_graphics.c
 
-unix/apc_img.o: Makefile unix/apc_img.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Image.h include/generic/Drawable.h include/img_conv.h include/generic/Image.h include/generic/Drawable.h include/generic/Icon.h include/generic/Image.h include/generic/Drawable.h include/generic/Types.h include/generic/DeviceBitmap.h include/generic/Drawable.h include/generic/Types.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_img.o unix/apc_img.c
+unix/apc_img.o: Makefile unix/apc_img.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Image.h include/img_conv.h include/generic/Image.h include/generic/Image.h include/generic/Icon.h include/generic/DeviceBitmap.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_img.o unix/apc_img.c
 
-unix/apc_menu.o: Makefile unix/apc_menu.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Image.h include/generic/Drawable.h include/img_conv.h include/generic/Menu.h include/generic/Image.h include/generic/Drawable.h include/generic/Window.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Types.h include/generic/Application.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_menu.o unix/apc_menu.c
+unix/apc_menu.o: Makefile unix/apc_menu.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Image.h include/img_conv.h include/generic/Image.h include/generic/Menu.h include/generic/Image.h include/generic/Window.h include/generic/Application.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_menu.o unix/apc_menu.c
 
-unix/apc_misc.o: Makefile unix/apc_misc.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Image.h include/generic/Drawable.h include/img_conv.h include/generic/Application.h include/generic/File.h include/generic/Component.h include/generic/Object.h include/generic/Icon.h include/generic/Image.h include/generic/Drawable.h include/generic/Types.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_misc.o unix/apc_misc.c
+unix/apc_misc.o: Makefile unix/apc_misc.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Image.h include/img_conv.h include/generic/Image.h include/generic/Application.h include/generic/File.h include/generic/Icon.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_misc.o unix/apc_misc.c
 
-unix/apc_pointer.o: Makefile unix/apc_pointer.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Image.h include/generic/Drawable.h include/img_conv.h include/generic/Icon.h include/generic/Image.h include/generic/Drawable.h include/generic/Types.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_pointer.o unix/apc_pointer.c
+unix/apc_pointer.o: Makefile unix/apc_pointer.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Image.h include/img_conv.h include/generic/Image.h include/generic/Icon.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_pointer.o unix/apc_pointer.c
 
-unix/apc_timer.o: Makefile unix/apc_timer.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Image.h include/generic/Drawable.h include/img_conv.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_timer.o unix/apc_timer.c
+unix/apc_timer.o: Makefile unix/apc_timer.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Image.h include/img_conv.h include/generic/Image.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_timer.o unix/apc_timer.c
 
-unix/apc_widget.o: Makefile unix/apc_widget.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Image.h include/generic/Drawable.h include/img_conv.h include/generic/Window.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Types.h include/generic/Application.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_widget.o unix/apc_widget.c
+unix/apc_widget.o: Makefile unix/apc_widget.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Image.h include/img_conv.h include/generic/Image.h include/generic/Window.h include/generic/Application.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_widget.o unix/apc_widget.c
 
-unix/apc_win.o: Makefile unix/apc_win.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Image.h include/generic/Drawable.h include/img_conv.h include/generic/Menu.h include/generic/Icon.h include/generic/Image.h include/generic/Drawable.h include/generic/Types.h include/generic/Window.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Types.h include/generic/Application.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_win.o unix/apc_win.c
+unix/apc_win.o: Makefile unix/apc_win.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Image.h include/img_conv.h include/generic/Image.h include/generic/Menu.h include/generic/Icon.h include/generic/Window.h include/generic/Application.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/apc_win.o unix/apc_win.c
 
-unix/color.o: Makefile unix/color.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Image.h include/generic/Drawable.h include/img_conv.h include/generic/Drawable.h include/generic/Window.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Types.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/color.o unix/color.c
+unix/color.o: Makefile unix/color.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Image.h include/img_conv.h include/generic/Image.h include/generic/Drawable.h include/generic/Window.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/color.o unix/color.c
 
-unix/wm_support.o: Makefile unix/wm_support.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Drawable.h include/generic/Types.h include/generic/Image.h include/generic/Drawable.h include/img_conv.h include/generic/Application.h
-	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/wm_support.o unix/wm_support.c
+unix/wm_support.o: Makefile unix/wm_support.c include/unix/guts.h include/generic/config.h include/guts.h include/unix/bsd/queue.h include/generic/Widget.h include/generic/Image.h include/img_conv.h include/generic/Image.h include/generic/Application.h
+	cc -Wall -g -O -DPIC -fpic -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -ounix/wm_support.o unix/wm_support.c
 
 include/generic/thunks.tinc: Makefile include/generic/AbstractMenu.h include/generic/AccelTable.h include/generic/Application.h include/generic/Clipboard.h include/generic/Component.h include/generic/DeviceBitmap.h include/generic/Drawable.h include/generic/File.h include/generic/Icon.h include/generic/Image.h include/generic/Menu.h include/generic/Object.h include/generic/Popup.h include/generic/Printer.h include/generic/Timer.h include/generic/Types.h include/generic/Utils.h include/generic/Widget.h include/generic/Window.h
 	perl utils/tmlink.pl -Iinclude/generic -oinclude/generic/thunks.tinc include/generic/AbstractMenu.tml include/generic/AccelTable.tml include/generic/Application.tml include/generic/Clipboard.tml include/generic/Component.tml include/generic/DeviceBitmap.tml include/generic/Drawable.tml include/generic/File.tml include/generic/Icon.tml include/generic/Image.tml include/generic/Menu.tml include/generic/Object.tml include/generic/Popup.tml include/generic/Printer.tml include/generic/Timer.tml include/generic/Types.tml include/generic/Utils.tml include/generic/Widget.tml include/generic/Window.tml
@@ -210,28 +213,28 @@ RM=perl Makefile.PL --rm
 RMDIR=perl Makefile.PL --rmdir
 
 clean:
-	$(RM) include/generic/AbstractMenu.h include/generic/AbstractMenu.inc include/generic/AbstractMenu.tml include/generic/AccelTable.h include/generic/AccelTable.inc include/generic/AccelTable.tml include/generic/Application.h include/generic/Application.inc include/generic/Application.tml include/generic/Clipboard.h include/generic/Clipboard.inc include/generic/Clipboard.tml include/generic/Component.h include/generic/Component.inc include/generic/Component.tml include/generic/DeviceBitmap.h include/generic/DeviceBitmap.inc include/generic/DeviceBitmap.tml include/generic/Drawable.h include/generic/Drawable.inc include/generic/Drawable.tml include/generic/File.h include/generic/File.inc include/generic/File.tml include/generic/Icon.h include/generic/Icon.inc include/generic/Icon.tml include/generic/Image.h include/generic/Image.inc include/generic/Image.tml include/generic/Menu.h include/generic/Menu.inc include/generic/Menu.tml include/generic/Object.h include/generic/Object.inc include/generic/Object.tml include/generic/Popup.h include/generic/Popup.inc include/generic/Popup.tml include/generic/Printer.h include/generic/Printer.inc include/generic/Printer.tml include/generic/Timer.h include/generic/Timer.inc include/generic/Timer.tml include/generic/Types.h include/generic/Types.inc include/generic/Types.tml include/generic/Utils.h include/generic/Utils.inc include/generic/Utils.tml include/generic/Widget.h include/generic/Widget.inc include/generic/Widget.tml include/generic/Window.h include/generic/Window.inc include/generic/Window.tml AbstractMenu.o AccelTable.o Application.o Clipboard.o Component.o DeviceBitmap.o Drawable.o File.o Icon.o Image.o Menu.o Object.o Popup.o Printer.o Timer.o Utils.o Widget.o Window.o primguts.o img/bc_color.o img/bc_const.o img/bc_extra.o img/codec_X11.o img/codec_jpeg.o img/codec_ungif.o img/codecs.o img/conv.o img/ic_conv.o img/img.o img/imgscale.o img/imgtype.o unix/apc_app.o unix/apc_clipboard.o unix/apc_event.o unix/apc_font.o unix/apc_graphics.o unix/apc_img.o unix/apc_menu.o unix/apc_misc.o unix/apc_pointer.o unix/apc_timer.o unix/apc_widget.o unix/apc_win.o unix/color.o unix/wm_support.o include/generic/thunks.tinc auto/Prima/Prima.so
+	$(RM) include/generic/AbstractMenu.h include/generic/AbstractMenu.inc include/generic/AbstractMenu.tml include/generic/AccelTable.h include/generic/AccelTable.inc include/generic/AccelTable.tml include/generic/Application.h include/generic/Application.inc include/generic/Application.tml include/generic/Clipboard.h include/generic/Clipboard.inc include/generic/Clipboard.tml include/generic/Component.h include/generic/Component.inc include/generic/Component.tml include/generic/DeviceBitmap.h include/generic/DeviceBitmap.inc include/generic/DeviceBitmap.tml include/generic/Drawable.h include/generic/Drawable.inc include/generic/Drawable.tml include/generic/File.h include/generic/File.inc include/generic/File.tml include/generic/Icon.h include/generic/Icon.inc include/generic/Icon.tml include/generic/Image.h include/generic/Image.inc include/generic/Image.tml include/generic/Menu.h include/generic/Menu.inc include/generic/Menu.tml include/generic/Object.h include/generic/Object.inc include/generic/Object.tml include/generic/Popup.h include/generic/Popup.inc include/generic/Popup.tml include/generic/Printer.h include/generic/Printer.inc include/generic/Printer.tml include/generic/Timer.h include/generic/Timer.inc include/generic/Timer.tml include/generic/Types.h include/generic/Types.inc include/generic/Types.tml include/generic/Utils.h include/generic/Utils.inc include/generic/Utils.tml include/generic/Widget.h include/generic/Widget.inc include/generic/Widget.tml include/generic/Window.h include/generic/Window.inc include/generic/Window.tml AbstractMenu.o AccelTable.o Application.o Clipboard.o Component.o DeviceBitmap.o Drawable.o File.o Icon.o Image.o Menu.o Object.o Popup.o Printer.o Timer.o Utils.o Widget.o Window.o primguts.o img/bc_color.o img/bc_const.o img/bc_extra.o img/codec_X11.o img/codec_jpeg.o img/codec_png.o img/codec_ungif.o img/codecs.o img/conv.o img/ic_conv.o img/img.o img/imgscale.o img/imgtype.o unix/apc_app.o unix/apc_clipboard.o unix/apc_event.o unix/apc_font.o unix/apc_graphics.o unix/apc_img.o unix/apc_menu.o unix/apc_misc.o unix/apc_pointer.o unix/apc_timer.o unix/apc_widget.o unix/apc_win.o unix/color.o unix/wm_support.o include/generic/thunks.tinc auto/Prima/Prima.so
 
 realclean: clean
 	$(RM) include/generic/config.h Makefile
 
 bindist: all
-	perl Makefile.PL --dist bin Prima-1.01
+	perl Makefile.PL --dist bin Prima-1.02
 
 zipdist:
-	perl Makefile.PL --dist zip Prima-1.01
+	perl Makefile.PL --dist zip Prima-1.02
 
 tardist:
-	perl Makefile.PL --dist tar Prima-1.01
+	perl Makefile.PL --dist tar Prima-1.02
 
 dist: tardist
-	$(RM) Prima-1.01.tar.gz
-	@gzip -9 Prima-1.01.tar
+	$(RM) Prima-1.02.tar.gz
+	@gzip -9 Prima-1.02.tar
 
 prima: dirs auto/Prima/Prima.so
 
-auto/Prima/Prima.so: AbstractMenu.o AccelTable.o Application.o Clipboard.o Component.o DeviceBitmap.o Drawable.o File.o Icon.o Image.o Menu.o Object.o Popup.o Printer.o Timer.o Utils.o Widget.o Window.o primguts.o img/bc_color.o img/bc_const.o img/bc_extra.o img/codec_X11.o img/codec_jpeg.o img/codec_ungif.o img/codecs.o img/conv.o img/ic_conv.o img/img.o img/imgscale.o img/imgtype.o unix/apc_app.o unix/apc_clipboard.o unix/apc_event.o unix/apc_font.o unix/apc_graphics.o unix/apc_img.o unix/apc_menu.o unix/apc_misc.o unix/apc_pointer.o unix/apc_timer.o unix/apc_widget.o unix/apc_win.o unix/color.o unix/wm_support.o 
-	cc -Wl,-E -shared -lperl -lm -lgcc -g -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib -oauto/Prima/Prima.so AbstractMenu.o AccelTable.o Application.o Clipboard.o Component.o DeviceBitmap.o Drawable.o File.o Icon.o Image.o Menu.o Object.o Popup.o Printer.o Timer.o Utils.o Widget.o Window.o primguts.o img/bc_color.o img/bc_const.o img/bc_extra.o img/codec_X11.o img/codec_jpeg.o img/codec_ungif.o img/codecs.o img/conv.o img/ic_conv.o img/img.o img/imgscale.o img/imgtype.o unix/apc_app.o unix/apc_clipboard.o unix/apc_event.o unix/apc_font.o unix/apc_graphics.o unix/apc_img.o unix/apc_menu.o unix/apc_misc.o unix/apc_pointer.o unix/apc_timer.o unix/apc_widget.o unix/apc_win.o unix/color.o unix/wm_support.o -lm -lc -lcrypt -lX11 -lXext -ljpeg -lungif
+auto/Prima/Prima.so: AbstractMenu.o AccelTable.o Application.o Clipboard.o Component.o DeviceBitmap.o Drawable.o File.o Icon.o Image.o Menu.o Object.o Popup.o Printer.o Timer.o Utils.o Widget.o Window.o primguts.o img/bc_color.o img/bc_const.o img/bc_extra.o img/codec_X11.o img/codec_jpeg.o img/codec_png.o img/codec_ungif.o img/codecs.o img/conv.o img/ic_conv.o img/img.o img/imgscale.o img/imgtype.o unix/apc_app.o unix/apc_clipboard.o unix/apc_event.o unix/apc_font.o unix/apc_graphics.o unix/apc_img.o unix/apc_menu.o unix/apc_misc.o unix/apc_pointer.o unix/apc_timer.o unix/apc_widget.o unix/apc_win.o unix/color.o unix/wm_support.o 
+	cc -Wl,-E -shared -lperl -lm -lgcc -g -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib -oauto/Prima/Prima.so AbstractMenu.o AccelTable.o Application.o Clipboard.o Component.o DeviceBitmap.o Drawable.o File.o Icon.o Image.o Menu.o Object.o Popup.o Printer.o Timer.o Utils.o Widget.o Window.o primguts.o img/bc_color.o img/bc_const.o img/bc_extra.o img/codec_X11.o img/codec_jpeg.o img/codec_png.o img/codec_ungif.o img/codecs.o img/conv.o img/ic_conv.o img/img.o img/imgscale.o img/imgtype.o unix/apc_app.o unix/apc_clipboard.o unix/apc_event.o unix/apc_font.o unix/apc_graphics.o unix/apc_img.o unix/apc_menu.o unix/apc_misc.o unix/apc_pointer.o unix/apc_timer.o unix/apc_widget.o unix/apc_win.o unix/color.o unix/wm_support.o -lm -lc -lcrypt -lX11 -lXext -ljpeg -lpng -lungif
 
 test: all
 	@perl -w test/Tester.pl
@@ -463,7 +466,7 @@ install: all
 	examples/edit.pl /usr/local/lib/perl5/site_perl/5.005/i386-freebsd/Prima/examples/edit \
 
 	@echo Updating config...
-	perl Makefile.PL --updateconfig /usr/home/dk/src/Prima /usr/local/lib/perl5/site_perl/5.005/i386-freebsd/Prima/Config.pm
+	perl Makefile.PL --updateconfig /usr/home/dk/a/Prima /usr/local/lib/perl5/site_perl/5.005/i386-freebsd/Prima/Config.pm
 
 deinstall:
 	@$(RM) \
@@ -685,9 +688,7 @@ deinstall:
 	/usr/local/lib/perl5/site_perl/5.005/i386-freebsd/Prima \
 
 
-dirs: include/generic auto/Prima
-
-include/generic auto/Prima:
+dirs: 
 	@echo Creating directories...
 	@$(MD) include/generic auto/Prima
 

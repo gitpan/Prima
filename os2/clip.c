@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: clip.c,v 1.13 2000/10/23 09:16:31 dk Exp $
+ * $Id: clip.c,v 1.14 2001/06/15 09:43:56 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 /* apc.c --- apc/ api for os/2 */
@@ -112,7 +112,7 @@ apc_clipboard_has_format( Handle self, long id)
 }
 
 void *
-apc_clipboard_get_data( Handle self, long id, int * length)
+apc_clipboard_get_data( Handle self, long id, STRLEN * length)
 {
    id = cf2CF( id);
    switch( id)
@@ -158,7 +158,7 @@ apc_clipboard_get_data( Handle self, long id, int * length)
          {
              char * ptr = (char*) WinQueryClipbrdData( guts. anchor, id);
              char * ret;
-             int i, len = *length = strlen( ptr);
+             STRLEN i, len = *length = strlen( ptr);
              len++;
              if ( ptr == nil) {
                 apcErr( errInvClipboardData);
@@ -193,7 +193,7 @@ apc_clipboard_get_data( Handle self, long id, int * length)
 }
 
 Bool
-apc_clipboard_set_data( Handle self, long id, void * data, int length)
+apc_clipboard_set_data( Handle self, long id, void * data, STRLEN length)
 {
    id = cf2CF( id);
    if ( data == nil)

@@ -180,7 +180,7 @@ apc_img_profile_add( HV * to, HV * from, HV * keys)
       if ( !hv_exists( from, key, keyLen))
          continue;
       holder = hv_fetch( from, key, keyLen, 0);
-      if ( holder)
+      if ( holder) 
          hv_store( to, key, keyLen, newSVsv( *holder), 0);
    }
 }   
@@ -212,16 +212,16 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
    ret = plist_create( 8, 8);
    if ( !ret) out("Not enough memory")
 
-   snprintf( error, 256, "Error loading %s", fileName);
+   strcpy( error, "Internal error");
    fi. errbuf = error;
 
-   // open file
+   /* open file */
    if (( fi. f = ( FILE *) fopen( fileName, "rb")) == NULL)
       out( strerror( errno));
    fi. fileName = fileName;
    fi. stop = false;
 
-   // assigning user file profile
+   /* assigning user file profile */
    if ( pexist( index)) {
       fi. frameMapSize = 1;
       fi. frameMap  = (int*) malloc( sizeof( int));
@@ -267,13 +267,13 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
          out("Not an array passed to 'profiles' property");
    }   
 
-   // all other properties to be parsed by codec
+   /* all other properties to be parsed by codec */
    fi. extras = profile;
 
    fi. fileProperties = newHV(); 
    fi. frameCount = -1;
 
-   // finding codec
+   /* finding codec */
    {
       Bool * loadmap = ( Bool *) malloc( sizeof( Bool) * imgCodecs. count);
       char * xc = fileName + strlen( fileName);
@@ -283,7 +283,7 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
          c = ( PImgCodec ) ( imgCodecs. items[ i]);
          if ( !c-> instance)
             c-> instance = c-> vmt-> init( &c->info, c-> initParam);
-         if ( !c-> instance) { // failed to initialize, retry next time
+         if ( !c-> instance) { /* failed to initialize, retry next time */
             loadmap[ i] = true;
             continue;
          } 
@@ -296,7 +296,7 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
       }   
       if ( *xc == '.') xc++;
 
-      // finding by extension first
+      /* finding by extension first */
       c = nil;
       for ( i = 0; i < imgCodecs. count; i++) {
          int j = 0, found = false;
@@ -320,12 +320,16 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
                break;
             }   
 
-            if ( fi. stop) { err = true; goto EXIT_NOW; }
+            if ( fi. stop) { 
+               err = true; 
+               free( loadmap);
+               goto EXIT_NOW; 
+            }
          }   
          c = nil;
       }   
       
-      // use first suitable codec
+      /* use first suitable codec */
       if ( c == nil) {
          for ( i = 0; i < imgCodecs. count; i++) {        
             if ( loadmap[ i]) continue;
@@ -336,7 +340,11 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
                codecID = i;
                break;
             }   
-            if ( fi. stop) { err = true; goto EXIT_NOW; }
+            if ( fi. stop) { 
+               err = true; 
+               free( loadmap);
+               goto EXIT_NOW; 
+            }
             c = nil;
          }
       }
@@ -356,7 +364,7 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
       }   
    }   
 
-   // use common profile
+   /* use common profile */
    def = c-> vmt-> load_defaults( c); 
    commonHV = newHV();
    if ( profile) {
@@ -367,9 +375,9 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
    if ( fi. loadExtras && c-> info-> fileType) 
       hv_store( fi. fileProperties, "codecID", 7, newSViv( codecID), 0);
 
-   // loading
+   /* loading */
    for ( i = 0; i < fi. frameMapSize; i++) {
-      HV * profile = def;
+      HV * profile = commonHV;
       char * className = "Prima::Image";
 
       fi. frame = incrementalLoad ? i : fi. frameMap[ i];
@@ -378,7 +386,7 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
          if ( !c-> info-> canLoadMultiple && fi. frameCount < 0)
             fi. frameCount = i; 
          if ( incrementalLoad) 
-            // that means, codec bothered to set frameCount at last - report no error then
+            /* that means, codec bothered to set frameCount at last - report no error then */
             goto EXIT_NOW;
          c-> vmt-> close_load( c, &fi);
          out("Frame index out of range");
@@ -387,7 +395,7 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
       fi. loadExtras  = loadExtras;
       fi. noImageData = noImageData;
 
-      // query profile
+      /* query profile */
       if ( profiles && ( i <= profiles_len)) {
          HV * hv;
          SV ** holder = av_fetch( profiles, i, 0);
@@ -415,7 +423,7 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
       fi. profile    = profile;
       lastFrame = fi. frame;
       
-      // query className
+      /* query className */
       if ( pexist( className)) {
          PVMT vmt;
          className = pget_c( className);
@@ -423,18 +431,18 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
          while ( vmt && vmt != (PVMT)CImage) 
             vmt = vmt-> base;
          if ( !vmt) {
-            if ( fi. profile != def) sv_free(( SV *) fi. profile);      
+            if ( fi. profile != commonHV) sv_free(( SV *) fi. profile);      
             outd("class '%s' is not a Prima::Image descendant", className);
          }   
       }      
 
-      // create storage
+      /* create storage */
       if (( i > 0) || ( self == nilHandle)) {
          HV * profile = newHV();
          fi. object = Object_create( className, profile);
          sv_free(( SV *) profile); 
          if ( !fi. object) {
-            if ( fi. profile != def) sv_free(( SV *) fi. profile);
+            if ( fi. profile != commonHV) sv_free(( SV *) fi. profile);
             outd("Failed to create object '%s'", className);
          }   
       } else
@@ -442,22 +450,22 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
 
       fi. frameProperties = newHV();
 
-      // loading image
+      /* loading image */
       if ( !c-> vmt-> load( c, &fi)) {
          c-> vmt-> close_load( c, &fi);
          sv_free(( SV *) fi. frameProperties);
          if ( fi. object != self)
             Object_destroy( fi. object);
-         if ( fi. profile != def) sv_free(( SV *) fi. profile);
+         if ( fi. profile != commonHV) sv_free(( SV *) fi. profile);
          if ( incrementalLoad) {
             if ( fi. frameCount < 0) fi. frameCount = fi. frame;
-            goto EXIT_NOW; // EOF, report no error
+            goto EXIT_NOW; /* EOF, report no error */
          }   
          err = true;
 	 goto EXIT_NOW;
       }  
 
-      // checking for grayscale
+      /* checking for grayscale */
       {
          PImage i = ( PImage) fi. object;
          if ( !( i-> type & imGrayScale)) 
@@ -477,11 +485,11 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
             }
       }   
 
-      // updating image
+      /* updating image */
       if ( !fi. noImageData)
          CImage( fi. object)-> update_change( fi. object);
 
-      // applying extras
+      /* applying extras */
       if ( fi. loadExtras) {
          HV * extras = newHV();
          SV * sv = newRV_noinc(( SV *) extras);
@@ -494,14 +502,14 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
       } 
 
       sv_free(( SV *) fi. frameProperties);
-      if ( fi. profile != def) sv_free(( SV *) fi. profile);
+      if ( fi. profile != commonHV) sv_free(( SV *) fi. profile);
 
       list_add( ret, fi. object);
    }
 
    c-> vmt-> close_load( c, &fi);
 
-   // returning info for null load request 
+   /* returning info for null load request  */
    if ( self && loadExtras && fi. frameMapSize == 0) {
       HV * extras = newHV();
       SV * sv = newRV_noinc(( SV *) extras);
@@ -518,7 +526,7 @@ EXIT_NOW:;
    if ( firstObjectExtras)
       hv_store( firstObjectExtras, "frames", 6, newSViv( fi. frameCount), 0);
    if ( err && ret)
-      list_add( ret, nilHandle); // indicate the error
+      list_add( ret, nilHandle); /* indicate the error */
    if ( def)
       sv_free(( SV *) def);
    if ( commonHV)
@@ -543,10 +551,10 @@ apc_img_frame_count( char * fileName)
 
    CHK;
    memset( &fi, 0, sizeof( fi));
-   // open file
+   /* open file */
    if (( fi. f = ( FILE *) fopen( fileName, "rb")) == NULL) goto EXIT_NOW;
    
-   // assigning request
+   /* assigning request */
    fi. fileName = fileName;
    fi. frameMapSize   = frameMap = 0;
    fi. frameMap       = &frameMap;
@@ -556,8 +564,9 @@ apc_img_frame_count( char * fileName)
    fi. fileProperties = newHV(); 
    fi. frameCount = -1;
    fi. errbuf     = error;
+   fi. stop       = false;
 
-   // finding codec
+   /* finding codec */
    {
       Bool * loadmap = ( Bool*) malloc( sizeof( Bool) * imgCodecs. count);
       char * xc = fileName + strlen( fileName);
@@ -567,7 +576,7 @@ apc_img_frame_count( char * fileName)
          c = ( PImgCodec ) ( imgCodecs. items[ i]);
          if ( !c-> instance)
             c-> instance = c-> vmt-> init( &c->info, c-> initParam);
-         if ( !c-> instance) { // failed to initialize, retry next time
+         if ( !c-> instance) { /* failed to initialize, retry next time */
             loadmap[ i] = true;
             continue;
          } 
@@ -580,7 +589,7 @@ apc_img_frame_count( char * fileName)
       }   
       if ( *xc == '.') xc++;
 
-      // finding by extension first
+      /* finding by extension first */
       c = nil;
       for ( i = 0; i < imgCodecs. count; i++) {
          int j = 0, found = false;
@@ -600,11 +609,15 @@ apc_img_frame_count( char * fileName)
                continue;
             if (( fi. instance = c-> vmt-> open_load( c, &fi)) != NULL)
                break;
+            
+            if ( fi. stop) { 
+               free( loadmap);
+               goto EXIT_NOW; 
+            }
          }   
          c = nil;
       }   
       
-      // 
       if ( c == nil) {
          for ( i = 0; i < imgCodecs. count; i++) {        
             if ( loadmap[ i]) continue;
@@ -613,14 +626,18 @@ apc_img_frame_count( char * fileName)
                   continue;
             if (( fi. instance = c-> vmt-> open_load( c, &fi)) != NULL)
                break;
-            c = nil;
+            if ( fi. stop) { 
+               free( loadmap);
+               goto EXIT_NOW; 
+            }
+           c = nil;
          }
       }
       free( loadmap);
       if ( !c) goto EXIT_NOW;
    }  
    
-   // can tell now?
+   /* can tell now? */
    
    if ( fi. frameCount >= 0) {
       c-> vmt-> close_load( c, &fi);
@@ -630,13 +647,13 @@ apc_img_frame_count( char * fileName)
 
    if ( !c-> info-> canLoadMultiple) {
       c-> vmt-> close_load( c, &fi);
-      ret = 1; // single-framed file. what else?
+      ret = 1; /* single-framed file. what else? */
       goto EXIT_NOW;
    }   
 
-   // if can't, trying to load huge index, hoping that if
-   // codec have a sequential access, it eventually meet the 
-   // EOF and report the frame count
+   /* if can't, trying to load huge index, hoping that if */
+   /* codec have a sequential access, it eventually meet the  */
+   /* EOF and report the frame count */
    {
       HV * profile = newHV();
       fi. object = Object_create( "Prima::Image", profile);
@@ -645,15 +662,15 @@ apc_img_frame_count( char * fileName)
       fi. frameProperties = newHV();
    }                  
    
-   // loading image
+   /* loading image */
    if ( c-> vmt-> load( c, &fi) || fi. frameCount >= 0) {
-      // well, INT_MAX frame is ok, and maybe more, but can't report more anyway
+      /* well, INT_MAX frame is ok, and maybe more, but can't report more anyway */
       c-> vmt-> close_load( c, &fi);
       ret = ( fi. frameCount < 0) ? INT_MAX : fi. frameCount;
       goto EXIT_NOW;
    }   
 
-   // can't report again - so loading as may as we can
+   /* can't report again - so loading as may as we can */
    fi. loadAll = true;
    for ( i = 0; i < INT_MAX; i++) {
       fi. jointFrame = i > 0;
@@ -719,7 +736,7 @@ apc_img_save( Handle self, char * fileName, HV * profile, char * error)
    if ( pexist( autoConvert))
       autoConvert = pget_B( autoConvert);
 
-   // open file
+   /* open file */
    if ( fi. append) {
       FILE * f = ( FILE *) fopen( fileName, "rb");
       fclose( f);
@@ -744,14 +761,14 @@ apc_img_save( Handle self, char * fileName, HV * profile, char * error)
    if ( fi. frameMapSize == 0)
       out("Nothing to save");
 
-   // fill array of objects
+   /* fill array of objects */
    fi. frameMap     = ( Handle *) malloc( sizeof( Handle) * fi. frameMapSize);
    memset( fi. frameMap, 0, sizeof( Handle) * fi. frameMapSize);
    
    for ( i = 0; i < fi. frameMapSize; i++) {
       Handle obj = nilHandle;
 
-      // query profile
+      /* query profile */
       if ( self && (i == 0)) {
          obj = self;
          if ( !kind_of( obj, CImage))
@@ -770,10 +787,10 @@ apc_img_save( Handle self, char * fileName, HV * profile, char * error)
       fi. frameMap[ i] = obj;
    } 
 
-   // all other properties to be parsed by codec
+   /* all other properties to be parsed by codec */
    fi. extras = profile;
 
-   // finding codec
+   /* finding codec */
    strcpy( error, "No appropriate codec found");
    {
       Bool * savemap = ( Bool*) malloc( sizeof( Bool) * imgCodecs. count);
@@ -785,13 +802,13 @@ apc_img_save( Handle self, char * fileName, HV * profile, char * error)
          c = ( PImgCodec ) ( imgCodecs. items[ i]);
          if ( !c-> instance)
             c-> instance = c-> vmt-> init( &c->info, c-> initParam);
-         if ( !c-> instance) { // failed to initialize, retry next time
+         if ( !c-> instance) { /* failed to initialize, retry next time */
             savemap[ i] = true;
             continue;
          } 
       }
 
-      // checking 'codecID', if available
+      /* checking 'codecID', if available */
       {
          SV * c = nil;
          if ( pexist( codecID))
@@ -806,13 +823,13 @@ apc_img_save( Handle self, char * fileName, HV * profile, char * error)
                   c = pget_sv( codecID);
             }   
          }
-         if ( c && SvOK( c)) { // accept undef
+         if ( c && SvOK( c)) { /* accept undef */
             codecID = SvIV( c);
             if ( codecID < 0) codecID = imgCodecs. count - codecID;
          }
       }
          
-      // find codec
+      /* find codec */
       c = nil;
       if ( codecID >= 0) {
          if ( codecID >= imgCodecs. count) 
@@ -848,7 +865,7 @@ apc_img_save( Handle self, char * fileName, HV * profile, char * error)
       }   
      
       if ( !c) {
-         // finding codec by extension 
+         /* finding codec by extension  */
          while ( xc != fileName) {
             if ( *xc == '.') 
                break;
@@ -901,7 +918,7 @@ apc_img_save( Handle self, char * fileName, HV * profile, char * error)
       }
       
       free( savemap);
-      if ( !c) { // use pre-formatted error string
+      if ( !c) { /* use pre-formatted error string */
          err = true;
          goto EXIT_NOW;
       }   
@@ -909,7 +926,7 @@ apc_img_save( Handle self, char * fileName, HV * profile, char * error)
 
    snprintf( error, 256, "Error saving %s", fileName);
 
-   // use common profile
+   /* use common profile */
    def = c-> vmt-> save_defaults( c); 
    commonHV = newHV();
    if ( profile) {
@@ -917,7 +934,7 @@ apc_img_save( Handle self, char * fileName, HV * profile, char * error)
       apc_img_profile_add( commonHV, profile, def);
    }
    
-   // saving
+   /* saving */
    for ( i = 0; i < fi. frameMapSize; i++) {
       HV * profile = commonHV;
       PImage im;
@@ -938,7 +955,7 @@ apc_img_save( Handle self, char * fileName, HV * profile, char * error)
       fi. object = fi. frameMap[ i];
       fi. objectExtras = profile;
 
-      // converting image to format with maximum bit depth
+      /* converting image to format with maximum bit depth */
       if ( autoConvert) {
          int *k = c-> info-> saveTypes;
          int max = *k & imBPP, supported = false;
@@ -957,7 +974,7 @@ apc_img_save( Handle self, char * fileName, HV * profile, char * error)
          }
       }      
       
-      // saving image
+      /* saving image */
       if ( !c-> vmt-> save( c, &fi)) {
          c-> vmt-> close_save( c, &fi);
          if ( fi. objectExtras != commonHV) sv_free(( SV *) fi. objectExtras);
@@ -996,7 +1013,7 @@ apc_img_codecs( PList ret)
       c = ( PImgCodec ) ( imgCodecs. items[ i]);
       if ( !c-> instance)
          c-> instance = c-> vmt-> init( &c->info, c-> initParam);
-      if ( !c-> instance)  // failed to initialize, retry next time
+      if ( !c-> instance)  /* failed to initialize, retry next time */
          continue;
       list_add( ret, ( Handle) c);
    }  
@@ -1091,11 +1108,11 @@ apc_img_info2hash( PImgCodec codec)
       if ( c-> canLoadMultiple) {
          hv_store( hv, "index",        5, newSViv(0),     0);
          hv_store( hv, "map",          3, newSVsv(nilSV), 0);
-         hv_store( hv, "loadAll",      7, newSVsv(0),     0);
-         hv_store( hv, "wantFrames",  10, newSVsv(0),     0);
+         hv_store( hv, "loadAll",      7, newSViv(0),     0);
+         hv_store( hv, "wantFrames",  10, newSViv(0),     0);
       }
-      hv_store( hv, "loadExtras",  10, newSVsv(0),     0);
-      hv_store( hv, "noImageData", 11, newSVsv(0),     0);
+      hv_store( hv, "loadExtras",  10, newSViv(0),     0);
+      hv_store( hv, "noImageData", 11, newSViv(0),     0);
       hv_store( hv, "className",    9, newSVpv("Prima::Image", 0), 0);
    } else
       hv = newHV();

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Clipboard.c,v 1.29 2000/10/23 09:19:04 dk Exp $
+ * $Id: Clipboard.c,v 1.30 2001/06/15 09:43:54 dk Exp $
  */
 
 #include "apricot.h"
@@ -357,7 +357,7 @@ text_server( Handle self, PClipboardFormatReg instance, int function, SV * data)
       return ( SV *) cfText;
 
    case cefFetch:
-      s = (char*)apc_clipboard_get_data( self, cfText, (int*)&len);
+      s = (char*)apc_clipboard_get_data( self, cfText, &len);
       if (s) {
          data = newSVpv( s, len);
          free(s);
@@ -385,7 +385,7 @@ image_server( Handle self, PClipboardFormatReg instance, int function, SV * data
           Handle image;
           image = Object_create( "Prima::Image", profile);
           sv_free(( SV *) profile);
-          if ( apc_clipboard_get_data( self, cfBitmap, (int*)(&image)) != nil) {
+          if ( apc_clipboard_get_data( self, cfBitmap, (STRLEN*)(&image)) != nil) {
              --SvREFCNT( SvRV( PImage(image)->  mate));
              return newSVsv( PImage(image)->  mate);
           }
@@ -418,7 +418,7 @@ binary_server( Handle self, PClipboardFormatReg instance, int function, SV * dat
       break;
    case cefFetch:
       {
-         int len;
+         STRLEN len;
          void *xdata = apc_clipboard_get_data( self, instance-> sysId, &len);
          if ( xdata) {
             SV * ret = newSVpv((char*) xdata, len);

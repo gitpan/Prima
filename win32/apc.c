@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc.c,v 1.90 2001/05/10 08:02:04 dk Exp $
+ * $Id: apc.c,v 1.91 2001/06/15 07:46:25 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -1347,7 +1347,7 @@ apc_widget_map_points( Handle self, Bool toScreen, int count, Point * p)
 Color
 apc_widget_map_color( Handle self, Color color)
 {
-   if ((color < 0) && (( color & wcMask) == 0)) color |= var widgetClass;
+   if ((( color & clSysFlag) != 0) && (( color & wcMask) == 0)) color |= var widgetClass;
    return remap_color( remap_color( color, true), false);  
 }   
 

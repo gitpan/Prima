@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: apricot.h,v 1.126 2001/06/14 08:55:50 dk Exp $ */
+/* $Id: apricot.h,v 1.132 2001/07/25 14:21:29 dk Exp $ */
 
 #ifndef _APRICOT_H_
 #define _APRICOT_H_
@@ -59,9 +59,15 @@
    #define BROKEN_COMPILER       1
    extern double                 NAN;
    #define __INLINE__
+#elif defined(sgi) && !defined(__GNUC__)
+   #define __INLINE__           
 #else
    #define __INLINE__            __inline__
 #endif
+
+#if !defined(__unix) && defined(unix)
+#define __unix unix
+#endif    
 
 #ifdef __unix   /* This is wrong, not every unix */
    extern double NAN;
@@ -300,24 +306,19 @@ extern void *
 prima_mallocz( size_t sz);
 
 typedef I32 Bool;
-typedef UV Handle;
+#if PTRSIZE==LONGSIZE
+typedef unsigned long Handle;
+#elif PTRSIZE==INTSIZE
+typedef unsigned int Handle;
+#elif PTRSIZE==SHORTSIZE
+typedef unsigned short Handle;
+#else
+#error "Cannot find adequate integer type"
+#endif
 typedef Handle ApiHandle;
 typedef long Color;
 
 #include "Types.h"
-
-#if SHORTSIZE == PTRSIZE
-typedef short IntPtr;
-#elif INTSIZE == PTRSIZE
-typedef int IntPtr;
-#elif LONGSIZE == PTRSIZE
-typedef long IntPtr;
-#elif HAS_LONG_LONG && ( LONGLONGSIZE == PTRSIZE )
-typedef long long IntPtr;
-#else
-#error Cannot find integer with same size as pointer
-#endif
-
 
 #if !defined(HAVE_INT8_T)
 typedef signed char     int8_t;
@@ -362,6 +363,14 @@ typedef uint8_t         Byte;
 typedef int16_t         Short;
 typedef int32_t         Long;
 
+#undef INT16_MIN
+#undef INT16_MAX
+#undef INT32_MIN
+#undef INT32_MAX
+#define INT16_MIN (-32768)
+#define INT16_MAX 32768
+#define INT32_MIN  (-2147483647L-1)
+#define INT32_MAX 2147483647L
 
 typedef struct _RGBColor
 {
@@ -1256,7 +1265,7 @@ extern SV **temporary_prf_Sv;
 
 #ifdef __GNUC__
 #define SvBOOL(sv) ({ SV *svsv = sv; SvTRUE(svsv);})
-#elif defined( __BORLANDC__)
+#elif defined(__BORLANDC__) || defined(sgi)
 extern Bool SvBOOL( SV *sv);
 #else
 __INLINE__ Bool
@@ -1264,7 +1273,7 @@ SvBOOL( SV *sv)
 {
    return SvTRUE(sv);
 }
-#endif /* __GNUC__ */
+#endif 
 
 #define pexist( key) hv_exists( profile, # key, strlen( #key))
 #define pdelete( key) hv_delete( profile, # key, strlen( #key), G_DISCARD)
@@ -1324,7 +1333,7 @@ SvBOOL( SV *sv)
 #define CWidget(h)                      (PWidget(h)-> self)
 #define PWindow(h)                      TransmogrifyHandle(Window,(h))
 #define CWindow(h)                      (PWindow(h)-> self)
-#endif POLLUTE_NAME_SPACE
+#endif 
 
 
 /* mapping functions */
@@ -2143,13 +2152,13 @@ extern Bool
 apc_clipboard_has_format( Handle self, long id);
 
 extern void*
-apc_clipboard_get_data( Handle self, long id, int *length);
+apc_clipboard_get_data( Handle self, long id, STRLEN *length);
 
 extern ApiHandle
 apc_clipboard_get_handle( Handle self);
 
 extern Bool
-apc_clipboard_set_data( Handle self, long id, void *data, int length);
+apc_clipboard_set_data( Handle self, long id, void *data, STRLEN length);
 
 extern long
 apc_clipboard_register_format( Handle self, const char *format);
@@ -2333,6 +2342,10 @@ CL(Yellow)
 CL(White)
 #define    clGray             ARGB(128,128,128)
 CL(Gray)
+#define    clSysFlag          (long)(0x80000000)
+CL(SysFlag)
+#define    clSysMask          (long)(0x7FFFFFFF)
+CL(SysMask)
 #define    clInvalid          (long)(0x80000000)
 CL(Invalid)
 #define    clNormalText       (long)(0x80000001)
@@ -2424,7 +2437,7 @@ typedef enum {
    ropOrPattern,        /* dest |= pattern */
    ropNotSrcOrPat,      /* dest |= pattern | (!src) */
    ropSrcLeave,         /* dest = (src != fore color) ? src : figa */
-   ropDestLeave,        /* dest = (src != back color) ? src : figa */
+   ropDestLeave         /* dest = (src != back color) ? src : figa */
 } ROP;
 #define ROP(const_name) CONSTANT(rop,const_name)
 START_TABLE(rop,UV)

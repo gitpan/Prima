@@ -25,16 +25,11 @@
 #
 #  Created by Anton Berezin  <tobez@tobez.org>
 #
-#  $Id: IniFile.pm,v 1.11 2000/10/18 11:57:55 tobez Exp $
+#  $Id: IniFile.pm,v 1.12 2001/06/14 10:08:59 dk Exp $
 
 package Prima::IniFile;
 
-#
-# Version: 0.01 19980115
-#
-
 require 5.003;       # probably
-$VERSION = 0.01;
 
 use strict;
 use Carp;
@@ -85,10 +80,6 @@ Prima::IniFile - support of Windows-like initialization files
 =head1 DESCRIPTION
 
    Wait, may be I'll write it...
-
-=head1 VERSION
-
-Version 0.01
 
 =head1 AUTHOR
 

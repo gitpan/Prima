@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: dock.pl,v 1.4 2001/05/02 16:26:39 dk Exp $
+#  $Id: dock.pl,v 1.5 2001/06/17 20:53:56 dk Exp $
 #
 # This is the demonstration of Prima::Dock and Prima::DockManager 
 # modules. The window created is docking client, and it's able 
@@ -94,10 +94,10 @@ sub init
       dockerProfileClient => { # allow docking only to Edit
          fingerprint => dmfp::Edit,
       },   
-      dockerProfileLeft   => { fingerprint => dmfp::Vertical },   
-      dockerProfileRight  => { fingerprint => dmfp::Vertical },   
-      dockerProfileTop    => { fingerprint => dmfp::Horizontal },   
-      dockerProfileBottom => { fingerprint => dmfp::Horizontal },
+      dockerProfileLeft   => { fingerprint => dmfp::Vertical|dmfp::Tools|dmfp::Toolbar },   
+      dockerProfileRight  => { fingerprint => dmfp::Vertical|dmfp::Tools|dmfp::Toolbar },   
+      dockerProfileTop    => { fingerprint => dmfp::Horizontal|dmfp::Tools|dmfp::Toolbar },   
+      dockerProfileBottom => { fingerprint => dmfp::Horizontal|dmfp::Tools|dmfp::Toolbar },
    );
    $self-> instance-> add_notification( 'ToolbarChange', \&on_toolbarchange, $self);
    $self-> instance-> add_notification( 'PanelChange',   \&on_toolbarchange, $self);

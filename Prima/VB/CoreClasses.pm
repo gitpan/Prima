@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: CoreClasses.pm,v 1.21 2000/12/20 12:31:02 dk Exp $
+# $Id: CoreClasses.pm,v 1.22 2001/07/04 11:37:26 dk Exp $
 package Prima::VB::CoreClasses;
 use strict;
 
@@ -1341,7 +1341,7 @@ sub prf_types
 {
    my $pt = $_[ 0]-> SUPER::prf_types;
    my %de = (
-      bool         => [qw(readOnly snap)],
+      bool         => [qw(readOnly snap autoTrack)],
       uiv          => [qw(min max value increment step)],
       sliderScheme => ['scheme'],
    );

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Image.cls,v 1.23 2001/05/10 08:02:01 dk Exp $
+# $Id: Image.cls,v 1.24 2001/06/15 15:24:15 dk Exp $
 
 local @ImageStats double[7];
 
@@ -43,7 +43,7 @@ object Prima::Image( Prima::Drawable)
    property SV *   data;
    property Bool   hScaling;
    property SV *   palette;
-   property Color  pixel( int x, int y);
+   property long   pixel( int x, int y);
    property Bool   preserveType;
    property Point  resolution;
    property Point  size;

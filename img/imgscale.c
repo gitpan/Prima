@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: imgscale.c,v 1.14 2000/12/22 15:45:52 dk Exp $
+ * $Id: imgscale.c,v 1.16 2001/07/25 14:21:28 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "img_conv.h"
@@ -78,23 +78,23 @@ void bs_##type##_out( type * srcData, type * dstData, int w, int x, int absx, lo
    }                                                                                \
 }
 
-BS_BYTEEXPAND( uint8_t);
-BS_BYTEEXPAND( int16_t);
-BS_BYTEEXPAND( RGBColor);
-BS_BYTEEXPAND( int32_t);
-BS_BYTEEXPAND( float);
-BS_BYTEEXPAND( double);
-BS_BYTEEXPAND( Complex);
-BS_BYTEEXPAND( DComplex);
+BS_BYTEEXPAND( uint8_t)
+BS_BYTEEXPAND( int16_t)
+BS_BYTEEXPAND( RGBColor)
+BS_BYTEEXPAND( int32_t)
+BS_BYTEEXPAND( float)
+BS_BYTEEXPAND( double)
+BS_BYTEEXPAND( Complex)
+BS_BYTEEXPAND( DComplex)
 
-BS_BYTEIMPACT( uint8_t);
-BS_BYTEIMPACT( int16_t);
-BS_BYTEIMPACT( RGBColor);
-BS_BYTEIMPACT( int32_t);
-BS_BYTEIMPACT( float);
-BS_BYTEIMPACT( double);
-BS_BYTEIMPACT( Complex);
-BS_BYTEIMPACT( DComplex);
+BS_BYTEIMPACT( uint8_t)
+BS_BYTEIMPACT( int16_t)
+BS_BYTEIMPACT( RGBColor)
+BS_BYTEIMPACT( int32_t)
+BS_BYTEIMPACT( float)
+BS_BYTEIMPACT( double)
+BS_BYTEIMPACT( Complex)
+BS_BYTEIMPACT( DComplex)
 
 
 void
@@ -172,7 +172,7 @@ bs_mono_out( uint8_t * srcData, uint8_t * dstData, int w, int x, int absx, long 
          if ((( i + 1) & 7) == 0) dstData[ i >> 3] = xd;
       }
       if ( i & 7) dstData[ i >> 3] = xd << ( 8 - ( i & 7));
-      // dstData[ i >> 3] = xd << (( i & 7) ? ( 8 - ( i & 7)) : 0);
+      /* dstData[ i >> 3] = xd << (( i & 7) ? ( 8 - ( i & 7)) : 0); */
    } else {
       register int k = absx;
       xs = srcData[ j >> 3];
@@ -195,7 +195,7 @@ bs_mono_out( uint8_t * srcData, uint8_t * dstData, int w, int x, int absx, long 
    }
 }
 
-// nibble stretching functions are requiring *dstData filled with zeros
+/* nibble stretching functions are requiring *dstData filled with zeros */
 
 void bs_nibble_in( uint8_t * srcData, uint8_t * dstData, int w, int x, int absx, long step)
 {
@@ -261,7 +261,7 @@ ic_stretch( int type, Byte * srcData, int srcW, int srcH, Byte * dstData, int w,
 
    if ( w == srcW) xStretch = false;
    if ( h == srcH) yStretch = false;
-// transfer case
+/* transfer case */
    if ( !xStretch && !yStretch && ( w > 0))
    {
       int y;
@@ -277,7 +277,7 @@ ic_stretch( int type, Byte * srcData, int srcW, int srcH, Byte * dstData, int w,
       return;
    }
 
-// y-only stretch case
+/* y-only stretch case */
    if ( !xStretch && yStretch && ( w > 0))
    {
       int xMin = ( srcLine > dstLine) ? dstLine : srcLine;
@@ -290,7 +290,7 @@ ic_stretch( int type, Byte * srcData, int srcW, int srcH, Byte * dstData, int w,
       }
       if ( absh < srcH)
       {
-         ystep. l = (double) absh / srcH * 0x10000;
+         ystep. l = (double) absh / srcH * UINT16_PRECISION;
          memcpy( dstData, srcData, xMin);
          dstData += dstLine;
          for ( i = 0; i < srcH; i++)
@@ -305,7 +305,7 @@ ic_stretch( int type, Byte * srcData, int srcW, int srcH, Byte * dstData, int w,
             srcData += srcLine;
          }
       } else {
-         ystep. l = (double) srcH / absh * 0x10000;
+         ystep. l = (double) srcH / absh * UINT16_PRECISION;
          for ( i = 0; i < absh; i++)
          {
             if ( count.i.i > last)
@@ -321,15 +321,15 @@ ic_stretch( int type, Byte * srcData, int srcW, int srcH, Byte * dstData, int w,
       return;
    }
 
-// general actions for x-scaling
+/* general actions for x-scaling */
    count. l = 0;
    count. l = 0;
    if ( srcW < absw || srcH < absh || ( type & imBPP) == imNibble)
       memset( dstData, 0, dstLine * absh);
    if ( absw < srcW)
-      xstep. l = (double) absw / srcW * 0x10000;
+      xstep. l = (double) absw / srcW * UINT16_PRECISION;
    else
-      xstep. l = (double) srcW / absw * 0x10000;
+      xstep. l = (double) srcW / absw * UINT16_PRECISION;
    switch( type)
    {
       case imMono:     case imBW:
@@ -356,7 +356,7 @@ ic_stretch( int type, Byte * srcData, int srcW, int srcH, Byte * dstData, int w,
          return;
    }
 
-// no vertical stretch case
+/* no vertical stretch case */
    if ( !yStretch || ( srcH == -h))
    {
       if ( h < 0)
@@ -369,7 +369,7 @@ ic_stretch( int type, Byte * srcData, int srcW, int srcH, Byte * dstData, int w,
       return;
    }
 
-// general case
+/* general case */
    if ( h < 0)
    {
       dstData += dstLine * ( absh - 1);
@@ -377,7 +377,7 @@ ic_stretch( int type, Byte * srcData, int srcW, int srcH, Byte * dstData, int w,
    }
    if ( absh < srcH)
    {
-      ystep. l = (double) absh / srcH * 0x10000;
+      ystep. l = (double) absh / srcH * UINT16_PRECISION;
       proc( srcData, dstData, srcW, w, absw, xstep.l);
       dstData += dstLine;
       for ( i = 0; i < srcH; i++)
@@ -392,7 +392,7 @@ ic_stretch( int type, Byte * srcData, int srcW, int srcH, Byte * dstData, int w,
          srcData += srcLine;
       }
    } else {
-      ystep. l = (double) srcH / absh * 0x10000;
+      ystep. l = (double) srcH / absh * UINT16_PRECISION;
       for ( i = 0; i < absh; i++)
       {
          if ( count.i.i > last)

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: VB.pl,v 1.47 2001/04/30 15:33:29 dk Exp $
+# $Id: VB.pl,v 1.48 2001/07/25 21:35:51 dk Exp $
 use strict;
 use Prima qw(StdDlg Notebooks MsgBox ComboBox ColorDialog IniFile);
 use Prima::VB::VBLoader;
@@ -331,6 +331,7 @@ sub widget_changed
    my ( $how, $id) = @_;
    my $self = $VB::inspector;
    return unless $self;
+   return if $self-> {currentList} != $self-> {plist};
    if ( $self-> {opened}) {
       if ( $id eq $self->{opened}->{id}) {
          return if $self-> {sync};

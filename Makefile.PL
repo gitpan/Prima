@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Makefile.PL,v 1.102 2001/06/14 08:57:17 dk Exp $
+#  $Id: Makefile.PL,v 1.105 2001/07/25 14:21:27 dk Exp $
 #
 
 BEGIN {
@@ -34,6 +34,7 @@ BEGIN {
 require 5.00502;
 use strict;
 use Config;
+my %Config = %Config::Config; # original %Config is read-only
 use File::Find;
 use File::Basename;
 use File::Path;
@@ -264,10 +265,10 @@ sub compile
     close TMPSRC;
 
     null_output;
-    my @cc = grep !/^-W/i, cc_command_line( $tmpsrc, $tmpo, $tmpexe, $compile_only || 0);
+    my @cc = grep !/^-W(all|error|\d)/i, cc_command_line( $tmpsrc, $tmpo, $tmpexe, $compile_only || 0);
     push @cc, @extra;
     print STDERR "@cc\n";
-    my $rc = system "@cc";
+    my $rc = system("@cc");
     restore_output;
     unlink $tmpsrc;
     unlink $tmpo if -w $tmpo;
@@ -516,6 +517,24 @@ sub setup_variables
                          lib  => '',
                          liboflag => '',
                         },
+                 irixcc  => {
+                         warnflags => "-fullwarn",
+                         cflags => "-diag_error 1035 -woff 1011,1042,1048,1140,1164,1174,1209,1506,1515,1552", 
+                         coutoflag => '-o',
+                         coutexeflag => '-o',
+                         cdebugflags => '-g -O0',
+                         clinkprefix => '',
+                         clibpathflag => '-L',
+                         ldflags => '',
+                         ldoutflag => '-o',
+                         ldlibpathflag => '-L',
+                         ldlibflag => '-l',
+                         ldlibext  => '',
+                         lddebugflags => '-g',
+                         name => "IRIX Native",
+                         lib  => '',
+                         liboflag => '',
+                 },
                  emx => {
                          warnflags => "-Wall",
                          cflags => "",
@@ -580,7 +599,12 @@ sub setup_variables
     if ( defined $USER_VARS{ COMPILER}) {
         $COMPILER = $USER_VARS{ COMPILER};
         die "Compiler type $COMPILER is unknown" unless defined $cc_specs{ $COMPILER};
-    }
+    } 
+    elsif ( $^O =~ /irix/ && $CC =~ /^(\S*\/)?cc\b/) {
+        # this code should be put first, as cc call does not treat #error as error,
+        # and have_define() is therefore always true
+        $COMPILER = 'irixcc'; 
+    } 
     elsif ( have_define( "__EMX__")) {
         $COMPILER = 'emx';
     }
@@ -592,11 +616,22 @@ sub setup_variables
     }
     elsif ( have_define( "_MSC_VER")) {
         $COMPILER = 'msvc';
-    }
-    else {
-        die "Unknown or unsupported compiler\n";
+    } else {
+        print "($CC is unknown, using gcc instead) ";
+        $COMPILER = 'gcc';
+        $CC = 'gcc' unless defined $USER_VARS{CC};
+        $USER_VARS{LD} = 'gcc' unless defined $USER_VARS{LD};
+        $USER_VARS{CFLAGS} = '' unless defined $USER_VARS{CFLAGS};
+        $USER_VARS{COUTOFLAG} = '-o ' unless defined $USER_VARS{COUTOFLAG};
+        $USER_VARS{COUTEXEFLAG} = '-o ' unless defined $USER_VARS{COUTEXEFLAG};
     }
     print "$cc_specs{ $COMPILER}->{ name}\n";
+
+    # Checking some Config.pm - were empty for ActiveState 626
+    $Config{PATCHLEVEL} = $Config{patchlevel} if !defined $Config{PATCHLEVEL} || !length $Config{PATCHLEVEL};
+    $Config{SUBVERSION} = $Config{subversion} if !defined $Config{SUBVERSION} || !length $Config{SUBVERSION};
+    $Config{ld} = ($Win32 ? 'link' : 'ld'), print("** warning: malformed Config.pm\n") 
+       unless length $Config{ld};
 
     my $ccflags   = $Config{ ccflags};
     my $warnflags = $cc_specs{ $COMPILER}->{ warnflags};
@@ -717,15 +752,17 @@ sub setup_variables
     $extralibs = qd("auto/Prima/Prima.lib") if $OS2;
     setvar( 'DEFFILE', $Win32 ? qd( "win32/Prima.def") : ( $OS2 ? qd( "os2/Prima.def") : ''));
     open F, 'Prima.pm' or die "Cannot open Prima.pm:$!\n";
-    my $ver;
+    my ($ver1, $ver2);
     while (<F>) {
-       next unless m/\$VERSION[^\.\d]*([\.\d]+)/;
-       $ver = $1, last;
+       next unless m/\$VERSION[^\.\d]*(\d+)\.(\d+)/;
+       $ver1 = $1, $ver2 = $2, last;
     }
     close F;
-    die "Cannot find VERSION string in Prima.pm\n" unless defined $ver;
-    print "Version: $ver\n";
-    setvar( 'DISTNAME', "Prima-$ver");
+    die "Cannot find VERSION string in Prima.pm\n" unless defined $ver1;
+    print "Version: $ver1.$ver2\n";
+    $DEFINES{PRIMA_VERSION} = $ver1;
+    $DEFINES{PRIMA_SUBVERSION} = $ver2;
+    setvar( 'DISTNAME', "Prima-$ver1.$ver2");
     setvar( 'WANTNOCODECS', 0);
 
     @Prima_exports = qw(
@@ -1055,15 +1092,21 @@ temporary_prf_Sv
 sub setup_paths
 {
     if ( $NeedX11) {
-        push @INCPATH, ( qd( "/usr/include"), qd( "/usr/local/include"));
-        my $incpath = find_header( qd( "X11/Xlib.h"), qd( "/usr/X11R6/include"), qd( "/usr/X11/include"));
+        for ( 'local/', 'freeware/', 'gnu/', 'opt/') {
+            push @INCPATH, qd( "/usr/${_}include") if -d "/usr/${_}include";
+        }
+        my $incpath = find_header( qd( "X11/Xlib.h"), qd( "/usr/X11R6/include"), qd( "/usr/X11/include"), qd("/usr/X/include"));
         die "Prima needs X11 headers for compilation! Perhaps, you have non-standard path to X11? $extramsg\n" unless defined $incpath;
-        print "X11 includes found in $incpath\n";
-        push @INCPATH, $incpath;
-        my $libpath = find_lib( "X11", "/usr/X11R6/lib", "/usr/X11/lib");
+        if ( -d $incpath) {
+           print "X11 includes found in $incpath\n";
+           push @INCPATH, $incpath;
+        }
+        my $libpath = find_lib( "X11", "/usr/X11R6/lib", "/usr/X11/lib", "usr/X/lib");
         die "Prima needs X11 libraries for compilation! Perhaps, you have non-standard path to X11?  $extramsg\n" unless defined $libpath;
-        print "X11 libraries found in $libpath\n";
-        push @LIBPATH, $libpath;
+        if ( -d $libpath) {
+           print "X11 libraries found in $libpath\n";
+           push @LIBPATH, $libpath;
+        }
         push @LIBS, 'X11';
         if (defined find_lib( "Xext", '')) {
             print "Xext library found.\n";
@@ -1197,7 +1240,9 @@ sub setup_misc
 
 perl Makefile.PL WANTNOCODECS=1
 
-to ignore this error.
+to ignore this error. Note that in this configuration Prima
+will not be able to work with graphic files. Please follow
+the instructions in README file.
 
 NOCODECS
 
@@ -1979,9 +2024,7 @@ EOF
 
     print MAKE <<EOF;
 
-dirs: @alldirs
-
-@alldirs:
+dirs: 
 \t\@echo Creating directories...
 \t\@\$(MD) @alldirs
 

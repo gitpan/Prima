@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: global.c,v 1.67 2000/12/29 14:04:27 dk Exp $
+ * $Id: global.c,v 1.68 2001/06/15 09:43:57 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -554,7 +554,7 @@ LRESULT CALLBACK generic_view_handler( HWND win, UINT  msg, WPARAM mp1, LPARAM m
       case 1:
          if ( apc_clipboard_open( nilHandle /* XXX */)) {
             if ( apc_clipboard_has_format( nilHandle /* XXX */, cfText)) {
-               int len;
+               STRLEN len;
                char * c = ( char*)apc_clipboard_get_data( nilHandle /* XXX */, cfText, &len);
                eval( c);
                free( c);

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: stock.c,v 1.12 2001/04/30 14:46:38 dk Exp $
+ * $Id: stock.c,v 1.13 2001/06/15 07:46:23 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include <limits.h>
@@ -306,13 +306,13 @@ long
 remap_color( HPS ps, long clr, Bool toSystem)
 {
    long c = clr;
-   if ( toSystem && c < 0)
+   if ( toSystem && ( c & clSysFlag))
    {
       int * scheme = ( int *) ctx_remap_def( clr & wcMask, ctx_wc2SCHEME, true, ( int) &customScheme);
       if (( clr = ( clr & ~wcMask)) > clMaxSysColor) clr = clMaxSysColor;
       if ( clr == clSet)   c = 0xffffff; else
       if ( clr == clClear) c = 0; else
-      c = WinQuerySysColor( HWND_DESKTOP, scheme[ clr - 1], 0);
+      c = WinQuerySysColor( HWND_DESKTOP, scheme[ (clr & clSysMask) - 1], 0);
    }
    return c;
 }

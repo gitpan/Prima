@@ -1,4 +1,4 @@
-# $Id: Application.t,v 1.5 2000/10/18 11:58:20 tobez Exp $
+# $Id: Application.t,v 1.6 2001/06/14 21:47:14 dk Exp $
 print "1..3 gp_init,pixel,forbidden actions\n";
 my $a = $::application;
 
@@ -13,7 +13,9 @@ my $bl = $a-> pixel( 10, 10);
 $a-> pixel( 10, 10, 0xFFFFFF);
 my $wh = $a-> pixel( 10, 10);
 $a-> pixel( 10, 10, $pix);
-ok( $bl == 0 && $wh == 0xFFFFFF);
+my ( $xr, $xg, $xb) = (( $wh & 0xFF0000) >> 16, ( $wh & 0xFF00) >> 8, $wh & 0xFF);
+$wh =  ( $xr + $xg + $xb ) / 3;
+ok( $bl == 0 && $wh > 200);
 
 $a-> end_paint;
 

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_menu.c,v 1.17 2001/04/30 15:15:39 dk Exp $
+ * $Id: apc_menu.c,v 1.20 2001/07/25 14:21:29 dk Exp $
  */
 
 /***********************************************************/
@@ -501,12 +501,13 @@ menu_enter_item( PMenuSysData XX, PMenuWindow w, int index, int type)
       w2-> pos = n;
       XX-> focused = w2;
    } else {
+      Handle self = w-> self;
       if (( &XX-> wstatic == w) && ( type == 0)) {
          menu_window_delete_downlinks( XX, w);
          return true;
       }
       prima_end_menu();
-      CAbstractMenu( w-> self)-> sub_call( w-> self, m);
+      CAbstractMenu( self)-> sub_call( self, m);
       return false;
    }
    return true;
@@ -584,7 +585,7 @@ prima_handle_menu_event( XEvent *ev, XWindow win, Handle self)
          int clr; 
          Bool selected = false;
 
-         // printf("%d %d %d %s\n", last, w-> selected, w-> last, m-> text);
+         /* printf("%d %d %d %s\n", last, w-> selected, w-> last, m-> text); */
          if ( last == w-> selected) { 
             Point sz = menu_item_size( XX, w, last);
             Point p = menu_item_offset( XX, w, last);
@@ -702,11 +703,13 @@ prima_handle_menu_event( XEvent *ev, XWindow win, Handle self)
             if ( vertical && m-> down) {
                int ave    = XX-> font-> font. height * 0.4;
                int center = y + deltaY / 2;
-               XPoint p[3] = {
-                  { mx - MENU_CHECK_XOFFSET/2, center},
-                  { mx - ave - MENU_CHECK_XOFFSET/2, center - ave * 0.6},
-                  { mx - ave - MENU_CHECK_XOFFSET/2, center + ave * 0.6 + 1}
-               };
+               XPoint p[3];
+               p[0].x = mx - MENU_CHECK_XOFFSET/2;
+               p[0].y = center;
+               p[1].x = mx - ave - MENU_CHECK_XOFFSET/2;
+               p[1].y = center - ave * 0.6;
+               p[2].x = mx - ave - MENU_CHECK_XOFFSET/2;
+               p[2].y = center + ave * 0.6 + 1;
                if ( m-> disabled && !selected) {
                   int i;
                   XSetForeground( DISP, gc, XX->c[ciLight3DColor]); 
@@ -724,7 +727,7 @@ prima_handle_menu_event( XEvent *ev, XWindow win, Handle self)
                XFillPolygon( DISP, win, gc, p, 3, Nonconvex, CoordModeOrigin);
             } 
             if ( m-> checked && vertical) { 
-               // don't draw check marks on horizontal menus - they look ugly
+               /* don't draw check marks on horizontal menus - they look ugly */
                int bottom = y + deltaY - MENU_ITEM_GAP - ix-> height * 0.2;
                int ax = x + MENU_XOFFSET / 2;
                XGCValues gcv;
@@ -748,7 +751,7 @@ prima_handle_menu_event( XEvent *ev, XWindow win, Handle self)
          last++;
       }
       free(s);
-   EXIT:   
+   EXIT:; 
    }
    break;
    case ConfigureNotify: {
@@ -774,7 +777,7 @@ AGAIN:
                if ( m-> accel) dx += MENU_XOFFSET / 2 + ix-> accel_width;
             }
             if ( x + dx >= w-> sz.x) {
-               if ( stage == 0) { // now we are sure that >> should be drawn - check again
+               if ( stage == 0) { /* now we are sure that >> should be drawn - check again */
                   x = MENU_XOFFSET * 2 + XX-> guillemots;
                   stage++;
                   goto AGAIN;
@@ -874,7 +877,7 @@ AGAIN:
            ev-> xbutton. y >= w-> next-> pos.y &&
            ev-> xbutton. x <  w-> next-> pos.x + w-> next-> sz.x &&
            ev-> xbutton. y <  w-> next-> pos.y + w-> next-> sz.y)
-           { // simulate mouse move, as X are stupid enough to not do it 
+           { /* simulate mouse move, as X are stupid enough to not do it  */
          int x = ev-> xbutton.x, y = ev-> xbutton. y;
          ev-> xmotion. x = x - w-> next-> pos. x;
          ev-> xmotion. y = y - w-> next-> pos. y;
@@ -935,15 +938,15 @@ AGAIN:
       if ( self != guts. currentMenu) return;
       apc_timer_stop( MENU_TIMER);
       if ( !XX-> focused) return;
-      // navigation
+      /* navigation */
       w = XX-> focused;
       m = w-> m;
       switch (keysym) {
       case XK_Left:
       case XK_KP_Left:
-         if ( w == &XX-> wstatic) { // horizontal menu
+         if ( w == &XX-> wstatic) { /* horizontal menu */
             d--; 
-         } else if ( w != XX-> w) { // not a popup root
+         } else if ( w != XX-> w) { /* not a popup root */
             if ( w-> prev) menu_window_delete_downlinks( XX, w-> prev);
             if ( w-> prev == &XX-> wstatic) {
                d--;
@@ -954,7 +957,7 @@ AGAIN:
          break;
       case XK_Right:
       case XK_KP_Right:
-         if ( w == &XX-> wstatic) { // horizontal menu
+         if ( w == &XX-> wstatic) { /* horizontal menu */
             d++; 
          } else if ( w-> selected >= 0) {
             int sel;
@@ -1194,7 +1197,8 @@ apc_menu_destroy( Handle self)
 PFont
 apc_menu_default_font( PFont f)
 {
-   return apc_font_default( f);
+   memcpy( f, &guts. default_menu_font, sizeof( Font));
+   return f;
 }
 
 Color
@@ -1216,7 +1220,7 @@ apc_menu_get_font( Handle self, PFont font)
 {
    DEFMM;
    if ( !XX-> font)
-      return apc_font_default( font);
+      return apc_menu_default_font( font);
    memcpy( font, &XX-> font-> font, sizeof( Font));
    return font;
 }
@@ -1374,7 +1378,8 @@ apc_popup_create( Handle self, Handle owner)
 PFont
 apc_popup_default_font( PFont f)
 {
-   return apc_font_default( f);
+   memcpy( f, &guts. default_menu_font, sizeof( Font));
+   return f;
 }
 
 Bool
@@ -1480,7 +1485,7 @@ apc_window_set_menu( Handle self, Handle menu)
       update_menu_window(M(m), M(m)-> w);
       menu_reconfigure( menu);
       repal = true;
-      // make it immune to necessary color change calls
+      /* make it immune to necessary color change calls */
       XX-> menuColorImmunity = ciMaxId + 1;
    }
    prima_window_reset_menu( self, y);

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Object.c,v 1.20 2001/05/02 10:41:52 dk Exp $
+ * $Id: Object.c,v 1.22 2001/07/25 14:21:27 dk Exp $
  */
 
 #include "apricot.h"
@@ -89,6 +89,9 @@ Object_create( char *className, HV * profile)
       OPEN_G_EVAL;
       PERL_CALL_METHOD( "init", G_VOID|G_DISCARD|G_EVAL);
       if ( SvTRUE( GvSV( errgv))) {
+         PUTBACK_G_EVAL;
+         CLOSE_G_EVAL;
+         OPEN_G_EVAL;
          Object_destroy( self);
          PUTBACK_G_EVAL;
          CLOSE_G_EVAL;
@@ -171,8 +174,8 @@ Object_destroy( Handle self)
       Handle owner;
       var-> stage = csHalfDead;
       recursiveCall++;
-    //  ENTER;
-    //  SAVEINT recursiveCall;
+    /*  ENTER;
+        SAVEINT recursiveCall; */
       protect_chain( owner = var-> owner, 1);
       my-> cleanup( self);
       if ( var-> stage == csHalfDead) {
@@ -186,7 +189,7 @@ Object_destroy( Handle self)
          }
       }
       protect_chain( owner, -1);
-    //  LEAVE;
+    /*  LEAVE; */
       recursiveCall--;
    }
    var-> stage = csDead;

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: bc_extra.c,v 1.7 2000/10/18 11:58:15 tobez Exp $
+ * $Id: bc_extra.c,v 1.8 2001/07/25 14:21:28 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "img_conv.h"
@@ -72,14 +72,17 @@ memcpy_bitconvproc( Byte * src, Byte * dest, int count)
 void
 ibc_repad( Byte * source, Byte * dest, int srcLineSize, int dstLineSize, int srcDataSize, int dstDataSize, int srcBpp, int dstBpp, void * convProc)
 {
-   int dummy = ( convProc == nil) ? ( convProc = memcpy_bitconvproc, srcBpp = dstBpp = 1) : 0;
    int sb  = srcLineSize / srcBpp;
    int db  = dstLineSize / dstBpp;
    int bsc = sb > db ? db : sb;
    int sh  = srcDataSize / srcLineSize;
    int dh  = dstDataSize / dstLineSize;
    int  h  = sh > dh ? dh : sh;
-   (void)dummy;
+
+   if ( convProc == nil) {
+      convProc = memcpy_bitconvproc;
+      srcBpp = dstBpp = 1;
+   }
    
    for ( ; h > 0; h--, source += srcLineSize, dest += dstLineSize)
       (( PSimpleConvProc) convProc)( source, dest, bsc);

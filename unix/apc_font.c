@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_font.c,v 1.33 2001/06/14 08:55:51 dk Exp $
+ * $Id: apc_font.c,v 1.39 2001/07/25 14:21:29 dk Exp $
  */
 
 /***********************************************************/
@@ -33,36 +33,6 @@
 /***********************************************************/
 
 #include "unix/guts.h"
-
-/*
-global %Font {
-#   int         height;
-#   int         width;
-#   int         style;
-#   int         pitch;
-#   int         direction;
-   long        resolution;
-#   string      name;
-#   int         size;
-   int         codepage;
-   string      family;
-   int         vector;
-   int         ascent;
-   int         descent;
-   int         weight;
-   int         maximalWidth;
-   int         internalLeading   ;
-   int         externalLeading   ;
-   int         xDeviceRes        ;
-   int         yDeviceRes        ;
-   int         firstChar         ;
-   int         lastChar          ;
-   int         breakChar         ;
-   int         defaultChar       ;
-}
-*/
-
-
 
 static PHash xfontCache = nil;
 static void detail_font_info( PFontInfo f, PFont font, Bool addToCache, Bool bySize);
@@ -106,8 +76,8 @@ font_query_name( XFontStruct * s, PFontInfo f)
          snprintf( f-> font. name, 256, "%s %s", c, f-> font. family);
          strlwr( f-> lc_name, f-> font. name);
          XFree( c);
-      }
-   }
+      } 
+   } 
 }   
 
 Bool
@@ -348,7 +318,7 @@ prima_init_font_subsystem( void)
 	    while ( *c && *c != '-') c++;
 	    if ( !*c  && info[j]. flags. pitch && 
 		 ( vector == 5 || vector == 3 || 
-		 // ( vector == 5 || 
+		 /* ( vector == 5 ||  */
 		   ( info[j]. flags. height &&
 		     info[j]. flags. size &&
 		     info[j]. flags. xDeviceRes &&
@@ -418,6 +388,29 @@ prima_init_font_subsystem( void)
    info[j]. flags. sloppy = true;  
    info[j]. flags. vector = true;  
    detail_font_info( info + j, nil, false, false);
+
+   if ( !apc_fetch_resource( "Prima", "", "Font", "font", 
+                             nilHandle, frFont, &guts. default_font)) {
+      strcpy( guts. default_font. name, "Helvetica");
+      guts. default_font. height = C_NUMERIC_UNDEF;
+      guts. default_font. size = 12;
+      guts. default_font. width = C_NUMERIC_UNDEF;
+      guts. default_font. style = fsNormal;
+      guts. default_font. pitch = fpDefault;
+      apc_font_pick( application, &guts. default_font, &guts. default_font);
+      guts. default_font. pitch = fpDefault;
+   }
+   if ( !apc_fetch_resource( "Prima", "", "Font", "menu_font", 
+                             nilHandle, frFont, &guts. default_menu_font)) 
+      memcpy( &guts. default_menu_font, &guts. default_font, sizeof( Font));
+   if ( !apc_fetch_resource( "Prima", "", "Font", "widget_font", 
+                             nilHandle, frFont, &guts. default_widget_font)) 
+      memcpy( &guts. default_widget_font, &guts. default_font, sizeof( Font));
+   if ( !apc_fetch_resource( "Prima", "", "Font", "message_font", 
+                             nilHandle, frFont, &guts. default_msg_font))
+      memcpy( &guts. default_msg_font, &guts. default_font, sizeof( Font));
+   if ( !apc_fetch_resource( "Prima", "", "Font", "caption_font", nilHandle, frFont, &guts. default_caption_font))
+      memcpy( &guts. default_caption_font, &guts. default_font, sizeof( Font));
    return true;
 }
 
@@ -429,7 +422,7 @@ prima_free_rotated_entry( PCachedFont f)
       while ( r-> length--) {
           if ( r-> map[ r-> length]) {
              prima_free_ximage( r-> map[ r-> length]);
-             r-> map[ r-> length] = nilHandle;
+             r-> map[ r-> length] = nil;
           }      
       }   
       f-> rotated = ( PRotatedFont) r-> next;
@@ -481,21 +474,7 @@ prima_cleanup_font_subsystem( void)
 PFont
 apc_font_default( PFont f)
 {
-   static Font font;
-   static Bool initialized = false;
-   if ( !initialized) {
-      strcpy( font. name, "Helvetica");
-      font. height = C_NUMERIC_UNDEF;
-      font. size = 12;
-      font. width = C_NUMERIC_UNDEF;
-      font. style = fsNormal;
-      font. pitch = fpDefault;
-      apc_font_pick( application, &font, &font);
-      font. pitch = fpDefault;
-      font. style = fsNormal;
-      initialized = true;
-   }
-   *f = font;
+   memcpy( f, &guts. default_font, sizeof( Font));
    return f;
 }
 
@@ -508,6 +487,7 @@ apc_font_load( const char* filename)
 static void
 dump_font( PFont f)
 {
+   if ( !DISP) return;
    fprintf( stderr, "*** BEGIN FONT DUMP ***\n");
    fprintf( stderr, "height: %d\n", f-> height);
    fprintf( stderr, "width: %d\n", f-> width);
@@ -581,7 +561,6 @@ add_font_to_cache( PFontKey key, PFontInfo f, const char *name, XFontStruct *s, 
    return true;
 }
 
-
 static void
 detail_font_info( PFontInfo f, PFont font, Bool addToCache, Bool bySize)
 {
@@ -614,7 +593,7 @@ detail_font_info( PFontInfo f, PFont font, Bool addToCache, Bool bySize)
    if ( f-> vecname) {
       pickable = 1;
 PICK_AGAIN:         
-      if ( f-> flags. xDeviceRes) {
+      if ( f-> flags. bad_vector) {
          /* three fields */
          sprintf( name, f-> vecname, height, size, font-> width * 10);
       } else {
@@ -628,7 +607,7 @@ PICK_AGAIN:
       strcpy( name, f-> xname);
    }
    
-   /* printf( "loading %s\n", name); */
+   /* printf( "loading %s\n", name); */ 
    s = hash_fetch( xfontCache, name, strlen( name));
    
    if ( !s) {
@@ -657,7 +636,6 @@ PICK_AGAIN:
 
    if ( f-> flags. sloppy || f-> font. vector) {
       int preSize = 1;
-      of-> flags. sloppy = false;
 
       /* detailing y-resolution */
       if ( XGetFontProperty( s, FXA_RESOLUTION_Y, &v) && v) {
@@ -727,13 +705,24 @@ PICK_AGAIN:
          int * a = bySize ? &size : &height;
          int   b = bySize ? f-> font. size : f-> font. height;
          int   m = bySize ? 10 : 1;
+
          pickable = 0;
          if ( b != pickValue && b != 0) {
             *a = *a * pickValue / ( b * m) + 0.5;
             if ( *a != pickValue) 
                goto PICK_AGAIN;
          }
-      }   
+      } else if ( f-> vecname) {
+         /* forcing vector font metrics to match the query, even 
+            if they don't really match ( experimental ). */
+         if ( bySize) {
+            f-> font. size = font-> size;
+            f-> font. internalLeading = f-> font. height - font-> size * guts. resolution. y / 72.27; 
+         } else {
+            f-> font. height = font-> height;
+            f-> font. size = (( font-> height - f-> font. internalLeading) * 72.27) / guts. resolution. y + 0.5;
+         }
+      }
       
       f-> flags. resolution      = true;
       f-> font. resolution       = f-> font. yDeviceRes * 0x10000 + f-> font. xDeviceRes;
@@ -749,6 +738,7 @@ PICK_AGAIN:
       f-> font.  lastChar        = s-> max_char_or_byte2;
       f-> flags. direction       = true;
       f-> font.  direction       = 0;
+      of-> flags. sloppy         = false;
 
       /* detailing maximalWidth */
       f-> flags. maximalWidth = true;   
@@ -765,9 +755,6 @@ PICK_AGAIN:
       } else 
          f-> font. maximalWidth = s-> max_bounds. width;
 
-/*      if ( s-> ascent + 0*s-> descent != f-> font. height) 
-         croak( "%s: %d <=> %d", f-> font.name, f-> font. height, s-> ascent + s-> descent*0);*/
-  
       /* detailing spacing;  can trust if already known */
       if ( !f-> flags. pitch && XGetFontProperty( s, FXA_SPACING, &v) && v) {
          XCHECKPOINT;
@@ -803,7 +790,6 @@ PICK_AGAIN:
             f-> font. style |= fsBold;
             of-> font. style |= fsBold;
          }
-         /* of-> font. style = f-> font. style = 2; */ /* Kakogo hrena??????? XXX */
          of-> flags. weight = f-> flags. weight = true;
          weight = (v + 5)/10;
          if (weight >= 10) weight--;
@@ -838,18 +824,6 @@ PICK_AGAIN:
             }   
          }   
       }   
-      
-
-
-      /* XXX YYY ZZZ */
-      /* Things left undetailed for now: */
-      /*  slant part of style, vector(ha-ha) */
-      /* XXX YYY ZZZ */
-      /* Things left undetermined for now: */
-      /*  codepage, ascent, descent, extLead, breakCh */
- /* printf("accept:%d.%d.{%d}.%s; res:%d %d\n", f-> font.height, f-> font.size, f-> font. style, f-> font.name, 
-       f-> font. xDeviceRes, f-> font. yDeviceRes); */
-      
    }   
 
 /*
@@ -1011,6 +985,8 @@ apc_font_pick( Handle self, PFont source, PFont dest)
    Bool underlined = dest-> style & fsUnderlined;
    Bool struckout  = dest-> style & fsStruckOut;
    int  direction  = dest-> direction;
+
+   if ( n == 0) return false;
   
    /*
    if ( by_size) {
@@ -1044,20 +1020,25 @@ AGAIN:
 
    i = index;
 
-   /* printf( "#0: %d (%g): %s\n", i, minDiff, info[i].xname); */
-     
+   /*
+    printf( "#0: %d (%g): %s\n", i, minDiff, info[i].xname); 
+    printf("pick:%d.[%d]{%d}.%s\n", info[i].font. height, info[i].font. size, info[i].font. style, info[i].font. name);
+   */
    
    if ( info[ i]. flags. sloppy && pickCount++ < 20) { 
       detail_font_info( info + i, dest, false, by_size); 
-      if ( minDiff < query_diff( info + i, dest, lcname, by_size))
+      if ( minDiff < query_diff( info + i, dest, lcname, by_size)) {
+         minDiff = lastDiff = INT_MAX;
+         index = -1;
          goto AGAIN;
+      }
    } 
 
-   /* 
-      printf( "took diff %f after %d steps out of %d\n", minDiff, pickCount, n); 
+   /*
+     printf( "took diff %f after %d steps out of %d\n", minDiff, pickCount, n); 
       if ( lastIndex >= 0)
          printf( "#1: %d (%g): %s %d\n", lastIndex, lastDiff, info[lastIndex]. xname, info[lastIndex]. font. vector);
-   */
+     */
    detail_font_info( info + index, dest, true, by_size);
 
    if ( underlined) dest-> style |= fsUnderlined;
@@ -1080,11 +1061,6 @@ AGAIN:
    *retCount = 0;
    n_table = 0;
    
-/*   if ( self && kind_of( self, CPrinter)) { 
-      return nil;
-   }  XXX */
-
-
    /* stage 1 - browse through names and validate records */
    table = malloc( count * sizeof( PFontInfo));
    if ( facename == nil) {
@@ -1113,7 +1089,7 @@ AGAIN:
    fmtx = malloc( n_table * sizeof( Font)); 
    
    defaultFont. width  = 0;
-   defaultFont. height = 16;
+   defaultFont. height = 10;
    defaultFont. size   = 0;
       
    for ( i = 0; i < n_table; i++) {
@@ -1142,7 +1118,7 @@ apc_gp_set_font( Handle self, PFont font)
    PCachedFont kf = prima_find_known_font( font, false, false);
    if ( !kf || !kf-> id) {
       dump_font( font);
-      warn( "UAF_007: internal error (kf:%08x)", (IntPtr)kf); /* the font was not cached, can't be */
+      if ( DISP) warn( "UAF_007: internal error (kf:%08x)", (IV)kf); /* the font was not cached, can't be */
       return false;
    }
 
@@ -1160,7 +1136,7 @@ apc_gp_set_font( Handle self, PFont font)
 
    if ( XX-> flags. paint) {
       XX-> flags. reload_font = reload;
-      // fprintf( stderr, "set font: %s\n", XX-> font-> load_name);
+      /* fprintf( stderr, "set font: %s\n", XX-> font-> load_name); */
       XSetFont( DISP, XX-> gc, XX-> font-> id);
       XCHECKPOINT;
    }
@@ -1180,7 +1156,7 @@ apc_menu_set_font( Handle self, PFont font)
 
    if ( !kf || !kf-> id) {
       dump_font( font);
-      warn( "UAF_010: internal error (kf:%08x)", (IntPtr)kf); /* the font was not cached, can't be */
+      warn( "UAF_010: internal error (kf:%08x)", (IV)kf); /* the font was not cached, can't be */
       return false;
    }
 
@@ -1249,10 +1225,10 @@ prima_update_rotated_fonts( PCachedFont f, char * text, int len, int direction, 
          bzero( r-> map, r-> length * sizeof( void*));
       }    
       rad = direction * 3.14159 / 1800.0;
-      r-> sin. l = ( sin1 = sin( -rad)) * 0x10000;
-      r-> cos. l = ( cos1 = cos( -rad)) * 0x10000;
-      r-> sin2.l = ( sin2 = sin(  rad)) * 0x10000;
-      r-> cos2.l = ( cos2 = cos(  rad)) * 0x10000;
+      r-> sin. l = ( sin1 = sin( -rad)) * UINT16_PRECISION;
+      r-> cos. l = ( cos1 = cos( -rad)) * UINT16_PRECISION;
+      r-> sin2.l = ( sin2 = sin(  rad)) * UINT16_PRECISION;
+      r-> cos2.l = ( cos2 = cos(  rad)) * UINT16_PRECISION;
       
 /*
    1(0,y)  2(x,y)
@@ -1318,12 +1294,12 @@ FAILED:
       XSetForeground( DISP, r-> arena_gc, 0);
       XFillRectangle( DISP, r-> arena, r-> arena_gc, 0, 0, r-> orgBox. x, r-> orgBox .y);
       XSetForeground( DISP, r-> arena_gc, 1);
-      // XDrawRectangle( DISP, r-> arena, r-> arena_gc, 0, 0, r-> orgBox. x-1, r-> orgBox .y-1);
+      /* XDrawRectangle( DISP, r-> arena, r-> arena_gc, 0, 0, r-> orgBox. x-1, r-> orgBox .y-1); */
       XDrawString( DISP, r-> arena, r-> arena_gc, 
           ( cs-> lbearing < 0) ? -cs-> lbearing : 0, 
           r-> orgBox. y - f-> fs-> descent - 1,
           &index, 1);
-      // XDrawLine( DISP, r-> arena, r-> arena_gc, 0, r-> orgBox .y-1, 8, r-> orgBox .y-1);
+      /* XDrawLine( DISP, r-> arena, r-> arena_gc, 0, r-> orgBox .y-1, 8, r-> orgBox .y-1); */
       XCHECKPOINT;
 
       /* getting glyph bits */
@@ -1351,8 +1327,8 @@ FAILED:
          for ( y = r-> shift. y; y < r-> shift. y + r-> dimension. y; y++) {
             lx. l = r-> shift. x * r-> cos. l - y * r-> sin. l;
             if ( fast)
-               lx. l += 0x8000;
-            ly. l = r-> shift. x * r-> sin. l + y * r-> cos. l + 0x8000;
+               lx. l += UINT16_PRECISION/2;
+            ly. l = r-> shift. x * r-> sin. l + y * r-> cos. l + UINT16_PRECISION/2;
             if ( fast) {
                for ( x = 0; x < r-> dimension. x; x++) {
                if ( ly. i. i >= 0 && ly. i. i < r-> orgBox. y &&
@@ -1371,15 +1347,15 @@ FAILED:
                      Byte * src = r-> arena_bits + r-> lineSize * ly. i. i;
                      pv = 0;
                      if ( src[ lx . i. i >> 3] & ( 1 << ( 7 - ( lx . i. i & 7))))  
-                        pv += ( 0x10000 - lx. i. f);
+                        pv += ( UINT16_PRECISION - lx. i. f);
                      if ( lx. i. i < r-> orgBox. x - 1) {
                         if ( src[( lx. i. i + 1) >> 3] & ( 1 << ( 7 - (( lx. i. i + 1) & 7))))  
                            pv += lx. i. f; 
                      } else {
                         if ( src[ lx . i. i >> 3] & ( 1 << ( 7 - ( lx . i. i & 7))))  
-                           pv += 0x8000;
+                           pv += UINT16_PRECISION/2;
                      }   
-                     if ( pv >= 0x8000)
+                     if ( pv >= UINT16_PRECISION/2)
                         dst[ x >> 3] |= 1 << ( 7 - ( x & 7)); 
                   } 
                   lx. l += r-> cos. l;

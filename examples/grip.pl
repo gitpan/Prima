@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: grip.pl,v 1.7 2000/10/18 11:58:07 tobez Exp $
+#  $Id: grip.pl,v 1.8 2001/06/22 12:57:55 dk Exp $
 #
 use strict;
 use Prima;
@@ -154,7 +154,7 @@ my $w = Prima::Window-> create(
          my $i = canvas( $v);
          paint( $v, $i);
          $i-> end_paint;
-         $self-> IV-> image( $i);
+         $self-> IV-> image( $i-> image);
       } elsif ( $cap == 3) {
          ($self->{dx},$self->{dy}) = $self-> client_to_screen( $x, $y);
          xordraw( $self);

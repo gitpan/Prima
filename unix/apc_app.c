@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_app.c,v 1.64 2001/05/04 10:14:01 dk Exp $
+ * $Id: apc_app.c,v 1.71 2001/07/27 09:07:23 dk Exp $
  */
 
 /***********************************************************/
@@ -39,19 +39,24 @@
 #include <sys/utsname.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <signal.h>
 #if !defined(BYTEORDER)
 #error "BYTEORDER is not defined"
 #endif
 #define LSB32   0x1234
+#define LSB64   0x12345678
 #define MSB32   0x4321
+#define MSB64   0x87654321
 #ifndef BUFSIZ
 #define BUFSIZ  2048
 #endif
 
+UnixGuts guts;
+
 static int
 x_error_handler( Display *d, XErrorEvent *ev)
 {
-   int tail = guts. ri_tail;
+   int tail = guts. ri_tail; 
    int prev = tail;
    char *name = "Prima";
    char buf[BUFSIZ];
@@ -93,6 +98,7 @@ x_io_error_handler( Display *d)
 {
    fprintf( stderr, "Fatal input/output X error\n");
    _exit( 1);
+   return 0; /* happy now? */
 }
 
 static XrmDatabase
@@ -153,6 +159,15 @@ window_subsystem_init( void)
       "Scrollfirst.scrollfirst."
       "Scrollnext.scrollnext";
    
+   bzero( &guts, sizeof( guts));
+   {
+      char * noX = getenv("PRIMA_DEVEL_WANT_NO_X");
+      if ( noX && strcmp( noX, "YES") == 0) {
+         fprintf( stderr, "** warning: PRIMA_DEVEL_WANT_NO_X environment variable is set, proceed on your own risk!\n");
+         return true;
+      }
+   }
+
    guts. click_time_frame = 200;
    guts. double_click_time_frame = 200;
    guts. visible_timeout = 500;
@@ -272,9 +287,9 @@ window_subsystem_init( void)
       guts. qdepth = 24;
    guts. byte_order = ImageByteOrder( DISP);
    guts. bit_order = BitmapBitOrder( DISP);
-   if ( BYTEORDER == LSB32)
+   if ( BYTEORDER == LSB32 || BYTEORDER == LSB64)
       guts. machine_byte_order = LSBFirst;
-   else if ( BYTEORDER == MSB32)
+   else if ( BYTEORDER == MSB32 || BYTEORDER == MSB64)
       guts. machine_byte_order = MSBFirst;
    else {
       warn( "UAA_001: weird machine byte order: %08x", BYTEORDER);
@@ -295,33 +310,9 @@ window_subsystem_init( void)
    if ( !prima_init_clipboard_subsystem()) return false;
    if ( !prima_init_color_subsystem()) return false;
    if ( !prima_init_font_subsystem()) return false;
-
-   {
-      XGCValues gcv;
-      Pixmap px = XCreatePixmap( DISP, guts.root, 4, 4, 1);
-      GC gc = XCreateGC( DISP, px, 0, &gcv);
-      XImage *xi;
-      XSetForeground( DISP, gc, 0);
-      XFillRectangle( DISP, px, gc, 0, 0, 5, 5);
-      XSetForeground( DISP, gc, 1);
-      XDrawArc( DISP, px, gc, 0, 0, 4, 4, 0, 360 * 64);
-      if (( xi = XGetImage( DISP, px, 0, 0, 4, 4, 1, XYPixmap))) {
-         int i;
-         Byte *data[4];
-         if ( xi-> bitmap_bit_order == LSBFirst) 
-            prima_mirror_bytes( xi-> data, xi-> bytes_per_line * 4);
-         for ( i = 0; i < 4; i++) data[i] = (Byte*)xi-> data + i * xi-> bytes_per_line;
-#define PIX(x,y) ((data[y][0] & (0x80>>(x)))!=0)
-         if (  PIX(2,1) && !PIX(3,1)) guts. ellipseDivergence.x = -1; else
-         if ( !PIX(2,1) && !PIX(3,1)) guts. ellipseDivergence.x = 1; 
-         if (  PIX(1,2) && !PIX(1,3)) guts. ellipseDivergence.y = -1; else
-         if ( !PIX(1,2) && !PIX(1,3)) guts. ellipseDivergence.y = 1; 
-#undef PIX                          
-         XDestroyImage( xi);
-      }
-      XFreeGC( DISP, gc);
-      XFreePixmap( DISP, px);
-   }
+   bzero( &guts. cursor_gcv, sizeof( guts. cursor_gcv));
+   guts. cursor_gcv. cap_style = CapButt;
+   guts. cursor_gcv. function = GXcopy;
 /*    XSynchronize( DISP, true); */
    return true;
 }
@@ -329,6 +320,7 @@ window_subsystem_init( void)
 void
 window_subsystem_cleanup( void)
 {
+   if ( !DISP) return;
    /*XXX*/
    prima_end_menu();
    if ( guts. wm_cleanup)
@@ -352,6 +344,8 @@ free_gc_pool( struct gc_head *head)
 void
 window_subsystem_done( void)
 {
+   if ( !DISP) return;
+
    prima_end_menu();
    free_gc_pool(&guts.bitmap_gc_pool);
    free_gc_pool(&guts.screen_gc_pool);
@@ -401,6 +395,8 @@ apc_application_create( Handle self)
    XSetWindowAttributes attrs;
    DEFXX;
 
+   if ( !DISP) return false;
+
    XX-> type.application = true;
    XX-> type.widget = true;
    XX-> type.drawable = true;
@@ -417,7 +413,8 @@ apc_application_create( Handle self)
    XX-> pointer_id = crArrow;
    XX-> gdrawable = XX-> udrawable = guts. root;
    XX-> parent = None;
-   XX-> origin = ( Point){0,0};
+   XX-> origin. x = 0;
+   XX-> origin. y = 0;
    XX-> ackSize = XX-> size = apc_application_get_size( self);
    XX-> owner = nilHandle;
 
@@ -495,7 +492,7 @@ apc_application_get_widget_from_point( Handle self, Point p)
       } else {
          Handle h;
          if ( to == from) to = X_WINDOW;
-         h = prima_xw2h( to);
+         h = (Handle)hash_fetch( guts.windows, (void*)&to, sizeof(to));
          return ( h == application) ? nilHandle : h;
       }
    }
@@ -706,7 +703,7 @@ prima_one_loop_round( Bool wait, Bool careOfApplication)
        FD_ISSET( guts.connection, &read_set)) {
       if (( queued_events = XEventsQueued( DISP, QueuedAfterFlush)) <= 0) {
          /* just like tcl/perl tk do, to avoid an infinite loop */
-         sig_t oldHandler = signal( SIGPIPE, SIG_IGN);
+         RETSIGTYPE oldHandler = signal( SIGPIPE, SIG_IGN);
          XNoOp( DISP);
          XFlush( DISP);
          (void) signal( SIGPIPE, oldHandler);

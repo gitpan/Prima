@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: File.c,v 1.17 2001/06/14 08:55:49 dk Exp $
+ * $Id: File.c,v 1.18 2001/06/15 09:35:20 dk Exp $
  */
 
 #include "apricot.h"
@@ -183,7 +183,7 @@ File_reset_notifications( Handle self)
 
    for ( i = 0; i < 3; i++) {
       if ( ret[i] == nil) continue;
-      list = var-> events + ( IntPtr) ret[i] - 1;
+      list = var-> events + ( IV) ret[i] - 1;
       if ( list-> count > 0) mask |= cmd[ i];
    }
 

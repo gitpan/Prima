@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: guts.h,v 1.10 2001/05/16 09:04:25 dk Exp $ */
+/* $Id: guts.h,v 1.11 2001/07/25 14:21:29 dk Exp $ */
 #ifndef _GUTS_H_
 #define _GUTS_H_
 
@@ -62,7 +62,6 @@ extern void window_subsystem_cleanup( void);
 extern void window_subsystem_done( void);
 extern void build_static_vmt( void *vmt);
 extern void kill_zombies( void);
-extern void init_image_support( void);
 extern void prima_init_image_subsystem( void);
 extern void prima_cleanup_image_subsystem( void);
 

@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Prima.pm,v 1.19 2001/06/14 08:57:17 dk Exp $
+#  $Id: Prima.pm,v 1.20 2001/07/27 09:50:11 dk Exp $
 
 package Prima;
 
@@ -43,7 +43,7 @@ BEGIN {
     }
 }
 
-$VERSION = '1.01';
+$VERSION = '1.02';
 bootstrap Prima $VERSION;
 $::application = undef;
 require Prima::Const;

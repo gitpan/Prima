@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Classes.pm,v 1.40 2001/04/30 15:33:29 dk Exp $
+# $Id: Classes.pm,v 1.42 2001/07/25 21:35:51 dk Exp $
 use strict;
 package Prima::VB::Classes;
 
@@ -1615,9 +1615,9 @@ sub open
 sub set
 {
    my ( $self, $data) = @_;
-   if ( $data & 0x80000000) {
+   if ( $data & cl::SysFlag) {
       $self-> {A}-> value( cl::Gray);
-      my ( $acl, $awc) = ( sprintf("%d",$data & 0x80000FFF), $data & 0x0FFF0000);
+      my ( $acl, $awc) = ( sprintf("%d",$data & ~wc::Mask), $data & wc::Mask);
       my $tx = 'undef';
       for ( @uClasses) {
          $tx = $_, last if $awc == &{$wc::{$_}}();
@@ -1652,8 +1652,8 @@ sub write
 {
    my ( $class, $id, $data) = @_;
    my $ret = 0;
-   if ( $data & 0x80000000) {
-      my ( $acl, $awc) = ( sprintf("%d",$data & 0x80000FFF), $data & 0x0FFF0000);
+   if ( $data & cl::SysFlag) {
+      my ( $acl, $awc) = ( sprintf("%d",$data & ~wc::Mask), $data & wc::Mask);
       my $tcl = '0';
       for ( @uClasses) {
          $tcl = "wc::$_", last if $awc == &{$wc::{$_}}();
@@ -2746,6 +2746,17 @@ sub open
    );
    $self-> {B}->{master} = $self;
 
+   my $xb = $self-> {B}-> {vScrollBar}-> width;
+   $self-> {B}-> insert( Button => 
+      origin => [ $self-> {B}-> width - $xb - $self-> {B}-> indents()-> [2], 
+                 $self-> {B}-> height - $xb - $self-> {B}-> indents()-> [3]],
+      size   => [ ( $xb ) x 2],
+      font   => { height => $xb - 4 * 0.8, style => fs::Bold },
+      text   => 'X',
+      growMode => gm::GrowLoX|gm::GrowLoY,
+      onClick => sub { $self-> {B}-> popup-> popup($_[0]-> origin)},
+   );
+
    $self-> {Div2} = $self-> {container}-> insert( Divider =>
       vertical => 1,
       origin => [ 100, 0],
@@ -3185,6 +3196,16 @@ sub open
       },
    );
    $self-> {A}->{master} = $self;
+   my $xb = $self-> {A}-> {vScrollBar}-> width;
+   $self-> {A}-> insert( Button => 
+      origin => [ $self-> {A}-> width - $xb - $self-> {A}-> indents()-> [2], 
+                 $self-> {A}-> height - $xb - $self-> {A}-> indents()-> [3]],
+      size   => [ ( $xb ) x 2],
+      font   => { height => $xb - 4 * 0.8, style => fs::Bold },
+      text   => 'X',
+      growMode => gm::GrowLoX|gm::GrowLoY,
+      onClick => sub { $self-> {A}-> popup-> popup($_[0]-> origin)},
+   );
    $self-> {B} = $self-> {container}-> insert( InputLine =>
       origin => [ 0, 1],
       width  => $w,

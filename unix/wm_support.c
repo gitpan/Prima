@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: wm_support.c,v 1.17 2001/04/30 15:17:30 dk Exp $
+ * $Id: wm_support.c,v 1.18 2001/07/25 15:12:12 dk Exp $
  */
 
 /***********************************************************/
@@ -91,7 +91,8 @@ wm_generic_translate_event_hook( Handle self, XClientMessageEvent *xev, PEvent e
             return false;
          }
          guts. lastWMFocus = X_WINDOW;
-         CWidget( selectee)-> set_selected( selectee, true);
+         if ( selectee != self) XMapRaised( DISP, PWidget(selectee)-> handle);
+         Widget_selected( selectee, true, true);
 	 return false;
       }
    }
