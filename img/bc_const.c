@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: bc_const.c,v 1.8 2001/07/25 14:21:28 dk Exp $
+ * $Id: bc_const.c,v 1.9 2002/01/03 14:04:42 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 
@@ -142,6 +142,7 @@ cm_squeeze_palette( PRGBColor source, int srcColors, PRGBColor dest, int destCol
       int colors    = srcColors;
 
       PRGBColor buf = allocn( RGBColor, srcColors);
+      if (!buf) return;
       memcpy( buf, source, srcColors * sizeof( RGBColor));
       while (1)
       {

@@ -23,8 +23,21 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: drivecombo.pl,v 1.6 2000/10/18 11:58:05 tobez Exp $
+#  $Id: drivecombo.pl,v 1.7 2001/10/25 11:21:10 dk Exp $
 #
+
+=pod 
+=item NAME
+
+File tree widgets
+
+=item FEATURES
+
+Use of standard file-listbox and drive-combo box ( the latter
+is idle under *nix )
+
+=cut
+
 use strict;
 use Carp;
 use Prima::ComboBox;

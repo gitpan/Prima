@@ -23,8 +23,23 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: launch.pl,v 1.4 2000/10/18 11:58:08 tobez Exp $
+#  $Id: launch.pl,v 1.5 2001/10/25 11:21:10 dk Exp $
 #
+
+=pod 
+=item NAME
+
+A Prima example launcher
+
+=item FEATURES
+
+Uses to execute several Prima examples in one task space.
+Many examples inflict the view af a user-selected widget, but
+lack existence of the appropriate one. The launcher helps
+such experiments. See cv.pl or fontdlg.pl in particular.
+
+=cut
+
 use Prima;
 use Prima::Classes;
 use Prima::StdDlg;

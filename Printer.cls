@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Printer.cls,v 1.12 2000/05/17 10:28:24 tobez Exp $
+# $Id: Printer.cls,v 1.13 2002/01/24 15:16:15 dk Exp $
 
 object Prima::Printer( Prima::Drawable)
 {
@@ -40,7 +40,8 @@ object Prima::Printer( Prima::Drawable)
    method void   end_doc();
    method void   end_paint();
    method void   end_paint_info();
-   method SV*    fonts( char * name = "");
+   method SV*    fonts( char * name = "", char * encoding = "");
+   method SV*    font_encodings( char * encoding = "");
    method void   init( HV * profile);
    method void   new_page();
    method SV *   printers();

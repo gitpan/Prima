@@ -23,8 +23,22 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: buttons2.pl,v 1.7 2000/10/18 11:58:04 tobez Exp $
+#  $Id: buttons2.pl,v 1.8 2001/10/25 11:21:10 dk Exp $
 #
+
+=pod 
+=item NAME
+
+Prima button widgets
+
+=item FEATURES
+
+Demonstrates the variety of built-in buttons functionality.
+Note the "Bits for toolbar" button, which copies and
+pastes its image into the clipboard.
+
+=cut
+
 use Prima qw(Buttons StdBitmap), Application => { name => 'Buttons sample' };
 
 my $w = Prima::Window-> create(

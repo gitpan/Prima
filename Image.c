@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Image.c,v 1.93 2001/07/25 14:21:27 dk Exp $
+ * $Id: Image.c,v 1.95 2002/01/26 20:11:35 dk Exp $
  */
 
 #include "img.h"
@@ -74,8 +74,10 @@ Image_init( Handle self, HV * profile)
    var->dataSize = ( var->lineSize) * var->h;
    if ( var-> dataSize > 0) {
       var->data = allocb( var->dataSize);
-      if ( var-> data == nil) 
+      if ( var-> data == nil) {
+         my-> make_empty( self);
          croak("Image::init: cannot allocate %d bytes", var-> dataSize);
+      }
    } else 
       var-> data = nil;
    free( var->palette);
@@ -145,8 +147,10 @@ Image_reset( Handle self, int type, SV * palette)
    var->palSize = (1 << ( type & imBPP)) & 0x1ff;
    if ( var->dataSize > 0) {
       newData = allocb( var-> dataSize);
-      if ( newData == nil) 
+      if ( newData == nil) {
+         my-> make_empty( self);
          croak("Image::reset: cannot allocate %d bytes", var-> dataSize);
+      }
       ic_type_convert( self, newData, var->palette, type);
    }
    free( var->data);
@@ -371,7 +375,7 @@ Image_set_extended_data( Handle self, HV * profile)
          goto GOOD_RETURN;
       }   
       if ( !pexistType) { /* plain repadding */
-         ibc_repad(( Byte*) data, var-> data, lineSize, var-> lineSize, dataSize, var-> dataSize, 0, 0, nil);
+         ibc_repad(( Byte*) data, var-> data, lineSize, var-> lineSize, dataSize, var-> dataSize, 1, 1, nil);
          my-> update_change( self);
          goto GOOD_RETURN;
       }   
@@ -745,8 +749,10 @@ Image_create_empty( Handle self, int width, int height, int type)
    if ( var->dataSize > 0)
    {
       var->data = allocb( var->dataSize);
-      if ( var-> data == nil) 
+      if ( var-> data == nil) { 
+         my-> make_empty( self);
          croak("Image::create_empty: cannot allocate %d bytes", var-> dataSize);
+      }
       memset( var->data, 0, var->dataSize);
    } else
       var->data = nil;
@@ -1070,7 +1076,7 @@ Image_map( Handle self, Color color)
       case ropNoOper:
          break;   
       default: {   
-         Color c = my-> get_color( self);
+         Color c = i ? my-> get_backColor( self) : my-> get_color( self);
          r[i]. r = ( c >> 16) & 0xff;
          r[i]. g = ( c >> 8) & 0xff;
          r[i]. b = c & 0xff;

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: pointers.c,v 1.11 2000/10/23 09:16:31 dk Exp $
+ * $Id: pointers.c,v 1.12 2002/01/03 14:04:44 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 /* apc.c --- apc/ api for os/2 */
@@ -73,11 +73,13 @@ pointer_make_handle( Handle self, Handle icon, Point hotSpot)
     if ( kind_of( icon, CIcon))
     {
        mbuf = malloc( i-> maskSize * 2);
+       if ( !mbuf && i-> maskSize > 0) return nilHandle;
        memset( &mbuf[ 0], 0, i-> maskSize);
        memcpy( &mbuf[ i-> maskSize], i-> mask, i-> maskSize);
     } else {
        int maskSize = (( i-> w + 31) / 32) * 4 * i-> h;
        mbuf = malloc( maskSize * 2);
+       if ( !mbuf && i-> maskSize > 0) return nilHandle;
        memset( mbuf, 0, maskSize * 2);
     }
 

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Classes.pm,v 1.42 2001/07/25 21:35:51 dk Exp $
+# $Id: Classes.pm,v 1.47 2002/01/05 17:25:37 dk Exp $
 use strict;
 package Prima::VB::Classes;
 
@@ -731,6 +731,7 @@ sub prf_name
    my $old = $_[0]->name;
    $_[0]-> name($_[1]);
    $_[0]-> name_changed( $old, $_[1]);
+   $_[0]-> hint($_[1]) if $VB::form && $_[0] != $VB::form;
 
    return unless $VB::inspector;
    my $s = $VB::inspector-> Selector;
@@ -920,8 +921,7 @@ sub prf_types
       pointer       => ['pointer',],
       growMode      => ['growMode'],
       uiv           => ['helpContext'],
-      string        => ['hint'],
-      text          => ['text'],
+      text          => ['text', 'hint'],
       selectingButtons=> ['selectingButtons'],
       widgetClass   => ['widgetClass'],
       image         => ['shape'],
@@ -1061,7 +1061,6 @@ sub prf_adjust_default
       widgetClass
    );
 }
-
 
 package Prima::VB::Window;
 use vars qw(@ISA);
@@ -1509,7 +1508,7 @@ sub set
       $data = '';
       $self->{A}-> items( ['']);
    } else {
-      my %items = $VB::inspector ? (map { $_ => 1} @{$VB::inspector-> Selector-> items}) : ();
+      my %items = $VB::inspector ? (map { $_ => 1} sort @{$VB::inspector-> Selector-> items}) : ();
       delete $items{ $self->{widget}->name};
       $self->{A}-> items( [ keys %items]);
       $data = $VB::form-> name unless length $data;
@@ -1522,25 +1521,6 @@ sub get
    my $self = $_[0];
    return $self->{A}-> text;
 }
-
-package Prima::VB::Types::sibling;
-use vars qw(@ISA);
-@ISA = qw(Prima::VB::Types::Handle);
-
-sub set
-{
-   my ( $self, $data) = @_;
-   if ( $self->{widget} == $VB::form) {
-      $data = '';
-      $self->{A}-> items( ['']);
-   } else {
-      my %items = $VB::inspector ? (map { $_ => 1} @{$VB::inspector-> Selector-> items}) : ();
-      $self->{A}-> items( [ '', keys %items]);
-      $data = $self->{widget}-> name if !defined $data || ( length( $data) == 0);
-   }
-   $self->{A}-> text( $data);
-}
-
 
 package Prima::VB::Types::color;
 use vars qw(@ISA);
@@ -2073,7 +2053,7 @@ sub open
             name    => 'Choose font',
             icon    => $VB::ico,
          );
-         $_[0]-> font( $f-> logFont) if $f-> execute == cm::OK;
+         $_[0]-> font( $f-> logFont) if $f-> execute == mb::OK;
       },
       onFontChanged => sub {
          return if $self->{sync};
@@ -2366,7 +2346,7 @@ sub open
                },
             );
             $l-> set_count( scalar @r);
-            if ( $dd-> execute == cm::OK) {
+            if ( $dd-> execute == mb::OK) {
                $self-> set( $i);
                $self-> change;
             }
@@ -2540,9 +2520,10 @@ sub open
 
 sub write
 {
-   my ( $class, $id, $data, $asPL) = @_;
-   return $asPL ? "sub { $data}" :
-      'Prima::VB::VBLoader::GO_SUB(\''.Prima::VB::Types::generic::quotable($data).'\')';
+   my ( $class, $id, $data) = @_;
+   return $VB::writeMode ? "sub { $data}" :
+       'Prima::VB::VBLoader::GO_SUB(\''.Prima::VB::Types::generic::quotable($data). 
+       "','$Prima::VB::VBLoader::eventContext[0]', '$id')";
 }
 
 package Prima::VB::Types::FMAction;
@@ -3052,7 +3033,7 @@ sub get
 
 sub write
 {
-   my ( $class, $id, $data, $asPL) = @_;
+   my ( $class, $id, $data) = @_;
    return 'undef' unless defined $data;
    my $c = '';
    my $traverse;
@@ -3077,7 +3058,7 @@ sub write
             $_ = 'image';
          }
          my $type = $VB::main-> get_typerec( $menuProps{$_}, $$data[$i]);
-         $c .= $type-> write( $_, $$data[$i], $asPL) . ', ';
+         $c .= $type-> write( $_, $$data[$i]) . ', ';
          $i++;
       }
 
@@ -3089,7 +3070,7 @@ sub write
          $level--;
       } elsif ( $sc > 1) {
          $c .= $VB::main-> get_typerec( $menuProps{'action'}, $$data[$i])->
-            write( 'action', $$data[$i], $asPL);
+            write( 'action', $$data[$i]);
       }
       $c .= "], \n";
    };

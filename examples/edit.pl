@@ -23,8 +23,20 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: edit.pl,v 1.9 2000/10/18 11:58:05 tobez Exp $
+#  $Id: edit.pl,v 1.10 2001/10/25 11:21:10 dk Exp $
 #
+
+=pod 
+=item NAME
+
+An input line
+
+=item FEATURES
+
+Demonstrates use of a standard input line widget
+
+=cut
+
 
 use Prima 'InputLine', Application => { name => 'InputLine sample' };
 

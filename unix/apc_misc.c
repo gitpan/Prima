@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_misc.c,v 1.70 2001/07/26 22:03:14 dk Exp $
+ * $Id: apc_misc.c,v 1.74 2002/01/18 22:13:55 dk Exp $
  */
 
 /***********************************************************/
@@ -99,20 +99,20 @@ update_quarks_cache( Handle self)
    if ( me-> owner && me-> owner != self && PComponent(me-> owner)-> sysData && X(PComponent( me-> owner))-> q_class_name) {
       UU = X(PComponent( me-> owner));
       XX-> n_class_name = n = UU-> n_class_name + 1;
-      XX-> q_class_name = malloc( sizeof( XrmQuark) * (n + 3));
-      memcpy( XX-> q_class_name, UU-> q_class_name, sizeof( XrmQuark) * n);
+      if (( XX-> q_class_name = malloc( sizeof( XrmQuark) * (n + 3))))
+         memcpy( XX-> q_class_name, UU-> q_class_name, sizeof( XrmQuark) * n);
       XX-> q_class_name[n-1] = qClass;
       XX-> n_instance_name = n = UU-> n_instance_name + 1;
-      XX-> q_instance_name = malloc( sizeof( XrmQuark) * (n + 3));
-      memcpy( XX-> q_instance_name, UU-> q_instance_name, sizeof( XrmQuark) * n);
+      if (( XX-> q_instance_name = malloc( sizeof( XrmQuark) * (n + 3))))
+         memcpy( XX-> q_instance_name, UU-> q_instance_name, sizeof( XrmQuark) * n);
       XX-> q_instance_name[n-1] = qInstance;
    } else {
       XX-> n_class_name = n = 1;
-      XX-> q_class_name = malloc( sizeof( XrmQuark) * (n + 3));
-      XX-> q_class_name[n-1] = qClass;
+      if (( XX-> q_class_name = malloc( sizeof( XrmQuark) * (n + 3))))
+         XX-> q_class_name[n-1] = qClass;
       XX-> n_instance_name = n = 1;
-      XX-> q_instance_name = malloc( sizeof( XrmQuark) * (n + 3));
-      XX-> q_instance_name[n-1] = qInstance;
+      if (( XX-> q_instance_name = malloc( sizeof( XrmQuark) * (n + 3))))
+         XX-> q_instance_name[n-1] = qInstance;
    }
    return true;
 }
@@ -265,7 +265,8 @@ Bool
 apc_component_create( Handle self)
 {
    if ( !PComponent( self)-> sysData) {
-      PComponent( self)-> sysData = malloc( sizeof( UnixSysData));
+      if ( !( PComponent( self)-> sysData = malloc( sizeof( UnixSysData))))
+         return false;
       bzero( PComponent( self)-> sysData, sizeof( UnixSysData));
       ((PUnixSysData)(PComponent(self)->sysData))->component. self = self;
    }
@@ -292,7 +293,7 @@ apc_component_fullname_changed_notify( Handle self)
    if (!update_quarks_cache( self)) return false;
 
    if ( me-> components && (n = me-> components-> count) > 0) {
-      list = allocn( Handle, n);
+      if ( !( list = allocn( Handle, n))) return false;
       memcpy( list, me-> components-> items, sizeof( Handle) * n);
 
       for ( i = 0; i < n; i++) {
@@ -629,7 +630,7 @@ apc_message( Handle self, PEvent e, Bool is_post)
       /* FALLTHROUGH */
    default:
       if ( is_post) {
-         pe = alloc1(PendingEvent);
+         if (!( pe = alloc1(PendingEvent))) return false;
          memcpy( &pe->event, e, sizeof(pe->event));
          pe-> recipient = self;
          TAILQ_INSERT_TAIL( &guts.peventq, pe, peventq_link);
@@ -789,13 +790,12 @@ apc_show_message( const char * message)
    int i;
    struct MsgDlg md, **storage;
    Bool ret = true;
-   
 
    if ( !DISP) {
       warn( message);
       return true;
    }   
-   
+  
    appSz = apc_application_get_size( nilHandle);
    /* acquiring message font and wrapping message text */
    {
@@ -827,8 +827,18 @@ apc_show_message( const char * message)
       wrapped = Drawable_do_text_wrap( nilHandle, &twr, abc);
       free( abc);
 
-      md. widths  = malloc( twr. count * sizeof(int));
-      md. lengths = malloc( twr. count * sizeof(int));
+      if ( !( md. widths  = malloc( twr. count * sizeof(int)))) {
+         XFreeFontInfo( nil, fs, 1);
+         warn( message);
+         return false;
+      }
+         
+      if ( !( md. lengths = malloc( twr. count * sizeof(int)))) {
+         free( md. widths);
+         XFreeFontInfo( nil, fs, 1);
+         warn( message);
+         return false;
+      }
 
       /* find text extensions */
       max = 0;
@@ -934,7 +944,8 @@ apc_show_message( const char * message)
       ( appSz.x - winSz.x) / 2, ( appSz.y - winSz.y) / 2, winSz.x, winSz.y);
    XNoOp( DISP);
    XFlush( DISP);
-   while ( md. active) prima_one_loop_round( true, false);
+   while ( md. active && !guts. applicationClose) 
+      prima_one_loop_round( true, false);
    
    XFreeGC( DISP, md. gc);
    XDestroyWindow( DISP, md. w);
@@ -1023,6 +1034,7 @@ apc_sys_get_value( int v)  /* XXX one big XXX */
    case svYbsDialog:		return 2; /* XXX */
    case svShapeExtension:	return guts. shape_extension;
    case svDblClickDelay:        return guts. double_click_time_frame;
+   case svColorPointer:         return 0;                                
    default:
       warn( "apc_sys_get_value(): illegal query: %d", v);
    }
@@ -1092,7 +1104,7 @@ apc_system_action( const char *s)
    case 'D':
       if ( l == 7 && ( strcmp( s, "Display") == 0)) {
          char * c = malloc(19);
-         snprintf( c, 18, "0x%p", DISP);
+         if ( c) snprintf( c, 18, "0x%p", DISP);
          return c;
       }
       break;
@@ -1117,6 +1129,37 @@ apc_system_action( const char *s)
          XSynchronize( DISP, true);
          return nil;
       }   
+      if ( strncmp( "setfont ", s, 8) == 0) {
+          Handle self = nilHandle;
+          char font[1024];
+          XWindow win;
+          int i = sscanf( s + 8, "%lu %s", &win, font);
+          if ( i != 2 || !(self = prima_xw2h( win)))  {
+             warn( "Bad parameters to sysaction setfont");
+             return 0;
+          }
+          if ( !opt_InPaint) return 0;
+          XSetFont( DISP, X(self)-> gc, XLoadFont( DISP, font));
+          return nil;
+      }
+      break;
+   case 't':
+      if ( strncmp( "textout16 ", s, 10) == 0) {
+          Handle self = nilHandle;
+          unsigned char text[1024];
+          XWindow win;
+          int x, y, len;
+          int i = sscanf( s + 10, "%lu %d %d %s", &win, &x, &y, text);
+          if ( i != 4 || !(self = prima_xw2h( win)))  {
+             warn( "Bad parameters to sysaction textout16");
+             return 0;
+          }
+          if ( !opt_InPaint) return 0;
+          len = strlen( text);
+          for ( i = 0; i < len; i++) if ( text[i]==255) text[i] = 0;
+          XDrawString16( DISP, win, X(self)-> gc, x, y, ( XChar2b *) text, len / 2);
+          return nil;
+      }
       break;
    }
    warn("Unknow sysaction:%s", s);

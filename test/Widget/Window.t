@@ -1,4 +1,4 @@
-# $Id: Window.t,v 1.2 2000/10/18 11:58:26 tobez Exp $
+# $Id: Window.t,v 1.3 2002/01/05 17:25:38 dk Exp $
 print "1..13 activate,onActivate,deactivate,onDeactivate,maximize,onWindowState,".
       "restore from maximized,minimize,restore from minimized,restore max->min->normal,".
       "user modality,execute,close\n";
@@ -56,7 +56,7 @@ $xw-> insert( Timer =>
    $_[0]-> destroy;
 })-> start;
 my $mr = $xw-> execute;
-ok( $dong && $mr == cm::OK);
+ok( $dong && $mr == mb::OK);
 
 
 $dong = 0;

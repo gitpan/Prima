@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Classes.pm,v 1.58 2001/04/30 15:20:14 dk Exp $
+#  $Id: Classes.pm,v 1.64 2002/01/24 15:16:15 dk Exp $
 use Prima;
 use Prima::Const;
 
@@ -135,7 +135,7 @@ sub set
    $o->$w( \%pr);
 }
 
-for ( qw( size name width height direction style pitch)) {
+for ( qw( size name width height direction style pitch encoding)) {
    eval <<GENPROC;
    sub $_
    {
@@ -301,7 +301,8 @@ sub profile_default
          style       => fs::Normal,
          aspect      => 1,
          direction   => 0,
-         name        => "Helv"
+         name        => "Helv",
+         encoding    => "",
       },
       lineEnd         => le::Round,
       linePattern     => lp::Solid,
@@ -906,18 +907,6 @@ sub popupLight3DColor     { return shift-> popupColorIndex( ci::Light3DColor, @_
 sub x_centered       {($#_)?$_[0]->set_centered(1,0)      :$_[0]->raise_wo("x_centered"); }
 sub y_centered       {($#_)?$_[0]->set_centered(0,1)      :$_[0]->raise_wo("y_centered"); }
 
-sub set_commands
-{
-   my ( $self, $enable, @commands) = @_;
-   foreach ( $self-> get_components)
-   {
-      if ( $_->isa("Prima::AbstractMenu")) {
-        my $menu = $_;
-        foreach ( @commands) { $menu-> set_command( $_, $enable); }
-      };
-   }
-}
-
 sub insert
 {
    my $self = shift;
@@ -957,12 +946,12 @@ sub pointer
 }
 
 sub widgets    { return shift->get_widgets};
-sub enable_commands  { shift->set_commands(1,@_)}
-sub disable_commands { shift->set_commands(0,@_)}
-sub key_up      { shift-> key_event( cm::KeyUp,   @_)}
+sub key_up      { splice( @_,5,0,1) if $#_ > 4; shift-> key_event( cm::KeyUp, @_)}
 sub key_down    { shift-> key_event( cm::KeyDown, @_)}
 sub mouse_up    { splice( @_,5,0,0) if $#_ > 4; shift-> mouse_event( cm::MouseUp, @_); }
 sub mouse_move  { splice( @_,5,0,0) if $#_ > 4; splice( @_,1,0,0); shift-> mouse_event( cm::MouseMove, @_) }
+sub mouse_enter { splice( @_,5,0,0) if $#_ > 4; splice( @_,1,0,0); shift-> mouse_event( cm::MouseEnter, @_) }
+sub mouse_leave { shift-> mouse_event( cm::MouseLeave ) }
 sub mouse_wheel { splice( @_,5,0,0) if $#_ > 4; shift-> mouse_event( cm::MouseWheel, @_) }
 sub mouse_down  { splice( @_,5,0,0) if $#_ > 4;
                   splice( @_,2,0,0) if $#_ < 4;
@@ -1012,7 +1001,7 @@ sub profile_default
       menuLight3DColor      => cl::Light3DColor,
       menuDark3DColor       => cl::Dark3DColor,
       menuFont              => $_[ 0]-> get_default_menu_font,
-      modalResult           => cm::Cancel,
+      modalResult           => mb::Cancel,
       modalHorizon          => 1,
       ownerFont             => 0,
       ownerIcon             => 1,
@@ -1035,7 +1024,8 @@ sub profile_check_in
    my $shs = exists $p->{sizeDontCare  } ? $p->{sizeDontCare  } : $default-> {sizeDontCare  };
    $p->{originDontCare} = 0 if $shp and
       exists $p->{left}   or exists $p->{bottom} or
-      exists $p->{origin} or exists $p->{rect};
+      exists $p->{origin} or exists $p->{rect} or
+      exists $p->{top}    or exists $p->{right};
    $p->{sizeDontCare} = 0 if $shs and
       exists $p->{width}  or exists $p->{height} or
       exists $p->{size}   or exists $p->{rect} or
@@ -1113,6 +1103,7 @@ sub accel   { my $self = shift;return $self-> {menu}->accel( $self->{id}, @_);}
 sub action  { my $self = shift;return $self-> {menu}->action ( $self->{id}, @_);}
 sub checked { my $self = shift;return $self-> {menu}->checked( $self->{id}, @_);}
 sub enabled { my $self = shift;return $self-> {menu}->enabled( $self->{id}, @_);}
+sub data    { my $self = shift;return $self-> {menu}->data   ( $self->{id}, @_);}
 sub image   { my $self = shift;return $self-> {menu}->image  ( $self->{id}, @_);}
 sub key     { my $self = shift;return $self-> {menu}->key    ( $self->{id}, @_);}
 sub text    { my $self = shift;return $self-> {menu}->text   ( $self->{id}, @_);}
@@ -1121,7 +1112,7 @@ sub enable  { $_[0]->{menu}-> enabled( $_[0]->{ id}, 1) };
 sub disable { $_[0]->{menu}-> enabled( $_[0]->{ id}, 0) };
 sub check   { $_[0]->{menu}-> checked( $_[0]->{ id}, 1) };
 sub uncheck { $_[0]->{menu}-> checked( $_[0]->{ id}, 0) };
-sub delete  { $_[ 0]->{menu}-> delete( $_[0]->{ id}) }
+sub remove  { $_[ 0]->{menu}-> remove( $_[0]->{ id}) }
 sub toggle  {
    my $i = !$_[0]->{ menu}-> checked($_[0]->{ id});
    $_[0]->{ menu}-> checked($_[0]->{ id}, $i);

@@ -1,4 +1,4 @@
-/*-
+/*
  * Copyright (c) 1997-2000 The Protein Laboratory, University of Copenhagen
  * All rights reserved.
  *
@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_font.c,v 1.39 2001/07/25 14:21:29 dk Exp $
+ * $Id: apc_font.c,v 1.49 2002/02/06 13:09:23 dk Exp $
  */
 
 /***********************************************************/
@@ -33,10 +33,12 @@
 /***********************************************************/
 
 #include "unix/guts.h"
+#include <locale.h>
 
 static PHash xfontCache = nil;
 static void detail_font_info( PFontInfo f, PFont font, Bool addToCache, Bool bySize);
 static Bool have_vector_fonts = false;
+static PHash encodings = nil;
 
 static void
 strlwr( char *d, const char *s)
@@ -52,7 +54,7 @@ font_query_name( XFontStruct * s, PFontInfo f)
 {
    unsigned long v;
    char * c;
-   
+
    /* detailing family */   
    if ( XGetFontProperty( s, FXA_FAMILY_NAME, &v) && v) {
       XCHECKPOINT;
@@ -62,6 +64,7 @@ font_query_name( XFontStruct * s, PFontInfo f)
          f-> flags. family = true;
          strncpy( f-> font. family, c, 255);  f-> font. family[255] = '\0';
          strlwr( f-> lc_family, f-> font. family);
+         if ( !guts. font_detail_names) strcpy( f-> font. family, f-> lc_family);
          XFree( c);
       }
    }
@@ -74,11 +77,66 @@ font_query_name( XFontStruct * s, PFontInfo f)
       if ( c) {
          f-> flags. name = true;
          snprintf( f-> font. name, 256, "%s %s", c, f-> font. family);
+         if ( !f-> flags. generic) {
+            strncat( f-> font. name, " ", 256);
+            strncat( f-> font. name, f-> xname + f-> info_offset, 256);
+         }
          strlwr( f-> lc_name, f-> font. name);
+         if ( !guts. font_detail_names) strcpy( f-> font. name, f-> lc_name);
          XFree( c);
       } 
-   } 
+   }
+
+   if ( guts. font_detail_names) return;
+
+   c = nil;
+   if ( XGetFontProperty( s, FXA_CHARSET_REGISTRY, &v) && v) {
+      XCHECKPOINT;
+      c = XGetAtomName( DISP, (Atom)v);
+      XCHECKPOINT;
+      if ( c) {
+         f-> flags. encoding = true;
+         strlwr( f-> font. encoding, c);
+         XFree( c);
+      } 
+   }
+
+   if ( !c) return;
+   c = nil;
+
+   if ( XGetFontProperty( s, FXA_CHARSET_ENCODING, &v) && v) {
+      XCHECKPOINT;
+      c = XGetAtomName( DISP, (Atom)v);
+      XCHECKPOINT;
+      if ( c) {
+         strcat( f-> font. encoding, "-");
+         strlwr( f-> font. encoding + strlen( f-> font. encoding), c);
+         XFree( c);
+      } 
+   }
+
+   if ( !c) {
+      f-> flags. encoding = false;
+      f-> font. encoding[0] = 0;
+   }
 }   
+
+static Bool 
+copy_hash_lists( PList list, int keyLen, void * key, void * dummy) 
+{
+   if ( list-> items[0]) {
+      int i;
+      for ( i = 2; i < list-> count; i++) {
+         PFontInfo f = &guts. font_info[(int)(list-> items[i])];
+         strncat( f-> font. name, " ", 256);
+         strncat( f-> font. name, f-> xname + f-> info_offset, 256);
+         strlwr( f-> lc_name, f-> font. name);
+         f-> flags. generic = false;
+      } 
+   }
+   plist_destroy( list);
+   return false;
+}
 
 Bool
 prima_init_font_subsystem( void)
@@ -86,6 +144,9 @@ prima_init_font_subsystem( void)
    char **names;
    int count, j , i, bad_fonts = 0, vector_fonts = 0;
    PFontInfo info;
+   char *s_ignore_encodings;
+   char **ignore_encodings;
+   int n_ignore_encodings;
 
    FXA_RESOLUTION_X = XInternAtom( DISP, "RESOLUTION_X", false);
    FXA_RESOLUTION_Y = XInternAtom( DISP, "RESOLUTION_Y", false);
@@ -94,6 +155,8 @@ prima_init_font_subsystem( void)
    FXA_RELATIVE_WEIGHT = XInternAtom( DISP, "RELATIVE_WEIGHT", false);
    FXA_FOUNDRY = XInternAtom( DISP, "FOUNDRY", false);
    FXA_AVERAGE_WIDTH = XInternAtom( DISP, "AVERAGE_WIDTH", false);
+   FXA_CHARSET_REGISTRY = XInternAtom( DISP, "CHARSET_REGISTRY", false);
+   FXA_CHARSET_ENCODING = XInternAtom( DISP, "CHARSET_ENCODING", false);
 
    guts. font_names = names = XListFonts( DISP, "*", INT_MAX, &count);
    if ( !names) {
@@ -107,6 +170,43 @@ prima_init_font_subsystem( void)
       return false;
    }   
    bzero( info,  sizeof( FontInfo) * ( count + 1));
+
+
+   n_ignore_encodings = 0;
+   ignore_encodings = nil;
+   s_ignore_encodings = nil;
+   if ( apc_fetch_resource( "Prima", "", "IgnoreEncodings", "ignoreEncodings", 
+                             nilHandle, frString, &s_ignore_encodings)) 
+   {
+      char *e = s_ignore_encodings;
+      char *s = e;
+      while (*e) {
+         while (*e && *e != ';') {
+            e++;
+         }
+         if (*e == ';') {
+            n_ignore_encodings++;
+            *e = '\0';
+            s = ++e;
+         } else if (e > s) {
+            n_ignore_encodings++;
+         }
+      }
+      ignore_encodings = malloc( sizeof( char*) * n_ignore_encodings);
+      if ( !ignore_encodings) {
+         warn( "UAF_003: no memory");
+         return false;
+      }   
+      bzero( ignore_encodings,  sizeof( char*) * n_ignore_encodings);
+      s = s_ignore_encodings;
+      for (i = 0; i < n_ignore_encodings; i++) {
+         ignore_encodings[i] = s;
+         while (*s) s++;
+         s++;
+      }
+   }
+
+   encodings = hash_create();
 
    for ( i = 0, j = 0; i < count; i++) {
       char *b, *t, *c = names[ i];
@@ -141,6 +241,7 @@ prima_init_font_subsystem( void)
 	    /* advance through FAMILY_NAME */
 	    ++c;  b = t;
 	    while ( *c && *c != '-') { *t++ = *c++; }
+            info[j]. name_offset = c - names[i];
 	    *t = '\0';
 	    strcpy( info[j]. font. family, b);
 	    info[j]. flags. name = true;
@@ -296,6 +397,10 @@ prima_init_font_subsystem( void)
 	 if ( *c == '-') {
 	    /* advance through CHARSET_REGISTRY; just skip it;  XXX */
 	    ++c;
+            info[j]. info_offset = c - names[i];
+            info[j]. flags. encoding = 1;
+            strcpy( info[j]. font. encoding, c);
+            hash_store( encodings, c, strlen( c), (void*)1);
             if (
                  ( strncasecmp( c, "sunolglyph",  strlen("sunolglyph")) == 0) ||
                  ( strncasecmp( c, "sunolcursor", strlen("sunolcursor")) == 0) ||
@@ -306,7 +411,12 @@ prima_init_font_subsystem( void)
 	    while ( *c && *c != '-') c++;
 	 }
 	 if ( *c == '-') {
+            int m;
             c++;
+            for (m = 0; m < n_ignore_encodings; m++) {
+               if (strcmp(c, ignore_encodings[m]) == 0)
+                  goto skip_font;
+            }
             if ( 
                 (strncmp( c, "0",  strlen("0")) == 0) || 
                 (strncmp( c, "fontspecific", strlen("fontspecific")) == 0) ||
@@ -314,6 +424,7 @@ prima_init_font_subsystem( void)
                ) 
                info[j]. flags. funky = 1; 
             
+
             /* advance through CHARSET_ENCODING; just skip it;  XXX */
 	    while ( *c && *c != '-') c++;
 	    if ( !*c  && info[j]. flags. pitch && 
@@ -357,8 +468,8 @@ prima_init_font_subsystem( void)
 		     }
 		  }
 		  *pat++ = '\0';
-		  info[j]. vecname = malloc( pat - pattern);
-		  strcpy( info[j]. vecname, pattern);
+		  if (( info[j]. vecname = malloc( pat - pattern)))
+  		     strcpy( info[j]. vecname, pattern);
 	       } else
 		  info[j]. font. vector = false;
 	       info[j]. flags. vector = true;
@@ -366,16 +477,19 @@ prima_init_font_subsystem( void)
 	    }
 	 }
       }
+skip_font:
       if ( !conformant) {
 	 bad_fonts++;
          continue;
       }
       info[j]. xname = names[ i];
-      info[j]. flags. sloppy = true; /*
-      if ( !info[j]. flags. width || !info[j]. flags. vector)
-         info[j]. flags. disabled = true; */
+      info[j]. flags. generic = true;  
+      info[j]. flags. sloppy = true; 
       j++;
    }
+
+   free(ignore_encodings);
+   free(s_ignore_encodings);
    
    guts. font_info = info;
    guts. n_fonts = j + 1;
@@ -387,7 +501,50 @@ prima_init_font_subsystem( void)
    info[j]. xname = "fixed";
    info[j]. flags. sloppy = true;  
    info[j]. flags. vector = true;  
+   info[j]. flags. generic = true;  
    detail_font_info( info + j, nil, false, false);
+   if ( !guts. font_detail_names) {
+      XFontStruct * xf = ( XFontStruct * ) hash_fetch( xfontCache, info[j].xname, strlen(info[j].xname));
+      if ( xf) font_query_name( xf, info + j);
+   }
+
+   /* set Prima.DetailFontNames: 1 for detailing of font name and family.
+      Increases startup time and font handling significantly */
+   {
+      char * s = nil;
+      if ( apc_fetch_resource( "Prima", "", "DetailFontNames", "detailFontNames", 
+           nilHandle, frString, &s)) {
+         if ( atoi( s) != 0) 
+            guts. font_detail_names = 1;
+         free( s);
+      }
+   }
+
+   /* locale */
+   {
+      int len;
+      char * s = setlocale( LC_CTYPE, NULL);
+      while ( *s && *s != '.') s++;
+      while ( *s && *s == '.') s++;
+      strncpy( guts. locale, s, 31);
+      guts. locale[31] = 0;
+      len = strlen( guts. locale);
+      if ( !hash_fetch( encodings, guts. locale, len)) {
+         strlwr( guts. locale, guts. locale);
+         if ( !hash_fetch( encodings, guts. locale, len) && 
+              (
+                ( strncmp( guts. locale, "iso-", 4) == 0)||
+                ( strncmp( guts. locale, "iso_", 4) == 0)
+              )
+            ) {
+            s = guts. locale + 3;
+            while ( *s) *(s++) = s[1];
+            if ( !hash_fetch( encodings, guts. locale, len - 1))
+               guts. locale[0] = 0;
+         }
+      }
+   }
+   
 
    if ( !apc_fetch_resource( "Prima", "", "Font", "font", 
                              nilHandle, frFont, &guts. default_font)) {
@@ -469,6 +626,8 @@ prima_cleanup_font_subsystem( void)
 
    hash_destroy( xfontCache, false);
    xfontCache = nil;
+   hash_destroy( encodings, false);
+   encodings = nil;
 }
 
 PFont
@@ -517,6 +676,8 @@ build_font_key( PFontKey key, PFont f, Bool bySize)
    key-> style = f-> style & ~(fsUnderlined|fsOutline|fsStruckOut);
    key-> pitch = f-> pitch;
    strcpy( key-> name, f-> name);
+   strcat( key-> name, "\1");
+   strcat( key-> name, f-> encoding);
 }
 
 PCachedFont
@@ -657,22 +818,8 @@ PICK_AGAIN:
          preSize = v;
       } 
 
-      
       f-> flags. height = true;
-      f-> font. height = s-> ascent + s-> descent;
-         
-      /* detailing pixel size */
-      /*
-      if ( XGetFontProperty( s, FXA_PIXEL_SIZE, &v) && v) {
-         XCHECKPOINT;
-         f-> flags. height = true;
-         f-> font. height = v;
-      }*/
-      /* if ( !f-> flags. height && f-> flags. size && f-> flags. yDeviceRes) { */
-         /* XWS 1990 XLFD p. 570 */
-      /*   f-> flags. height = true;
-         f-> font. height = (int)(0.5+f-> font. yDeviceRes*f-> font. size/722.7);
-      } */
+      f-> font. height = s-> max_bounds. ascent + s-> descent;
 
       if ( !f-> flags. xDeviceRes) {
          f-> font. xDeviceRes = guts. resolution. x;
@@ -684,21 +831,14 @@ PICK_AGAIN:
          f-> flags. yDeviceRes = true;
       } 
 
+      f-> flags. internalLeading = true;
+      f-> font. internalLeading = s-> max_bounds. ascent - s-> ascent;
+
+      f-> font. size  = ( f-> font. height - f-> font. internalLeading) * 72.27 / guts. resolution. y + 0.5;
+
       if ( !f-> flags. size) {
-         /* assume internalLeading = 0 */
+         preSize = ( f-> font. height - f-> font. internalLeading) * 722.7 / guts. resolution. y + 0.5;
          f-> flags. size = true;
-         f-> font. size  = f-> font. height * 72.27 / f-> font. yDeviceRes + 0.5;
-         preSize = f-> font. height * 722.7 / f-> font. yDeviceRes + 0.5;
-         f-> flags. internalLeading = true;
-         f-> font. internalLeading  = 0;
-      } else {
-         f-> flags. internalLeading = true;
-         f-> font. internalLeading  = f-> font. height - (int)(0.5+f-> font. yDeviceRes * preSize / 722.7);
-         /* Prima still doesn't define 'font size' term - should it be that value inside
-            the font headers or the size related to Drawable's resolution? The following
-            line sticks to the second definition. Comment it out if the first one is
-            preferable */   
-         f-> font. size = (( f-> font. height - f-> font. internalLeading) * 72.27) / guts. resolution. y + 0.5;
       }
 
       if ( pickable) {
@@ -727,9 +867,9 @@ PICK_AGAIN:
       f-> flags. resolution      = true;
       f-> font. resolution       = f-> font. yDeviceRes * 0x10000 + f-> font. xDeviceRes;
       f-> flags. ascent          = true;
-      f-> font. ascent           = s-> ascent;
+      f-> font. ascent           = s-> max_bounds. ascent;
       f-> flags. descent         = true;
-      f-> font. descent          = s-> descent;
+      f-> font. descent          = s-> descent; 
       f-> flags. defaultChar     = true;
       f-> font. defaultChar      = s-> default_char;
       f-> flags. firstChar       = true;
@@ -804,7 +944,7 @@ PICK_AGAIN:
       }
       
       /* detailing name and family */
-      if ( !f-> flags. intNames) {
+      if ( guts. font_detail_names && !f-> flags. intNames) {
          char name[256], family[256];
          int i;
          strcpy( name, f-> font. name);
@@ -884,6 +1024,17 @@ static double
 query_diff( PFontInfo fi, PFont f, char * lcname, Bool by_size)
 {
    double diff = 0.0;
+
+   if ( fi-> flags. encoding && f-> encoding[0]) {
+      if ( strcmp( f-> encoding, fi-> font. encoding) != 0)
+         diff += 16000.0;
+   }
+
+   if ( guts. locale[0] && !f-> encoding[0] && fi-> flags. encoding) {
+      if ( strcmp( fi-> font. encoding, guts. locale) != 0)
+         diff += 50;
+   }
+   
    if ( fi->  flags. pitch) {
       if ( f-> pitch == fpDefault && fi-> font. pitch == fpFixed) {
          diff += 1.0;
@@ -897,8 +1048,18 @@ query_diff( PFontInfo fi, PFont f, char * lcname, Bool by_size)
    }
    
    if ( fi-> flags. name && strcmp( lcname, fi-> lc_name) == 0) {
+      if ( guts. font_detail_names && fi-> flags. sloppy) {
+         Font xf = *f;
+         detail_font_info( fi, &xf, false, false);
+         fi-> flags. sloppy = 0;
+      }
       diff += 0.0;
    } else if ( fi-> flags. family && strcmp( lcname, fi-> lc_family) == 0) {
+      if ( guts. font_detail_names && fi-> flags. sloppy) {
+         Font xf = *f;
+         detail_font_info( fi, &xf, false, false);
+         fi-> flags. sloppy = 0;
+      }
       diff += 1000.0;
    } else if ( fi-> flags. family && strstr( fi-> lc_family, lcname)) {
       diff += 2000.0;
@@ -1003,6 +1164,9 @@ apc_font_pick( Handle self, PFont source, PFont dest)
       return true;
    }
 
+   if ( !hash_fetch( encodings, dest-> encoding, strlen( dest-> encoding)))
+      dest-> encoding[0] = 0;
+
    strlwr( lcname, dest-> name);
 AGAIN:   
    for ( i = 0; i < n; i++) {
@@ -1020,10 +1184,10 @@ AGAIN:
 
    i = index;
 
-   /*
+    /*
     printf( "#0: %d (%g): %s\n", i, minDiff, info[i].xname); 
     printf("pick:%d.[%d]{%d}.%s\n", info[i].font. height, info[i].font. size, info[i].font. style, info[i].font. name);
-   */
+    */
    
    if ( info[ i]. flags. sloppy && pickCount++ < 20) { 
       detail_font_info( info + i, dest, false, by_size); 
@@ -1047,8 +1211,109 @@ AGAIN:
    return true;
 }
 
+static PFont
+spec_fonts( int *retCount)
+{
+   int i, count = guts. n_fonts;
+   PFontInfo info = guts. font_info;
+   int needRecount = 0, maxRecount = 3;
+   PFont fmtx = nil;
+   Font defaultFont;
+   List list;
+   PHash hash = nil;
+
+   list_create( &list, 256, 256);
+
+AGAIN:   
+   *retCount = 0;
+   defaultFont. width  = 0;
+   defaultFont. height = 10;
+   defaultFont. size   = 0;
+   
+  
+   if ( !( hash = hash_create())) {
+      list_destroy( &list);
+      return nil;
+   }
+
+   /* collect font info */
+   for ( i = 0; i < count; i++) {
+      int len;
+      PFont fm;
+      if ( info[ i]. flags. disabled) continue;
+      
+      len = strlen( info[ i].font.name);
+
+      fm = hash_fetch( hash, info[ i].font.name, len);
+      if ( fm) {
+         char ** enc = (char**) fm-> encoding;
+         unsigned char * shift = (unsigned char*)enc + sizeof(char *) - 1;
+         if ( *shift + 2 < 256 / sizeof(char*)) {
+            int j, exists = 0;
+            for ( j = 1; j <= *shift; j++) {
+               if ( strcmp( enc[j], info[i].xname + info[i].info_offset) == 0) {
+                  exists = 1;
+                  break;
+               }
+            }
+            if ( exists) continue;
+            *(enc + ++(*shift)) = info[i].xname + info[i].info_offset;
+         }
+         continue;
+      }
+
+      if ( !( fm = ( PFont) malloc( sizeof( Font)))) {
+         if ( hash) hash_destroy( hash, false);
+         list_delete_all( &list, true);
+         list_destroy( &list);
+         return nil;
+      }
+
+      if ( info[i]. flags. sloppy) {
+         if ( guts. font_detail_names && !info[i]. flags. intNames) needRecount++;
+         detail_font_info( info + i, &defaultFont, false, false);
+      }   
+      *fm = info[i]. font;
+     
+      { /* multi-encoding format */
+         char ** enc = (char**) fm-> encoding;
+         unsigned char * shift = (unsigned char*)enc + sizeof(char *) - 1;      
+         memset( fm-> encoding, 0, 256);
+         *(enc + ++(*shift)) = info[i].xname + info[i].info_offset;
+         hash_store( hash, info[ i].font.name, strlen( info[ i].font.name), fm); 
+      }
+
+      list_add( &list, ( Handle) fm);
+   }
+
+   if ( hash) hash_destroy( hash, false);      
+
+   if ( list. count == 0) goto Nothing;
+   fmtx = ( PFont) malloc( list. count * sizeof( Font));
+   if ( !fmtx) {
+      list_delete_all( &list, true);   
+      list_destroy( &list);
+      return nil;
+   }
+   
+   *retCount = list. count;
+      for ( i = 0; i < list. count; i++)
+         memcpy( fmtx + i, ( void *) list. items[ i], sizeof( Font));
+   list_delete_all( &list, true);
+
+   if ( needRecount && --maxRecount) {
+      free( fmtx);
+      goto AGAIN;
+   }   
+
+Nothing:
+   list_destroy( &list);
+   return fmtx;
+}   
+
+
 PFont
-apc_fonts( Handle self, const char *facename, int *retCount)
+apc_fonts( Handle self, const char *facename, const char * encoding, int *retCount)
 {
    int i, count = guts. n_fonts;
    PFontInfo info = guts. font_info;
@@ -1056,6 +1321,8 @@ apc_fonts( Handle self, const char *facename, int *retCount)
    int n_table, needRecount = 0, maxRecount = 3;
    PFont fmtx;
    Font defaultFont;
+
+   if ( !facename && !encoding) return spec_fonts( retCount);
    
 AGAIN:   
    *retCount = 0;
@@ -1063,14 +1330,17 @@ AGAIN:
    
    /* stage 1 - browse through names and validate records */
    table = malloc( count * sizeof( PFontInfo));
+   if ( !table && count > 0) return nil;
+   
    if ( facename == nil) {
       PHash hash = hash_create();
       for ( i = 0; i < count; i++) {
          int len;
          if ( info[ i]. flags. disabled) continue;
          len = strlen( info[ i].font.name);
-         if ( hash_fetch( hash, info[ i].font.name, len))
-            continue;
+         if ( hash_fetch( hash, info[ i].font.name, len) || 
+            strcmp( info[ i].xname + info[ i].info_offset, encoding) != 0)
+              continue;
          hash_store( hash, info[ i].font.name, len, (void*)1);
          table[ n_table++] = info + i;
       }
@@ -1079,7 +1349,14 @@ AGAIN:
    } else {
       for ( i = 0; i < count; i++) {
          if ( info[ i]. flags. disabled) continue;
-         if ( stricmp( info[ i].font.name, facename) == 0) {
+         if (
+               ( stricmp( info[ i].font.name, facename) == 0) &&
+               ( 
+                   !encoding || 
+                   ( strcmp( info[ i].xname + info[ i].info_offset, encoding) == 0)
+               )
+            )
+         {
             table[ n_table++] = info + i;
          }
       }   
@@ -1087,6 +1364,12 @@ AGAIN:
    }   
 
    fmtx = malloc( n_table * sizeof( Font)); 
+   bzero( fmtx, n_table * sizeof( Font)); 
+   if ( !fmtx && n_table > 0) {
+      *retCount = 0;
+      free( table);
+      return nil;
+   }
    
    defaultFont. width  = 0;
    defaultFont. height = 10;
@@ -1094,7 +1377,7 @@ AGAIN:
       
    for ( i = 0; i < n_table; i++) {
       if ( table[i]-> flags. sloppy) {
-         if ( !table[i]-> flags. intNames) needRecount++;
+         if ( guts. font_detail_names && !table[i]-> flags. intNames) needRecount++;
          detail_font_info( table[i], &defaultFont, false, false);
       }   
       fmtx[i] = table[i]-> font;
@@ -1107,6 +1390,22 @@ AGAIN:
    }   
    
    return fmtx;
+}
+
+PHash
+apc_font_encodings( Handle self )
+{
+   HE *he;
+   PHash hash = hash_create();
+   if ( !hash) return nil;
+
+   hv_iterinit(( HV*) encodings);
+   for (;;) {
+      if (( he = hv_iternext( encodings)) == nil)
+         break;
+      hash_store( hash, HeKEY( he), HeKLEN( he), (void*)1);
+   }
+   return hash;
 }
 
 Bool

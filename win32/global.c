@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: global.c,v 1.68 2001/06/15 09:43:57 dk Exp $
+ * $Id: global.c,v 1.75 2002/01/24 15:16:16 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -59,7 +59,7 @@ DIBMONOBRUSH bmiHatch = {
    { sizeof( BITMAPINFOHEADER), 8, 8, 1, 1, BI_RGB, 0, 0, 0, 2, 2},
    {{0,0,0,0}, {0,0,0,0}}
 };
-int     FONTSTRUCSIZE, FONTSTRUCSIZE2;
+int     FONTSTRUCSIZE;
 Handle lastMouseOver = nilHandle;
 MusClkRec musClk = {0};
 char * keyLayouts[]   = {  "0409", "0403", "0405", "0406", "0407",
@@ -151,10 +151,9 @@ window_subsystem_init()
       hPatHollow. dotsCount = 0;
       hPatHollow. dotsPtr   = nil;
       FONTSTRUCSIZE    = (char *)(&(f. name)) - (char *)(&f);
-      FONTSTRUCSIZE2   = (char *)(&(f. name)) - (char *)(&f. style);
    }
 
-   dc = dc_alloc();
+   if (!( dc = dc_alloc())) return false; 
    guts. displayResolution. x = GetDeviceCaps( dc, LOGPIXELSX);
    guts. displayResolution. y = GetDeviceCaps( dc, LOGPIXELSY);
    {
@@ -244,19 +243,21 @@ window_subsystem_init()
          }
       }
 
-      GetKeyboardLayoutList( size, kl);
-      for ( i = 0; i < size; i++) {
-         ActivateKeyboardLayout( kl[ i], 0);
-         if ( !GetKeyboardLayoutName( buf)) apiErr;
-         for ( j = 0; j < ( sizeof( keyLayouts) / sizeof( char*)); j++) {
-            if ( strncmp( buf + 4, keyLayouts[ j], 4) == 0) {
-               guts. keyLayout = kl[ i];
-               goto found_2;
+      if ( kl) {
+         GetKeyboardLayoutList( size, kl);
+         for ( i = 0; i < size; i++) {
+            ActivateKeyboardLayout( kl[ i], 0);
+            if ( !GetKeyboardLayoutName( buf)) apiErr;
+            for ( j = 0; j < ( sizeof( keyLayouts) / sizeof( char*)); j++) {
+               if ( strncmp( buf + 4, keyLayouts[ j], 4) == 0) {
+                  guts. keyLayout = kl[ i];
+                  goto found_2;
+               }
             }
          }
+      found_2:;
+         ActivateKeyboardLayout( current, 0);
       }
-   found_2:;
-      ActivateKeyboardLayout( current, 0);
    found_1:;
       free( kl);
    }
@@ -276,8 +277,6 @@ window_subsystem_done()
    if ( guts. socketMutex) {
       // appDead must be TRUE for this moment!
       appDead = true;
-      if ( WaitForSingleObject( guts. socketThread, 2000) != WAIT_OBJECT_0)
-          warn("Failed to unlock socket thread #2");
       CloseHandle( guts. socketMutex);
    }
 
@@ -373,8 +372,7 @@ static Bool move_back( PWidget self, PWidget child, int * delta)
    RECT r;
    int oStage = child-> stage;
 
-   if (( child-> growMode & gmDontCare) || !dsys( child) options. aptClipOwner)
-      return false;
+   if ( !dsys( child) options. aptClipOwner) return false;
 
    child-> stage = csFrozen;
    GetWindowRect( DHANDLE( child), &r);
@@ -413,40 +411,6 @@ static Bool
 find_oid( PAbstractMenu menu, PMenuItemReg m, int id)
 {
    return m-> down && ( m-> down-> id == id);
-}
-
-static void
-propagate( Handle self, UINT msg, PEvent ev, WPARAM mp1, LPARAM mp2)
-{
-   HWND prop, org = HANDLE;
-   RECT r;
-   POINT pt;
-
-   if ( !is_apt( aptClipOwner) || ( var owner == application))
-      return;
-
-   if ( !( self = var owner))
-      return;
-
-   prop = HANDLE;
-
-   if ( msg != WM_MOUSEWHEEL) {
-      pt. x = ( short) LOWORD( mp2);
-      pt. y = ( short) HIWORD( mp2);
-      GetWindowRect( prop, &r);
-      MapWindowPoints( NULL, prop, ( POINT*) &r, 2);
-      r. right--;
-      r. bottom--;
-      MapWindowPoints( org, prop, &pt, 1);
-      if (
-          (( pt. x < 0) || ( pt. y < 0) || ( pt. x > r. right) || ( pt. y > r. bottom)) &&
-          ( GetCapture() != prop)
-         )
-         return;
-      mp2 = MAKELPARAM( pt. x, pt. y);
-   }
-
-   PostMessage( prop, msg + 0x400, mp1, mp2);
 }
 
 
@@ -691,13 +655,6 @@ AGAIN:
         DestroyCaret();
       }
       break;
-   case WM_LBUTTONDBLCLK + 0x400: case WM_LBUTTONUP + 0x400:   case WM_LBUTTONDOWN + 0x400:
-   case WM_MBUTTONDBLCLK + 0x400: case WM_MBUTTONUP + 0x400:   case WM_MBUTTONDOWN + 0x400:
-   case WM_RBUTTONDBLCLK + 0x400: case WM_RBUTTONUP + 0x400:   case WM_RBUTTONDOWN + 0x400:
-   case WM_RMOUSECLICK   + 0x400: case WM_MMOUSECLICK + 0x400: case WM_LMOUSECLICK + 0x400:
-   case WM_MOUSEWHEEL    + 0x400:
-       SendMessage( win, msg - 0x400, mp1, mp2);
-       return 0;
    case WM_LBUTTONDOWN:
       ev. pos. button = mbLeft;
       goto MB_DOWN;
@@ -978,15 +935,6 @@ AGAIN:
       break;
    case WM_PAINT:
       return 0;
-   case WM_LBUTTONDBLCLK: case WM_LBUTTONUP:   case WM_LBUTTONDOWN:
-   case WM_MBUTTONDBLCLK: case WM_MBUTTONUP:   case WM_MBUTTONDOWN:
-   case WM_RBUTTONDBLCLK: case WM_RBUTTONUP:   case WM_RBUTTONDOWN:
-   case WM_RMOUSECLICK:   case WM_MMOUSECLICK: case WM_LMOUSECLICK:
-      if ( ev. cmd == 0)
-         return ( LRESULT)1;
-// propagate message
-      propagate( self, orgMsg, &ev, mp1, mp2);
-      break;
    case WM_SYSKEYDOWN:
    case WM_SYSKEYUP:
        // ev. cmd = 1; // forced call DefWindowProc superseded for test reasons
@@ -995,8 +943,6 @@ AGAIN:
       if ( is_apt( aptEnabled)) SetCursor( sys pointer);
       break;
    case WM_MOUSEWHEEL:
-      if ( ev. cmd)
-         propagate( self, orgMsg, &ev, mp1, mp2);
       return ( LRESULT)1;
    case WM_WINDOWPOSCHANGING:
        {
@@ -1074,7 +1020,6 @@ LRESULT CALLBACK generic_frame_handler( HWND win, UINT  msg, WPARAM mp1, LPARAM 
    case WM_ENABLE:
    case WM_FORCEFOCUS:
    case WM_MOUSEWHEEL:
-   case WM_MOUSEWHEEL + 0x400:
    case WM_ZORDERSYNC:
       return generic_view_handler(( HWND) v-> handle, msg, mp1, mp2);
    case WM_QUERYNEWPALETTE:
@@ -1321,19 +1266,23 @@ LRESULT CALLBACK generic_app_handler( HWND win, UINT  msg, WPARAM mp1, LPARAM mp
             int oldBPP = guts. displayBMInfo. bmiHeader. biBitCount;
             HBITMAP hbm;
 
-            guts. displayBMInfo. bmiHeader. biBitCount = 0;
-            guts. displayBMInfo. bmiHeader. biSize = sizeof( BITMAPINFO);
-            if ( !( hbm = GetCurrentObject( dc, OBJ_BITMAP))) apiErr;
+            if ( dc) {
+               guts. displayBMInfo. bmiHeader. biBitCount = 0;
+               guts. displayBMInfo. bmiHeader. biSize = sizeof( BITMAPINFO);
+               if ( !( hbm = GetCurrentObject( dc, OBJ_BITMAP))) apiErr;
 
-            if ( !GetDIBits( dc, hbm, 0, 0, NULL, &guts. displayBMInfo, DIB_PAL_COLORS)) {
-               guts. displayBMInfo. bmiHeader. biBitCount = ( int) mp1;
-               guts. displayBMInfo. bmiHeader. biPlanes   = GetDeviceCaps( dc, PLANES);
-            };
+               if ( !GetDIBits( dc, hbm, 0, 0, NULL, &guts. displayBMInfo, DIB_PAL_COLORS)) {
+                  guts. displayBMInfo. bmiHeader. biBitCount = ( int) mp1;
+                  guts. displayBMInfo. bmiHeader. biPlanes   = GetDeviceCaps( dc, PLANES);
+               };
+            }
             dsys( application) lastSize. x = ( short) LOWORD( mp2);
             dsys( application) lastSize. y = ( short) HIWORD( mp2);
-            if ( oldBPP != guts. displayBMInfo. bmiHeader. biBitCount)
-               hash_first_that( imageMan, kill_img_cache, (void*)1, nil, nil);
-            dc_free();
+            if ( dc) {
+               if ( oldBPP != guts. displayBMInfo. bmiHeader. biBitCount)
+                  hash_first_that( imageMan, kill_img_cache, (void*)1, nil, nil);
+               dc_free();
+            }
          }
          break;
       case WM_FONTCHANGE:

@@ -23,8 +23,20 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: generic.pl,v 1.5 2000/10/18 11:58:07 tobez Exp $
+#  $Id: generic.pl,v 1.8 2001/10/25 11:21:10 dk Exp $
 #
+
+=pod 
+=item NAME
+
+A "hello world" program
+
+=item FEATURES
+
+A very basic Prima toolkit usage is demonstrated
+
+=cut
+
 use strict;
 use Prima;
 use Prima::Application name => 'Generic';

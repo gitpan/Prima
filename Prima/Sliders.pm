@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Sliders.pm,v 1.24 2001/07/04 11:37:26 dk Exp $
+#  $Id: Sliders.pm,v 1.26 2001/12/06 13:10:22 dk Exp $
 
 # contains:
 #   SpinButton
@@ -378,7 +378,7 @@ sub profile_default
       spinClass      => 'Prima::AltSpinButton',
       editProfile    => {},
       spinProfile    => {},
-      editDelegations=> [qw(KeyDown Change)],
+      editDelegations=> [qw(KeyDown Change MouseWheel)],
       spinDelegations=> [qw(Increment)],
    }
 }
@@ -430,9 +430,9 @@ sub on_paint
    $canvas-> rect3d( 0, 0, $s[0]-1, $s[1]-1, 1, $self-> dark3DColor, $self-> light3DColor);
 }
 
-sub on_mousewheel
+sub InputLine_MouseWheel
 {
-   my ( $self, $mod, $x, $y, $z) = @_;
+   my ( $self, $edit, $mod, $x, $y, $z) = @_;
    $z = int($z/120);
    $z *= $self-> {pageStep} if $mod & km::Ctrl;
    my $value = $self-> value;
@@ -453,7 +453,9 @@ sub Spin_Increment
 sub InputLine_KeyDown
 {
    my ( $self, $edit, $code, $key, $mod) = @_;
-   $edit-> clear_event if $key == kb::NoKey && chr($code) !~ /^[\d+-]$/;
+   $edit-> clear_event, return if 
+      $key == kb::NoKey && !($mod & (km::Alt | km::Ctrl)) &&
+      chr($code) !~ /^[\d+-]$/;
    if ( $key == kb::Up || $key == kb::Down || $key == kb::PgDn || $key == kb::PgUp) {
       my ($s,$pgs) = ( $self-> step, $self-> pageStep);
       my $z = ( $key == kb::Up) ? $s : (( $key == kb::Down) ? -$s :

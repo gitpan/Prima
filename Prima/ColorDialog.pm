@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ColorDialog.pm,v 1.23 2001/05/02 14:19:19 dk Exp $
+#  $Id: ColorDialog.pm,v 1.25 2002/01/29 22:32:48 dk Exp $
 
 # contains:
 #    ColorDialog
@@ -234,6 +234,7 @@ sub profile_default
       centered      => 1,
       visible       => 0,
       scaleChildren => 0,
+      text          => 'Select color',
 
       quality       => 0,
       value         => cl::White,
@@ -371,14 +372,14 @@ sub init
    $self-> insert( Button =>
       text        => '~OK',
       origin      => [ 20, 20],
-      modalResult => cm::OK,
+      modalResult => mb::OK,
       default     => 1,
    );
 
    $self-> insert( Button =>
       text        => 'Cancel',
       origin      => [ 126, 20],
-      modalResult => cm::Cancel,
+      modalResult => mb::Cancel,
    );
    $self->{R}->select;
    $self-> quality( $profile{quality});
@@ -798,7 +799,7 @@ sub MoreBtn_Click
       text  => 'Mixed color palette',
       value => $combo-> value,
    );
-   $combo-> value( $d-> value) if $d-> execute != cm::Cancel;
+   $combo-> value( $d-> value) if $d-> execute != mb::Cancel;
    $d-> destroy;
 }
 

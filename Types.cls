@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Types.cls,v 1.7 2000/05/17 10:28:25 tobez Exp $
+# $Id: Types.cls,v 1.8 2002/01/24 15:16:15 dk Exp $
 
 global @Point {
    int x;
@@ -46,7 +46,7 @@ global %Font {
    long        resolution        ;
    string      name              ;
    int         size              ;
-   int         codepage          ;
+   string      encoding          ;
    string      family            ;
    int         vector            ;
    int         ascent            ;

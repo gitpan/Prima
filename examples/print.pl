@@ -23,8 +23,22 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: print.pl,v 1.10 2001/01/05 14:22:56 dk Exp $
+#  $Id: print.pl,v 1.11 2001/10/25 11:21:10 dk Exp $
 #
+=pod 
+=item NAME
+
+A printing example
+
+=item FEATURES
+
+Demonstrates the usage of Prima printing interface.
+A particular incoherence between *nix and win32/os2 systems
+in their printing system is particularly solved by a implicit 
+Prima::PS modules set usage.
+
+=cut
+
 use Prima;
 use Prima::Lists;
 use Prima::Const;

@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Edit.pm,v 1.31 2001/07/15 20:34:35 dk Exp $
+#  $Id: Edit.pm,v 1.32 2001/11/02 23:13:12 dk Exp $
 #
 # edit block types
 package bt;
@@ -387,12 +387,14 @@ sub reset_syntax
       $#syntax = $self-> {maxLine};
       @syntax = ();
       my $i = 0;
+      $self-> push_event;
       for ( @{$self->{lines}}) {
          my $sref = undef;
          $notifier->( @notifyParms, $_, $sref);
          push( @syntax, $sref);
          last if $i++ > 50; # test speed...
       }
+      $self-> pop_event;
       $self->{syntax} = \@syntax;
    } else {
       $self->{syntax} = undef;

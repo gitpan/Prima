@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_menu.c,v 1.20 2001/07/25 14:21:29 dk Exp $
+ * $Id: apc_menu.c,v 1.25 2001/11/15 11:58:00 dk Exp $
  */
 
 /***********************************************************/
@@ -53,6 +53,8 @@ get_menu_window( Handle self, XWindow xw)
       w = w->  next;
    return w;
 }
+
+extern Cursor predefined_cursors[];
 
 static PMenuWindow
 get_window( Handle self, PMenuItemReg m)
@@ -100,6 +102,11 @@ get_window( Handle self, PMenuItemReg m)
    XCHECKPOINT;
    hash_store( guts.menu_windows, &w->w, sizeof(w->w), (void*)self);
    wx = XX-> w;
+   if ( predefined_cursors[crArrow] == None) {
+      XCreateFontCursor( DISP, XC_left_ptr);
+      XCHECKPOINT;
+   }
+   XDefineCursor( DISP, w-> w, predefined_cursors[crArrow]);
    if ( wx) {
       while ( wx-> next ) wx = wx-> next;
       w-> prev = wx;
@@ -144,7 +151,9 @@ menu_window_delete_downlinks( PMenuSysData XX, PMenuWindow wx)
    while ( w) {
       PMenuWindow xw = w-> next;
       hash_delete( guts. menu_windows, &w-> w, sizeof( w-> w), false);
+      XFillRectangle( DISP, w-> w, guts. menugc, 0, 0, w-> sz. x, w-> sz. y);
       XDestroyWindow( DISP, w-> w);
+      XFlush( DISP);
       free_unix_items( w);
       free( w);
       w = xw;
@@ -160,7 +169,10 @@ char_struct( XFontStruct * xs, int c)
     if ( !xs-> per_char) {
        xc = &xs-> min_bounds;
     } else if (c < xs-> min_char_or_byte2 || c > xs-> max_char_or_byte2) {
-       xc = xs-> per_char + xs-> default_char - xs-> min_char_or_byte2; 
+       int default_char = xs-> default_char;
+       if ( default_char < xs-> min_char_or_byte2 || default_char > xs-> max_char_or_byte2)
+          default_char = xs-> min_char_or_byte2;
+       xc = xs-> per_char + default_char - xs-> min_char_or_byte2; 
     } else
        xc = xs-> per_char + c - xs-> min_char_or_byte2;
     return xc;
@@ -460,6 +472,13 @@ menu_enter_item( PMenuSysData XX, PMenuWindow w, int index, int type)
       update_menu_window( XX, w2);
       p = menu_item_offset( XX, w, index);
       s = menu_item_size( XX, w, index);
+      
+      if ( &XX-> wstatic == w) {
+         XWindow dummy;
+         XTranslateCoordinates( DISP, w->w, guts. root, 0, 0, &n.x, &n.y, &dummy);
+         w-> pos = n;
+      }
+      
       n. x += p. x;
       n. y += p. y;
       p. x += w-> pos. x;
@@ -919,8 +938,23 @@ AGAIN:
          case NotifyNonlinearVirtual: 
             return;
          }
-         M(self)-> focus = nilHandle;
-         prima_end_menu();
+         apc_timer_stop( MENU_UNFOCUS_TIMER);
+         apc_timer_start( MENU_UNFOCUS_TIMER);
+         guts. unfocusedMenu = self;
+      }
+      break;
+   case FocusIn:
+      if ( guts. unfocusedMenu && self == guts. unfocusedMenu && self == guts. currentMenu) {
+         switch ( ev-> xfocus. detail) {
+         case NotifyVirtual:
+         case NotifyPointer:
+         case NotifyPointerRoot: 
+         case NotifyDetailNone: 
+         case NotifyNonlinearVirtual: 
+            return;
+         }
+         apc_timer_stop( MENU_UNFOCUS_TIMER);
+         guts. unfocusedMenu = nilHandle;
       }
       break;
    case KeyPress: {
@@ -1069,7 +1103,6 @@ NEXT_STAGE:
    }
    break;
    case MenuTimerMessage: 
-   apc_timer_stop( MENU_TIMER);
    if ( self == guts. currentMenu) {
       DEFMM;
       PMenuWindow w;
@@ -1146,8 +1179,23 @@ prima_end_menu(void)
    PMenuSysData XX;
    PMenuWindow w;
    apc_timer_stop( MENU_TIMER);
+   apc_timer_stop( MENU_UNFOCUS_TIMER);
+   guts. unfocusedMenu = nilHandle; 
    if ( !guts. currentMenu) return;
    XX = M(guts. currentMenu);
+   {
+      XRectangle r;
+      Region rgn;
+      r. x = 0;
+      r. y = 0;
+      r. width  = guts. displaySize. x; 
+      r. height = guts. displaySize. y; 
+      rgn = XCreateRegion();
+      XUnionRectWithRegion( &r, rgn, rgn);
+      XSetRegion( DISP, guts. menugc, rgn);
+      XDestroyRegion( rgn);
+      XSetForeground( DISP, guts. menugc, XX->c[ciBack]);
+   }
    w = XX-> w;
    if ( XX-> focus)
       XSetInputFocus( DISP, XX-> focus, RevertToNone, CurrentTime);

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: VB.pl,v 1.48 2001/07/25 21:35:51 dk Exp $
+# $Id: VB.pl,v 1.53 2002/01/05 17:25:37 dk Exp $
 use strict;
 use Prima qw(StdDlg Notebooks MsgBox ComboBox ColorDialog IniFile);
 use Prima::VB::VBLoader;
@@ -56,9 +56,12 @@ use vars qw($inspector
             $main
             $form
             $fastLoad
+            $writeMode
             );
 
 $fastLoad = 1;
+$writeMode = 0;
+
 my $openFileDlg;
 my $saveFileDlg;
 my $openImageDlg;
@@ -407,6 +410,7 @@ sub enter_widget
    $self-> {current} = $w;
 
    if ( $self-> {current}) {
+      $self-> close_item;
       my %df = %{$_[0]->{default}};
       my $pf = $_[0]->{profile};
       my @ef = sort keys %{$self->{current}-> {events}};
@@ -665,7 +669,6 @@ sub on_destroy
          $VB::main->update_menu();
          $VB::main->update_markings();
       }
-      $VB::main-> {ini}-> {ObjectInspectorRect} = join( ' ', $_[0]-> rect);
    }
    ObjectInspector::renew_widgets;
 }
@@ -873,7 +876,7 @@ sub fm_reclass
        size => [ 317, 20],
        text => $lab_text,
    ]);
-   if ( $dlg-> execute == cm::OK) {
+   if ( $dlg-> execute == mb::OK) {
       $self-> {class} = $i-> text;
       delete $self-> {realClass};
    }
@@ -1035,12 +1038,12 @@ sub fm_creationorder
       size => [ 96, 36],
       text => '~OK',
       default => 1,
-      modalResult => cm::OK,
+      modalResult => mb::OK,
    ], [ Button =>
       origin => [ 109, 5],
       size => [ 96, 36],
       text => 'Cancel',
-      modalResult => cm::Cancel,
+      modalResult => mb::Cancel,
    ], [ ListBox =>
       origin => [ 5, 48],
       name => 'Items',
@@ -1087,7 +1090,7 @@ palette => [ 0,0,0,0,0,0],
           $i-> focusedItem( $fi + 1);
        },
     ]);
-    if ( $d-> execute != cm::Cancel) {
+    if ( $d-> execute != mb::Cancel) {
        my $cord = 1;
        $self-> bring( $_)-> {creationOrder} = $cord++ for @{$d-> Items-> items};
     }
@@ -1700,6 +1703,7 @@ sub open
 sub write_form
 {
    my ( $self, $partialExport) = @_;
+   $VB::writeMode = 0;
 
    my @cmp = $partialExport ? 
       $VB::form-> marked_widgets : $VB::form-> widgets;
@@ -1724,6 +1728,7 @@ STARTSUB
       $class = $_->{realClass} if defined $_->{realClass};
       my $types = $_->{types};
       my $name = $_-> prf( 'name');
+      $Prima::VB::VBLoader::eventContext[0] = $name;
       $c .= <<MEDI;
 \t'$name' => {
 \t\tclass   => '$class',
@@ -1751,6 +1756,11 @@ MEDI
               $c .= "\t\t$_ => $val,\n";
           }
           $c .= "\t\t},\n";
+      }
+      my %Handle_props = map { $_ => 1 } $_->{prf_types}->{Handle} ? @{$_->{prf_types}->{Handle}} : ();
+      delete $Handle_props{owner};
+      if ( scalar keys %Handle_props) {
+         $c .= "\t\tsiblings => [qw(" . join(' ', keys %Handle_props) . ")],\n";
       }
       $c .= "\t\tprofile => {\n";
       my ( $x,$prf) = ($_, $_->{profile});
@@ -1785,6 +1795,7 @@ sub write_PL
    my $self = $_[0];
    my $main = $VB::form-> prf( 'name');
    my @cmp = $VB::form-> widgets;
+   $VB::writeMode = 1;
 
    my $header = <<PREPREHEAD;
 use Prima;
@@ -1809,7 +1820,7 @@ PREHEAD
    for ( keys %$prf) {
       my $val = $prf->{$_};
       my $type = $self-> get_typerec( $types->{$_}, \$val);
-      $val = defined($val) ? $type-> write( $_, $val, 1) : 'undef';
+      $val = defined($val) ? $type-> write( $_, $val) : 'undef';
       $c .= "       $_ => $val,\n";
    }
    my @ds = ( $::application-> font-> width, $::application-> font-> height);
@@ -1905,7 +1916,7 @@ AGAIN:
          }
          next if $_ eq 'owner';
          my $type = $self-> get_typerec( $types->{$_}, \$val);
-         $val = defined($val) ? $type-> write( $_, $val, 1) : 'undef';
+         $val = defined($val) ? $type-> write( $_, $val) : 'undef';
          $modules{$_} = 1 for $type-> preload_modules();
          $c .= "       $_ => $val,\n";
       }
@@ -1943,6 +1954,7 @@ run Prima;
 POSTHEAD
 
    $header .= "use $_;\n" for sort keys %modules;
+   $VB::writeMode = 0;
    return $header.$c;
 }
 
@@ -2023,6 +2035,13 @@ sub update_markings
 sub form_cancel
 {
    if ( $VB::main) {
+      if ( $VB::main-> {topLevel}) {
+         for ( $::application-> get_components) {
+            next if $VB::main-> {topLevel}-> {"$_"};
+            eval { $_-> destroy; };
+         }
+         $VB::main-> {topLevel} = undef;
+      }
       return unless $VB::main-> {running};
       $VB::main-> {running}-> destroy;
       $VB::main-> {running} = undef;
@@ -2044,13 +2063,12 @@ sub form_run
    $VB::main-> wait;
    my $c = $self-> write_form;
    my $okCreate = 0;
+   $VB::main-> {topLevel} = { map { ("$_" => 1) } $::application-> get_components };
+   @Prima::VB::VBLoader::eventContext = ('', '');
    eval{
+      local $SIG{__WARN__} = sub { die $_[0] };
       my $sub = eval("$c");
-      if ( $@) {
-         print "Error loading module $@";
-         Prima::MsgBox::message("$@");
-         return;
-      }
+      die "Error loading module $@" if $@;
       $Prima::VB::VBLoader::builderActive = 0;
       my @d = $sub->();
       $Prima::VB::VBLoader::builderActive = 1;
@@ -2067,7 +2085,31 @@ sub form_run
       };
    };
    $Prima::VB::VBLoader::builderActive = 1;
-   Prima::MsgBox::message( "$@") if $@;
+   if ( $@) {
+      my $msg = "$@";
+      $msg =~ s/ \(eval \d+\)//g;
+      if ( length $Prima::VB::VBLoader::eventContext[0]) {
+          $VB::main-> bring_inspector;
+          $VB::main-> {topLevel}-> { "$VB::inspector" } = 1;
+          $VB::inspector-> Selector-> text( $Prima::VB::VBLoader::eventContext[0]);
+          if ( $Prima::VB::VBLoader::eventContext[0] eq $VB::inspector-> Selector-> text &&
+               length($Prima::VB::VBLoader::eventContext[1])) {
+              $VB::inspector-> set_monger_index(1); 
+              my $list = $VB::inspector-> {currentList};
+              my $ix = $list-> {index}-> {$Prima::VB::VBLoader::eventContext[1]};
+              if ( defined $ix) {
+                 $list-> focusedItem( $ix);
+                 $VB::inspector-> {panel}-> select; 
+              }
+          }
+      }
+      Prima::MsgBox::message( $msg);
+      for ( $::application-> get_components) {
+         next if $VB::main-> {topLevel}-> {"$_"};
+         eval { $_-> destroy; };
+      }
+      $VB::main-> {topLevel} = undef;
+   }
 }
 
 sub wait

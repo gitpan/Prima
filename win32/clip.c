@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: clip.c,v 1.22 2001/06/15 09:43:57 dk Exp $
+ * $Id: clip.c,v 1.25 2002/02/21 12:49:38 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -127,7 +127,7 @@ apc_clipboard_get_data( Handle self, long id, STRLEN * length)
              }
              sys bm = b;
              apcErrClear;
-             dc = CreateCompatibleDC( dc_alloc());
+             if (!( dc = CreateCompatibleDC( dc_alloc()))) return nil;
              ops = sys ps;
              sys ps = dc;
 
@@ -161,12 +161,14 @@ apc_clipboard_get_data( Handle self, long id, STRLEN * length)
              len = *length = strlen( ptr);
              len++;
              ret = ( char *) malloc( *length);
-             memcpy( ret, ptr, *length);
-             for ( i = 0; i < len - 1; i++)
-                if ( ret[ i] == '\r') {
-                   memcpy( ret + i, ret + i + 1, len - i + 1);
-                   (*length)--;
-                }
+             if ( ret) {
+                memcpy( ret, ptr, *length);
+                for ( i = 0; i < len - 1; i++)
+                   if ( ret[ i] == '\r') {
+                      memcpy( ret + i, ret + i + 1, len - i + 1);
+                      (*length)--;
+                   }
+             }
              GlobalUnlock( ph);
              return ret;
          }
@@ -188,7 +190,8 @@ apc_clipboard_get_data( Handle self, long id, STRLEN * length)
                apiErrRet;
             *length = *(( int*) ptr);
             ptr += sizeof( int);
-            memcpy( ret = malloc( *length), ptr, *length);
+            ret = malloc( *length);
+            if ( ret) memcpy( ret, ptr, *length);
             GlobalUnlock( ph);
             return ret;
          }
@@ -223,22 +226,46 @@ apc_clipboard_set_data( Handle self, long id, void * data, STRLEN length)
          return true;
       case CF_TEXT:
          {
-             void *ptr;
-             HGLOBAL glob = GlobalAlloc( GMEM_DDESHARE, length+1);
+             int i, nlength = length;
+             void *ptr, *oemptr;
+             char *dst;
+             HGLOBAL glob, oemglob;
+             for ( i = 0; i < length; i++) 
+                if (*((( char*) data + i)) == '\n' && *((( char*) data)+i+1) != '\r') 
+                   nlength++;
+             glob = GlobalAlloc( GMEM_DDESHARE, nlength+1);
              if ( !glob) apiErrRet;
-             if ( !( ptr = GlobalLock( glob))) apiErrRet;
-             memcpy( ptr, data, length);
-             ((char*)ptr)[length] = 0;
-             GlobalUnlock( glob);
-             if ( !SetClipboardData( CF_TEXT, glob)) apiErr;
+             if ( !( ptr = GlobalLock( glob))) {
+                GlobalFree( glob);
+                apiErrRet;
+             }
+             dst = ( char *) ptr;
+             for ( i = 0; i < length; i++) {
+                if (*((( char*) data + i)) == '\n' && *((( char*) data)+i+1) != '\r') 
+                   *(dst++) = '\r';
+                *(dst++) = *(( char*) data + i);
+             }
+             ((char*)ptr)[nlength] = 0;
 
-             glob = GlobalAlloc( GMEM_DDESHARE, length+1);
-             if ( !glob) apiErrRet;
-             if ( !( ptr = GlobalLock( glob))) apiErrRet;
-             CharToOemBuff(( LPCTSTR) data, ( LPTSTR) ptr, length);
-             ((char*)ptr)[length] = 0;
+             oemglob = GlobalAlloc( GMEM_DDESHARE, nlength+1);
+             if ( !oemglob) {
+                GlobalUnlock( glob);
+                GlobalFree( glob);
+                apiErrRet;
+             }
+             if ( !( oemptr = GlobalLock( oemglob))) {
+                GlobalUnlock( glob);
+                GlobalFree( glob);
+                GlobalFree( oemglob);
+                apiErrRet;
+             }
+             CharToOemBuff(( LPCTSTR) ptr, ( LPTSTR) oemptr, nlength);
+             ((char*)oemptr)[nlength] = 0;
+             
              GlobalUnlock( glob);
-             if ( !SetClipboardData( CF_OEMTEXT, glob)) apiErr;
+             GlobalUnlock( oemglob);
+             if ( !SetClipboardData( CF_TEXT, glob)) apiErr;
+             if ( !SetClipboardData( CF_OEMTEXT, oemglob)) apiErr;
 
              if ( IS_NT) {
                 glob = GlobalAlloc( GMEM_DDESHARE, ( length + 1) * sizeof( WCHAR));

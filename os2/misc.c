@@ -22,7 +22,7 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  *
- * $Id: misc.c,v 1.10 2000/10/23 09:16:31 dk Exp $
+ * $Id: misc.c,v 1.12 2002/01/03 14:04:44 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #define INCL_DOSFILEMGR
@@ -220,7 +220,7 @@ static const char * NETBIOS_username( void)
     }
     free( buf); buf = nil;
     rc = Net32WkstaGetInfo(NULL, 1, NULL, 0, &avail);
-    buf = ( char*) malloc( avail);
+    if ( !( buf = ( char*) malloc( avail))) return NULL;
     rc = Net32WkstaGetInfo( NULL, 1, buf, avail, &avail);
     username = *( char**) ( buf+14);
     return ( rc==0 && username[ 0] ? username : NULL);
@@ -399,6 +399,16 @@ apc_sys_get_value( int sysValue)
       return WinQuerySysValue( HWND_DESKTOP, SV_CYDLGFRAME);
    case svShapeExtension  :
       return 0;
+   case svColorPointer    :
+      {
+         int i, max = 1;
+         for ( i = 0; i < guts. bmfCount * 2; i+=2) {
+            if ( max < guts. bmf[i] * guts. bmf[i+1])
+               max = guts. bmf[i] * guts. bmf[i+1];
+         }
+         return max > 1;
+      }
+      break;
    default:
       apcErr( errInvParams);
    }

@@ -23,8 +23,22 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: f_fill.pl,v 1.6 2000/10/18 11:58:06 tobez Exp $
+#  $Id: f_fill.pl,v 1.7 2001/10/25 11:21:10 dk Exp $
 #
+=pod 
+=item NAME
+
+A gradient fill example
+
+=item FEATURES
+
+Demonstrates the usage of graphic context regions.
+Note that the $i region is not created, but is assigned
+on every onPaint. Tests whether image object is able
+to hold a cached region copy.
+
+=cut
+
 use strict;
 use Prima;
 use Prima::Classes;

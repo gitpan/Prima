@@ -23,8 +23,21 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: matrix.pl,v 1.7 2000/10/18 11:58:08 tobez Exp $
+#  $Id: matrix.pl,v 1.8 2001/10/25 11:21:10 dk Exp $
 #
+
+=pod 
+=item NAME
+
+A matrix screen-saver
+
+=item FEATURES
+
+Tests the paletted DeviceBitmap implementation
+and large font output performance.
+
+=cut
+
 use strict;
 use Prima;
 

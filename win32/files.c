@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: files.c,v 1.5 2000/05/17 10:29:14 tobez Exp $
+ * $Id: files.c,v 1.6 2001/08/03 13:39:47 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include <winsock.h>
@@ -196,7 +196,7 @@ apc_file_attach( Handle self)
    {
       int  _data, _sz = sizeof( int);
       int result = SOCKETS_AS_HANDLES ?
-          WSAAsyncSelect((SOCKET) sys s. file. object, dsys( application) handle, 0, 0) :
+          WSAAsyncSelect((SOCKET) sys s. file. object, nilHandle, 0, 0) :
           getsockopt(( SOCKET) sys s. file. object, SOL_SOCKET, SO_TYPE, (char*)&_data, &_sz);
       if ( result != 0)
          fhtype = ( WSAGetLastError() == WSAENOTSOCK) ? FHT_OTHER : FHT_SOCKET;

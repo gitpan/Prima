@@ -23,8 +23,22 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: cv.pl,v 1.12 2000/10/18 11:58:04 tobez Exp $
+#  $Id: cv.pl,v 1.13 2001/10/25 11:21:10 dk Exp $
 #
+
+=pod 
+=item NAME
+
+Standard color dialog
+
+=item FEATURES
+
+Demonstrates usage of a standard color dialog.
+Note the right-button drag effect from the color wheel with Shift
+or Alt button pressed.
+
+=cut
+
 use Prima 'StdDlg', Application => { name => 'CV' };
 
 my $p = Prima::ColorDialog-> create(

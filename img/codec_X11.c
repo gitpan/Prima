@@ -181,8 +181,8 @@ save( PImgCodec instance, PImgSaveFileInstance fi)
          name = xc + 1;
       xc++;
    }   
-   xc = malloc( strlen( name + 1));
-   strcpy( xc, name);
+   xc = malloc( strlen( name) + 1);
+   if ( xc) strcpy( xc, name);
    name = xc;
    
    while (*xc) {

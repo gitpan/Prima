@@ -23,10 +23,25 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: menu.pl,v 1.9 2000/10/18 11:58:09 tobez Exp $
+#  $Id: menu.pl,v 1.10 2001/10/25 11:21:10 dk Exp $
 #
-#  Example of menu extended usage
-#
+
+=pod 
+=item NAME
+
+A menu usage example
+
+=item FEATURES
+
+Demonstrates the usage of Prima menu API:
+
+- one-call ( large array ) menu set
+- text and image menu item manipulations
+
+Note the "Edit/Kill menu" realisation.
+
+=cut
+
 use strict;
 use Prima qw( InputLine Label);
 

@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Anton Berezin  <tobez@tobez.org>
 #
-#  $Id: Lists.pm,v 1.32 2001/07/04 11:34:42 dk Exp $
+#  $Id: Lists.pm,v 1.34 2001/08/03 11:48:25 dk Exp $
 package Prima::Lists;
 
 # contains:
@@ -296,7 +296,7 @@ sub on_keydown
    if ( $mod & km::Ctrl && $self->{multiSelect})
    {
       my $c = chr ( $code & 0xFF);
-      if ( $c eq '/' || $c eq '\\')
+      if ( $c eq '/' || $c eq chr(ord('\\')-ord('@')))
       {
          $self-> selectedItems(( $c eq '/') ? [0..$self->{count}-1] : []);
          $self-> clear_event;
@@ -957,6 +957,7 @@ sub set_top_item
 
       }
    } else {
+      $a[1] += $self-> {yedge} if $self-> {integralHeight};
       $self-> scroll( 0, $dt * $ih,
                       clipRect => \@a);
    }

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: fonthash.c,v 1.9 2000/05/17 10:29:03 tobez Exp $
+ * $Id: fonthash.c,v 1.10 2002/01/03 14:04:44 dk Exp $
  */
 /* Created by Anton Berezin <tobez@plab.ku.dk> */
 #include "os2/os2guts.h"
@@ -237,7 +237,7 @@ void *
 create_fontid_hash( void)
 {
    PFontIdHash hash = malloc( sizeof( FontIdHash));
-   memset( hash, 0, sizeof( FontIdHash));
+   if ( hash) memset( hash, 0, sizeof( FontIdHash));
    return hash;
 }
 

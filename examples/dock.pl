@@ -25,18 +25,28 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: dock.pl,v 1.5 2001/06/17 20:53:56 dk Exp $
+#  $Id: dock.pl,v 1.6 2001/10/25 11:21:10 dk Exp $
 #
-# This is the demonstration of Prima::Dock and Prima::DockManager 
-# modules. The window created is docking client, and it's able 
-# to accept toolbars and panels, and toolbars in turn accept buttons.
-# buttons are very samplish; there are two panels, Edit and Banner,
-# that are docked in different ways.
-# Note the following unevident features:
-#  - popup on the border of the window ( and the Customize command there)
-#  - dragging of buttons on the window and the extreior
-#  - dragging panels and toolbar to the exterior
-#  - storing of the geometry in the ~/.demo_dock file
+
+=pod 
+=item NAME
+
+  Docking widgets
+
+=item FEATURES
+
+ This is the demonstration of Prima::Dock and Prima::DockManager 
+ modules. The window created is docking client, and it's able 
+ to accept toolbars and panels, and toolbars in turn accept buttons.
+ buttons are very samplish; there are two panels, Edit and Banner,
+ that are docked in different ways.
+ Note the following unevident features:
+  - popup on the border of the window ( and the Customize command there)
+  - dragging of buttons on the window and the extreior
+  - dragging panels and toolbar to the exterior
+  - storing of the geometry in the ~/.demo_dock file
+  
+=cut
 
 use strict;
 

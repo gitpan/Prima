@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: stock.c,v 1.54 2001/06/15 07:46:25 dk Exp $
+ * $Id: stock.c,v 1.57 2002/02/19 14:08:08 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 /*
@@ -67,6 +67,8 @@ stylus_alloc( PStylus data)
          stylus_clean();
 
       ret = ( PDCStylus) malloc( sizeof( DCStylus));
+      if ( !ret) return nil;
+
       memcpy( &ret-> s, data, sizeof( Stylus));
       ret-> refcnt = 0;
       p = ret-> s. pen;
@@ -219,6 +221,8 @@ patres_fetch( unsigned char * pattern, int len)
       return r;
 
    r = ( PPatResource) malloc( sizeof( PatResource) + sizeof( DWORD) * len);
+   if ( !r) return &hPatHollow;
+
    r-> dotsCount = len;
    r-> dotsPtr   = r-> dots;
    for ( i = 0; i < len; i++) {
@@ -303,62 +307,45 @@ static FontHash fontHash;
 static FontHash fontHashBySize;
 
 static unsigned long
-elf_hash( const char *name, int size)
+elf_hash( const char *key, int size, unsigned long h)
 {
-   unsigned long   h = 0, g;
-
-   while ( size)
-   {
-      h = ( h << 4) + *name++;
-      if (( g = h & 0xF0000000))
-         h ^= g >> 24;
-      h &= ~g;
-      size--;
-   }
-   while ( *name)
-   {
-      h = ( h << 4) + *name++;
-      if (( g = h & 0xF0000000))
-         h ^= g >> 24;
-      h &= ~g;
+   unsigned long g;
+   if ( size >= 0) {
+      while ( size) {
+         h = ( h << 4) + *key++;
+         if (( g = h & 0xF0000000))
+            h ^= g >> 24;
+         h &= ~g;
+         size--;
+      }
+   } else {
+      while ( *key) {
+         h = ( h << 4) + *key++;
+         if (( g = h & 0xF0000000))
+            h ^= g >> 24;
+         h &= ~g;
+      }
    }
    return h;
 }
 
 static unsigned long
-elf_hash_by_size( const Font *f)
+elf( Font * font, Bool bySize)
 {
-   unsigned long   h = 0, g;
-   char *name = (char *)&(f-> width);
-   int size = (char *)(&(f-> name)) - (char *)name;
-
-   while ( size)
-   {
-      h = ( h << 4) + *name++;
-      if (( g = h & 0xF0000000))
-         h ^= g >> 24;
-      h &= ~g;
-      size--;
-   }
-   while ( *name)
-   {
-      h = ( h << 4) + *name++;
-      if (( g = h & 0xF0000000))
-         h ^= g >> 24;
-      h &= ~g;
-   }
-   name = (char *)&(f-> size);
-   size = sizeof( f-> size);
-   while ( size)
-   {
-      h = ( h << 4) + *name++;
-      if (( g = h & 0xF0000000))
-         h ^= g >> 24;
-      h &= ~g;
-      size--;
-   }
-   return h;
+   unsigned long seed = 0;
+   if ( bySize) {
+      seed = elf_hash( (const char*)&font-> width, (char *)(&(font-> name)) - (char *)&(font-> width), seed);
+      seed = elf_hash( font-> name, -1, seed);
+      seed = elf_hash( font-> encoding, -1, seed);
+      seed = elf_hash( (const char*)&font-> size, sizeof( font-> size), seed);
+   } else {
+      seed = elf_hash( (const char*)&font-> height, (char *)(&(font-> name)) - (char *)&(font-> height), seed);
+      seed = elf_hash( font-> name, -1, seed);
+      seed = elf_hash( font-> encoding, -1, seed);
+   } 
+   return seed % FONTHASH_SIZE;
 }
+
 
 static PFontHashNode
 find_node( const PFont font, Bool bySize)
@@ -368,30 +355,30 @@ find_node( const PFont font, Bool bySize)
    int sz;
 
    if ( font == nil) return nil;
-   if (bySize) {
-      sz = (char *)(&(font-> name)) - (char *)&(font-> width);
-      i = elf_hash_by_size( font) % FONTHASH_SIZE;
-   } else {
-      sz = (char *)(&(font-> name)) - (char *)font;
-      i = elf_hash((const char *)font, sz) % FONTHASH_SIZE;
-   }
+
+   i = elf( font, bySize);
    if (bySize)
       node = fontHashBySize. buckets[ i];
    else
       node = fontHash. buckets[ i];
    if ( bySize) {
+      sz = (char *)(&(font-> name)) - (char *)&(font-> width);
       while ( node != nil)
       {
          if (( memcmp( &(font-> width), &(node-> key. width), sz) == 0) &&
              ( strcmp( font-> name, node-> key. name) == 0 ) &&
+             ( strcmp( font-> encoding, node-> key. encoding) == 0 ) &&
              (font-> size == node-> key. size))
             return node;
          node = node-> next2;
       }
    } else {
+      sz = (char *)(&(font-> name)) - (char *)&(font-> height);
       while ( node != nil)
       {
-         if (( memcmp( font, &(node-> key), sz) == 0) && ( strcmp( font-> name, node-> key. name) == 0 ))
+         if (( memcmp( font, &(node-> key), sz) == 0) && 
+             ( strcmp( font-> name, node-> key. name) == 0 )&&
+             ( strcmp( font-> encoding, node-> key. encoding) == 0 ))
             return node;
          node = node-> next;
       }
@@ -404,24 +391,19 @@ add_font_to_hash( const PFont key, const PFont font, int vectored, Bool addSizeE
 {
    PFontHashNode node;
    unsigned long i;
-   unsigned long j;
-   int sz;
 
-//   if ( find_node( key) != nil)
-//      return false ;
    node = ( PFontHashNode) malloc( sizeof( FontHashNode));
    if ( node == nil) return false;
    memcpy( &(node-> key), key, sizeof( Font));
    memcpy( &(node-> value. font), font, sizeof( Font));
    node-> value. vectored = vectored;
-   sz = (char *)(&(key-> name)) - (char *)key;
-   i = elf_hash((const char *)key, sz) % FONTHASH_SIZE;
+   i = elf(key, 0);
    node-> next = fontHash. buckets[ i];
    fontHash. buckets[ i] = node;
    if ( addSizeEntry) {
-      j = elf_hash_by_size( key) % FONTHASH_SIZE;
-      node-> next2 = fontHashBySize. buckets[ j];
-      fontHashBySize. buckets[ j] = node;
+      i = elf( key, 1);
+      node-> next2 = fontHashBySize. buckets[ i];
+      fontHashBySize. buckets[ i] = node;
    }
    return true;
 }
@@ -469,11 +451,38 @@ static Bool _ft_cleaner( PDCFont f, int keyLen, void * key, void * dummy) {
    return false;
 }
 
+static int
+build_dcfont_key( Font * src, unsigned char * key)
+{
+   int sz = FONTSTRUCSIZE;
+   char * p;
+   memcpy( key, src, FONTSTRUCSIZE);
+   key += FONTSTRUCSIZE;
+   p = src-> name;
+   while ( *p) { 
+      *(key++) = *(p++);
+      sz++;
+   }
+   *(key++) = 0;
+   sz++;
+   p = src-> encoding;
+   while ( *p) { 
+      *(key++) = *(p++);
+      sz++;
+   }
+   *(key++) = 0;
+   sz++;
+   return sz;
+}
+
 
 PDCFont
 font_alloc( Font * data, Point * resolution)
 {
-   PDCFont ret = ( PDCFont) hash_fetch( fontMan, data, FONTSTRUCSIZE + strlen( data-> name));
+   char key[sizeof(Font)];
+   int keyLen = build_dcfont_key( data, key);
+   PDCFont ret = ( PDCFont) hash_fetch( fontMan, key, keyLen);
+
    if ( ret == nil) {
       LOGFONT logfont;
       PFont   f;
@@ -482,6 +491,8 @@ font_alloc( Font * data, Point * resolution)
          font_clean();
 
       ret = ( PDCFont) malloc( sizeof( DCFont));
+      if ( !ret) return nil;
+
       memcpy( f = &ret-> font, data, sizeof( Font));
       ret-> refcnt = 0;
       font_font2logfont( f, &logfont);
@@ -491,7 +502,8 @@ font_alloc( Font * data, Point * resolution)
          memset( &lf, 0, sizeof( lf));
          ret-> hfont = CreateFontIndirect( &lf);
       }
-      hash_store( fontMan, &ret-> font, FONTSTRUCSIZE + strlen( ret-> font. name), ret);
+      keyLen = build_dcfont_key( &ret-> font, key);
+      hash_store( fontMan, key, keyLen, ret);
    }
    ret-> refcnt++;
    return ret;
@@ -500,6 +512,9 @@ font_alloc( Font * data, Point * resolution)
 void
 font_free( PDCFont res, Bool permanent)
 {
+   int keyLen;
+   char key[sizeof(Font)];
+
    if ( !res || --res-> refcnt > 0) return;
    if ( !permanent) {
       res-> refcnt = 0;
@@ -509,7 +524,8 @@ font_free( PDCFont res, Bool permanent)
       DeleteObject( res-> hfont);
       res-> hfont = nil;
    }
-   hash_delete( fontMan, &res-> font, FONTSTRUCSIZE + strlen( res-> font. name), true);
+   keyLen = build_dcfont_key( &res-> font, key);
+   hash_delete( fontMan, key, keyLen, true);
 }
 
 void
@@ -531,17 +547,110 @@ font_clean()
     hash_first_that( fontMan, _ft_cleaner, nil, nil, nil);
 }
 
+static char* encodings[] = {
+   "Western",
+   "Windows",
+   "Symbol",
+   "Shift-JIS",
+   "Hangeul",
+   "GB 2312",
+   "Chinese Big 5",
+   "OEM DOS",
+   "Johab", 
+   "Hebrew", 
+   "Arabic", 
+   "Greek", 
+   "Turkish", 
+   "Vietnamese", 
+   "Thai", 
+   "Eastern Europe",
+   "Cyrillic",
+   "Mac",
+   "Baltic",
+   nil
+};
+
+static int ctx_CHARSET2index[] = {
+  ANSI_CHARSET        , 0,
+  DEFAULT_CHARSET     , 1, 
+  SYMBOL_CHARSET      , 2,  
+  SHIFTJIS_CHARSET    , 3, 
+  HANGEUL_CHARSET     , 4, 
+  GB2312_CHARSET      , 5, 
+  CHINESEBIG5_CHARSET , 6, 
+  OEM_CHARSET         , 7, 
+#ifdef JOHAB_CHARSET
+  JOHAB_CHARSET       , 8,
+  HEBREW_CHARSET      , 9,
+  ARABIC_CHARSET      , 10,
+  GREEK_CHARSET       , 11,
+  TURKISH_CHARSET     , 12,
+  VIETNAMESE_CHARSET  , 13,
+  THAI_CHARSET        , 14,
+  EASTEUROPE_CHARSET  , 15,
+  RUSSIAN_CHARSET     , 16,
+  MAC_CHARSET         , 17,
+  BALTIC_CHARSET      , 18,
+#endif  
+  endCtx
+};
 
 #define MASK_CODEPAGE  0x00FF
 #define MASK_FAMILY    0xFF00
 #define FF_MASK        0x00F0
+
+static char *
+font_charset2encoding( int charset)
+{
+#define SYNCPLEN 7   
+   static char buf[ SYNCPLEN * 256], initialized = false;
+   char *str;
+   int index = ctx_remap_end( charset, ctx_CHARSET2index, true);
+   if ( index == endCtx) {
+      charset &= 255;
+      if ( !initialized) {
+         int i;
+         for ( i = 0; i < 256; i++) sprintf( buf + i * SYNCPLEN, "CP-%d", i);
+         initialized = true;
+      }
+      str = buf + charset * SYNCPLEN;
+   } else
+      str = encodings[ index];
+   return str; 
+}
+
+static int
+font_encoding2charset( const char * encoding)
+{
+   int index = 0;
+   char ** e = encodings;
+
+   if ( !encoding || encoding[0] == 0) return DEFAULT_CHARSET;
+   
+   while ( *e) {
+      if ( strcmp( *e, encoding) == 0) 
+         return ctx_remap_def( index, ctx_CHARSET2index, false, DEFAULT_CHARSET);
+      index++;
+      e++;
+   }
+   if ( strncmp( encoding, "CP-", 3) == 0) {
+      int i = atoi( encoding + 3);
+      if ( i <= 0 || i > 256) i = DEFAULT_CHARSET;
+      return i;
+   }
+   return DEFAULT_CHARSET;
+}
+
 
 void
 font_logfont2font( LOGFONT * lf, Font * f, Point * res)
 {
    TEXTMETRIC tm;
    HDC dc = dc_alloc();
-   HFONT hf = SelectObject( dc, CreateFontIndirect( lf));
+   HFONT hf;
+
+   if ( !dc) return;
+   hf = SelectObject( dc, CreateFontIndirect( lf));
 
    GetTextMetrics( dc, &tm);
    DeleteObject( SelectObject( dc, hf));
@@ -560,8 +669,9 @@ font_logfont2font( LOGFONT * lf, Font * f, Point * res)
    f-> pitch               = ((( lf-> lfPitchAndFamily & 3) == DEFAULT_PITCH) ? fpDefault :
       ((( lf-> lfPitchAndFamily & 3) == VARIABLE_PITCH) ? fpVariable : fpFixed));
    strncpy( f-> name, lf-> lfFaceName, LF_FACESIZE);
-   f-> codepage            = lf-> lfCharSet | ((lf-> lfPitchAndFamily & FF_MASK) << 8);
    f-> name[ LF_FACESIZE] = 0;
+//   f-> codepage            = lf-> lfCharSet | ((lf-> lfPitchAndFamily & FF_MASK) << 8);
+   strcpy( f-> encoding, font_charset2encoding( lf-> lfCharSet));
 }
 
 void
@@ -575,15 +685,17 @@ font_font2logfont( Font * f, LOGFONT * lf)
    lf-> lfItalic           = ( f-> style & fsItalic)     ? 1 : 0;
    lf-> lfUnderline        = ( f-> style & fsUnderlined) ? 1 : 0;
    lf-> lfStrikeOut        = ( f-> style & fsStruckOut)  ? 1 : 0;
-   lf-> lfCharSet          = f-> codepage & MASK_CODEPAGE;
+//   lf-> lfCharSet          = f-> codepage & MASK_CODEPAGE;
    lf-> lfOutPrecision     = OUT_TT_PRECIS;
    lf-> lfClipPrecision    = CLIP_DEFAULT_PRECIS;
    lf-> lfQuality          = PROOF_QUALITY;
 
-   lf-> lfPitchAndFamily   = (( f-> codepage & MASK_FAMILY) >> 8) |
+/*   lf-> lfPitchAndFamily   = (( f-> codepage & MASK_FAMILY) >> 8) |
       (( f-> pitch == fpDefault)  ? DEFAULT_PITCH :
-      (( f-> pitch == fpVariable) ? VARIABLE_PITCH : FIXED_PITCH));
+      (( f-> pitch == fpVariable) ? VARIABLE_PITCH : FIXED_PITCH)); */
+   lf-> lfPitchAndFamily   = FF_DONTCARE;  
    strncpy( lf-> lfFaceName, f-> name, LF_FACESIZE);
+   lf-> lfCharSet          = font_encoding2charset( f-> encoding);
 }
 
 void
@@ -615,7 +727,8 @@ font_textmetric2font( TEXTMETRIC * tm, Font * fm, Bool readonly)
    fm-> lastChar               = tm-> tmLastChar;
    fm-> breakChar              = tm-> tmBreakChar;
    fm-> defaultChar            = tm-> tmDefaultChar;
-   fm-> codepage               = tm-> tmCharSet | ((tm-> tmPitchAndFamily & FF_MASK) << 8);
+//   fm-> codepage               = tm-> tmCharSet | ((tm-> tmPitchAndFamily & FF_MASK) << 8);
+   strcpy( fm-> encoding, font_charset2encoding( tm-> tmCharSet));
 }
 
 
@@ -671,6 +784,7 @@ static Bool recursiveFF = 0;
 typedef struct _FEnumStruc
 {
    int           count;
+   int           passedCount;
    int           resValue;
    int           heiValue;
    int           widValue;
@@ -690,7 +804,7 @@ typedef struct _FEnumStruc
 } FEnumStruc, *PFEnumStruc;
 
 int CALLBACK
-fep( ENUMLOGFONT FAR *e, NEWTEXTMETRIC FAR *t, int type, PFEnumStruc es)
+fep( ENUMLOGFONTEX FAR *e, NEWTEXTMETRIC FAR *t, int type, PFEnumStruc es)
 {
    Font * font = es-> font;
    long hei, res;
@@ -703,6 +817,8 @@ fep( ENUMLOGFONT FAR *e, NEWTEXTMETRIC FAR *t, int type, PFEnumStruc es)
    memcpy( &es-> lf,    &e-> elfLogFont, sizeof( LOGFONT));             \
    memcpy( es-> name,   e-> elfLogFont. lfFaceName, LF_FACESIZE)
 
+   es-> passedCount++;
+          
    if ( es-> usePitch)
    {
       int fpitch = ( t-> tmPitchAndFamily & TMPF_FIXED_PITCH) ? fpVariable : fpFixed;
@@ -781,8 +897,11 @@ font_font2gp_internal( PFont font, Point res, Bool forceSize, HDC theDC)
    FEnumStruc es;
    HDC  dc            = theDC ? theDC : dc_alloc();
    Bool useNameSubplacing = false;
+   LOGFONT elf;
 
-   es. count          = es. vecId = 0;
+   if ( !dc) return fgBitmap;
+
+   memset( &es, 0, sizeof( es));
    es. resValue       = es. heiValue = es. widValue = INT_MAX;
    es. useWidth       = font-> width != 0;
    es. useVector      = font-> direction != 0;
@@ -796,7 +915,18 @@ font_font2gp_internal( PFont font, Point res, Bool forceSize, HDC theDC)
    if ( font-> height < 0) font-> height *= -1;
    if ( font-> size   < 0) font-> size   *= -1;
 
-   EnumFontFamilies( dc, font-> name, ( FONTENUMPROC) fep, ( LPARAM) &es);
+   strncpy( elf. lfFaceName, font-> name, LF_FACESIZE);
+   elf. lfPitchAndFamily = 0;
+   elf. lfCharSet = font_encoding2charset( font-> encoding);
+   EnumFontFamiliesEx( dc, &elf, ( FONTENUMPROC) fep, ( LPARAM) &es, 0);
+
+   // check encoding match
+   if (( es. passedCount == 0) && ( elf. lfCharSet != DEFAULT_CHARSET)) {
+      int r;
+      font-> encoding[0] = 0; // DEFAULT_CHARSET
+      r = font_font2gp_internal( font, res, forceSize, dc);
+      out( r);
+   }
 
    // checking matched font, if available
    if ( es. count > 0) {
@@ -857,7 +987,7 @@ font_font2gp_internal( PFont font, Point res, Bool forceSize, HDC theDC)
          strncpy( font-> family, es. family, LF_FULLFACESIZE);
          font-> size     = ( es. tm. tmHeight - es. tm. tmInternalLeading) * 72.0 / res.y + 0.5;
          font-> width    = es. lf. lfWidth;
-         font-> codepage = es. tm.tmCharSet | ((es.tm.tmPitchAndFamily & FF_MASK) << 8);
+//         font-> codepage = es. tm.tmCharSet | ((es.tm.tmPitchAndFamily & FF_MASK) << 8);
          out( fgBitmap);
       }
 
@@ -888,7 +1018,7 @@ font_font2gp_internal( PFont font, Point res, Bool forceSize, HDC theDC)
 
          font_textmetric2font( &tm, font, true);
          strncpy( font-> family, es. family, LF_FULLFACESIZE);
-         font-> codepage = tm. tmCharSet | ((tm. tmPitchAndFamily & FF_MASK) << 8);
+//         font-> codepage = tm. tmCharSet | ((tm. tmPitchAndFamily & FF_MASK) << 8);
          out( fgVector);
       }
    }
@@ -972,31 +1102,59 @@ apc_font_pick( Handle self, PFont source, PFont dest)
    return true;
 }
 
+typedef struct {
+   List  lst;
+   PHash hash; 
+} Fep2;
+
 int CALLBACK
-fep2( ENUMLOGFONT FAR *e, NEWTEXTMETRIC FAR *t, int type, PList lst)
+fep2( ENUMLOGFONTEX FAR *e, NEWTEXTMETRIC FAR *t, int type, Fep2 * f)
 {
-   PFont fm = ( PFont) malloc( sizeof( Font));
+   PFont fm;
+
+   if ( f-> hash) { /* gross-family enumeration */
+      fm = hash_fetch( f-> hash, e-> elfLogFont. lfFaceName, strlen( e-> elfLogFont. lfFaceName));
+      if ( fm) {
+         char ** enc = (char**) fm-> encoding;
+         unsigned char * shift = (unsigned char*)enc + sizeof(char *) - 1;
+         if ( *shift + 2 < 256 / sizeof(char*)) {
+            *(enc + ++(*shift)) = font_charset2encoding( e-> elfLogFont. lfCharSet);
+         }
+         return 1;
+      }
+   }
+   fm = ( PFont) malloc( sizeof( Font));
+   if ( !fm) return 1;
    font_textmetric2font(( TEXTMETRIC *) t, fm, false);
+   if ( f-> hash) { /* multi-encoding format */
+      char ** enc = (char**) fm-> encoding;
+      unsigned char * shift = (unsigned char*)enc + sizeof(char *) - 1;      
+      memset( fm-> encoding, 0, 256);
+      *(enc + ++(*shift)) = font_charset2encoding( e-> elfLogFont. lfCharSet);
+      hash_store( f-> hash, e-> elfLogFont. lfFaceName, strlen( e-> elfLogFont. lfFaceName), fm); 
+   }
    fm-> direction = fm-> resolution = 0;
    strncpy( fm-> name,     e-> elfLogFont. lfFaceName, LF_FACESIZE);
    strncpy( fm-> family,   ( const char *) e-> elfFullName,            LF_FULLFACESIZE);
-   list_add( lst, ( Handle) fm);
+   list_add( &f-> lst, ( Handle) fm);
    return 1;
 }
 
 PFont
-apc_fonts( Handle self, const char* facename, int * retCount)
+apc_fonts( Handle self, const char* facename, const char *encoding, int * retCount)
 {
    PFont fmtx = nil;
    int  i;
    HDC  dc;
-   List lst;
+   Fep2 f;
    Bool hasdc = 0;
+   LOGFONT elf;
    apcErrClear;
 
    *retCount = 0;
-   if ( self == nilHandle || self == application)
-      dc = dc_alloc();
+   if ( self == nilHandle || self == application) {
+      if ( !( dc = dc_alloc())) return nil;
+   }
    else if ( kind_of( self, CPrinter)) {
       if ( !is_opt( optInDraw) && !is_opt( optInDrawInfo)) {
          hasdc = 1;
@@ -1006,24 +1164,83 @@ apc_fonts( Handle self, const char* facename, int * retCount)
    } else
       return nil;
 
-   list_create( &lst, 256, 256);
-   EnumFontFamilies( dc, facename, ( FONTENUMPROC) fep2, ( LPARAM) &lst);
+   f. hash = nil;
+   if ( !facename && !encoding) 
+      if ( !( f. hash = hash_create()))
+         return nil;
+   list_create( &f. lst, 256, 256);
+   memset( &elf, 0, sizeof( elf));
+   strncpy( elf. lfFaceName, facename ? facename : "", LF_FACESIZE);
+   elf. lfCharSet = font_encoding2charset( encoding); 
+   EnumFontFamiliesEx( dc, &elf, ( FONTENUMPROC) fep2, ( LPARAM) &f, 0);
+   if ( f. hash) {
+      hash_destroy( f. hash, false);
+      f. hash = nil;
+   }
 
    if ( self == nilHandle || self == application)
       dc_free();
    else if ( hasdc)
       CPrinter( self)-> end_paint_info( self);
 
-   if ( lst. count == 0) goto Nothing;
-   *retCount = lst. count;
-   fmtx = ( PFont) malloc( *retCount * sizeof( Font));
-   for ( i = 0; i < lst. count; i++)
-      memcpy( &fmtx[ i], ( void *) lst. items[ i], sizeof( Font));
-   list_delete_all( &lst, true);
+   if ( f. lst. count == 0) goto Nothing;
+   fmtx = ( PFont) malloc( f. lst. count * sizeof( Font));
+   if ( !fmtx) return nil;
+
+   *retCount = f. lst. count;
+   for ( i = 0; i < f. lst. count; i++)
+      memcpy( &fmtx[ i], ( void *) f. lst. items[ i], sizeof( Font));
+   list_delete_all( &f. lst, true);
 Nothing:
-   list_destroy( &lst);
+   list_destroy( &f. lst);
    return fmtx;
 }
+
+
+int CALLBACK
+fep3( ENUMLOGFONTEX FAR *e, NEWTEXTMETRIC FAR *t, int type, PHash lst)
+{
+   char * str = font_charset2encoding( e-> elfLogFont. lfCharSet);
+   hash_store( lst, str, strlen( str), (void*)1);
+   return 1;
+}
+
+
+PHash
+apc_font_encodings( Handle self )
+{
+   int  i;
+   HDC  dc;
+   PHash lst;
+   Bool hasdc = 0;
+   LOGFONT elf;
+   apcErrClear;
+
+   if ( self == nilHandle || self == application) {
+      if ( !( dc = dc_alloc())) return nil;
+   }
+   else if ( kind_of( self, CPrinter)) {
+      if ( !is_opt( optInDraw) && !is_opt( optInDrawInfo)) {
+         hasdc = 1;
+         CPrinter( self)-> begin_paint_info( self);
+      }
+      dc = sys ps;
+   } else
+      return nil;
+
+   lst = hash_create();
+   memset( &elf, 0, sizeof( elf));
+   elf. lfCharSet = DEFAULT_CHARSET;
+   EnumFontFamiliesEx( dc, &elf, ( FONTENUMPROC) fep3, ( LPARAM) lst, 0);
+
+   if ( self == nilHandle || self == application)
+      dc_free();
+   else if ( hasdc)
+      CPrinter( self)-> end_paint_info( self);
+
+   return lst;
+}
+
 
 // Font end
 // Colors section
@@ -1322,6 +1539,8 @@ hwnd_enter_paint( Handle self)
    }
 
    if ( sys psd == nil) sys psd = ( PPaintSaveData) malloc( sizeof( PaintSaveData));
+   if ( sys psd == nil) return;
+
    apc_gp_set_text_opaque( self, is_apt( aptTextOpaque));
    apc_gp_set_text_out_baseline( self, is_apt( aptTextOutBaseline));
    apc_gp_set_line_width( self, sys lineWidth);
@@ -1418,6 +1637,8 @@ mod_select( int mod)
    ModData * ks;
 
    ks = ( ModData*) malloc( sizeof( ModData));
+   if ( !ks) return nil;
+
    GetKeyboardState( ks-> ks);
    ks-> kss[ 0]   = ks-> ks[ VK_MENU];
    ks-> kss[ 1]   = ks-> ks[ VK_CONTROL];
@@ -1435,6 +1656,8 @@ void
 mod_free( BYTE * modState)
 {
    ModData * ks = ( ModData*) modState;
+   if ( !ks) return;
+
    ks-> ks[ VK_MENU   ] = ks-> kss[ 0];
    ks-> ks[ VK_CONTROL] = ks-> kss[ 1];
    ks-> ks[ VK_SHIFT  ] = ks-> kss[ 2];
@@ -1538,7 +1761,17 @@ palette_change( Handle self)
 
    xlp. palNumEntries = l. sz;
    p = ( PRGBColor) malloc( sizeof( RGBColor) * l. sz);
+   if ( !p) {
+      list_destroy( &l.l);
+      return false;
+   }
+   
    d = ( PRGBColor) malloc( sizeof( RGBColor) * nColors);
+   if ( !d) {
+      free( p);
+      list_destroy( &l.l);
+      return false;
+   }
 
    l. p = p;
    list_first_that( &l.l, pal_collect, &l);
@@ -1662,6 +1895,8 @@ region_create( Handle mask)
    idata  = PImage( mask)-> data + PImage( mask)-> dataSize - PImage( mask)-> lineSize;
 
    rdata = ( RGNDATA*) malloc( sizeof( RGNDATAHEADER) + size * sizeof( RECT));
+   if ( !rdata) return NULL;
+
    rdata-> rdh. nCount = 0;
    current = ( RECT * ) &( rdata-> Buffer);
    current--;
@@ -1678,7 +1913,12 @@ region_create( Handle mask)
             else {
                set = 1;
                if ( rdata-> rdh. nCount >= size) {
-                  rdata = ( RGNDATA *) realloc( rdata, sizeof( RGNDATAHEADER) + ( size *= 3) * sizeof( RECT));
+                  void * xrdata = ( RGNDATA *) realloc( rdata, sizeof( RGNDATAHEADER) + ( size *= 3) * sizeof( RECT));
+                  if ( !xrdata) {
+                     free( rdata); 
+                     return NULL;
+                  }
+                  rdata = xrdata;
                   current = ( RECT * ) &( rdata-> Buffer);
                   current += rdata-> rdh. nCount - 1;
                }
@@ -1923,7 +2163,6 @@ gp_arc( Handle self, int x, int y, int dX, int dY, double angleStart, double ang
    int xend = cosb * dX / 2 + 0.5, yend = sinb * dY / 2 + 0.5;
    int qplane, qstart = quarter( angleStart), qend = quarter( angleEnd), lim = 3;
 
-   // printf("%g %g\n", angleStart, angleEnd);
 
    // calculating arc length
    if ( qstart == qend &&

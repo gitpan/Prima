@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ic_conv.c,v 1.8 2001/07/25 14:21:28 dk Exp $
+ * $Id: ic_conv.c,v 1.9 2002/01/03 14:04:43 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "img_conv.h"
@@ -285,6 +285,7 @@ BC( rgb, mono, None)
    dBCARGS;
    Byte * convBuf = allocb( width);
    BCWARN;
+   if ( !convBuf) return;
    cm_fill_colorref(( PRGBColor) map_RGB_gray, 256, stdmono_palette, 2, colorref);
    for ( i = 0; i < height; i++, srcData += srcLine, dstData += dstLine)
    {

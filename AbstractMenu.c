@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: AbstractMenu.c,v 1.41 2001/07/25 14:21:26 dk Exp $
+ * $Id: AbstractMenu.c,v 1.44 2002/01/07 21:39:44 dk Exp $
  */
 
 #include "apricot.h"
@@ -101,6 +101,7 @@ AbstractMenu_dispose_menu( Handle self, void * menu)
    free( m-> variable);
    free( m-> perlSub);
    if ( m-> code) sv_free( m-> code);
+   if ( m-> data) sv_free( m-> data);
    if ( m-> bitmap) {
       if ( PObject( m-> bitmap)-> stage < csDead)
          SvREFCNT_dec( SvRV(( PObject( m-> bitmap))-> mate)); 
@@ -160,6 +161,7 @@ AbstractMenu_new_menu( Handle self, SV * sv, int level, int * subCount, int * au
       int l_sub   = -1;
       int l_accel = -1;
       int l_key   = -1;
+      int l_data  = -1;
       Bool addToSubs = true;
 
       if ( itemHolder == nil)
@@ -176,11 +178,15 @@ AbstractMenu_new_menu( Handle self, SV * sv, int level, int * subCount, int * au
       /* entering item description */
       item = ( AV *) SvRV( *itemHolder);
       count = av_len( item) + 1;
-      if ( count > 5) {
+      if ( count > 6) {
          warn("RTC0032: menu build error: extra declaration");
          count = 5;
       }
-      r = alloc1z( MenuItemReg);
+      if ( !( r = alloc1z( MenuItemReg))) {
+         warn( "Not enough memory");
+         my-> dispose_menu( self, m);
+         return nil;
+      }
       r-> key = kbNoKey;
       /* log_write("%sNo: %d, count: %d", buf, i, count); */
 
@@ -200,12 +206,19 @@ AbstractMenu_new_menu( Handle self, SV * sv, int level, int * subCount, int * au
          l_accel = 1;
          l_key   = 2;
          l_sub   = 3;
+      } else if ( count == 5) {
+         l_var   = 0;
+         l_text  = 1;
+         l_accel = 2;
+         l_key   = 3;
+         l_sub   = 4;
       } else {
          l_var   = 0;
          l_text  = 1;
          l_accel = 2;
          l_key   = 3;
          l_sub   = 4;
+         l_data  = 5;
       }
 
       if ( m) curr = curr-> next = r; else curr = m = r; /* adding to list */
@@ -329,6 +342,18 @@ AbstractMenu_new_menu( Handle self, SV * sv, int level, int * subCount, int * au
          }
          if ( addToSubs) r-> id = ++(*subCount);
       }
+
+      /* parsing data */
+      if ( l_data >= 0)
+      {
+         holder = av_fetch( item, l_data, 0);
+         if ( !holder) {
+            warn("RTC003D: menu build error: array panic");
+            my-> dispose_menu( self, m);
+            return nil;
+         }
+         r-> data = newSVsv( *holder);
+      }
    }
    /* log_write("%s}", buf); */
 /* log_write("adda bunch:"); 
@@ -411,11 +436,14 @@ new_av(  PMenuItemReg m, int level)
          {
             int shift = ( m-> checked ? 1 : 0) + ( m-> disabled ? 1 : 0);
             char * varName = allocs( strlen( m-> variable) + 1 + shift);
-            strcpy( &varName[ shift], m-> variable);
-            if ( m-> checked)  varName[ --shift] = '*';
-            if ( m-> disabled) varName[ --shift] = '-';
-            av_push( loc, newSVpv( varName, 0));
-            free( varName);
+            if ( varName) {
+               strcpy( &varName[ shift], m-> variable);
+               if ( m-> checked)  varName[ --shift] = '*';
+               if ( m-> disabled) varName[ --shift] = '-';
+               av_push( loc, newSVpv( varName, 0));
+               free( varName);
+            } else
+               av_push( loc, newSVpv( "", 0));
          }
 
          if ( m-> bitmap) {
@@ -436,6 +464,8 @@ new_av(  PMenuItemReg m, int level)
             if ( m-> code) av_push( loc, newSVsv( m-> code)); else
             if ( m-> perlSub) av_push( loc, newSVpv( m-> perlSub, 0));
          }
+
+         if ( m-> data) av_push( loc, newSVsv( m-> data));
       }
       av_push( glo, newRV_noinc(( SV *) loc));
       m = m-> next;
@@ -586,6 +616,20 @@ AbstractMenu_checked( Handle self, Bool set, char * varName, Bool checked)
       if ( var-> stage <= csNormal && var-> system)
          apc_menu_item_set_check( self, m, checked);
    return checked;
+}
+
+SV *
+AbstractMenu_data ( Handle self, Bool set, char * varName, SV * data)
+{
+   PMenuItemReg m;
+   if ( var-> stage > csFrozen) return nilSV;
+   m = ( PMenuItemReg) my-> first_that( self, var_match, varName, true);
+   if ( m == nil) return nilSV;
+   if ( !set)
+      return m-> data ? newSVsv( m-> data) : nilSV;
+   sv_free( m-> data);
+   m-> data = newSVsv( data);
+   return nilSV;
 }
 
 Bool
@@ -763,9 +807,21 @@ AbstractMenu_get_handle( Handle self)
 int
 AbstractMenu_translate_accel( Handle self, char * accel)
 {
-   if ( !accel) return false;
-   accel = strchr( accel, '~');
-   return ( !accel || !isalnum( accel[1])) ? kbNoKey : tolower( accel[1]);
+   if ( !accel) return 0;
+   while ( *accel) {
+      if ( *(accel++) == '~') {
+         switch ( *accel) {
+         case '~' : 
+            accel++;
+            break;
+         case 0:
+            return 0;
+         default:
+            return isalnum( *accel) ? *accel : tolower( *accel);
+         }
+      }
+   }
+   return 0;
 }
 
 int

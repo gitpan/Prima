@@ -23,9 +23,20 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: amba.pl,v 1.8 2000/10/18 11:58:03 tobez Exp $
+#  $Id: amba.pl,v 1.10 2001/10/27 22:14:10 dk Exp $
 #
 use Prima 'MsgBox', Application => { name => 'Chess puzzle' };
+
+=pod 
+=item NAME
+
+A chess puzzle
+
+=item FEATURES
+
+Demonstrates custom pointer creation
+
+=cut
 
 my %figs = (
   'K' => [0,0],
@@ -175,7 +186,7 @@ my $w = Prima::Window-> create(
       $xor-> begin_paint;
       $xor-> font-> style(fs::Bold);
       $xor-> font-> size(11);
-      $xor-> color( cl::Green);
+      $xor-> color( $::application-> get_system_value( sv::ColorPointer) ? cl::Green : cl::White);
       $xor-> text_out( $i, 0, 0);
       $xor-> end_paint;
 

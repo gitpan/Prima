@@ -48,7 +48,7 @@ cursor_map[] = {
    /* crInvalid         => */   XC_X_cursor,
 };
 
-static Cursor
+Cursor
 predefined_cursors[] = {
    None,
    None,
@@ -117,12 +117,19 @@ apc_pointer_get_hot_spot( Handle self)
    fs = guts.pointer_font;
    if ( !fs-> per_char)
       cs = &fs-> min_bounds;
-   else if ( idx < fs-> min_char_or_byte2 || idx > fs-> max_char_or_byte2)
-      cs = fs-> per_char + fs-> default_char - fs-> min_char_or_byte2;
-   else
+   else if ( idx < fs-> min_char_or_byte2 || idx > fs-> max_char_or_byte2) {
+      int default_char = fs-> default_char;
+      if ( default_char < fs-> min_char_or_byte2 || default_char > fs-> max_char_or_byte2)
+        default_char = fs-> min_char_or_byte2;
+      cs = fs-> per_char + default_char - fs-> min_char_or_byte2;
+   } else
       cs = fs-> per_char + idx - fs-> min_char_or_byte2;
-   ret. x = cs->lbearing;
+   ret. x = -cs->lbearing;
    ret. y = guts.cursor_height - cs->ascent;
+   if ( ret. x < 0) ret. x = 0;
+   if ( ret. y < 0) ret. y = 0;
+   if ( ret. x >= guts. cursor_width)  ret. x = guts. cursor_width  - 1;
+   if ( ret. y >= guts. cursor_height) ret. y = guts. cursor_height - 1;
    return ret;
 }
 
@@ -136,12 +143,9 @@ apc_pointer_get_pos( Handle self)
 
    if ( !XQueryPointer( DISP, guts. root,
 			&root, &child, &p. x, &p. y,
-			&x, &y, &mask)) {
-      Point p = {0,0};
-      warn( "XQueryPointer error");
-      return p;
-   }
-   p. y = DisplayHeight( DISP, SCREEN) - p. y - 1;
+			&x, &y, &mask)) 
+      return guts. displaySize;
+   p. y = guts. displaySize. y - p. y - 1;
    return p;
 }
 
@@ -189,9 +193,12 @@ apc_pointer_get_bitmap( Handle self, Handle icon)
       fs = guts.pointer_font;
       if ( !fs-> per_char)
          cs = &fs-> min_bounds;
-      else if ( idx < fs-> min_char_or_byte2 || idx > fs-> max_char_or_byte2)
-         cs = fs-> per_char + fs-> default_char - fs-> min_char_or_byte2;
-      else
+      else if ( idx < fs-> min_char_or_byte2 || idx > fs-> max_char_or_byte2) {
+         int default_char = fs-> default_char;
+         if ( default_char < fs-> min_char_or_byte2 || default_char > fs-> max_char_or_byte2)
+            default_char = fs-> min_char_or_byte2;
+         cs = fs-> per_char + default_char - fs-> min_char_or_byte2;
+      } else
          cs = fs-> per_char + idx - fs-> min_char_or_byte2;
       
       p1 = XCreatePixmap( DISP, guts. root, w, h, 1);
@@ -303,6 +310,7 @@ apc_pointer_set_shape( Handle self, int id)
          XCHECKPOINT;
       }
    }
+   XFlush( DISP);
    return true;
 }
 
@@ -362,6 +370,10 @@ apc_pointer_set_user( Handle self, Handle icon, Point hot_spot)
       }
       if ( noSZ || noBPP)
          Object_destroy( cursor);
+      if ( hot_spot. x < 0) hot_spot. x = 0;
+      if ( hot_spot. y < 0) hot_spot. y = 0;
+      if ( hot_spot. x >= guts. cursor_width)  hot_spot. x = guts. cursor_width  - 1;
+      if ( hot_spot. y >= guts. cursor_height) hot_spot. y = guts. cursor_height - 1;
       XX-> pointer_hot_spot = hot_spot;
       xcb. red = xcb. green = xcb. blue = 0; 
       xcw. red = xcw. green = xcw. blue = 0xFFFF; 
@@ -388,6 +400,7 @@ apc_pointer_set_user( Handle self, Handle icon, Point hot_spot)
          XCHECKPOINT;
       }      
    }
+   XFlush( DISP);
    return true;
 }
 
@@ -448,6 +461,7 @@ apc_pointer_set_visible( Handle self, Bool visible)
                     : guts. null_pointer);  
       }   
    }   
+   XFlush( DISP);
    return true;
 }
 

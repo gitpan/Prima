@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: os2guts.c,v 1.18 2000/12/29 14:04:26 dk Exp $
+ * $Id: os2guts.c,v 1.20 2002/01/03 14:04:44 dk Exp $
  */
 /* Created by:
      Dmitry Karasik <dk@plab.ku.dk>
@@ -135,7 +135,11 @@ window_subsystem_init( void)
       }
       GpiQueryCharBox( guts. ps, &guts. defFontBox);
       guts. fontId = 0;
-      guts. fontHash = create_fontid_hash();
+      if ( !( guts. fontHash = create_fontid_hash())) {
+         GpiDestroyPS( guts. ps);
+         DevCloseDC( dc);
+         return false;
+      }
       DevQueryCaps( dc, CAPS_HORIZONTAL_FONT_RES, 1, ( PLONG) &guts. displayResolution. x);
       DevQueryCaps( dc, CAPS_VERTICAL_FONT_RES, 1, ( PLONG) &guts. displayResolution. y);
       DevQueryCaps( dc, CAPS_BITMAP_FORMATS, 1, ( PLONG) &guts. bmfCount);
@@ -146,7 +150,11 @@ window_subsystem_init( void)
          DevCloseDC( dc);
          return false;
       };
-      guts. bmf = malloc( guts. bmfCount * sizeof( int) * 2);
+      if ( !( guts. bmf = malloc( guts. bmfCount * sizeof( int) * 2))) {
+         GpiDestroyPS( guts. ps);
+         DevCloseDC( dc);
+         return false;
+      }
       for ( i = 0; i < guts. bmfCount * 2; i++) guts. bmf[ i] = lFmts[ i];
       gp_get_font( guts. ps, &guts. sysDefFont, guts. displayResolution);
       apc_font_pick( nilHandle, &guts. sysDefFont, &guts. sysDefFont);
@@ -757,15 +765,11 @@ generic_view_handler( HWND w, ULONG msg, MPARAM mp1, MPARAM mp2)
       case WM_BUTTON1DOWN: case WM_BUTTON1UP: case WM_BUTTON1CLICK: case WM_BUTTON1DBLCLK:
       case WM_BUTTON2DOWN: case WM_BUTTON2UP: case WM_BUTTON2CLICK: case WM_BUTTON2DBLCLK:
       case WM_BUTTON3DOWN: case WM_BUTTON3UP: case WM_BUTTON3CLICK: case WM_BUTTON3DBLCLK:
-         if ( !is_apt( aptClipOwner) || ( v-> owner == application))
-            mp2 = MPFROM2SHORT( HT_DISCARD, SHORT2FROMMP( mp2));
+         return ( MRESULT)1;
       case WM_CHAR:
-         if ( ev. cmd == 0)
+         if ( ev. cmd == 0 || WinIsWindowEnabled( w))
          {
-            return ( MRESULT)1;
-         }
-         // this to avoid default send to owner hwnd
-         if ( orgMsg == WM_CHAR && WinIsWindowEnabled( w)) {
+            // this is to avoid default send to owner hwnd
             return ( MRESULT)1;
          }
          break;

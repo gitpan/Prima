@@ -23,8 +23,21 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: rtc.pl,v 1.5 2000/10/18 11:58:11 tobez Exp $
+#  $Id: rtc.pl,v 1.6 2001/10/25 11:21:10 dk Exp $
 #
+=pod 
+=item NAME
+
+Prima scrollbar widget
+
+=item FEATURES
+
+A Prima toolkit demonstration example.
+Tests the Prima::Scrollbar widget and dynamic
+change of its parameters.
+
+=cut
+
 use Prima qw( Buttons ScrollBar);
 
 package UserInit;
@@ -42,13 +55,13 @@ $w-> insert( "Button",
   width   => 220,
   text => "Change scrollbar direction",
   onClick=> sub {
-    my $i = $_[0]-> owner-> govno;
+    my $i = $_[0]-> owner-> scrollbar;
     $i-> vertical( ! $i-> vertical);
   }
 );
 
 $w-> insert( "ScrollBar",
-  name    => "govno",
+  name    => "scrollbar",
   origin  => [ 40, 80],
   size    => [150, 150],
   onCreate => sub {

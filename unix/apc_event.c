@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_event.c,v 1.57 2001/07/25 14:21:29 dk Exp $
+ * $Id: apc_event.c,v 1.63 2002/01/26 10:41:15 dk Exp $
  */
 
 /***********************************************************/
@@ -212,6 +212,8 @@ handle_key_event( Handle self, XKeyEvent *ev, Event *e, KeySym * sym, Bool relea
 
    if ( str_len == 1 && keycode == kbNoKey && *str_buf == ' ')
       keycode = kbSpace;
+   if (( keycode == kbTab || keycode == kbKPTab) && ( ev-> state & ShiftMask))
+      keycode = kbBackTab;
    if ( keycode == kbNoKey) {
       if ( keysym <= 0x0000007f && !isalpha(keysym & 0x000000ff))
 	 keycode = keysym & 0x000000ff;
@@ -409,28 +411,6 @@ process_wm_sync_data( Handle self, WMSyncData * wmsd)
     return true;
 }
 
-static Bool 
-propagate_mouse( Handle self, Event * e)
-{
-   Handle xself = self;
-   Event ev = *e;
-   Point p = e-> pos. where, pos;
-   while ( PWidget(xself)-> owner &&
-           PWidget(xself)-> owner != application &&
-           X(xself)-> flags. clip_owner) {
-      pos = apc_widget_get_pos( xself);
-      xself = PWidget(xself)-> owner;
-      p. x += pos. x; 
-      p. y += pos. y; 
-      ev. pos. where = p;
-      ev. cmd = e-> cmd;
-      CComponent( xself)-> message( xself, &ev);
-      if ( !ev. cmd) return false;
-      if ( PObject( self)-> stage == csDead) return false; 
-      if ( PObject( xself)-> stage == csDead) return false; 
-   }
-   return true;
-}
 
 /*
 static char * xevdefs[] = { "0", "1"
@@ -563,17 +543,6 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
       if ( guts. currentMenu) prima_end_menu();
       if (prima_no_input(XX, false, true)) return;
 
-      {
-         PWidget x = PWidget(self);
-         while ( x-> owner) {
-            if ( XT_IS_WINDOW(X(x))) break;
-            x = ( PWidget) x-> owner;
-         }
-         if ( x && ( Handle) x != application && x-> handle != guts. lastWMFocus) {
-            XSetInputFocus( DISP, x-> handle, RevertToNone, ev-> xbutton. time);
-         }
-      }
-      
       if ( guts. grab_widget != nilHandle && self != guts. grab_widget) {
          XWindow rx;
          XTranslateCoordinates( DISP, X_WINDOW, PWidget(guts. grab_widget)-> handle, 
@@ -631,6 +600,16 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
       if ( bev-> state & Button5Mask)   e.pos.mod |= mb5;
       if ( bev-> state & Button6Mask)   e.pos.mod |= mb6;
       if ( bev-> state & Button7Mask)   e.pos.mod |= mb7;
+
+      if ( e. cmd == cmMouseDown &&
+           guts.last_button_event.type == ButtonRelease &&
+           bev-> window == guts.last_button_event.window &&
+           bev-> button == guts.last_button_event.button &&
+           bev-> time - guts.last_button_event.time <= guts.click_time_frame) {
+ 	  e. cmd = cmMouseClick;
+          e. pos. dblclk = true;
+      }
+
       if ( e. cmd == cmMouseDown
 	   && (( guts. mouse_wheel_up != 0 && bev-> button == guts. mouse_wheel_up)
 	       || ( guts. mouse_wheel_down != 0 && bev-> button == guts. mouse_wheel_down)))
@@ -650,15 +629,7 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
 	 secondary. pos. where. y = e. pos. where. y;
 	 secondary. pos. mod = e. pos. mod;
 	 secondary. pos. button = e. pos. button;
-         if (guts.last_click.window == bev->window &&
-             guts.last_click.button == bev->button &&
-             guts.last_button_event.time - guts.last_click.time <=
-                guts.double_click_time_frame) {
-            bzero( &guts.last_click, sizeof(guts.last_click));
-            secondary.pos.dblclk = true;
-         } else {
-            memcpy( &guts.last_click, bev, sizeof(guts.last_click));
-         }
+         memcpy( &guts.last_click, bev, sizeof(guts.last_click));
          if ( e. pos. button == mbRight) {
             Event ev;
             bzero( &ev, sizeof(ev));
@@ -670,6 +641,11 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
          }
       }
       memcpy( &guts.last_button_event, bev, sizeof(*bev));
+      if ( e. cmd == cmMouseClick && e. pos. dblclk) {
+         bzero( &guts.last_click, sizeof(guts.last_click));
+         guts. last_button_event. type = 0;
+      }
+      
       if ( e. cmd == cmMouseDown && !XX-> flags. first_click) {
          Handle x = self, f = guts. focused ? guts. focused : application;
          while ( !X(x)-> type. window && ( x != application)) x = (( PWidget) x)-> owner;
@@ -942,6 +918,7 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
          }
          M(PWindow( self)-> menu)-> w-> pos. x = ev-> xconfigure. x;
          M(PWindow( self)-> menu)-> w-> pos. y = ev-> xconfigure. y;
+         prima_end_menu();
       }
       if ( size_changed) 
          prima_end_menu();
@@ -1007,19 +984,11 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
          case cmKeyDown:
             if ( prima_handle_menu_shortcuts( self, ev, keysym) < 0) return;
             break;
-         case cmMouseDown: case cmMouseUp: case cmMouseMove: 
-            if ( !propagate_mouse( self, &e)) return;
-            break;
          }
       }
       if ( secondary. cmd) {
 	 CComponent( self)-> message( self, &secondary);
          if ( PObject( self)-> stage == csDead) return; 
-         switch ( secondary. cmd) {
-         case cmMouseWheel: case cmMouseClick:
-            if ( !propagate_mouse( self, &secondary)) return;
-            break;
-         }
       }
    } else {
       /* Unhandled event, do nothing */
@@ -1132,7 +1101,7 @@ prima_wm_sync( Handle self, int eventType)
    r = copy_events( self, events, &wmsd, eventType);
    if ( r < 0) return;
    /* printf("pass 1, copied %ld events %s\n", evx, r ? "GOT CONF!" : ""); */
-   delay = 50000; /* wait 50 ms just in case */
+   if ( delay < 50000) delay = 50000; /* wait 50 ms just in case */
    /* waiting for ConfigureNotify or timeout */
    /* printf("enter cycle, size: %d %d\n", wmsd.size.x, wmsd.size.y); */
    start_time = timeout;
@@ -1173,16 +1142,6 @@ prima_wm_sync( Handle self, int eventType)
       if ( r > 0) break; /* has come ConfigureNotify */
    }  
    /* printf("exit cycle\n"); */
-
-   if ( quit_by_timeout) {
-      guts. wm_event_timeout *= 2;
-      /* printf("INC timeout %g sec\n", (double)guts. wm_event_timeout / 1000000); */
-      if ( guts. wm_event_timeout > 5000000) guts. wm_event_timeout = 5000000;
-   } else if ( delay > diff) {
-      guts. wm_event_timeout -= delay - diff;
-      if ( guts. wm_event_timeout < 10000) guts. wm_event_timeout = 10000;
-      /* printf("DEC timeout %g sec\n", (double)guts. wm_event_timeout / 1000000); */
-   }
 
    /* put events back */
    /* printf("put back %d events\n", events-> count); */

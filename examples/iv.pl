@@ -24,8 +24,29 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: iv.pl,v 1.14 2001/04/30 15:45:37 dk Exp $
+#  $Id: iv.pl,v 1.15 2001/10/25 11:21:10 dk Exp $
 #
+=pod 
+=item NAME
+
+A image viewer program
+
+=item FEATURES
+
+Demonstrates usage of Prima image subsystem, in particular:
+
+- Standard open dialog. Note it's behavior with the multi-frame images.
+- Standard save dialog. Note the graphic filters usage.
+- Image conversion routines.
+- Standard Prima::ImageViewer class.
+
+Test the correct implementation of the internal image paint routines,
+in particular on the paletted displays and the representation of 1-bit
+images/icons with non-BW palette.
+
+Note the mouse wheel interaction.
+
+=cut
 
 use strict;
 use Prima qw(ImageViewer StdDlg MsgBox);

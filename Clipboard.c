@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Clipboard.c,v 1.30 2001/06/15 09:43:54 dk Exp $
+ * $Id: Clipboard.c,v 1.32 2002/01/21 21:16:01 dk Exp $
  */
 
 #include "apricot.h"
@@ -134,7 +134,8 @@ Clipboard_register_format_proc( Handle self, char * format, void * serverProc)
    if ( list) {
       my-> deregister_format( self, format);
    }
-   list = allocn( ClipboardFormatReg, formatCount + 1);
+   if (!( list = allocn( ClipboardFormatReg, formatCount + 1)))
+      return nil;
    if ( formats != nil) {
       memcpy( list, formats, sizeof( ClipboardFormatReg) * formatCount);
       free( formats);
@@ -158,8 +159,8 @@ Clipboard_deregister_format( Handle self, char * format)
    formatCount--;
    memcpy( fr, fr + 1, sizeof( ClipboardFormatReg) * ( formatCount - ( fr - list)));
    if ( formatCount > 0) {
-      fr = allocn( ClipboardFormatReg, formatCount);
-      memcpy( fr, list, sizeof( ClipboardFormatReg) * formatCount);
+      if (( fr = allocn( ClipboardFormatReg, formatCount)))
+         memcpy( fr, list, sizeof( ClipboardFormatReg) * formatCount);
    } else
       fr = nil;
    free( formats);
@@ -231,21 +232,6 @@ Clipboard_clear( Handle self)
    my-> close( self);
 }
 
-int
-Clipboard_get_format_count( Handle self)
-{
-   PClipboardFormatReg list = formats;
-   int i, ret = 0;
-
-   my-> open( self);
-   for ( i = 0; i < formatCount; i++) {
-      if ( !apc_clipboard_has_format( self, list[ i]. sysId)) continue;
-      ret++;
-   }
-   my-> close( self);
-   return ret;
-}
-
 SV *
 Clipboard_get_handle( Handle self)
 {
@@ -254,12 +240,6 @@ Clipboard_get_handle( Handle self)
    return newSVpv( buf, 0);
 }
 
-
-int
-Clipboard_get_registered_format_count( Handle self)
-{
-   return formatCount;
-}
 
 Bool
 Clipboard_register_format( Handle self, char * format)

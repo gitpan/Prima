@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: misc.c,v 1.21 2001/02/20 09:26:54 dk Exp $
+ * $Id: misc.c,v 1.23 2002/01/03 14:04:46 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -195,9 +195,9 @@ apc_getdir( const char *dirname)
     PList               ret;
     Bool                wasDot = false, wasDotDot = false;
 
-#define add_entry(file,info)  {                                            \
-    list_add( ret, ( Handle) strcpy(( char*) malloc( strlen( file) + 1), file));   \
-    list_add( ret, ( Handle) strcpy(( char*) malloc( strlen( info) + 1), info));   \
+#define add_entry(file,info)  {                         \
+    list_add( ret, ( Handle) duplicate_string(file));   \
+    list_add( ret, ( Handle) duplicate_string(info));   \
 }
 
 #define add_fentry  {                                                         \
@@ -351,6 +351,7 @@ apc_sys_get_value( int sysValue)
    case svXbsDialog       : return GetSystemMetrics( SM_CXDLGFRAME);
    case svYbsDialog       : return GetSystemMetrics( SM_CYDLGFRAME);
    case svShapeExtension  : return 1;
+   case svColorPointer    : return guts. displayBMInfo. bmiHeader. biBitCount > 4;
    default:
       apcErr( errInvParams);
    }

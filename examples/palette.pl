@@ -23,8 +23,27 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: palette.pl,v 1.4 2000/10/18 11:58:10 tobez Exp $
+#  $Id: palette.pl,v 1.5 2001/10/25 11:21:10 dk Exp $
 #
+=pod 
+=item NAME
+
+A palette functionality test
+
+=item FEATURES
+
+Test the Prima palette functionality on paletted
+displays. True-color displays are of no interest here.
+
+In theory, if a Prima::Widget::palette() is initialized,
+the widget is expected to produce as much solid colors
+from this palette as possible.
+
+Note the $useImages that can be set to 1 to test
+multiple images representation on a single widget.
+
+=cut
+
 use Prima;
 use Prima::Const;
 use Prima::Classes;

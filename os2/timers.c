@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: timers.c,v 1.7 2000/05/17 10:29:05 tobez Exp $
+ * $Id: timers.c,v 1.8 2002/01/03 14:04:44 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 /* apc.c --- apc/ api for os/2 */
@@ -54,7 +54,7 @@ add_timer( Handle timerObject, Handle self)
    int i;
    if ( timerObject == nilHandle) {
       apcErr( errInvObject);
-      return -1;
+      return 0;
    }
 
    if ( sys timeDefs) for ( i = 0; i < sys timeDefsCount; i++)
@@ -64,7 +64,9 @@ add_timer( Handle timerObject, Handle self)
         return i + 1;
      }
 
-   pTime = malloc (( sys timeDefsCount + 1) * sizeof( ItemRegRec));
+   if (! ( pTime = malloc (( sys timeDefsCount + 1) * sizeof( ItemRegRec))))
+      return 0;
+
    if ( sys timeDefs) {
       memcpy( pTime, sys timeDefs, sys timeDefsCount* sizeof( ItemRegRec));
       free( sys timeDefs);

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Object.c,v 1.22 2001/07/25 14:21:27 dk Exp $
+ * $Id: Object.c,v 1.24 2001/11/02 23:10:45 dk Exp $
  */
 
 #include "apricot.h"
@@ -89,11 +89,9 @@ Object_create( char *className, HV * profile)
       OPEN_G_EVAL;
       PERL_CALL_METHOD( "init", G_VOID|G_DISCARD|G_EVAL);
       if ( SvTRUE( GvSV( errgv))) {
-         PUTBACK_G_EVAL;
          CLOSE_G_EVAL;
          OPEN_G_EVAL;
          Object_destroy( self);
-         PUTBACK_G_EVAL;
          CLOSE_G_EVAL;
          croak( SvPV( GvSV( errgv), na));
       }
@@ -221,21 +219,21 @@ XS( Object_alive_FROMPERL)
    if ( items != 1)
       croak("Invalid usage of Prima::Object::%s", "alive");
    _c_apricot_self_ = gimme_the_real_mate( ST( 0));
-   if ( _c_apricot_self_ == nilHandle)
-      croak( "Illegal object reference passed to Prima::Object::%s", "alive");
    SPAGAIN;
    SP -= items;
-
-   switch ((( PObject) _c_apricot_self_)-> stage) {
-   case csConstructing:
-       ret = 2;
-       break;
-   case csNormal:
-       ret = 1;
-       break;
-   default:
-       ret = 0;
-   }
+   if ( _c_apricot_self_ != nilHandle) {
+      switch ((( PObject) _c_apricot_self_)-> stage) {
+      case csConstructing:
+          ret = 2;
+          break;
+      case csNormal:
+          ret = 1;
+          break;
+      default:
+          ret = 0;
+      }
+   } else
+      ret = 0;
    XPUSHs( sv_2mortal( newSViv( ret)));
    PUTBACK;
    return;

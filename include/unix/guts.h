@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: guts.h,v 1.95 2001/07/26 22:03:15 dk Exp $ */
+/* $Id: guts.h,v 1.104 2002/02/06 13:09:23 dk Exp $ */
 
 #ifndef _UNIX_GUTS_H_
 #define _UNIX_GUTS_H_
@@ -138,6 +138,7 @@ typedef struct _FontFlags {
    unsigned direction        : 1;
    unsigned resolution       : 1;
    unsigned name             : 1;
+   unsigned encoding         : 1;
    unsigned size             : 1;
    unsigned codepage         : 1;
    unsigned family           : 1;
@@ -160,6 +161,7 @@ typedef struct _FontFlags {
    unsigned disabled         : 1;
    unsigned funky            : 1;
    unsigned intNames         : 1;
+   unsigned generic          : 1;
 } FontFlags;
 
 typedef struct _FontInfo {
@@ -169,6 +171,8 @@ typedef struct _FontInfo {
    char         lc_name[256];
    char        *vecname;
    char        *xname;
+   short int    name_offset;
+   short int    info_offset;
 } FontInfo, *PFontInfo;
 
 typedef struct _RotatedFont {
@@ -202,8 +206,11 @@ typedef struct CachedFont {
 
 union       _unix_sys_data;
 
-#define CURSOR_TIMER	((Handle)11)
-#define MENU_TIMER	((Handle)12)
+#define FIRST_SYS_TIMER         ((Handle)11)
+#define CURSOR_TIMER	        ((Handle)11)
+#define MENU_TIMER	        ((Handle)12)
+#define MENU_UNFOCUS_TIMER	((Handle)13)
+#define LAST_SYS_TIMER          ((Handle)13)
 
 #if defined(sgi) && !defined(__GNUC__)
 /* multiple compilation and runtime errors otherwise. must be some alignment tricks */
@@ -355,6 +362,8 @@ typedef struct _UnixGuts
    Atom                         fxa_resolution_x;
    Atom                         fxa_resolution_y;
    Atom                         fxa_spacing;
+   Atom                         fxa_charset_encoding;
+   Atom                         fxa_charset_registry;
    int                          n_fonts;
    XFontStruct                 *pointer_font;
    Font                         default_font;
@@ -362,6 +371,7 @@ typedef struct _UnixGuts
    Font                         default_widget_font;
    Font                         default_msg_font;
    Font                         default_caption_font;
+   Bool                         font_detail_names;
    /* Resource management */
    XrmDatabase                  db;
    XrmQuark                     qBackground;
@@ -394,7 +404,6 @@ typedef struct _UnixGuts
    Point                        cursor_pixmap_size;
    Pixmap                       cursor_save;
    Bool                         cursor_shown;
-   TimerSysData                 cursor_timer;
    int                          cursor_width;
    Pixmap                       cursor_xor;
    Bool                         insert;
@@ -454,9 +463,8 @@ typedef struct _UnixGuts
    int                          scroll_first;
    int                          scroll_next;
    Handle                       currentMenu;
+   Handle                       unfocusedMenu;
    int                          menu_timeout;
-   TimerSysData                 menu_timer;
-   XWindow                      lastWMFocus;
    XWindow                      root;
    XVisualInfo                  visual;
    int                          visualClass;
@@ -480,6 +488,9 @@ typedef struct _UnixGuts
    Point                        ellipseDivergence;
    int                          appLock;
    XGCValues                    cursor_gcv;
+   TimerSysData                 sys_timers[ LAST_SYS_TIMER - FIRST_SYS_TIMER + 1];
+   Bool                         applicationClose;
+   char                         locale[32];
 } UnixGuts;
 
 extern UnixGuts guts;
@@ -494,6 +505,8 @@ extern UnixGuts guts;
 #define FXA_FOUNDRY guts. fxa_foundry
 #define FXA_FAMILY_NAME XA_FAMILY_NAME
 #define FXA_AVERAGE_WIDTH guts. fxa_average_width
+#define FXA_CHARSET_REGISTRY guts. fxa_charset_registry
+#define FXA_CHARSET_ENCODING guts. fxa_charset_encoding
 
 #define XCHECKPOINT						\
    STMT_START {							\
@@ -620,7 +633,7 @@ typedef struct _drawable_sys_data
 #define XF_ENABLED(x)   ((x)->flags.enabled)
 #define XF_IN_PAINT(x)  ((x)->flags.paint)
 
-#define MenuTimerMessage 1021
+#define MenuTimerMessage   1021
 
 #define MENU_ITEM_GAP 4
 
@@ -933,6 +946,11 @@ extern void
 prima_msgdlg_event( XEvent* ev, struct MsgDlg * md);
 
 typedef void (*RETSIGTYPE)(int);
+
+#undef XDestroyImage
+#define XDestroyImage prima_XDestroyImage
+extern void 
+prima_XDestroyImage( XImage * x);
 
 #endif
 

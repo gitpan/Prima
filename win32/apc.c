@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc.c,v 1.91 2001/06/15 07:46:25 dk Exp $
+ * $Id: apc.c,v 1.95 2002/02/06 22:12:42 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -175,7 +175,7 @@ apc_application_get_bitmap( Handle self, Handle image, int x, int y, int xLen, i
 
 
    apcErrClear;
-   dc  = dc_alloc();
+   if (!( dc  = dc_alloc())) return false;
    lpg. palNumEntries = GetSystemPaletteEntries( dc, 0, 256, lpg. palPalEntry);
    lpg. palVersion = 0x300;
 
@@ -524,6 +524,7 @@ apc_component_create( Handle self)
 
    if ( d) return false;
    d = ( PDrawableData) malloc( sizeof( DrawableData));
+   if ( !d) return false;
    memset( d, 0, sizeof( DrawableData));
    c-> sysData = d;
    return true;
@@ -587,6 +588,7 @@ static void
 get_view_ex( Handle self, PViewProfile p)
 {
   int i;
+  if ( !p) return;
   p-> capture   = apc_widget_is_captured( self);
   for ( i = 0; i <= ciMaxId; i++) p-> colors[ i] = apc_widget_get_color( self, i);
   p-> pos       = apc_widget_get_pos( self);
@@ -606,8 +608,7 @@ set_view_ex( Handle self, PViewProfile p)
   apc_widget_set_visible( self, false);
   for ( i = 0; i <= ciMaxId; i++) apc_widget_set_color( self, p-> colors[i], i);
   apc_widget_set_font( self, &var font);
-  apc_widget_set_pos( self, p-> pos. x, p-> pos. y);
-  apc_widget_set_size( self, p-> size. x, p-> size. y);
+  apc_widget_set_rect( self, p-> pos. x, p-> pos. y, p-> size.x, p-> size.y);
   var virtualSize = p-> virtSize;
   apc_widget_set_enabled( self, p-> enabled);
   if ( p-> focused) apc_widget_set_focused( self);
@@ -743,8 +744,7 @@ create_group( Handle self, Handle owner, Bool syncPaint, Bool clipOwner,
    {
       int i;
       Handle oldOwner = var owner; var owner = owner;
-      apc_widget_set_pos( self, vprf-> pos. x, vprf-> pos. y);
-      apc_widget_set_size( self, vprf-> size. x, vprf-> size. y);
+      apc_widget_set_rect( self, vprf-> pos. x, vprf-> pos. y, vprf-> size. x, vprf-> size. y);
       var owner = oldOwner;
       for ( i = 0; i < count; i++) ((( PComponent) list[ i])-> self)-> recreate( list[ i]);
       if ( sys className == WC_FRAME)
@@ -1015,6 +1015,10 @@ add_item( Bool menuType, Handle menu, PMenuItemReg i)
        return nil;
     }
     mwd = ( PMenuWndData) malloc( sizeof( MenuWndData));
+    if ( !mwd) {
+       DestroyMenu( m);
+       return nil;  
+    }
     mwd-> menu = menu;
     first      = i;
     hash_store( menuMan, &m, sizeof( void*), mwd);
@@ -1167,6 +1171,70 @@ apc_window_set_client_size( Handle self, int x, int y)
          SWP_NOZORDER | SWP_NOACTIVATE | 
             ( is_apt( aptWinPosDetermined) ? 0 : SWP_NOMOVE)
          );
+      sys sizeLockLevel--;
+   }
+   return true;
+}
+
+Bool
+apc_window_set_client_rect( Handle self, int x, int y, int width, int height)
+{
+   RECT r, c, c2;
+   HWND h;
+   int  ws = apc_window_get_window_state( self);
+   Point delta = get_window_borders( sys s. window. borderStyle);
+   Handle parent = var self-> get_parent( self);
+   Point sz = CWidget( parent)-> get_size( parent);
+
+   objCheck false;
+   if ( !hwnd_check_limits( x, y, false)) apcErrRet( errInvParams);
+   if ( !hwnd_check_limits( width, height, false)) apcErrRet( errInvParams);
+   apt_set( aptWinPosDetermined);
+
+   h = HANDLE;
+   if (( var stage == csConstructing && ws != wsNormal) || ws == wsMinimized) {
+      WINDOWPLACEMENT w = {sizeof(WINDOWPLACEMENT)};
+      Point delta = get_window_borders( sys s. window. borderStyle);
+
+      var virtualSize. x = width;
+      var virtualSize. y = height;
+      if ( width < 0) width = 0;
+      if ( height < 0) height = 0;
+      if ( !GetWindowPlacement( h, &w)) apiErr;
+      if ( !GetWindowRect( h, &c2)) apiErr;
+      if ( ws == wsMaximized) {
+         if ( !GetClientRect( h, &c)) apiErr;
+      }
+      else {
+         // cannot acquire client extension at this time. Using euristic calculations.
+         int  menuY = (( PWindow) self)-> menu ? GetSystemMetrics( SM_CYMENU) : 0;
+         int   titleY = ( sys s. window. borderIcons & biTitleBar) ?
+                         GetSystemMetrics( SM_CYCAPTION) : 0;
+         c = c2;
+         c. right  -= delta. x * 2;
+         c. bottom -= delta. y * 2 + menuY + titleY;
+      }
+      w. rcNormalPosition. bottom = sz. y - y + delta. y;
+      w. rcNormalPosition. left   = x - delta. x;
+      w. rcNormalPosition. top    = w. rcNormalPosition. bottom - height - ( c2. bottom - c2. top - c. bottom + c. top);
+      w. rcNormalPosition. right  = width + ( c2. right - c2. left - c. right + c. left) + w. rcNormalPosition. left;
+      w. flags   = 0;
+      if ( !SetWindowPlacement( h, &w)) apiErr;
+   } else {
+      if ( !GetWindowRect( h, &r)) apiErr;
+      if ( !GetClientRect( h, &c)) apiErr;
+      sys sizeLockLevel++;
+      x -= delta. x;
+      y  = sz. y - y - height - ( r. bottom - r. top  - c. bottom + c. top) + delta. y;
+      var virtualSize. x = width;
+      var virtualSize. y = height;
+      if ( width < 0) width = 0;
+      if ( height < 0) height = 0;
+      SetWindowPos( h, 0,
+         x, y,
+         width + r. right  - r. left - c. right + c. left,
+         height + r. bottom - r. top  - c. bottom + c. top,
+         SWP_NOZORDER | SWP_NOACTIVATE);
       sys sizeLockLevel--;
    }
    return true;
@@ -1820,7 +1888,7 @@ apc_widget_get_shape( Handle self, Handle mask)
 
    CImage( mask)-> create_empty( mask, sys extraBounds. x, sys extraBounds. y, imBW);
 
-   dc = dc_compat_alloc(0);
+   if (!( dc = dc_compat_alloc(0))) return true;
    if ( !( bm = CreateBitmap( PImage( mask)-> w, PImage( mask)-> h, 1, 1, nil))) {
       dc_compat_free();
       return true;
@@ -1957,13 +2025,41 @@ apc_widget_scroll( Handle self, int horiz, int vert, Rect * r, Rect *cr, Bool sc
 {
    PRECT pRect = r ? map_Rect( self, r) : nil;
    PRECT pClipRect = cr ? map_Rect( self, cr) : nil;
+   Point sz = apc_widget_get_size( self);
    objCheck false;
+
    HideCaret(( HWND) var handle);
 
-   if ( !ScrollWindowEx(( HWND) var handle,
-      horiz, -vert, pRect, pClipRect, NULL, NULL,
-      SW_INVALIDATE | ( scrollChildren ? SW_SCROLLCHILDREN : 0)
-   )) apiErr;
+   if ( pClipRect) {
+      if ( pClipRect-> left < 0) pClipRect-> left = 0;
+      if ( pClipRect-> top  < 0) pClipRect-> top = 0;
+      if ( pClipRect-> right  > sz. x) pClipRect-> right = sz. x;
+      if ( pClipRect-> bottom > sz. y) pClipRect-> bottom = sz. y;
+   }
+
+   if ( pRect) {
+      if ( pRect-> left < 0) pRect-> left = 0;
+      if ( pRect-> top  < 0) pRect-> top = 0;
+      if ( pRect-> right  > sz. x) pRect-> right = sz. x;
+      if ( pRect-> bottom > sz. y) pRect-> bottom = sz. y;
+   }
+
+   if ( horiz > sz. x || horiz < -sz. x || vert > sz. y || vert < -sz. y) {
+      if ( pRect && pClipRect) {
+         RECT rc;
+         UnionRect( &rc, (RECT*)pRect, (RECT*)pClipRect);
+         InvalidateRect(( HWND) var handle, &rc, false);
+      } else 
+         InvalidateRect(( HWND) var handle, pRect ? pRect : pClipRect, false);
+   } else {
+      if ( !ScrollWindowEx(( HWND) var handle,
+         horiz, -vert, pRect, pClipRect, NULL, NULL,
+         SW_INVALIDATE | ( scrollChildren ? SW_SCROLLCHILDREN : 0)
+      )) {
+         ShowCaret(( HWND) var handle);
+         apiErr;
+      }
+   }
    objCheck false;
    if ( is_apt( aptSyncPaint) && !UpdateWindow(( HWND) var handle)) apiErr;
    return ShowCaret(( HWND) var handle);
@@ -2148,6 +2244,68 @@ apc_widget_set_size( Handle self, int width, int height)
    if ( sys className != WC_FRAME) sys sizeLockLevel--;
    return true;
 }
+  
+Bool
+apc_widget_set_rect( Handle self, int x, int y, int width, int height)
+{
+   RECT r;
+   HWND h;
+   Handle parent;
+   Point sz;
+   objCheck false;
+
+   if ( !hwnd_check_limits( width, height, false)) apcErrRet( errInvParams);
+   if ( !hwnd_check_limits( x, y, true)) apcErrRet( errInvParams);
+
+   parent = is_apt( aptClipOwner) ? var owner : application;
+   sz = ((( PWidget) parent)-> self)-> get_size( parent);
+   apt_set( aptWinPosDetermined);
+
+   h = HANDLE;
+   if ( sys className == WC_FRAME) {
+      int  ws = apc_window_get_window_state( self);
+      if (( var stage == csConstructing && ws != wsNormal) || ( ws == wsMinimized)) {
+         WINDOWPLACEMENT w = {sizeof(WINDOWPLACEMENT)};
+         if ( !GetWindowPlacement( h, &w)) apiErrRet;
+         if ( width  < 0) width = 0;
+         if ( height < 0) height = 0;
+         w. rcNormalPosition. left    = x;
+         w. rcNormalPosition. bottom  = sz. y - y;
+         w. rcNormalPosition. right   = x + width;
+         w. rcNormalPosition. top     = sz. y - y - height;
+         w. flags = 0;
+         if ( !SetWindowPlacement( h, &w)) apiErrRet;
+         return true;
+      }
+   }
+   if ( !GetWindowRect( h, &r)) apiErrRet;
+   if ( is_apt( aptClipOwner) && ( var owner != application))
+      MapWindowPoints( NULL, ( HWND)((( PWidget) var owner)-> handle), ( LPPOINT)&r, 2);
+
+   if ( sys className != WC_FRAME) {
+      sys sizeLockLevel++;
+      var virtualSize. x = width;
+      var virtualSize. y = height;
+   }
+   if ( height < 0) height = 0;
+   if ( width  < 0) width  = 0;
+   if ( sys parentHandle) {
+      POINT ppos;
+      ppos. x = x;
+      ppos. y = dsys( application) lastSize. y - y;
+      MapWindowPoints( NULL, sys parentHandle, ( LPPOINT)&ppos, 1);
+      GetWindowRect( sys parentHandle, &r);
+      x = ppos. x;
+      y = ppos. y;
+   } else
+      y = sz. y - y - height;
+   
+   if ( !SetWindowPos( h, 0, x, y, width, height, SWP_NOZORDER | SWP_NOACTIVATE)) 
+      apiErrRet;
+   if ( sys className != WC_FRAME) sys sizeLockLevel--;
+   return true;
+}
+
 
 Bool
 apc_widget_set_size_bounds( Handle self, Point min, Point max)
@@ -2255,7 +2413,6 @@ apc_menu_create( Handle self, Handle owner)
    dobjCheck( owner) false;
    sys className = WC_MENU;
    sys owner     = DHANDLE( owner);
-   apc_menu_destroy( self);
    return true;
 }
 
@@ -2478,7 +2635,6 @@ apc_popup_create( Handle self, Handle owner)
    objCheck false;
    dobjCheck( owner) false;
    sys owner = DHANDLE( owner);
-   apc_menu_destroy( self);
    sys className = WC_MENU;
    return true;
 }
@@ -2690,12 +2846,14 @@ apc_message( Handle self, PEvent ev, Bool post)
              if ( post) {
                 KeyPacket * kp;
                 kp = ( KeyPacket *) malloc( sizeof( KeyPacket));
-                kp-> mp1 = mp1;
-                kp-> mp2 = mp2;
-                kp-> msg = msg;
-                kp-> wnd = ( HWND) var handle;
-                kp-> mod = ev-> pos. mod;
-                PostMessage( 0, WM_KEYPACKET, 0, ( LPARAM) kp);
+                if ( kp) {
+                   kp-> mp1 = mp1;
+                   kp-> mp2 = mp2;
+                   kp-> msg = msg;
+                   kp-> wnd = ( HWND) var handle;
+                   kp-> mod = ev-> pos. mod;
+                   PostMessage( 0, WM_KEYPACKET, 0, ( LPARAM) kp);
+                }
              } else {
                 BYTE * mod = nil;
                 if (( GetKeyState( VK_MENU) < 0) ^ (( ev-> pos. mod & kmAlt) != 0))
@@ -2778,12 +2936,14 @@ apc_message( Handle self, PEvent ev, Bool post)
              if ( post) {
                 KeyPacket * kp;
                 kp = ( KeyPacket *) malloc( sizeof( KeyPacket));
-                kp-> mp1 = mp1;
-                kp-> mp2 = mp2;
-                kp-> msg = msg;
-                kp-> wnd = HANDLE;
-                kp-> mod = ev-> key. mod;
-                PostMessage( 0, WM_KEYPACKET, 0, ( LPARAM) kp);
+                if ( kp) {
+                   kp-> mp1 = mp1;
+                   kp-> mp2 = mp2;
+                   kp-> msg = msg;
+                   kp-> wnd = HANDLE;
+                   kp-> mod = ev-> key. mod;
+                   PostMessage( 0, WM_KEYPACKET, 0, ( LPARAM) kp);
+                }
              } else {
                 BYTE * mod = mod_select( ev-> key. mod);
                 SendMessage( HANDLE, msg, mp1, mp2);
@@ -2855,7 +3015,7 @@ apc_system_action( const char * params)
          }
       } else if (strncmp( params, "win32.WNetGetUser", 17) == 0) {
          char connection[ 1024];
-         char user[ 1024];
+         char user[ 1024], *c;
          DWORD len = 1024;
          int i = sscanf( params + 18, "%s", connection);
          if ( i != 1) {
@@ -2864,7 +3024,8 @@ apc_system_action( const char * params)
          }
          if ( WNetGetUser( connection, user, &len) != NO_ERROR)
             return 0;
-         return strcpy(( char *) malloc( strlen( user) + 1), user);
+         c = ( char *) malloc( strlen( user) + 1);
+         return c ? strcpy( c , user) : 0;
       } else if ( strncmp( params, "win32.SetVersion", 16) == 0) {
          const char * ver = params + 17;
          while ( *ver && ( *ver == ' '  || *ver == '\t')) ver++;
@@ -2894,8 +3055,8 @@ apc_system_action( const char * params)
          }
 
          if ( strcmp( params, " exists") == 0) {
-           char * p;
-           sprintf( p = ( char *) malloc(12), "0x%08x", guts. console);
+           char * p = ( char *) malloc(12);
+           if ( p) sprintf( p, "0x%08x", guts. console);
            return p;
          } else
          if ( strcmp( params, " hide") == 0)     { ShowWindow( guts. console, SW_HIDE); } else
@@ -2913,7 +3074,7 @@ apc_system_action( const char * params)
             } else {
                int lc = GetWindowTextLength( guts. console);
                p = (char*)malloc( lc + 2);
-               GetWindowText( guts. console, p, lc+1);
+               if ( p) GetWindowText( guts. console, p, lc+1);
                return p;
             }
          } else {

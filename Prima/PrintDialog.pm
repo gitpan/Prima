@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: PrintDialog.pm,v 1.5 2000/10/18 11:57:57 tobez Exp $
+#  $Id: PrintDialog.pm,v 1.6 2002/01/05 17:25:36 dk Exp $
 
 use strict;
 use Carp;
@@ -153,7 +153,7 @@ sub Cancel_Click
 
 sub execute
 {
-   return $_[0]-> SUPER::execute == cm::OK;
+   return $_[0]-> SUPER::execute == mb::OK;
 }
 
 1;

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: wm_support.c,v 1.18 2001/07/25 15:12:12 dk Exp $
+ * $Id: wm_support.c,v 1.21 2002/01/26 10:41:15 dk Exp $
  */
 
 /***********************************************************/
@@ -90,8 +90,8 @@ wm_generic_translate_event_hook( Handle self, XClientMessageEvent *xev, PEvent e
             }
             return false;
          }
-         guts. lastWMFocus = X_WINDOW;
          if ( selectee != self) XMapRaised( DISP, PWidget(selectee)-> handle);
+         XSetInputFocus( DISP, X_WINDOW, RevertToParent, CurrentTime);
          Widget_selected( selectee, true, true);
 	 return false;
       }
@@ -105,7 +105,8 @@ prima_wm_generic( void)
 {
    DEFWMDATA;
 
-   guts. wm_data = wm = malloc( sizeof( WmGenericData));
+   if ( !( guts. wm_data = wm = malloc( sizeof( WmGenericData))))
+      return false;
 
    wm-> deleteWindow = XInternAtom( DISP, "WM_DELETE_WINDOW", 1);
    wm-> takeFocus = XInternAtom( DISP, "WM_TAKE_FOCUS", 1);

@@ -23,8 +23,28 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: keys.pl,v 1.8 2000/10/18 11:58:07 tobez Exp $
+#  $Id: keys.pl,v 1.10 2002/01/05 17:25:38 dk Exp $
 #
+
+=pod 
+=item NAME
+
+A key dump example
+
+=item FEATURES
+
+Tests the correct implementation of keyboard event subsystem.
+The following features are tested:
+
+ - Direct flow of keyboard event
+ - Correspondence of a syntetic key name to the real name
+ - key_event() functionality
+ - Key event propagation. Not that if it is disabled ( a clear_event() is called )
+   no system-bound event ( like menus etc. ) are expected to be initiated.
+ - Diaglyphs type ( f.ex. dieresis + 'e' )
+ - Alternative keyboard layout ( a Euro sign )
+
+=cut
 
 use Prima;
 use Prima::Buttons;
@@ -57,7 +77,7 @@ my $w = Prima::Window-> create(
              logFont => $_[0]-> Label1-> font,
           );
           $fontDialog = $d;
-          return unless $d-> execute == cm::OK;
+          return unless $d-> execute == mb::OK;
           print $::application-> get_focused_widget;
           $_[0]-> Label1-> font( $d-> logFont);
        }],

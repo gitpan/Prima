@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: StdDlg.pm,v 1.18 2001/01/15 15:45:39 dk Exp $
+#  $Id: StdDlg.pm,v 1.19 2002/01/05 17:25:36 dk Exp $
 
 
 
@@ -102,6 +102,9 @@ sub AUTOLOAD
    shift->$method(@_);
 }
 
+package mb;
+
+use constant ChangeAll => 0xCA11;
 
 package Prima::FindDialog;
 

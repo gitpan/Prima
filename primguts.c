@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: primguts.c,v 1.72 2001/07/25 14:21:27 dk Exp $
+ * $Id: primguts.c,v 1.77 2002/01/24 15:19:57 dk Exp $
  */
 /* Guts library, main file */
 
@@ -89,10 +89,10 @@ duplicate_string( const char *s)
    int l;
    char *d;
 
-   if (!s) s = "";
+   if (!s) return nil;
    l = strlen( s) + 1;
    d = ( char*)malloc( l);
-   memcpy( d, s, l);
+   if ( d) memcpy( d, s, l);
    return d;
 }
 
@@ -216,7 +216,7 @@ clean_perl_call_method( char* methname, I32 flags)
    dPUB_ARGS;
    dG_EVAL_ARGS;
 
-   if ( !( flags & G_EVAL)) OPEN_G_EVAL;
+   if ( !( flags & G_EVAL)) { OPEN_G_EVAL; }
    ret = perl_call_method( methname, flags | G_EVAL);
    if ( SvTRUE( GvSV( errgv))) {
       PUB_CHECK;
@@ -226,12 +226,11 @@ clean_perl_call_method( char* methname, I32 flags)
          (void)POPs;
       }
       if ( flags & G_EVAL) return ret;
-      PUTBACK_G_EVAL;
       CLOSE_G_EVAL;
       croak( SvPV( GvSV( errgv), na));
    }
    
-   if ( !( flags & G_EVAL)) CLOSE_G_EVAL;
+   if ( !( flags & G_EVAL)) { CLOSE_G_EVAL; }
    return ret;
 }
 
@@ -242,7 +241,7 @@ clean_perl_call_pv( char* subname, I32 flags)
    dPUB_ARGS;
    dG_EVAL_ARGS;
 
-   if ( !( flags & G_EVAL)) OPEN_G_EVAL;
+   if ( !( flags & G_EVAL)) { OPEN_G_EVAL; }
    ret = perl_call_pv( subname, flags | G_EVAL);
    if ( SvTRUE( GvSV( errgv))) {
       PUB_CHECK;
@@ -252,12 +251,11 @@ clean_perl_call_pv( char* subname, I32 flags)
          (void)POPs;
       }
       if ( flags & G_EVAL) return ret;
-      PUTBACK_G_EVAL;
       CLOSE_G_EVAL;
       croak( SvPV( GvSV( errgv), na));
    }
    
-   if ( !( flags & G_EVAL)) CLOSE_G_EVAL;
+   if ( !( flags & G_EVAL)) { CLOSE_G_EVAL; }
    return ret;
 }
 #endif
@@ -282,6 +280,8 @@ create_mate( SV *perlObject)
 
    /* allocating an instance */
    object = ( PAnyObject) malloc( vmt-> instanceSize);
+   if ( !object) return nilHandle;
+
    memset( object, 0, vmt-> instanceSize);
    object-> self = ( PVMT) vmt;
    object-> super = ( PVMT *) vmt-> super;
@@ -688,6 +688,8 @@ gimme_the_vmt( const char *className)
 #endif
    vmtSize = originalVmt-> vmtSize;
    vmt = ( PVMT) malloc( vmtSize);
+   if ( !vmt) return nil;
+
    memcpy( vmt, originalVmt, vmtSize);
    newClassName = duplicate_string( className);
    vmt-> className = newClassName;
@@ -897,7 +899,6 @@ call_perl_indirect( Handle self, char *subName, const char *format, Bool c_decl,
          {
             (void)POPs;
             PUB_CHECK;
-            PUTBACK_G_EVAL;
             CLOSE_G_EVAL;
             croak( SvPV( GvSV( errgv), na));    /* propagate */
          } 
@@ -929,7 +930,6 @@ call_perl_indirect( Handle self, char *subName, const char *format, Bool c_decl,
          if ( SvTRUE( GvSV( errgv)))
          {
             PUB_CHECK;
-            PUTBACK_G_EVAL;
             CLOSE_G_EVAL;
             croak( SvPV( GvSV( errgv), na));    /* propagate */
          } 
@@ -1195,6 +1195,7 @@ register_constants( void)
    register_fdo_constants();
    register_fe_constants();
    register_fr_constants();
+   register_mt_constants();
 }
 
 XS( Object_alive_FROMPERL);
@@ -1247,6 +1248,7 @@ NAN = 0.0;
    }
 #endif /* __unix */
 
+   list_create( &staticObjects, 16, 16);
    if ( !window_subsystem_init()) {
       apc_show_message( "Error initializing PRIMA");
       ST(0) = &sv_no;
@@ -1256,7 +1258,6 @@ NAN = 0.0;
    prima_init_image_subsystem();
    primaObjects = hash_create();
    vmtHash      = hash_create();
-   list_create( &staticObjects, 16, 16);
    list_create( &postDestroys, 16, 16);
 
    /* register hard coded XSUBs */
@@ -1327,6 +1328,7 @@ ctx_remap_def( int value, int *table, Bool direct, int default_value)
 
       /* First way build hash */
       hash = ( PRemapHash)  malloc( sizeof(RemapHash) + sizeof( PRemapHashNode) * (32-1) + sizeof( RemapHashNode) * sz);
+      if ( !hash) return default_value;  
       bzero( hash, sizeof(RemapHash) + sizeof( PRemapHashNode) * (32-1));
       tbl = table;
       next = ( PRemapHashNode )(((char *)hash) + sizeof(RemapHash) + sizeof( PRemapHashNode) * (32-1));
@@ -1354,6 +1356,10 @@ ctx_remap_def( int value, int *table, Bool direct, int default_value)
 
       /* Second way build hash */
       hash = ( PRemapHash) malloc( sizeof(RemapHash) + sizeof( PRemapHashNode) * (32-1) + sizeof( RemapHashNode) * sz);
+      if ( !hash) {
+         free( hash1);
+         return default_value;
+      }
       bzero( hash, sizeof(RemapHash) + sizeof( PRemapHashNode) * (32-1));
       tbl = table;
       next = ( PRemapHashNode)(((char *)hash) + sizeof(RemapHash) + sizeof( PRemapHashNode) * (32-1));
@@ -1533,8 +1539,11 @@ list_create( PList slf, int size, int delta)
    if ( !slf) return;
    memset( slf, 0, sizeof( List));
    slf-> delta = ( delta > 0) ? delta : 1;
-   slf-> size  = size;
-   slf-> items = ( size > 0) ? allocn( Handle, size) : nil;
+   if (( slf-> size = size) > 0) {
+      if ( !( slf-> items = allocn( Handle, size)))
+         slf-> size = 0;
+   } else
+      slf-> items = nil;
 }
 
 PList
@@ -1574,7 +1583,8 @@ list_add( PList slf, Handle item)
    if ( slf-> count == slf-> size)
    {
       Handle * old = slf-> items;
-      slf-> items = allocn(Handle, ( slf-> size + slf-> delta));
+      if ( !( slf-> items = allocn(Handle, ( slf-> size + slf-> delta))))
+         return -1;
       if ( old) {
          memcpy( slf-> items, old, slf-> size * sizeof( Handle));
          free( old);
@@ -1637,7 +1647,8 @@ list_first_that( PList slf, void * action, void * params)
    int toRet = -1, i, cnt = slf-> count;
    Handle * list;
    if ( !action || !slf || !cnt) return -1;
-   list = allocn( Handle, slf-> count);
+   if ( !( list = allocn( Handle, slf-> count)))
+      return -1;
    memcpy( list, slf-> items, slf-> count * sizeof( Handle));
    for ( i = 0; i < cnt; i++)
       if ((( PListProc) action)( list[ i], params)) {

@@ -23,8 +23,22 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: extlist.pl,v 1.5 2000/10/18 11:58:06 tobez Exp $
+#  $Id: extlist.pl,v 1.6 2001/10/25 11:21:10 dk Exp $
 #
+
+=pod 
+=item NAME
+
+Prima check-list widget
+
+=item FEATURES
+
+Demonstrates basic usage of a Prima toolkit and
+its standard CheckList class.
+
+
+=cut
+
 use Prima;
 use Prima::ExtLists;
 use Prima::Application;

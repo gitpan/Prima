@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: IntUtils.pm,v 1.16 2001/02/01 13:03:01 dk Exp $
+#  $Id: IntUtils.pm,v 1.17 2002/01/03 11:29:21 dk Exp $
 package Prima::IntUtils;
 
 use strict;
@@ -89,6 +89,7 @@ sub scroll_timer_start
          timeout    => $rates[0],
          name       => q(ScrollTimer),
          onTick     => sub { $_[0]-> {delegator}-> ScrollTimer_Tick( @_)},
+         onDestroy  => sub { undef $scrollTimer },
       );
       @{$scrollTimer}{qw(firstRate nextRate newRate)} = (@rates,$rates[1]);
    }

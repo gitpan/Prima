@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Clipboard.cls,v 1.11 2000/05/17 10:28:17 tobez Exp $
+# $Id: Clipboard.cls,v 1.12 2002/01/21 21:16:01 dk Exp $
 
 object Prima::Clipboard( Prima::Component)
 {
@@ -37,9 +37,7 @@ object Prima::Clipboard( Prima::Component)
    method SV *   fetch( char * format);
    method Bool   format_exists( char * format);
    method SV *   get_handle();
-   method int    get_format_count();
    public void   get_formats();
-   method int    get_registered_format_count();
    public void   get_registered_formats();
    public void   get_standard_clipboards();
    method void   init( HV * profile);

@@ -23,8 +23,22 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: mdi.pl,v 1.8 2001/06/22 13:28:32 dk Exp $
+#  $Id: mdi.pl,v 1.10 2002/02/14 12:39:55 dk Exp $
 #
+
+=pod 
+=item NAME
+
+A MDI ( multiple-document interface ) example
+
+=item FEATURES
+
+Outlines usage of Prima::MDI module.
+Note the MDI window are not subject for a window-manager 
+decorations and do not conform to the system user interaction scheme.
+
+=cut
+
 use strict;
 use Prima qw( InputLine ImageViewer MDI);
 
@@ -90,14 +104,13 @@ $w = Prima::MDI-> create(
    titleHeight => 12,
 );
 
-$w = $w-> client;
 
 my $i = Prima::Image-> create;
 $i->load('Hand.gif');
 
-$w-> insert( ImageViewer =>
+$w-> client-> insert( ImageViewer =>
   origin => [0,0],
-  size   => [ $w-> size],
+  size   => [ $w-> client-> size],
   hScroll=> 1,
   vScroll=> 1,
   growMode => gm::Client,

@@ -23,8 +23,21 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: notebk.pl,v 1.5 2000/10/18 11:58:09 tobez Exp $
+#  $Id: notebk.pl,v 1.6 2001/10/25 11:21:10 dk Exp $
 #
+
+=pod 
+=item NAME
+
+Prima notebook widget
+
+=item FEATURES
+
+Demonstrates the basic Prima toolkit usage and
+Prima::TabbedNotebook standard class.
+
+=cut
+
 use Prima;
 use Prima::Buttons;
 use Prima::Notebooks;

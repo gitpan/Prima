@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
-/* $Id: codec_png.c,v 1.2 2001/07/25 14:21:28 dk Exp $ */
+/* $Id: codec_png.c,v 1.3 2002/01/03 14:04:43 dk Exp $ */
 
 #include <png.h>
 
@@ -912,9 +912,10 @@ save( PImgCodec instance, PImgSaveFileInstance fi)
             if ( PImage(obj)-> type != imByte) 
                outc("Failed converting image to type im::Byte");
          }
-         alpha_object = obj;
-         l-> line = malloc( i-> w * (( color_type == PNG_COLOR_TYPE_GRAY) ? 2 : 4));
-         color_type |= PNG_COLOR_MASK_ALPHA;
+         if (( l-> line = malloc( i-> w * (( color_type == PNG_COLOR_TYPE_GRAY) ? 2 : 4)))) {
+            alpha_object = obj;
+            color_type |= PNG_COLOR_MASK_ALPHA;
+         }
       }
       png_set_IHDR( l-> png_ptr, l-> info_ptr, i-> w, i-> h, bit_depth, color_type, 
          interlace, PNG_COMPRESSION_TYPE_DEFAULT, filter);

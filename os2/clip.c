@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: clip.c,v 1.14 2001/06/15 09:43:56 dk Exp $
+ * $Id: clip.c,v 1.15 2002/01/03 14:04:44 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 /* apc.c --- apc/ api for os/2 */
@@ -141,7 +141,7 @@ apc_clipboard_get_data( Handle self, long id, STRLEN * length)
              pt[ 1]. y = pt[ 3]. y = bh. cy;
              pt[ 1]. x--;
              pt[ 1]. y--;
-             bi = get_binfo( self);
+             if ( !( bi = get_binfo( self))) return nil;
              b2 = GpiCreateBitmap( guts. ps, ( PBITMAPINFOHEADER2)bi, 0, nil, nil);
              if ( b2 == nilHandle) { apiErr; return nil; }
              free( bi);
@@ -164,7 +164,8 @@ apc_clipboard_get_data( Handle self, long id, STRLEN * length)
                 apcErr( errInvClipboardData);
                 return nil;
              }
-             ret = malloc( *length);
+             if ( !( ret = malloc( *length)))
+                return nil;
              memcpy( ret, ptr, *length);
              for ( i = 0; i < len - 1; i++)
                 if ( ret[ i] == '\r') {
@@ -185,7 +186,7 @@ apc_clipboard_get_data( Handle self, long id, STRLEN * length)
             *length = *(( int*) ptr);
             ptr += sizeof( int);
             ret = malloc( *length);
-            memcpy( ret, ptr, *length);
+            if ( ret) memcpy( ret, ptr, *length);
             return ret;
          }
    }

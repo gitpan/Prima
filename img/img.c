@@ -197,6 +197,7 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
    Bool err = false;
    Bool loadExtras = false, noImageData = false;
    Bool incrementalLoad = false;
+   char * baseClassName = "Prima::Image";
 
 
 #define out(x){ err = true;\
@@ -224,7 +225,8 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
    /* assigning user file profile */
    if ( pexist( index)) {
       fi. frameMapSize = 1;
-      fi. frameMap  = (int*) malloc( sizeof( int));
+      if ( !( fi. frameMap  = (int*) malloc( sizeof( int))))
+         out("Not enough memory");
       if ((*fi. frameMap = pget_i( index)) < 0)
          out("Invalid index");
    } else if ( pexist( map)) {
@@ -233,7 +235,8 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
          if ( SvROK( sv) && SvTYPE( SvRV( sv)) == SVt_PVAV) {
             AV * av = ( AV*) SvRV( sv);
             int len = av_len( av) + 1;
-            fi. frameMap = ( int *) malloc( sizeof( int) * len);
+            if ( !( fi. frameMap = ( int *) malloc( sizeof( int) * len)))
+               out("Not enough memory");
             for ( i = 0; i < len; i++) {
                SV ** holder = av_fetch( av, i, 0);
                if ( !holder) out("Array panic on 'map' property");
@@ -248,7 +251,8 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
       fi. loadAll = true;
    } else {
       fi. frameMapSize = 1;
-      fi. frameMap = ( int*) malloc( sizeof( int));
+      if ( ! (fi. frameMap = ( int*) malloc( sizeof( int))))
+         out("Not enough memory");
      *fi. frameMap = 0;
    }   
 
@@ -265,7 +269,17 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
          profiles_len = av_len( profiles);
       } else 
          out("Not an array passed to 'profiles' property");
-   }   
+   }  
+
+   if ( pexist( className)) {
+      PVMT vmt;
+      baseClassName = pget_c( className);
+      vmt = gimme_the_vmt( baseClassName);
+      while ( vmt && vmt != (PVMT)CImage) 
+         vmt = vmt-> base;
+      if ( !vmt) 
+         outd("class '%s' is not a Prima::Image descendant", baseClassName);
+   }      
 
    /* all other properties to be parsed by codec */
    fi. extras = profile;
@@ -278,6 +292,8 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
       Bool * loadmap = ( Bool *) malloc( sizeof( Bool) * imgCodecs. count);
       char * xc = fileName + strlen( fileName);
 
+      if ( !loadmap) 
+         out("Not enough memory");
       memset( loadmap, 0, sizeof( Bool) * imgCodecs. count);
       for ( i = 0; i < imgCodecs. count; i++) {
          c = ( PImgCodec ) ( imgCodecs. items[ i]);
@@ -355,7 +371,8 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
    if ( fi. loadAll) {
       if ( fi. frameCount >= 0) {
          fi. frameMapSize = fi. frameCount;
-         fi. frameMap  = (int*) malloc( fi. frameCount * sizeof(int));
+         if ( !( fi. frameMap  = (int*) malloc( fi. frameCount * sizeof(int))))
+            out("Not enough memory");
          for ( i = 0; i < fi. frameCount; i++)
             fi. frameMap[i] = i;
       } else {
@@ -378,7 +395,7 @@ apc_img_load( Handle self, char * fileName, HV * profile, char * error)
    /* loading */
    for ( i = 0; i < fi. frameMapSize; i++) {
       HV * profile = commonHV;
-      char * className = "Prima::Image";
+      char * className = baseClassName;
 
       fi. frame = incrementalLoad ? i : fi. frameMap[ i];
       if (( fi. frameCount >= 0 && fi. frame >= fi. frameCount) || 
@@ -571,6 +588,8 @@ apc_img_frame_count( char * fileName)
       Bool * loadmap = ( Bool*) malloc( sizeof( Bool) * imgCodecs. count);
       char * xc = fileName + strlen( fileName);
 
+      if ( !loadmap) 
+         return 0;
       memset( loadmap, 0, sizeof( Bool) * imgCodecs. count);
       for ( i = 0; i < imgCodecs. count; i++) {
          c = ( PImgCodec ) ( imgCodecs. items[ i]);
@@ -762,7 +781,8 @@ apc_img_save( Handle self, char * fileName, HV * profile, char * error)
       out("Nothing to save");
 
    /* fill array of objects */
-   fi. frameMap     = ( Handle *) malloc( sizeof( Handle) * fi. frameMapSize);
+   if ( !( fi. frameMap = ( Handle *) malloc( sizeof( Handle) * fi. frameMapSize)))
+      out("Not enough memory");
    memset( fi. frameMap, 0, sizeof( Handle) * fi. frameMapSize);
    
    for ( i = 0; i < fi. frameMapSize; i++) {
@@ -796,6 +816,8 @@ apc_img_save( Handle self, char * fileName, HV * profile, char * error)
       Bool * savemap = ( Bool*) malloc( sizeof( Bool) * imgCodecs. count);
       char * xc = fileName + strlen( fileName);
 
+      if ( !savemap)
+         out("Not enough memory");
       memset( savemap, 0, sizeof( Bool) * imgCodecs. count);
       
       for ( i = 0; i < imgCodecs. count; i++) {

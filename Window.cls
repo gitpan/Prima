@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Window.cls,v 1.16 2000/05/17 10:28:28 tobez Exp $
+# $Id: Window.cls,v 1.17 2002/02/06 13:14:06 dk Exp $
 
 object Prima::Window( Prima::Widget)
 {
@@ -46,6 +46,7 @@ object Prima::Window( Prima::Widget)
    property int      modalResult;
    property Point    origin;
    property Bool     ownerIcon;
+   property Rect     rect;
    property Bool     selected;
    property Point    size;
    property Bool     taskListed;

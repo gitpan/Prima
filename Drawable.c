@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Drawable.c,v 1.59 2001/07/25 14:21:27 dk Exp $
+ * $Id: Drawable.c,v 1.63 2002/02/02 11:37:02 dk Exp $
  */
 
 #include "apricot.h"
@@ -177,6 +177,7 @@ Drawable_font_add( Handle self, Font * source, Font * dest)
    Bool useStyle  = source-> style     != C_NUMERIC_UNDEF;
    Bool useDir    = source-> direction != C_NUMERIC_UNDEF;
    Bool useName   = strcmp( source-> name, C_STRING_UNDEF) != 0;
+   Bool useEnc    = strcmp( source-> encoding, C_STRING_UNDEF) != 0;
 
    /* assignning values */
    if ( useHeight) dest-> height    = source-> height;
@@ -185,8 +186,8 @@ Drawable_font_add( Handle self, Font * source, Font * dest)
    if ( useStyle ) dest-> style     = source-> style;
    if ( usePitch ) dest-> pitch     = source-> pitch;
    if ( useSize  ) dest-> size      = source-> size;
-   if ( useName  ) 
-      strcpy( dest-> name, source-> name);
+   if ( useName  ) strcpy( dest-> name, source-> name);
+   if ( useEnc   ) strcpy( dest-> encoding, source-> encoding);
 
    /* nulling dependencies */
    if ( !useHeight && useSize)
@@ -197,6 +198,8 @@ Drawable_font_add( Handle self, Font * source, Font * dest)
       dest-> pitch = fpDefault;
    if ( useHeight)
       dest-> size = 0;
+   if ( !useHeight && !useSize && ( dest-> height <= 0 || dest-> height > 16383)) 
+      useSize = 1;
 
    /* validating entries */
    if ( dest-> height <= 0) dest-> height = 1;
@@ -207,6 +210,12 @@ Drawable_font_add( Handle self, Font * source, Font * dest)
       else if ( dest-> size   > 16383 ) dest-> size   = 16383;
    if ( dest-> name[0] == 0)
       strcpy( dest-> name, "Default");
+   if ( dest-> pitch < fpDefault || dest-> pitch > fpFixed)
+      dest-> pitch = fpDefault;
+   if ( dest-> direction == C_NUMERIC_UNDEF)
+      dest-> direction = 0;
+   if ( dest-> style == C_NUMERIC_UNDEF)
+      dest-> style = 0;
 
    return useSize && !useHeight;
 }
@@ -423,7 +432,7 @@ polypoints( Handle self, SV * points, char * procName, int mod, Bool (*procPtr)(
    }
    count /= 2;
    if ( count < 2) return;
-   p = allocn( Point, count);
+   if (!( p = allocn( Point, count))) return;
    for ( i = 0; i < count; i++)
    {
        SV** psvx = av_fetch( av, i * 2, 0);
@@ -484,11 +493,13 @@ Drawable_get_text_box( Handle self, char * text, int len)
    p = apc_gp_get_text_box( self, text, len);
    gpLEAVE;
    av = newAV();
-   for ( i = 0; i < 5; i++) {
-      av_push( av, newSViv( p[ i]. x));
-      av_push( av, newSViv( p[ i]. y));
-   };
-   free( p);
+   if ( p) {
+      for ( i = 0; i < 5; i++) {
+         av_push( av, newSViv( p[ i]. x));
+         av_push( av, newSViv( p[ i]. y));
+      };
+      free( p);
+   }
    return newRV_noinc(( SV *) av);
 }
 
@@ -504,7 +515,7 @@ Drawable_do_text_wrap( Handle self, TextWrapRec *t, PFontABC abc)
    int tildeIndex = -100, tildeLPos = 0, tildeLine = 0, tildePos = 0, tildeOffset = 0, i, lSize = 16;
    unsigned char * text    = ( unsigned char*) t-> text;
 
-   ret = allocn( char*, lSize);
+   if (!( ret = allocn( char*, lSize))) return nil;
    for ( i = 0; i < 256; i++) {
       width[i] = abc[i]. a + abc[i]. b + abc[i]. c;
       abc[i]. c = ( abc[i]. c < 0) ? - abc[i]. c : 0;
@@ -516,7 +527,7 @@ Drawable_do_text_wrap( Handle self, TextWrapRec *t, PFontABC abc)
    IV l = end - start;                                \
    char *c = nil;                                         \
    if (!( t-> options & twReturnChunks)) {                \
-      c = allocs( l + 1);                                 \
+      if ( !( c = allocs( l + 1))) return ret;            \
       memcpy( c, &text[start], l);                        \
       c[ l] = 0;                                          \
    }                                                      \
@@ -532,6 +543,7 @@ Drawable_do_text_wrap( Handle self, TextWrapRec *t, PFontABC abc)
    }                                                      \
    if ( t-> count == lSize) {                             \
       char ** n = allocn( char*, lSize + 16);             \
+      if ( !n) return ret;                                \
       memcpy( n, ret, sizeof( char*) * lSize);            \
       lSize += 16;                                        \
       free( ret);                                         \
@@ -673,7 +685,7 @@ Drawable_do_text_wrap( Handle self, TextWrapRec *t, PFontABC abc)
         t-> t_start = w - 1;
         t-> t_end   = w + width[(unsigned)l[tildeLPos]];
     } else {
-        t-> t_start = t-> t_end = t-> t_line = -1;
+        t-> t_start = t-> t_end = t-> t_line = C_NUMERIC_UNDEF;
     }
 /* expanding tabs */
     if (( t-> options & twExpandTabs) && !(t-> options & twReturnChunks) && wasTab)
@@ -684,7 +696,8 @@ Drawable_do_text_wrap( Handle self, TextWrapRec *t, PFontABC abc)
           char *substr = ret[ i], *n;
           while (*substr) { if ( *substr == '\t') tabs++; substr++; len++; }
           if ( tabs == 0) continue;
-          n = allocs( len + tabs * t-> tabIndent + 1);
+          if ( !( n = allocs( len + tabs * t-> tabIndent + 1)))
+             return ret;
           substr = ret[ i];
           len = 0;
           while ( *substr)
@@ -754,10 +767,12 @@ Drawable_text_wrap( Handle self, char * text, int width, int options, int tabInd
       } 
       sv_free( sv);
    }
-   if ( abc == nil) return nil;
+   if ( abc == nil) return nilSV;
    
    c = Drawable_do_text_wrap( self, &t, abc);
    free( abc);
+
+   if ( !c) return nilSV;
 
    for ( i = 0; i < t. count; i++) {
       av_push( av, retChunks ? ( newSViv(( IV) c[ i])) : ( newSVpv( c[ i], 0)));
@@ -769,7 +784,11 @@ Drawable_text_wrap( Handle self, char * text, int width, int options, int tabInd
       HV * profile = newHV();
       char b[2] = { 0, 0};
       b[ 0] = t. t_char;
-      pset_i( tildeStart, t. t_start);
+      if ( t. t_start != C_NUMERIC_UNDEF) {
+         pset_i( tildeStart, t. t_start);
+      } else {
+         pset_sv( tildeStart, nilSV);
+      }
       pset_i( tildeEnd,   t. t_end);
       pset_i( tildeLine,  t. t_line);
       pset_c( tildeChar,  b);
@@ -795,7 +814,7 @@ read_palette( int * palSize, SV * palette)
    count = *palSize * 3;
    if ( count == 0) return nil;
 
-   buf = allocb( count);
+   if ( !( buf = allocb( count))) return nil;
 
    for ( i = 0; i < count; i++)
    {

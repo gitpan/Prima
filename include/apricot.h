@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: apricot.h,v 1.132 2001/07/25 14:21:29 dk Exp $ */
+/* $Id: apricot.h,v 1.140 2002/02/15 15:41:28 dk Exp $ */
 
 #ifndef _APRICOT_H_
 #define _APRICOT_H_
@@ -158,9 +158,6 @@ extern "C" {
 #undef WORD
 #endif
 #include <stdlib.h>
-#ifdef USE_DBMALLOC
-#include "dbmalloc.h"
-#endif
 
 #ifdef BROKEN_PERL_PLATFORM
    #undef open
@@ -379,10 +376,10 @@ typedef struct _RGBColor
    unsigned char r;
 } RGBColor, *PRGBColor;
 
-typedef struct _Complex      { float  re, im; } Complex;
-typedef struct _DComplex     { double re, im; } DComplex;
-typedef struct _TrigComplex  { float  r,  ph; } TrigComplex;
-typedef struct _TrigDComplex { double r,  ph; } TrigDComplex;
+typedef struct { float  re, im; } Complex;
+typedef struct { double re, im; } DComplex;
+typedef struct { float  r,  ph; } TrigComplex;
+typedef struct { double r,  ph; } TrigDComplex;
 
 #ifdef __cplusplus
 #define nil       NULL
@@ -616,9 +613,18 @@ END_TABLE(nt,UV)
 #undef NT
 
 /* Modality types */
+#define MT(const_name) CONSTANT(mt,const_name)
+START_TABLE(mt,UV)
 #define mtNone           0
+MT(None)
 #define mtShared         1
+MT(Shared)
 #define mtExclusive      2
+MT(Exclusive)
+
+END_TABLE(mt,UV)
+#undef MT
+
 
 /* Command event types */
 #define ctQueueMask      0x00070000     /* masks bits that defines behavior
@@ -641,12 +647,6 @@ CM(Valid)
 CM(Quit)
 #define cmHelp           0x00000002     /* WM_HELP analog */
 CM(Help)
-#define cmOK             0x00000003     /* std OK cmd */
-CM(OK)
-#define cmOk             cmOK
-CM(Ok)
-#define cmCancel         0x00000004     /* std Cancel cmd */
-CM(Cancel)
 #define cmClose         (0x00000005|ctDiscardable)
 CM(Close)
 #define cmCreate        (0x0000000A|ctPassThrough)
@@ -1732,6 +1732,8 @@ SV(FullDrag)
 SV(DblClickDelay)
 #define   svShapeExtension  28
 SV(ShapeExtension)
+#define   svColorPointer    29
+SV(ColorPointer)
 END_TABLE(sv,UV)
 #undef SV
 
@@ -1854,6 +1856,9 @@ apc_window_set_caption( Handle self, const char* caption);
 
 extern Bool
 apc_window_set_client_pos( Handle self, int x, int y);
+
+extern Bool
+apc_window_set_client_rect( Handle self, int x, int y, int width, int height);
 
 extern Bool
 apc_window_set_client_size( Handle self, int x, int y);
@@ -1997,6 +2002,9 @@ apc_widget_set_palette( Handle self);
 
 extern Bool
 apc_widget_set_pos( Handle self, int x, int y);
+
+extern Bool
+apc_widget_set_rect( Handle self, int x, int y, int width, int height);
 
 extern Bool
 apc_widget_set_shape( Handle self, Handle mask);
@@ -2181,6 +2189,7 @@ typedef struct _MenuItemReg {   /* Menu item registration record */
    Bool   divider;              /* true if it's line divider */
    Handle bitmap;               /* bitmap if not nil */
    SV *   code;                 /* code if not nil */
+   SV *   data;                 /* use data if not nil */
    struct _MenuItemReg* down;   /* pointer to submenu */
    struct _MenuItemReg* next;   /* pointer to next item */
 } MenuItemReg, *PMenuItemReg;
@@ -3163,7 +3172,10 @@ extern Bool
 apc_font_pick( Handle self, PFont source, PFont dest);
 
 extern PFont
-apc_fonts( Handle self, const char *facename, int *retCount);
+apc_fonts( Handle self, const char *facename, const char *encoding, int *retCount);
+
+extern PHash
+apc_font_encodings( Handle self);
 
 /* system metrics */
 extern Bool

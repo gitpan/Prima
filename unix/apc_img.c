@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_img.c,v 1.62 2001/07/26 22:22:51 dk Exp $
+ * $Id: apc_img.c,v 1.65 2002/01/19 16:18:52 dk Exp $
  */
 /*
  * System dependent image routines (unix, x11)
@@ -101,6 +101,8 @@ prima_prepare_ximage( int width, int height, Bool bitmap)
 {
    PrimaXImage *i;
    int extra_bytes;
+
+   if (width == 0 || height == 0) return false;
   
    switch ( guts.idepth) {
    case 16:     extra_bytes = 1;        break;
@@ -134,6 +136,7 @@ prima_prepare_ximage( int width, int height, Bool bitmap)
       }
       i-> xmem. shmaddr = i-> image-> data = shmat( i-> xmem. shmid, 0, 0);
       if ( i-> xmem. shmaddr == (void*)-1 || i-> xmem. shmaddr == nil) {
+         i-> image-> data = nil;
          XDestroyImage( i-> image);
          shmctl( i-> xmem. shmid, IPC_RMID, 0);
          goto normal_way;
@@ -145,6 +148,7 @@ prima_prepare_ximage( int width, int height, Bool bitmap)
          XCHECKPOINT;
 bad_xshm_attach:
          XSetErrorHandler(guts.main_error_handler);
+         i-> image-> data = nil;
          XDestroyImage( i-> image);
          shmdt( i-> xmem. shmaddr);
          shmctl( i-> xmem. shmid, IPC_RMID, 0);
@@ -183,6 +187,18 @@ normal_way:
    return i;
 }
 
+void
+prima_XDestroyImage( XImage * i)
+{
+   if ( i) {
+      if ( i-> data) {
+         free( i-> data);
+         i-> data = nil;
+      }
+      ((*((i)->f.destroy_image))((i)));
+   }
+}
+
 Bool
 prima_free_ximage( PrimaXImage *i) 
 {
@@ -190,6 +206,7 @@ prima_free_ximage( PrimaXImage *i)
 #ifdef USE_MITSHM
    if ( i-> shm) {
       XShmDetach( DISP, &i-> xmem);
+      i-> image-> data = nil;
       XDestroyImage( i-> image);
       shmdt( i-> xmem. shmaddr);
       free(i);
@@ -954,6 +971,8 @@ prima_create_image_cache( PImage img, Handle drawable, int type)
    Handle dup = nilHandle;
    PImage pass = img;
 
+   if ( img-> w == 0 || img-> h == 0) return nil;
+
    if ( img-> palette == nil) {
       warn( "UAI_014: image has no palette");
       return nil;
@@ -1289,6 +1308,9 @@ apc_image_begin_paint( Handle self)
    PImage img = PImage( self);
    int icon = XX-> type. icon;
    Bool bitmap = (img-> type  == imBW) || ( guts. idepth == 1);
+
+   if (img-> w == 0 || img-> h == 0) return false;
+   
    XX-> gdrawable = XCreatePixmap( DISP, guts. root, img-> w, img-> h,
                                    bitmap ? 1 : guts. depth);
    XX-> type.pixmap = !bitmap;

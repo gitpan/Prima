@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ComboBox.pm,v 1.19 2000/10/26 12:07:12 dk Exp $
+#  $Id: ComboBox.pm,v 1.21 2002/01/24 15:02:00 dk Exp $
 
 # combo styles
 package cs;
@@ -219,7 +219,10 @@ sub List_MouseUp
 
 sub List_Click
 {
-   my $self = $_[0];
+   my ( $self, $list) = @_;
+   $self->{edit}->{interaction} = 1;
+   $self->{edit}->text( $list-> get_item_text( $list->focusedItem));
+   $self->{edit}->{interaction} = undef;
    $self-> listVisible(0);
    $self-> notify( q(Change));
 }
@@ -234,7 +237,7 @@ sub List_KeyDown
    }
    elsif ( $key == kb::Enter)
    {
-      $list-> click;
+      $list-> notify(q(Click));
       $list-> clear_event;
    }
 }

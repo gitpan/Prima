@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Window.c,v 1.40 2001/06/15 07:46:21 dk Exp $
+ * $Id: Window.c,v 1.42 2002/02/06 13:14:06 dk Exp $
  */
 
 #include "apricot.h"
@@ -77,14 +77,14 @@ Window_init( Handle self, HV * profile)
 void
 Window_cancel( Handle self)
 {
-   my-> set_modalResult ( self, cmCancel);
+   my-> set_modalResult ( self, mbCancel);
    my-> end_modal( self);
 }
 
 void
 Window_ok( Handle self)
 {
-   my-> set_modalResult ( self, cmOK);
+   my-> set_modalResult ( self, mbOK);
    my-> end_modal( self);
 }
 
@@ -373,7 +373,7 @@ int
 Window_execute( Handle self, Handle insertBefore)
 {
    if ( var-> modal)
-      return cmCancel;
+      return mbCancel;
 
    protect_object( self);
    if ( insertBefore
@@ -382,7 +382,7 @@ Window_execute( Handle self, Handle insertBefore)
 	     || PWindow( insertBefore)-> modal != mtExclusive))
       insertBefore = nilHandle;
    if ( !apc_window_execute( self, insertBefore))
-      var-> modalResult = cmCancel;
+      var-> modalResult = mbCancel;
 
    unprotect_object( self);
    return var-> modalResult;
@@ -449,6 +449,34 @@ void Window_set( Handle self, HV * profile)
       pdelete( menuFont);
    }
    if ( pexist( owner)) postOwner = pget_H( owner);
+
+   if ( pexist( frameOrigin) || pexist( frameSize)) {
+      Bool io = 0, is = 0;
+      Point o, s;
+      if ( pexist( frameOrigin)) {
+         int set[2];
+         prima_read_point( pget_sv( frameOrigin), set, 2, "RTC0092: Array panic on 'frameOrigin'");
+         pdelete( frameOrigin);
+         o. x = set[0];
+         o. y = set[1];
+         io = 1;
+      }
+      if ( pexist( frameSize)) {
+         int set[2];
+         prima_read_point( pget_sv( frameSize), set, 2, "RTC0093: Array panic on 'frameSize'");
+         pdelete( frameSize);
+         s. x = set[0];
+         s. y = set[1];
+         is = 1;
+      }
+      if ( is && io)
+         apc_widget_set_rect( self, o. x, o. y, s. x, s. y);
+      else if ( io) 
+         my-> set_frameOrigin( self, o);
+      else
+         my-> set_frameSize( self, s);
+  }
+
    inherited set( self, profile);
    if ( postOwner && is_opt( optOwnerIcon)) {
       my-> set_ownerIcon( self, 1);
@@ -660,6 +688,15 @@ Window_origin( Handle self, Bool set, Point origin)
       return apc_window_get_client_pos( self);
    apc_window_set_client_pos( self, origin.x, origin.y);
    return origin;
+}
+
+Rect
+Window_rect( Handle self, Bool set, Rect r)
+{
+   if ( !set) 
+      return inherited rect( self, set, r); 
+   apc_window_set_client_rect( self, r. left, r. bottom, r. right - r. left, r. top - r. bottom);
+   return r;
 }
 
 Bool

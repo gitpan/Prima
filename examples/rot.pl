@@ -23,8 +23,19 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: rot.pl,v 1.7 2000/10/18 11:58:11 tobez Exp $
+#  $Id: rot.pl,v 1.8 2001/10/25 11:21:10 dk Exp $
 #
+=pod 
+=item NAME
+
+Prima toolkit example
+
+=item FEATURES
+
+Needs custom fonts for antialiasing emulation.
+
+=cut
+
 use Prima qw(Application);
 
 #my @data = (

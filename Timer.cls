@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Timer.cls,v 1.11 2000/05/17 10:28:25 tobez Exp $
+# $Id: Timer.cls,v 1.12 2002/01/10 20:42:32 dk Exp $
 
 object Prima::Timer( Prima::Component)
 {
@@ -39,5 +39,4 @@ object Prima::Timer( Prima::Component)
    method Bool   start();
    method void   stop();
    c_only void   update_sys_handle( HV * profile);
-   event  void   on_tick();
 }

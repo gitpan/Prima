@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Timer.c,v 1.16 2000/05/17 10:28:25 tobez Exp $
+ * $Id: Timer.c,v 1.17 2002/01/10 20:42:32 dk Exp $
  */
 
 #include "apricot.h"
@@ -68,11 +68,6 @@ Timer_handle_event( Handle self, PEvent event)
 {
    inherited handle_event ( self, event);
    if ( event-> cmd == cmTimer) my-> notify( self, "<s", "Tick");
-}
-
-void
-Timer_on_tick( Handle self)
-{
 }
 
 Bool

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: CoreClasses.pm,v 1.22 2001/07/04 11:37:26 dk Exp $
+# $Id: CoreClasses.pm,v 1.24 2002/01/05 17:25:37 dk Exp $
 package Prima::VB::CoreClasses;
 use strict;
 
@@ -361,17 +361,10 @@ sub prf_types
       align   => ['alignment',],
       valign  => ['valignment',],
       bool    => ['autoWidth','autoHeight','showAccelChar','showPartial','wordWrap'],
-      sibling => ['focusLink',],
+      Handle  => ['focusLink',],
    );
    $_[0]-> prf_types_add( $pt, \%de);
    return $pt;
-}
-
-sub prf_adjust_default
-{
-   my ( $self, $p, $pf) = @_;
-   $self-> SUPER::prf_adjust_default( $p, $pf);
-   delete $pf->{focusLink};
 }
 
 sub on_paint
@@ -1728,7 +1721,7 @@ sub widget_repage
        size => [ 100, 20],
        text => 'Move to page',
    ]);
-   my $ok = $d-> execute == cm::OK;
+   my $ok = $d-> execute == mb::OK;
    my $pi = $d-> Spin-> value;
    $d-> destroy;
    return unless $ok;

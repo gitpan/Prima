@@ -23,9 +23,31 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: fontdlg.pl,v 1.8 2000/10/18 11:58:06 tobez Exp $
+#  $Id: fontdlg.pl,v 1.12 2002/01/25 18:15:28 dk Exp $
 #
 package fontdlg;
+
+=pod 
+=item NAME
+
+An alternate font selection window
+
+=item FEATURES
+
+Demonstrates Prima font API and its usage.
+
+Note the inability to set a font with a particular size and width factor 
+in one call ( in $re_sample sub ). A font size and width is accepted, however. 
+
+Tests the Prima font interface implementation. A constant pain
+here is the correspondence of a font metrics before and after the font load.
+X is known for the problem, that can not be solved easily and without certain compromises.
+See L<prima-gp-problems> manpage for details.
+
+Note the left-mouse drag effect from a font screen widget.
+
+=cut
+
 
 use strict;
 use Carp;
@@ -54,6 +76,8 @@ my $re_sample = sub {
    my $fn = $fontList{ $w-> NameList-> get_item_text($w-> NameList-> focusedItem)}{name};
    $w-> {exampleFontSet} = 1;
    my $i = $w-> SizeList-> focusedItem;
+   my $enc = $w-> Encoding-> get_item_text( $w-> Encoding-> focusedItem);
+   $enc = '' if $enc eq '(any)';
 
    $w-> Example-> lock;
    my %font = (
@@ -62,6 +86,7 @@ my $re_sample = sub {
       style       => $fs,
       direction   => $fd,
       pitch       => $fpitch,
+      encoding    => $enc,
    );
 
    $w-> Example-> font( %font,
@@ -78,13 +103,37 @@ my $re_sample = sub {
 };
 
 my $lastSizeSel = 12;
+my $lastEncSel = "";
 
 my $re_size = sub {
+   my $name_changed = $_[0];
    my $fn = $fontList{ $w-> NameList-> get_item_text( $w-> NameList-> focusedItem)}{name};
    my @sizes = ();
-   my @list = @{$::application-> fonts( $fn)};
+   my $current_encoding = ( $lastEncSel eq '(any)' || $name_changed) ? '' : $lastEncSel;
+   my @list = @{$::application-> fonts( $fn, $name_changed ? '' : $current_encoding)};
+
+   if ( $name_changed) {
+      my %enc;
+      my @enc_items;
+      for ( map { $_-> {encoding}} @list) {
+         next if $enc{$_};
+         push ( @enc_items, $_ );
+         $enc{$_} = 1;
+      }
+      unshift @enc_items, "(any)";
+      my $found = 0;
+      my $i = 0;
+      for ( @enc_items) {
+         $found = $i, last if $_ eq $lastEncSel;
+         $i++;
+      }
+      $w-> Encoding-> set_items( \@enc_items);
+      $w-> Encoding-> set_focused_item( $found);
+   }
+   
    for ( @list)
    {
+      next if length( $current_encoding) && ( $current_encoding ne $_->{encoding});
       if ( $_->{ vector})
       {
          @sizes = qw( 8 9 10 11 12 14 16 18 20 22 24 26 28 32 48 72);
@@ -94,6 +143,7 @@ my $re_size = sub {
       }
    }
    @sizes = sort { $a <=> $b } keys %{{(map { $_ => 1 } @sizes)}};
+   @sizes = (10) unless scalar @sizes;
 
    my $i;
    my $found = 0;
@@ -137,19 +187,31 @@ $w-> insert( ListBox =>
    size   => [ 225, 315],
    items => [@fontItems],
    onSelectItem => sub {
-       &$re_size;
+       &$re_size(1);
        &$re_sample;
    },
 );
 
 $w-> insert( ListBox =>
    name   => 'SizeList',
-   origin => [ 270, 220],
-   size   => [ 200, 120],
+   origin => [ 270, 230],
+   size   => [ 200, 110],
    onSelectItem => sub {
       $lastSizeSel = $_[0]-> get_item_text( $_[0]-> focusedItem);
-       &$re_sample;
+      &$re_sample;
    },
+);
+
+$w-> insert( ListBox => 
+   origin      => [ 270, 160],
+   size        => [ 200, 55],
+   name        => 'Encoding',
+   onSelectItem => sub {
+      $lastEncSel = $_[0]-> get_item_text( $_[0]-> focusedItem);
+      &$re_size(0);
+      &$re_sample;
+   },
+   
 );
 
 $w-> insert( Button =>
@@ -389,7 +451,7 @@ $w-> insert( Button =>
 
 $w-> insert( Widget =>
    name      => 'Example',
-   origin    => [ 270, 85],
+   origin    => [ 270, 25],
    size      => [ 200, 120],
    backColor => cl::White,
    onPaint   => sub {
@@ -399,6 +461,7 @@ $w-> insert( Widget =>
       $_[1]-> color( $fore);
       my $probe = "AaBbCcZz";
       $probe = $_[1]-> font-> size.".".$_[1]-> font-> name;
+      #$probe = join('', map { chr } 140..160);
       my $width = $_[1]-> get_text_width( $probe);
       $_[1]-> text_out( $probe, ( $x - $width) / 2, ( $y - $_[1]-> font-> height) / 2);
    },
@@ -445,19 +508,7 @@ $w-> insert( Widget =>
    },
 );
 
-$w-> insert( Button =>
-   origin      => [ 270, 25],
-   text        => '~Ok',
-   modalResult => cm::OK,
-);
-
-$w-> insert( Button =>
-   origin      => [ 374, 25],
-   text        => 'Cancel',
-   modalResult => cm::Cancel,
-);
-
-&$re_size;
+&$re_size(1);
 &$re_sample;
 }
 

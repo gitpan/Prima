@@ -23,8 +23,22 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: label.pl,v 1.7 2000/10/18 11:58:08 tobez Exp $
+#  $Id: label.pl,v 1.8 2001/10/25 11:21:10 dk Exp $
 #
+
+=pod 
+=item NAME
+
+Prima label widget
+
+=item FEATURES
+
+Demonstrates the basic usage of a Prima toolkit
+and Prima::Label class capabilites, in particular
+text wrapping.
+
+=cut
+
 use Prima;
 use Prima::Const;
 use Prima::Buttons;

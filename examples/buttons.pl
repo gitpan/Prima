@@ -23,8 +23,22 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: buttons.pl,v 1.10 2000/10/18 11:58:04 tobez Exp $
+#  $Id: buttons.pl,v 1.12 2002/02/10 22:30:52 voland Exp $
 #
+
+=pod 
+=item NAME
+
+Prima button widgets
+
+=item FEATURES
+
+Demonstrates basic use of Prima toolkit, in particular
+creation of built-in push-buttons and radio-buttons.
+A customized button creation with subclassing is exemplified
+
+=cut
+
 
 use strict;
 use Prima 'Buttons', Application => { name => 'Buttons sample' };
@@ -102,7 +116,6 @@ sub clone
 }   
 
 package main;
-
 
 my $w = Prima::Window-> create(
   onDestroy => sub { $::application-> close} ,

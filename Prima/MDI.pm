@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: MDI.pm,v 1.20 2001/02/05 14:00:09 dk Exp $
+#  $Id: MDI.pm,v 1.21 2002/02/14 12:39:55 dk Exp $
 package Prima::MDI;
 
 # contains:
@@ -341,7 +341,7 @@ sub mdis
 sub arrange_icons
 {
    my $self = $_[0]-> owner;
-   my @mdis = grep { ($_->windowState == ws::Minimized) ? $_ : 0} $_[0]-> mdis;
+   my @mdis = grep { ($_->windowState == ws::Minimized && $_-> clipOwner) ? $_ : 0} $_[0]-> mdis;
    return unless scalar @mdis;
    my @szMin = $mdis[0]-> sizeMin;
    my $szx  = $self-> width / $szMin[0];
@@ -360,7 +360,7 @@ sub arrange_icons
 sub cascade
 {
    my $self = $_[0]-> owner;
-   my @mdis = grep { (($_->windowState != ws::Minimized) and $_->tileable) ? $_ : 0} $_[0]-> mdis;
+   my @mdis = grep { (($_->windowState != ws::Minimized) and $_->tileable && $_-> clipOwner) ? $_ : 0} $_[0]-> mdis;
    return unless scalar @mdis;
    my $i = 0;
    for ( @mdis) {
@@ -389,7 +389,7 @@ sub cascade
 sub tile
 {
    my $self = $_[0]-> owner;
-   my @mdis = grep { (($_->windowState != ws::Minimized) and $_->tileable) ? $_ : 0} $_[0]-> mdis;
+   my @mdis = grep { (($_->windowState != ws::Minimized) and $_->tileable && $_-> clipOwner) ? $_ : 0} $_[0]-> mdis;
    return unless scalar @mdis;
    my $n = scalar @mdis;
    my $i = int( sqrt( $n));

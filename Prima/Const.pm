@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@plab.ku.dk>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Const.pm,v 1.9 2001/01/08 08:48:40 dk Exp $
+#  $Id: Const.pm,v 1.10 2002/01/05 17:25:36 dk Exp $
 package Prima::Const;
 use Prima '';
 use Carp;
@@ -75,5 +75,6 @@ package fds; *AUTOLOAD = \&Prima::Const::AUTOLOAD;	# find/replace dialog scope t
 package fdo; *AUTOLOAD = \&Prima::Const::AUTOLOAD;	# find/replace dialog options
 package fe; *AUTOLOAD = \&Prima::Const::AUTOLOAD;	# file events constants
 package fr; *AUTOLOAD = \&Prima::Const::AUTOLOAD;	# fetch resource constants
+package mt; *AUTOLOAD = \&Prima::Const::AUTOLOAD;	# modality types
 
 1;

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Object.cls,v 1.6 2000/05/17 10:28:23 tobez Exp $
+# $Id: Object.cls,v 1.7 2001/11/02 23:27:01 dk Exp $
 
 object Prima::Object
 {
@@ -37,7 +37,7 @@ object Prima::Object
    method void   done();
    method void   init( HV * profile);
    import void   profile_add      ( SV * profile);
-   import void   profile_check_in ( SV * profile);
+   import void   profile_check_in ( SV * profile, SV * default_profile);
    import SV *   profile_default  ();
    import void   set( HV * profile);
    method void   setup();

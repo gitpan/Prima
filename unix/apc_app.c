@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_app.c,v 1.71 2001/07/27 09:07:23 dk Exp $
+ * $Id: apc_app.c,v 1.77 2002/02/06 13:09:23 dk Exp $
  */
 
 /***********************************************************/
@@ -307,6 +307,7 @@ window_subsystem_init( void)
    guts. scroll_next = 50;
    apc_timer_create( CURSOR_TIMER, nilHandle, 2);
    apc_timer_create( MENU_TIMER,   nilHandle, guts. menu_timeout);
+   apc_timer_create( MENU_UNFOCUS_TIMER,   nilHandle, 50);
    if ( !prima_init_clipboard_subsystem()) return false;
    if ( !prima_init_color_subsystem()) return false;
    if ( !prima_init_font_subsystem()) return false;
@@ -439,7 +440,7 @@ apc_application_create( Handle self)
 Bool
 apc_application_close( Handle self)
 {
-   Object_destroy( self);
+   guts. applicationClose = true;
    return true;
 }
 
@@ -502,8 +503,7 @@ apc_application_get_widget_from_point( Handle self, Point p)
 Handle
 apc_application_get_handle( Handle self, ApiHandle apiHandle)
 {
-   /* NIY */
-   return guts. root;
+   return prima_xw2h(( XWindow) apiHandle);
 }
 
 int
@@ -563,6 +563,7 @@ Bool
 apc_watch_filehandle( int no, void *sub, void *glob)
 {
    PFileList f = malloc( sizeof( FileList));
+   if ( !f) return false;
    f->no = no;
    f->sub = sub;
    f->glob = glob;
@@ -636,6 +637,8 @@ prima_one_loop_round( Bool wait, Bool careOfApplication)
    int r, i, queued_events;
    PTimerSysData timer;
 
+   if ( guts. applicationClose) return false;
+
    if (( queued_events = XEventsQueued( DISP, QueuedAlready))) {
       goto FetchAndProcess;
    }
@@ -652,12 +655,14 @@ prima_one_loop_round( Bool wait, Bool careOfApplication)
          if ( timer-> who == CURSOR_TIMER) {
             prima_cursor_tick();
          } else if ( timer-> who == MENU_TIMER) {
+            apc_timer_stop( MENU_TIMER);
             if ( guts. currentMenu) {
                XEvent ev;
                ev. type = MenuTimerMessage;
                prima_handle_menu_event( &ev, M(guts. currentMenu)-> w-> w, guts. currentMenu);
             }
-            apc_timer_stop( MENU_TIMER);
+         } else if ( timer-> who == MENU_UNFOCUS_TIMER) {
+            prima_end_menu();
          } else {
             prima_simple_message( timer-> who, cmTimer, false);
          }

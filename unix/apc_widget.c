@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_widget.c,v 1.70 2001/07/25 14:21:30 dk Exp $
+ * $Id: apc_widget.c,v 1.77 2002/02/06 22:12:42 dk Exp $
  */
 
 /***********************************************************/
@@ -407,12 +407,22 @@ Bool
 apc_widget_destroy( Handle self)
 {
    DEFXX;
+   if ( XX-> user_pointer != None) {
+      XFreeCursor( DISP, XX-> user_pointer);
+      XX-> user_pointer = None;
+   }
+   if ( XX-> user_p_source != None) {
+      XFreePixmap( DISP, XX-> user_p_source);
+      XX-> user_p_source = None;
+   }
+   if ( XX-> user_p_mask != None) {
+      XFreePixmap( DISP, XX-> user_p_mask);
+      XX-> user_p_mask = None;
+   }
    if ( guts. currentMenu && PComponent( guts. currentMenu)-> owner == self)
       prima_end_menu();
    if ( guts. focused == self)
       guts. focused = nilHandle;
-   if ( guts. lastWMFocus == X_WINDOW)
-      guts. lastWMFocus = nilHandle;
    XX-> flags.modal = false;
    if ( XX-> flags. paint_pending) {
       TAILQ_REMOVE( &guts.paintq, XX, paintq_link);
@@ -742,18 +752,25 @@ apc_widget_scroll( Handle self, int horiz, int vert,
       h = cpa. height;
    }
 
-   XCopyArea( DISP, XX-> udrawable, XX-> udrawable, XX-> gc,
-	      src_x, src_y, w, h, dst_x, dst_y);
+   if ( src_x < XX-> size. x && src_x + w >= 0 && dst_x < XX-> size. x && dst_x + w >= 0 && 
+        src_y < XX-> size. y && src_x + h >= 0 && dst_y < XX-> size. y && dst_y + h >= 0) 
+      XCopyArea( DISP, XX-> udrawable, XX-> udrawable, XX-> gc,
+   	      src_x, src_y, w, h, dst_x, dst_y);
    prima_release_gc( XX);
    XCHECKPOINT;
+   XFlush( DISP);
 
    r. x = src_x;
    r. y = src_y;
    r. width = w;
    r. height = h;
    invalid = XCreateRegion();
-   XUnionRectWithRegion( &r, invalid, invalid);
-   if ( clip) {
+   if ( src_x < XX-> size. x && src_x + w >= 0 &&
+        src_y < XX-> size. y && src_y + h >= 0) 
+      XUnionRectWithRegion( &r, invalid, invalid);
+   if ( clip &&
+        dst_x < XX-> size. x && dst_x + iw >= 0 &&
+        dst_y < XX-> size. y && dst_y + ih >= 0) {
       XRectangle cpa;
       cpa. x = dst_x;
       cpa. y = dst_y;
@@ -773,12 +790,15 @@ apc_widget_scroll( Handle self, int horiz, int vert,
    } else 
       XX-> invalid_region = XCreateRegion();
 
-   r. x = dst_x;
-   r. y = dst_y;
-   reg = XCreateRegion();
-   XUnionRectWithRegion( &r, reg, reg);
-   XSubtractRegion( invalid, reg, invalid);
-   XDestroyRegion( reg);
+   if ( dst_x < XX-> size. x && dst_x + w >= 0 &&
+        dst_y < XX-> size. y && dst_y + h >= 0) {
+      r. x = dst_x;
+      r. y = dst_y;
+      reg = XCreateRegion();
+      XUnionRectWithRegion( &r, reg, reg);
+      XSubtractRegion( invalid, reg, invalid);
+      XDestroyRegion( reg);
+   }
    XUnionRegion( XX-> invalid_region, invalid, XX-> invalid_region);
    XDestroyRegion( invalid);
    if ( !XX-> flags. paint_pending) {
@@ -797,6 +817,7 @@ apc_widget_set_capture( Handle self, Bool capture, Handle confineTo)
 
    if ( capture) {
       XWindow z = X_WINDOW;
+      Time t = guts. last_time;
       if ( confineTo && PWidget(confineTo)-> handle)
 	 confine_to = PWidget(confineTo)-> handle;
 AGAIN:      
@@ -805,7 +826,7 @@ AGAIN:
 			| ButtonReleaseMask
 			| PointerMotionMask
 			| ButtonMotionMask, GrabModeAsync, GrabModeAsync,
-			confine_to, None, guts. last_time);
+			confine_to, None, t);
       XCHECKPOINT;
       if ( r != GrabSuccess) {
          XWindow root = guts. root, rx;
@@ -815,6 +836,10 @@ AGAIN:
             guts. grab_redirect = z;
             guts. grab_widget = self;
             z = root;
+            goto AGAIN;
+         } 
+         if ( r == GrabInvalidTime) {
+            t = CurrentTime;
             goto AGAIN;
          }  
          guts. grab_redirect = nilHandle;
@@ -830,6 +855,7 @@ AGAIN:
       XX-> flags. grab = false;
       guts. grab_widget = nilHandle;
    }
+   XFlush( DISP);
    return true;
 }
 
@@ -870,6 +896,13 @@ apc_widget_set_first_click( Handle self, Bool firstClick)
    return true;
 }
 
+static Bool
+flush_refocus( Display * disp, XEvent * ev, void * dummy)
+{
+   return ev-> type == ClientMessage && ev-> xclient. message_type == guts. wm_data-> protocols 
+      && (Atom) ev-> xclient. data. l[0] == guts. wm_data-> takeFocus;
+}
+
 Bool
 apc_widget_set_focused( Handle self)
 {
@@ -891,6 +924,7 @@ apc_widget_set_focused( Handle self)
    XSync( DISP, false);
    while ( XCheckMaskEvent( DISP, FocusChangeMask|ExposureMask, &ev))
       prima_handle_event( &ev, nil);
+   while ( XCheckIfEvent( DISP, &ev, (void*)flush_refocus, (XPointer)0));
    return true;
 }
 
@@ -1075,6 +1109,84 @@ apc_widget_set_size( Handle self, int width, int height)
       XX-> flags. falsely_hidden = 1;
    }   
    prima_send_cmSize( self, sz);
+   return true;
+}
+
+
+Bool
+apc_widget_set_rect( Handle self, int x, int y, int width, int height)
+{
+   DEFXX;
+   Point sz = XX-> size;
+   PWidget widg = PWidget( self);
+   Event e;
+
+   if ( XX-> type. window) {
+      Rect rc;
+      prima_get_frame_info( self, &rc);
+      return apc_window_set_client_rect( self, x + rc. left, y + rc. bottom, 
+          width - rc. left - rc. right, height - rc. bottom - rc. top);
+   }   
+   
+   widg-> virtualSize. x = width;
+   widg-> virtualSize. y = height;
+
+   width = ( width > 0)
+      ? (( width >= widg-> sizeMin. x)
+	  ? (( width <= widg-> sizeMax. x)
+	      ? width
+	      : widg-> sizeMax. x)
+	  : widg-> sizeMin. x)
+      : 0;
+
+   height = ( height > 0)
+      ? (( height >= widg-> sizeMin. y)
+	  ? (( height <= widg-> sizeMax. y)
+	      ? height
+	      : widg-> sizeMax. y)
+	  : widg-> sizeMin. y)
+      : 0;
+   
+   if ( XX-> parentHandle == nilHandle && 
+        XX-> size. x == width && XX-> size. y == height &&
+        x == XX-> origin.x && y == XX-> origin. y)
+      return true;
+
+   if ( X_WINDOW == guts. grab_redirect) {
+      XWindow rx;
+      XTranslateCoordinates( DISP, X_WINDOW, guts. root, 0, 0, 
+         &guts. grab_translate_mouse.x, &guts. grab_translate_mouse.y, &rx);
+   }
+
+
+   XX-> size. x = width;
+   XX-> size. y = height;
+
+   bzero( &e, sizeof( e));
+   e. cmd = cmMove;
+   e. gen. source = self;
+   XX-> origin. x = e. gen. P. x = x;
+   XX-> origin. y = e. gen. P. y = y;
+   y = X(XX-> owner)-> size. y + X(XX-> owner)-> menuHeight - height - XX-> origin. y;
+   if ( XX-> parentHandle) {
+      XWindow cld;
+      XTranslateCoordinates( DISP, PWidget(XX-> owner)-> handle, XX-> parentHandle, x, y, &x, &y, &cld);
+   } 
+   if ( width != 0 && height != 0) {
+      XMoveResizeWindow( DISP, X_WINDOW, x, y, width, height);
+      if ( XX-> flags. falsely_hidden) {
+         if ( XX-> flags. want_visible) XMapWindow( DISP, X_WINDOW);
+         XX-> flags. falsely_hidden = 0;
+      }   
+   } else {
+      if ( XX-> flags. want_visible) XUnmapWindow( DISP, X_WINDOW);  
+      XMoveResizeWindow( DISP, X_WINDOW, x, y, ( width == 0) ? 1 : width, ( height == 0) ? 1 : height);
+      XX-> flags. falsely_hidden = 1;
+   }   
+   apc_message( self, &e, false);
+   prima_send_cmSize( self, sz);
+   if ( XX-> flags. transparent)
+      apc_widget_invalidate_rect( self, nil);
    return true;
 }
 

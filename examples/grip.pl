@@ -23,8 +23,29 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: grip.pl,v 1.8 2001/06/22 12:57:55 dk Exp $
+#  $Id: grip.pl,v 1.9 2001/10/25 11:21:10 dk Exp $
 #
+
+=pod 
+=item NAME
+
+Screen and widget grabbing example
+
+=item FEATURES
+
+Provided two standalone tests.
+
+The "grip test" copies a graphic content of a widget onto a monochrome
+bitmap, thus testing the widget representation on a monochrome display.
+This test is useful together with a L<launch> example, that allows execution
+of several Prima examples in one task space.
+
+The "grab test" copies the selected region of a screen.
+Tests the correct implementation of apc_application_get_bitmap() function,
+especially on paletted displays.
+
+=cut
+
 use strict;
 use Prima;
 use Prima::Const;

@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Prima.pm,v 1.20 2001/07/27 09:50:11 dk Exp $
+#  $Id: Prima.pm,v 1.34 2002/02/15 13:17:33 dk Exp $
 
 package Prima;
 
@@ -43,8 +43,12 @@ BEGIN {
     }
 }
 
-$VERSION = '1.02';
+$VERSION = '1.04';
 bootstrap Prima $VERSION;
+unless ( UNIVERSAL::can('Prima', 'init')) {
+   $::application = 0;
+   return 0;
+}
 $::application = undef;
 require Prima::Const;
 require Prima::Classes;
@@ -52,12 +56,12 @@ init Prima $VERSION;
 
 sub END
 {
-   &Prima::cleanup();
+   &Prima::cleanup() if UNIVERSAL::can('Prima', 'cleanup');
 }
 
 sub run
 {
-   die "Prima was not properly initialized\n" unless defined $::application;
+   die "Prima was not properly initialized\n" unless $::application;
    $::application-> go if $::application-> alive;
    $::application = undef if $::application and not $::application->alive;
 }
@@ -89,4 +93,196 @@ sub import
    }
 }
 
+
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Prima - a perl graphic toolkit
+
+=head1 SYNOPSIS
+
+  use Prima qw(Application Buttons);
+
+  Prima::Window-> create(
+      text     => 'Hello world!',
+      size     => [ 200, 200],
+  )-> insert( Button =>
+      centered => 1,
+      text     => 'Hello world!',
+      onClick  => sub { $::application-> close },
+  );
+
+  run Prima;
+
+=head1 DESCRIPTION
+
+The toolkit contains two basic set of classes - built-in and external. The
+built-in set consists of a fixed small amount of classes, coded in C. These
+classes form a baseline for every Prima object written in perl. Although
+usage of C is possible with the toolkit, its full power is revealed in perl
+programming. The external classes are the expandable set of widgets,
+written completely in perl and communicating with the system using Prima
+interfaces. The built-in classes can be arrayed in the tree-like hierarchy
+scheme:
+
+
+    Object
+        Component
+                AbstractMenu
+                        AccelTable
+                        Menu
+                        Popup
+                Clipboard
+                Drawable
+                        DeviceBitmap
+                        Printer
+                        Image
+                                Icon
+                File
+                Timer
+                Widget
+                        Application
+                        Window
+
+The description of these classes can be found by adding Prima:: prefix to
+the request - for example, the I<Drawable> manpage is located 
+under I<Prima> etc. These classes are declared in Prima::Classes module.
+
+The number of external classes is much bigger, and the whole tree is not
+depicted here, primarily because of its extent. Some of these classes used
+as an illustration to the toolkit usage although.
+
+=head1 BASIC PROGRAM
+
+The very basic code shown in L<"SYNOPSIS"> is explained here. 
+The code creates a window with a title 'Hello,
+world' with a button in the center and the same text. The program
+terminates after the button is hit.
+
+A basic construct for a program written with Prima obviously requires 
+
+  use Prima;
+
+code. However, the effective programming requires usage of the other
+modules, for example, I<Prima::Buttons>, which contains different kinds of button widgets. Prima.pm module can be
+invoked with a list of such modules, what makes the construction
+
+  use Prima;
+  use Prima::Application;
+  use Prima::Buttons;
+  
+shorter by using the following scheme:
+
+  use Prima qw(Application Buttons);
+
+Another basic issue is the event loop, which is called by
+
+   run Prima;
+
+sentence and requires a Prima::Application object to be created before.
+Invoking I<Prima::Application> standard module is one of the possible ways to create the application
+object. The program usually terminates after quitting the event loop.
+
+The window is created by invoking 
+
+  Prima::Window-> create()
+
+code with the additional parameters. Actually, all Prima objects are created by such a
+scheme. The class name is passed as the first parameter, and a custom set
+of parameters is passed aftrewards. These parameters are usually are
+represented in a syntax of a hash, although actually they are an array.
+Nevertheless, the hash syntax helps both readability and understanding of
+the code. The syntax is:
+
+
+   $new_object = Class-> create(
+     parameter => value,
+     parameter => value,
+     ...
+   );
+
+The parameter names are the class properties names, and differ from class to
+class, although many classes share properties, primarily because of the
+object inheritance.
+
+In the example, the following properties are set forth :
+
+ Window::text
+ Window::size
+ Button::text
+ Button::centered
+ Button::onClick
+
+The properties can be of any type, given that they are scalar. As depicted
+here, C<::text> property accepts a string, C<::size> - an anonymous array 
+of two integers and C<onClick> - a sub.
+
+In short, onXxxx properties form a class of I<events>, 
+which although share the C<create> syntax but are not
+substitutive but additive ( read more in L<Prima::Object> ). 
+Events are called in the object context when a specific condition occurs. 
+The C<onClick> event here, for example, is called when the 
+user presses ( or otherwise activates ) the button.
+
+=head1 SEE ALSO
+
+The toolkit documentation is divided by several
+subjects, and the information can
+be found in the following files.
+
+B<Perl programming>:
+
+- L<Prima::Object> - Basic object concepts, properties, events.
+
+- L<Prima::Drawable> - 2-D graphic interface 
+
+- L<Prima::Image>  - Bitmap routines 
+
+- L<Prima::image-load> - Image subsystem and file operations
+
+- L<Prima::Widget> - Window management 
+
+- L<Prima::Window> - Window and Dialog - top-level window management
+
+- L<Prima::Menu> - pull-down and pop-up menu objects
+
+- L<Prima::Timer> - programmable periodical events 
+
+- L<Prima::Application> - root of widget objects hierarchy 
+
+- L<Prima::Printer> - system printing services 
+
+- L<Prima::File> - asynchronous stream I/O
+
+B<C programming>
+
+- L<Prima::internals> - Internal architecture
+
+- L<Prima::codecs>    - Step-by-step image codec creation
+
+- L<gencls>           - gencls, a class compiler tool.
+
+B<miscellaneous>:
+
+- L<Prima::gp-problems> - Graphic subsystem portability issues
+
+=head1 COPYRIGHT
+
+Copyright 1997, 2002 The Protein Laboratory, University of Copenhagen. All
+rights reserved.
+
+This library is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+=head1 AUTHORS
+
+Dmitry Karasik E<lt>dmitry@karasik.eu.orgE<gt>,
+Anton Berezin E<lt>tobez@tobez.orgE<gt>,
+Vadim Belman E<lt>voland@lflat.orgE<gt>,
+
+=cut

@@ -23,8 +23,22 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: ownerchange.pl,v 1.5 2000/10/18 11:58:10 tobez Exp $
+#  $Id: ownerchange.pl,v 1.6 2001/10/25 11:21:10 dk Exp $
 #
+=pod 
+=item NAME
+
+A recreate functionality example.
+
+=item FEATURES
+
+Widgets that change owner dynamically often gets 
+recreated internally - one system window gets
+destroyed and another created then. Test the correct
+implementation of Prima owner change functionality.
+
+=cut
+
 use strict;
 use Prima qw(Buttons);
 

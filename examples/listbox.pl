@@ -23,10 +23,23 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: listbox.pl,v 1.5 2000/10/18 11:58:08 tobez Exp $
+#  $Id: listbox.pl,v 1.6 2001/10/25 11:21:10 dk Exp $
 #
 #  Example of listbox extended usage
 #
+
+=pod 
+=item NAME
+
+Prima listbox, combobox and widget example
+
+=item FEATURES
+
+Demonstrates the usage of Prima::Edit, Prima::ComboBox
+and Prima::ListBox widgets. 
+
+=cut
+
 use strict;
 use Prima qw( ComboBox Edit);
 

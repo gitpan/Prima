@@ -23,8 +23,22 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: e.pl,v 1.6 2000/10/18 11:58:05 tobez Exp $
+#  $Id: e.pl,v 1.8 2002/01/05 17:25:38 dk Exp $
 #
+
+=pod 
+=item NAME
+
+A minimalistic graphic editor window
+
+=item FEATURES
+
+Outlines features required for a graphic editor window -
+color selection, and, mainly, non-standart Prima::ImageViewer
+usage. 
+
+=cut
+
 use Prima;
 use Prima::Classes;
 use Prima::ScrollWidget;
@@ -184,7 +198,7 @@ sub on_mouseclick
    );
    $self-> {colorDlg} = $d;
    $d-> value( $colors[$index]);
-   return unless  $d-> execute == cm::OK;
+   return unless  $d-> execute == mb::OK;
    $colors[ $index] = $d-> value;
    $self-> owner-> {indicator}-> repaint;
 }

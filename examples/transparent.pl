@@ -23,8 +23,24 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: transparent.pl,v 1.6 2001/04/30 15:49:02 dk Exp $
+#  $Id: transparent.pl,v 1.7 2001/10/25 11:21:10 dk Exp $
 #
+=pod 
+=item NAME
+
+Prima toolkit example
+
+=item FEATURES
+
+Demonstrates the usage of Prima::Widget::transparent property.
+Test the certain events: for example, when two transparent
+widgets are located one upon another, when a graphic content changed
+under a transparent widget, etc.
+
+Note that the $tt widget is not transparent but uses shape extension.
+
+=cut
+
 use Prima;
 use Prima::Const;
 use Prima::Application name => 'Generic.pm';

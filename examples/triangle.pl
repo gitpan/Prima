@@ -24,8 +24,19 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: triangle.pl,v 1.6 2000/10/18 11:58:13 tobez Exp $
+#  $Id: triangle.pl,v 1.7 2001/10/25 11:21:10 dk Exp $
 #
+=pod 
+=item NAME
+
+Escher's Impossible Triangle
+
+=item FEATURES
+
+Demonstrates the basic usage of the Prima toolkit.
+
+=cut
+
 use strict;
 use Prima qw(Buttons);
 use constant PI => 4.0 * atan2 1, 1;

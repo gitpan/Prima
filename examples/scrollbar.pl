@@ -23,8 +23,24 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: scrollbar.pl,v 1.7 2001/04/30 15:46:22 dk Exp $
+#  $Id: scrollbar.pl,v 1.8 2001/10/25 11:21:10 dk Exp $
 #
+
+=pod 
+=item NAME
+
+A Prima toolkit example
+
+=item FEATURES
+
+Tests correct representation of a color created by a combination
+of R,G and B components. The Prima::Widget::sizeMin and Prima::Widget::sizeMax
+implementation is tested - the Area widget changes its height on a mouse click,
+up to the left button and down to the right button. 
+Note how Area widget maintains its maximum size when the window gets maximized.
+
+=cut
+
 use strict;
 use Prima qw(ScrollBar);
 

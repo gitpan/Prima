@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: win32guts.h,v 1.53 2001/03/28 08:44:29 dk Exp $ */
+/* $Id: win32guts.h,v 1.54 2002/01/24 15:16:16 dk Exp $ */
 
 #ifndef _WIN32_H_
 #define _WIN32_H_
@@ -507,7 +507,6 @@ extern Bool         appDead;
 extern DIBMONOBRUSH bmiHatch;
 extern PHash        fontMan;
 extern int          FONTSTRUCSIZE;
-extern int          FONTSTRUCSIZE2;
 extern WinGuts      guts;
 extern PHash        imageMan;
 extern PHash        menuMan;

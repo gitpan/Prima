@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: cursor.c,v 1.20 2001/06/11 22:00:22 dk Exp $
+ * $Id: cursor.c,v 1.21 2002/01/03 14:04:45 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -174,7 +174,7 @@ apc_pointer_get_bitmap( Handle self, Handle icon)
    if ( !GetIconInfo( sys pointer, &ii))
       apiErrRet;
    i-> self-> create_empty( icon, guts. pointerSize. x, guts. pointerSize. y, 1);
-   dc = dc_alloc();
+   if (!( dc = dc_alloc())) return false; 
    if ( ii. hbmColor) {
       HDC ops = dsys( icon) ps;
       HDC obm = dsys( icon) bm;

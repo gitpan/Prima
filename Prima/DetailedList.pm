@@ -26,7 +26,7 @@
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #  Modifications by Anton Berezin <tobez@tobez.org>
 #
-#  $Id: DetailedList.pm,v 1.10 2001/01/29 16:00:15 dk Exp $
+#  $Id: DetailedList.pm,v 1.11 2001/09/21 18:39:22 voland Exp $
 
 
 package Prima::DetailedList;
@@ -73,6 +73,7 @@ sub profile_default
       headerDelegations => [qw(MoveItem SizeItem SizeItems Click)],
       multiColumn       => 0,
       autoWidth         => 0,
+      autoSort		=> 0,
       columns           => 0,
       widths            => [],
       headers           => [],
@@ -392,14 +393,22 @@ sub on_stringify
 sub sort
 {
    my ( $self, $c) = @_;
-   return if $c < 0;
    my $dirSort;
-   if ( defined($self-> {lastSortCol}) && ( $self-> {lastSortCol} == $c)) {
-      $dirSort = $self-> {lastSortDir} = ( $self-> {lastSortDir} ? 0 : 1);
-   } else {
-      $dirSort = 1;
-      $self-> {lastSortDir} = 1;
-      $self-> {lastSortCol} = $c;
+   if ( defined $c) {
+       return if $c < 0;
+       if ( defined($self-> {lastSortCol}) && ( $self-> {lastSortCol} == $c)) {
+	  $dirSort = $self-> {lastSortDir} = ( $self-> {lastSortDir} ? 0 : 1);
+       } else {
+	  $dirSort = 1;
+	  $self-> {lastSortDir} = 1;
+	  $self-> {lastSortCol} = $c;
+       }
+   }
+   else {
+       $self->{ lastSortCol} = 0 unless defined $self->{ lastSortCol};
+       $c = $self->{ lastSortCol};
+       $self->{ lastSortDir} = 0 unless defined $self->{ lastSortDir};
+       $dirSort = $self->{ lastSortDir};
    }
    my $foci = undef;
    $foci = $self-> {items}->[$self-> {focusedItem}] if $self-> {focusedItem} >= 0;

@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: EditDialog.pm,v 1.4 2000/10/18 11:57:52 tobez Exp $
+#  $Id: EditDialog.pm,v 1.5 2002/01/05 17:25:36 dk Exp $
 
 #  contains:
 #      FindDialog
@@ -36,7 +36,6 @@ use Prima::Classes;
 use Prima::Buttons;
 use Prima::Label;
 use Prima::ComboBox;
-
 
 package Prima::FindDialog;
 use vars qw(@ISA);
@@ -196,7 +195,7 @@ sub init
       origin  => [ 139, 5],
       size    => [ 40, 14],
       text => 'Cancel',
-      modalResult => cm::Cancel,
+      modalResult => mb::Cancel,
    );
    $self-> Find-> focus;
    return %profile;
@@ -241,7 +240,7 @@ sub ChangeAll_Click
 {
    my $self = $_[0];
    return unless $self-> valid;
-   $self-> modalResult( cm::User);
+   $self-> modalResult( mb::ChangeAll );
    $self-> end_modal;
 }
 

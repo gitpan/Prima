@@ -23,8 +23,21 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: pointers.pl,v 1.9 2000/10/18 11:58:10 tobez Exp $
+#  $Id: pointers.pl,v 1.10 2001/10/25 11:21:10 dk Exp $
 #
+
+=pod 
+=item NAME
+
+Prima mouse pointer example
+
+=item FEATURES
+
+Demonstrates the usage of Prima mouse pointer functionality.
+Note the custom pointer creation and its dynamic change ( the "User" button ).
+
+=cut
+
 use strict;
 use Prima qw( StdBitmap Buttons);
 

@@ -29,7 +29,7 @@
 #  Modifications by:
 #     David Scott <dscott@dgt.com>
 #
-#  $Id: FileDialog.pm,v 1.15 2001/04/30 15:21:21 dk Exp $
+#  $Id: FileDialog.pm,v 1.17 2002/01/05 17:25:36 dk Exp $
 
 #  contains:
 #      
@@ -632,6 +632,8 @@ sub profile_default
    }
 }
 
+my $unix = Prima::Application-> get_system_info->{apc} == apc::Unix;
+
 sub canonize_mask
 {
    my $self = shift;
@@ -658,7 +660,7 @@ sub canon_path
       $fn = $p;
       $dir = '.';
    }
-   unless ( scalar(stat($dir))) {
+   unless ( scalar(stat($dir . (( !$unix && $dir =~ /:$/) ? '/' : '')))) {
       $dir = "";
    } else {
       $dir = eval { Cwd::abs_path($dir) };
@@ -786,7 +788,7 @@ sub init
       name    => 'Cancel',
       text    => 'Cancel',
       size        => [ 96, 36],
-      modalResult => cm::Cancel,
+      modalResult => mb::Cancel,
    );
    $self->insert( Button=>
       origin      => [ 524, 224],
@@ -820,7 +822,7 @@ sub on_show
 
 sub execute
 {
-   return ($_[0]-> SUPER::execute != cm::Cancel) ? $_[0]-> fileName : ( wantarray ? () : undef);
+   return ($_[0]-> SUPER::execute != mb::Cancel) ? $_[0]-> fileName : ( wantarray ? () : undef);
 }
 
 
@@ -939,7 +941,6 @@ sub Name_text
    $self-> Name-> text( $text);
 }
 
-my $unix = Prima::Application-> get_system_info->{apc} == apc::Unix;
 
 sub Open_Click
 {
@@ -1267,7 +1268,7 @@ sub init
       name        => 'Cancel',
       text        => 'Cancel',
       size        => [ 80, 30],
-      modalResult => cm::Cancel,
+      modalResult => mb::Cancel,
    );
 
    $self->insert( Button=>

@@ -367,6 +367,7 @@ sub save
    $self-> image( $image);
 
    goto EXIT unless defined $self-> execute;
+   unlink $self-> fileName unless $self-> noTestFileCreate;
 
    $image-> {extras} = { map { $_ => $extras->{$_} } keys %$extras } ;
 
@@ -398,7 +399,7 @@ sub save
    if ( $self-> {codecFilters}-> [ $fi]) {
       my $dlg = $self-> {codecFilters}-> [ $fi];
       $dlg-> notify( q(Change), $codec, $dup);
-      unless ( $dlg-> execute == cm::OK) {
+      unless ( $dlg-> execute == mb::OK) {
          $self-> cancel;
          goto EXIT;
       }

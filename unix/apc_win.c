@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_win.c,v 1.44 2001/07/25 14:21:30 dk Exp $
+ * $Id: apc_win.c,v 1.50 2002/02/06 22:12:42 dk Exp $
  */
 
 /***********************************************************/
@@ -48,7 +48,6 @@ apc_window_create( Handle self, Handle owner, Bool sync_paint, int border_icons,
    Handle real_owner;
    XSizeHints hints;
    XSetWindowAttributes attrs;
-   XWindow parent = guts. root;
    Point p0 = {0,0};
 
    if ( border_style != bsSizeable) border_style = bsDialog;
@@ -88,7 +87,7 @@ apc_window_create( Handle self, Handle owner, Bool sync_paint, int border_icons,
       | OwnerGrabButtonMask;
    attrs. override_redirect = false;
    attrs. do_not_propagate_mask = attrs. event_mask;
-   X_WINDOW = XCreateWindow( DISP, parent,
+   X_WINDOW = XCreateWindow( DISP, guts. root,
 	                     0, 0, 1, 1, 0, CopyFromParent,
 	                     InputOutput, CopyFromParent,
 	                     0
@@ -120,7 +119,8 @@ apc_window_create( Handle self, Handle owner, Bool sync_paint, int border_icons,
    XX-> type.window = true;
 
    real_owner = application;
-   XX-> real_parent = XX-> parent = parent;
+   XX-> parent = guts. root;
+   XX-> real_parent = nilHandle;
    XX-> udrawable = XX-> gdrawable = X_WINDOW;
 
    XX-> flags. clip_owner = false;
@@ -318,6 +318,7 @@ apc_window_set_caption( Handle self, const char *caption)
    XSetWMIconName( DISP, X_WINDOW, &p);
    XSetWMName( DISP, X_WINDOW, &p);
    XFree( p. value);
+   XFlush( DISP);
    return true;
 }
 
@@ -422,12 +423,32 @@ apc_window_set_client_pos( Handle self, int x, int y)
    return true;
 }
 
+static void
+apc_window_set_rect( Handle self, int x, int y, int szx, int szy)
+{
+    XSizeHints hints;
+
+    bzero( &hints, sizeof( XSizeHints));
+    hints. flags = USPosition | USSize;
+    hints. x = x - X(self)-> decorationSize. x;
+    hints. y = guts. displaySize. y - szy - X(self)-> menuHeight - y - X(self)-> decorationSize. y;
+    hints. width  = szx;
+    hints. height = szy + X(self)-> menuHeight;
+    X(self)-> flags. size_determined = 1;
+    X(self)-> flags. position_determined = 1;
+    XMoveResizeWindow( DISP, X_WINDOW, hints. x, hints. y, hints. width, hints. height);
+    apc_SetWMNormalHints( self, &hints);
+    prima_wm_sync( self, ConfigureNotify);
+}   
+
 static Bool
 window_set_client_size( Handle self, int width, int height)
 {
    DEFXX;
    XSizeHints hints;
    PWidget widg = PWidget( self);
+   Bool implicit_move = false;
+   Point post;
    
    if ( !XX-> flags. zoomed) {
       widg-> virtualSize. x = width;
@@ -458,20 +479,68 @@ window_set_client_size( Handle self, int width, int height)
    bzero( &hints, sizeof( XSizeHints));
    XX-> flags. size_determined = 1;
    hints. flags = USSize | ( XX-> flags. position_determined ? USPosition : 0);
+   post = XX-> origin;
    hints. x = XX-> origin. x - XX-> decorationSize. x;
-   hints. y = guts. displaySize.y - height - XX-> menuHeight - XX-> origin. y - XX-> decorationSize.y + 1;
+   hints. y = guts. displaySize.y - height - XX-> menuHeight - XX-> origin. y - XX-> decorationSize.y;
    hints. width = width;
    hints. height = height + XX-> menuHeight;
    apc_SetWMNormalHints( self, &hints);
    if ( XX-> flags. position_determined) {
       XMoveResizeWindow( DISP, X_WINDOW, hints. x, hints. y, width, height + XX-> menuHeight);
+      implicit_move = true;
    } else {
       XResizeWindow( DISP, X_WINDOW, width, height + XX-> menuHeight);
    }
    XCHECKPOINT;
    prima_wm_sync( self, ConfigureNotify);
+   if ( implicit_move && (( XX-> origin.x != post.x) || (XX-> origin.y != post.y))) {
+      XX-> decorationSize. x =   XX-> origin.x - post. x;
+      XX-> decorationSize. y = - XX-> origin.y + post. y;
+   }
    return true;
 }
+  
+Bool
+apc_window_set_client_rect( Handle self, int x, int y, int width, int height)
+{
+   DEFXX;
+   PWidget widg = PWidget( self);
+   
+   if ( !XX-> flags. zoomed) {
+      widg-> virtualSize. x = width;
+      widg-> virtualSize. y = height;
+  } 
+
+   width = ( width > 0)
+      ? (( width >= widg-> sizeMin. x)
+	  ? (( width <= widg-> sizeMax. x)
+              ? width 
+	      : widg-> sizeMax. x)
+	  : widg-> sizeMin. x)
+      : 1; 
+   height = ( height > 0)
+      ? (( height >= widg-> sizeMin. y)
+	  ? (( height <= widg-> sizeMax. y)
+	      ? height
+	      : widg-> sizeMax. y)
+	  : widg-> sizeMin. y)
+      : 1;
+
+   if ( XX-> flags. zoomed) {
+      XX-> zoomRect. left = x;
+      XX-> zoomRect. bottom = y;
+      XX-> zoomRect. right = width;
+      XX-> zoomRect. top   = height;
+      return true;
+   }
+   
+   if ( x == XX-> origin. x && y == XX-> origin. y && 
+        width == XX-> size. x && height == XX-> size. y ) return true;
+   
+   apc_window_set_rect( self, x, y, width, height);
+   return true;
+}
+
 
 Bool
 apc_window_set_client_size( Handle self, int width, int height)
@@ -553,7 +622,7 @@ apc_window_set_icon( Handle self, Handle icon)
    XWMHints wmhints;
    int n;
 
-   if ( !icon) {
+   if ( !icon || i-> w == 0 || i-> h == 0) {
       if ( !XX-> flags. has_icon) return true;
       XX-> flags. has_icon = false;
       XDeleteProperty( DISP, X_WINDOW, XA_WM_HINTS);
@@ -623,24 +692,6 @@ FAIL:
    if (( Handle) i != icon) Object_destroy(( Handle) i);
    return false;
 }
-
-static void
-apc_window_set_rect( Handle self, int x, int y, int szx, int szy)
-{
-    XSizeHints hints;
-
-    bzero( &hints, sizeof( XSizeHints));
-    hints. flags = USPosition | USSize;
-    hints. x = x - X(self)-> decorationSize. x;
-    hints. y = guts. displaySize. y - szy - X(self)-> menuHeight - y - X(self)-> decorationSize. y;
-    hints. width  = szx;
-    hints. height = szy + X(self)-> menuHeight;
-    X(self)-> flags. size_determined = 1;
-    X(self)-> flags. position_determined = 1;
-    XMoveResizeWindow( DISP, X_WINDOW, hints. x, hints. y, hints. width, hints. height);
-    apc_SetWMNormalHints( self, &hints);
-    prima_wm_sync( self, ConfigureNotify);
-}   
 
 Bool
 apc_window_set_window_state( Handle self, int state)
@@ -720,12 +771,15 @@ static Bool
 window_start_modal( Handle self, Bool shared, Handle insert_before)
 {
    DEFXX;
+   Handle selectee;
    if (( XX-> preexec_focus = apc_widget_get_focused()))
       protect_object( XX-> preexec_focus);
    CWindow( self)-> exec_enter_proc( self, shared, insert_before);
    apc_widget_set_enabled( self, true);
    apc_widget_set_visible( self, true);
    apc_window_activate( self);
+   selectee = CWindow(self)->get_selectee( self);
+   if ( selectee != self) Widget_selected( selectee, true, true);
    prima_simple_message( self, cmExecute, true);
    guts. modal_count++;
    return true;
