@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: gp.c,v 1.20 2002/11/01 11:12:47 dk Exp $
+ * $Id: gp.c,v 1.21 2002/12/16 16:22:34 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 /* apc.c --- apc/ api for os/2 */
@@ -596,7 +596,7 @@ apc_gp_get_font_ranges( Handle self, int * count)
    FONTMETRICS fm;
    unsigned long * ret = malloc( sizeof( unsigned long) * 2);
    if ( !ret) return nil;
-   if ( !GpiQueryFontMetrics( ps, sizeof( fm), &fm)) {
+   if ( !GpiQueryFontMetrics( sys ps, sizeof( fm), &fm)) {
        free( ret);
        apiErr;
        return nil;

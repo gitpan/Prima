@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: apricot.h,v 1.157 2002/11/18 14:03:35 dk Exp $ */
+/* $Id: apricot.h,v 1.158 2003/01/22 12:37:05 dk Exp $ */
 
 #ifndef _APRICOT_H_
 #define _APRICOT_H_
@@ -572,6 +572,7 @@ typedef struct { \
 #define END_TABLE_CHAR(package,type) END_TABLE4(package,type,string,char*)
 
 /* Object life stages */
+#define csDeadInInit    -2         /* dead before any init() code */
 #define csConstructing  -1         /* before create() finished */
 #define csNormal         0         /* normal during life stage */
 #define csDestroying     1         /* destroy() started */

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Classes.pm,v 1.57 2002/10/17 20:30:55 dk Exp $
+# $Id: Classes.pm,v 1.60 2002/11/28 08:25:32 voland Exp $
 use strict;
 package Prima::VB::Classes;
 
@@ -484,9 +484,9 @@ sub on_mousedown
    }
 
    if ( $btn == mb::Right && $mod & km::Ctrl) {
-      $self-> altpopup;
-      $self-> clear_event;
-      return;
+       $self-> altpopup;
+       $self-> clear_event;
+       return;
    }
 }
 
@@ -509,6 +509,7 @@ sub altpopup
 sub on_mouseclick
 {
    my ( $self, $btn, $mod, $x, $y, $dbl) = @_;
+   
    return unless $dbl;
    $mod &= km::Alt|km::Shift|km::Ctrl;
    if ( $mod == 0 && defined $self-> mainEvent && $VB::inspector) {
@@ -658,6 +659,29 @@ sub on_mouseup
          $VB::form-> text( $VB::form->{saveHdr});
       }
    }
+}
+
+sub on_popup
+{
+    my $self = shift;
+    my ($by_mouse, $x, $y) = @_;
+    my $alt = $self->bring('AltPopup');
+    if ($alt) {
+	my $aitems = $alt->get_items('');
+	my $pitems = $VB::form->popup->get_items('');
+	my $p = Prima::Popup->create(
+	    name => 'AltFormPopup',
+	    items => [
+		@$pitems,
+		[],
+		[ '-' . $self->name => '** ' . $self->name . ' **' => qw(nope)],
+		@$aitems,
+	    ]
+	);
+	$p->popup($self->client_to_screen($x, $y));
+	$self->clear_event;
+	return;
+    }
 }
 
 sub on_keydown
@@ -2645,6 +2669,18 @@ sub new_item
       action => $Prima::VB::Types::menuItems::menuDefaults{action}}], undef, 0];
 }
 
+sub makeseparator
+{
+   my $f = $_[0]-> focusedItem;
+   my ( $x, $l) = $_[0]-> get_item( $f);
+   return if !$x;
+   $x->[0][0] = '---';
+   $x->[0][1] = {};
+   $_[0]-> repaint;
+   $_[0]-> {master}-> change;
+   $_[0]-> {master}-> {current} = undef;
+   $_[0]-> {master}-> enter_menuitem( $x);
+}
 
 package MPropListViewer;
 use vars qw(@ISA);
@@ -2744,6 +2780,7 @@ sub open
       popupItems => [
          ['~New' => q(new),],
          ['~Make node' => q(makenode),],
+         ['Convert to ~separator' => q(makeseparator),],
          ['~Delete' => q(del),],
       ],
       onSelectItem => sub {

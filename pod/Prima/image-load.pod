@@ -1,4 +1,4 @@
-=for rcs $Id: image-load.pod,v 1.7 2002/10/16 21:24:23 dk Exp $
+=for rcs $Id: image-load.pod,v 1.8 2003/01/23 09:51:21 dk Exp $
 
 =head1 NAME
 
@@ -286,7 +286,7 @@ codec vendor, string
 
 usually underlying library versions, integers
 
-=item fileExtension
+=item fileExtensions
 
 array of strings, with file extensions that are typical to a codec.
 example: ['tif', 'tiff']

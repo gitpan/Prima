@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: color.c,v 1.21 2002/10/26 19:47:34 dk Exp $
+ * $Id: color.c,v 1.22 2003/01/17 09:21:17 dk Exp $
  */
 
 /***********************************************************/
@@ -1116,8 +1116,10 @@ prima_palette_replace( Handle self, Bool fast)
                count = 0;
             }
          }
-      if ( count > 0) 
+      if ( count > 0) {
+         XQueryColors( DISP, guts. defaultColormap, xc, count);
          for ( j = 0; j < count; j++) prima_color_new( &xc[j]);
+      }
    }
    
    /* printf("%s find match for %d colors\n", PWidget(self)-> name, psz); */

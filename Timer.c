@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Timer.c,v 1.20 2002/10/31 22:34:21 dk Exp $
+ * $Id: Timer.c,v 1.21 2003/01/22 12:37:04 dk Exp $
  */
 
 #include "apricot.h"
@@ -94,7 +94,6 @@ Bool
 Timer_validate_owner( Handle self, Handle * owner, HV * profile)
 {
    *owner = pget_H( owner);
-   if ( *owner == nilHandle) *owner = application;
    if ( !kind_of( *owner, CWidget)) return false;
    return inherited validate_owner( self, owner, profile);
 }

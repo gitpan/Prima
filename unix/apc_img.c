@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_img.c,v 1.71 2002/10/26 19:47:34 dk Exp $
+ * $Id: apc_img.c,v 1.74 2003/01/16 22:09:55 dk Exp $
  */
 /*
  * System dependent image routines (unix, x11)
@@ -1036,11 +1036,9 @@ prima_create_image_cache( PImage img, Handle drawable, int type)
       pass-> self-> set_type(( Handle) pass, imByte);
    }
    
-   if (
-       ((( guts. palSize > 0) || (target_bpp == 1)) && (( img-> type & imBPP) == 24)) ||
-       ((( img-> type & imBPP) <= 8) && ((img-> type & imBPP) > target_bpp)) 
-      )  {
-      int bpp;
+   if ( target_bpp < 24 && img-> type != imBW) {
+      int bpp, colors = 0;
+      RGBColor palbuf[256], *palptr = nil;
       if ( !dup) {
          if (!(dup = img-> self-> dup(( Handle) img)))
             return nil;
@@ -1048,8 +1046,21 @@ prima_create_image_cache( PImage img, Handle drawable, int type)
       pass = ( PImage) dup;
       if ( target_bpp <= 1) bpp = imbpp1; else
       if ( target_bpp <= 4) bpp = imbpp4; else bpp = imbpp8;
-      if ( guts. grayScale) bpp |= imGrayScale;
-      pass-> self-> set_type( dup, bpp);
+
+      if ( guts. palSize > 0 && target_bpp > 1) {
+         int i, maxRank = RANK_FREE;
+         if ( type == CACHE_LOW_RES) maxRank = RANK_LOCKED;
+         for ( i = 0; i < guts. palSize; i++) {
+            if ( guts. palette[i]. rank <= maxRank) continue;
+            palbuf[colors]. r = guts. palette[i]. r;
+            palbuf[colors]. g = guts. palette[i]. g;
+            palbuf[colors]. b = guts. palette[i]. b;
+            colors++;
+            if ( colors > 255) break;
+         }
+         palptr = palbuf;
+      }
+      pass-> self-> reset( dup, bpp, palptr, colors);
    } 
      
    switch ( pass-> type & imBPP) {
@@ -1081,9 +1092,11 @@ prima_create_image_cache( PImage img, Handle drawable, int type)
               pass-> palette[i].g,
               pass-> palette[i].b
             ), -1, nil, maxRank);
-          if ( p && ( prima_lpal_get( p, j) == RANK_FREE))
+
+         if ( p && ( prima_lpal_get( p, j) == RANK_FREE)) 
              prima_color_add_ref(( Handle) img, j, RANK_LOCKED);
       }
+      for ( i = pass-> palSize; i < 256; i++) guts. mappingPlace[i] = 0;
       
       switch(target_bpp){
       case 8: if ((pass-> type & imBPP) != 1) cache_remap_8( img, cache); break;

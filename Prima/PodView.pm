@@ -25,7 +25,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: PodView.pm,v 1.20 2002/11/19 10:35:36 dk Exp $
+#  $Id: PodView.pm,v 1.21 2002/12/16 10:57:28 dk Exp $
 
 use strict;
 use Prima;
@@ -304,9 +304,9 @@ sub load_link
    my $doBookmark;
 
    unless ( defined $t) { # page / section / item
-      my ( $page, $section, $item) = ( '', undef, 1);
-      if ( $s =~ /^([^\/]*)\/(.*)$/) {
-         ( $page, $section) = ( $1, $2);
+      my ( $page, $section, $item, $lead_slash) = ( '', undef, 1, '');
+      if ( $s =~ /^([^\/]*)(\/)(.*)$/) {
+         ( $page, $lead_slash, $section) = ( $1, $2, $3);
       } else {
          $section = $s;
       }
@@ -333,11 +333,10 @@ sub load_link
             }
          }
          unless ( defined $t) { # no such topic, must be a page?
-            $page = $section;
+            $page = $lead_slash . $section;
             $section = '';
          }
       }
-
       if ( length $page and $page ne $self->{pageName}) { # new page?
          if ( $self-> load_file( $page) != 1) {
             $self-> notify(q(Bookmark), $mark) if $mark; 

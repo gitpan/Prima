@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Component.c,v 1.54 2002/10/31 23:20:02 dk Exp $
+ * $Id: Component.c,v 1.55 2003/01/22 12:37:04 dk Exp $
  */
 
 #include "apricot.h"
@@ -51,8 +51,10 @@ Component_init( Handle self, HV * profile)
    HV * hv;
    HE * he;
    inherited init( self, profile);
-   if ( !my-> validate_owner( self, &var-> owner, profile))
+   if ( !my-> validate_owner( self, &var-> owner, profile)) {
+      var-> stage = csDeadInInit;
       croak( "Illegal 'owner' reference passed to %s::%s", my-> className, "init");
+   }
    if ( var-> owner)
       ((( PComponent) var-> owner)-> self)-> attach( var-> owner, self);
    my-> set_name( self, pget_sv( name));

@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Make.pm,v 1.10 2002/10/17 20:30:51 dk Exp $
+#  $Id: Make.pm,v 1.11 2002/12/17 09:16:26 dk Exp $
 
 use strict;
 use Config;
@@ -112,10 +112,10 @@ sub init
 \@rem = '--*-Perl-*--
 \@echo off
 if "%OS%" == "Windows_NT" goto WinNT
-$^X -w -x -S "%0" %1 %2 %3 %4 %5 %6 %7 %8 %9
+$Config{perlpath} -w -x -S "%0" %1 %2 %3 %4 %5 %6 %7 %8 %9
 goto endofperl
 :WinNT
-$^X -w -x -S "%0" %*
+$Config{perlpath} -w -x -S "%0" %*
 if NOT "%COMSPEC%" == "%SystemRoot%\\system32\\cmd.exe" goto endofperl
 if %errorlevel% == 9009 echo You do not have Perl in your PATH.
 goto endofperl

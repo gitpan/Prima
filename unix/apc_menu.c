@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_menu.c,v 1.31 2002/11/08 12:26:06 dk Exp $
+ * $Id: apc_menu.c,v 1.33 2003/01/02 11:24:27 dk Exp $
  */
 
 /***********************************************************/
@@ -846,10 +846,12 @@ prima_handle_menu_event( XEvent *ev, XWindow win, Handle self)
          PUnixMenuItem ix;
          int x = 0;
          int stage = 0;
+         if ( w-> sz. x == ev-> xconfigure. width &&
+              w-> sz. y == ev-> xconfigure. height) return;
+         if ( guts. currentMenu == self) prima_end_menu();
          w-> sz. x = ev-> xconfigure. width;
          w-> sz. y = ev-> xconfigure. height;
 
-         if ( guts. currentMenu == self) prima_end_menu();
 AGAIN:             
          w-> last = -1;
          m = w-> m;
@@ -1282,7 +1284,7 @@ prima_end_menu(void)
    XX-> focus = nilHandle;
    XX-> focused = nil; 
    if ( XX-> w != &XX-> wstatic) {
-      hash_delete( guts. menu_windows, &w, sizeof( w), false);
+      hash_delete( guts. menu_windows, &w-> w, sizeof( w-> w), false);
       XDestroyWindow( DISP, w-> w);
       free_unix_items( w);
       free( w);

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: AbstractMenu.c,v 1.52 2002/10/31 23:20:01 dk Exp $
+ * $Id: AbstractMenu.c,v 1.54 2003/01/22 12:37:04 dk Exp $
  */
 
 #include "apricot.h"
@@ -142,6 +142,7 @@ AbstractMenu_new_menu( Handle self, SV * sv, int level, int * subCount, int * au
    n = av_len( av);
 
    if ( n == -1) {
+      if ( level == 0) return nil; /* null menu */
       warn("RTC003E: menu build error: empty array passed");
       return nil;
    }
@@ -397,7 +398,6 @@ Bool
 AbstractMenu_validate_owner( Handle self, Handle * owner, HV * profile)
 {
    *owner = pget_H( owner);
-   if ( *owner == nilHandle) *owner = application;
    if ( !kind_of( *owner, CWidget)) return false;
    return inherited validate_owner( self, owner, profile);
 }

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Object.c,v 1.26 2002/05/14 13:22:17 dk Exp $
+ * $Id: Object.c,v 1.28 2003/01/22 12:37:04 dk Exp $
  */
 
 #include "apricot.h"
@@ -69,13 +69,13 @@ Object_create( char *className, HV * profile)
    xmate = newRV_inc( SvRV( POPs));
    self = create_mate( xmate);
    var-> mate = xmate;
+   var-> stage = csConstructing;
    PUTBACK;
    FREETMPS;
    LEAVE;
 
    profRef = newRV_inc(( SV *) profile);
    my-> profile_add( self, profRef);
-   var-> stage = csConstructing;
    SPAGAIN;
    {
       dG_EVAL_ARGS;
@@ -129,6 +129,21 @@ Object_destroy( Handle self)
 {
    SV *mate, *object = nil;
    int enter_stage = var-> stage;
+
+   if ( var-> stage == csDeadInInit) {
+      /* lightweight destroy */
+      if ( is_opt( optInDestroyList)) {
+         list_delete( &postDestroys, self);
+         opt_clear( optInDestroyList);
+      }
+      if ( primaObjects)
+         hash_delete( primaObjects, &self, sizeof( self), false);
+      mate = var-> mate;
+      var-> stage = csDead;
+      var-> mate = nilSV;
+      if ( mate && object) sv_free( mate);
+      return;
+   }
 
    if ( var-> stage > csNormal && var-> stage != csHalfDead)
       return;

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Icon.c,v 1.34 2002/11/05 15:53:09 dk Exp $
+ * $Id: Icon.c,v 1.35 2002/11/28 23:05:27 dk Exp $
  */
 
 #include "apricot.h"
@@ -331,7 +331,8 @@ Icon_update_change( Handle self)
          if (!( var-> mask = allocb( var-> maskSize = maskSize)) && maskSize > 0) {
             my-> make_empty( self);
             warn("Not enough memory: %d bytes", maskSize);
-         }
+         } else
+            memset( var-> mask, 0, maskSize);
       }
       return;
    }   

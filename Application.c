@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Application.c,v 1.63 2002/10/31 22:34:21 dk Exp $
+ * $Id: Application.c,v 1.65 2003/01/22 12:37:04 dk Exp $
  */
 
 #include "apricot.h"
@@ -53,8 +53,10 @@ Application_init( Handle self, HV * profile)
    SV * hintFont = pget_sv( hintFont);
    SV * sv;
    char * hintClass      = pget_c( hintClass);
-   if ( application != nilHandle)
+   if ( application != nilHandle) {
+      var-> stage = csDeadInInit;
       croak( "RTC0010: Attempt to create more than one application instance");
+   }
 
    CDrawable-> init( self, profile);
    list_create( &var->  widgets, 16, 16);
@@ -499,7 +501,7 @@ Application_icon( Handle self, Bool set, Handle icon)
    if ( var-> icon)
       my-> detach( self, var-> icon, true);
    var-> icon = icon;
-   if ( icon)
+   if ( icon && ( list_index_of( var-> components, icon) < 0))
       my-> attach( self, icon);
    return nilHandle;
 }

@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: guts.h,v 1.115 2002/10/31 12:56:38 dk Exp $ */
+/* $Id: guts.h,v 1.117 2002/12/31 22:49:43 dk Exp $ */
 
 #ifndef _UNIX_GUTS_H_
 #define _UNIX_GUTS_H_
@@ -160,6 +160,7 @@ typedef struct _FontFlags {
    unsigned sloppy           : 1;
    unsigned disabled         : 1;
    unsigned funky            : 1;
+   unsigned heights_cache    : 1;
 } FontFlags;
 
 typedef struct _FontInfo {
@@ -171,6 +172,7 @@ typedef struct _FontInfo {
    char        *xname;
    short int    name_offset;
    short int    info_offset;
+   int          heights_cache[2];
 } FontInfo, *PFontInfo;
 
 typedef struct _RotatedFont {
@@ -347,7 +349,11 @@ typedef struct {
 #define AI_NET_WM_ICON_NAME              18
 #define AI_UTF8_STRING                   19
 #define AI_TARGETS                       20
-#define AI_count                         21
+#define AI_INCR                          21
+#define AI_PIXEL                         22
+#define AI_FOREGROUND                    23
+#define AI_BACKGROUND                    24
+#define AI_count                         25 
 
 #define FXA_RESOLUTION_X guts. atoms[ AI_FXA_RESOLUTION_X]
 #define FXA_RESOLUTION_Y guts. atoms[ AI_FXA_RESOLUTION_Y]
@@ -361,6 +367,7 @@ typedef struct {
 #define FXA_AVERAGE_WIDTH   guts. atoms[ AI_FXA_AVERAGE_WIDTH]
 #define FXA_CHARSET_REGISTRY guts. atoms[ AI_FXA_CHARSET_REGISTRY]
 #define FXA_CHARSET_ENCODING guts. atoms[ AI_FXA_CHARSET_ENCODING]
+#define FXA_CAP_HEIGHT XA_CAP_HEIGHT
 #define CREATE_EVENT guts. atoms[ AI_CREATE_EVENT]
 #define WM_DELETE_WINDOW guts. atoms[ AI_WM_DELETE_WINDOW]
 #define WM_PROTOCOLS guts. atoms[ AI_WM_PROTOCOLS]
@@ -373,6 +380,10 @@ typedef struct {
 #define NET_WM_ICON_NAME guts. atoms[ AI_NET_WM_ICON_NAME]
 #define UTF8_STRING guts. atoms[ AI_UTF8_STRING]
 #define CF_TARGETS guts. atoms[ AI_TARGETS]
+#define XA_INCR  guts. atoms[ AI_INCR]
+#define CF_PIXEL guts. atoms[ AI_PIXEL]
+#define CF_FOREGROUND guts. atoms[ AI_FOREGROUND]
+#define CF_BACKGROUND guts. atoms[ AI_BACKGROUND]
 
 typedef struct _UnixGuts
 {
@@ -380,8 +391,10 @@ typedef struct _UnixGuts
    Time                         click_time_frame;
    Time                         double_click_time_frame;
    PHash                        clipboards;
+   PHash                        clipboard_xfers;
    Atom *                       clipboard_formats;
    int                          clipboard_formats_count;
+   long                         clipboard_event_timeout;
    fd_set                       excpt_set;
    PList                        files;
    long                         handled_events;
@@ -415,6 +428,7 @@ typedef struct _UnixGuts
    Font                         default_widget_font;
    Font                         default_msg_font;
    Font                         default_caption_font;
+   int                          no_scaled_fonts;
    /* Resource management */
    XrmDatabase                  db;
    XrmQuark                     qBackground;
@@ -707,12 +721,19 @@ typedef struct _menu_sys_data
    PMenuWindow          focused;
 } MenuSysData, *PMenuSysData;
 
-#define cfPixmap  2
-#define cfTargets 3
+#define cfTargets 2
+#define cfCOUNT   3
+/* XXX not implemented
+#define cfPalette 3
+#define cfForeground 4
+#define cfBackground 5
+#define cfCOUNT 6
+*/
 
 typedef struct {
    IV size;
    unsigned char * data;
+   Atom name;
 } ClipboardDataItem, *PClipboardDataItem;
 
 typedef struct _clipboard_sys_data
@@ -726,7 +747,32 @@ typedef struct _clipboard_sys_data
    Handle               selection_owner;
    PClipboardDataItem   external;
    PClipboardDataItem   internal;
+   PList                xfers;
 } ClipboardSysData, *PClipboardSysData;
+
+typedef struct 
+{
+   Handle               self;
+   unsigned char      * data;  
+   unsigned long        size;
+   unsigned int         blocks;
+   unsigned int         offset;
+   Bool                 data_detached;
+   Bool                 data_master;
+   long                 id;
+   XWindow              requestor;
+   Atom                 property;
+   Atom                 target;
+   int                  format;
+   struct timeval       time;
+   unsigned long        delay;
+} ClipboardXfer;
+
+typedef unsigned char ClipboardXferKey[sizeof(XWindow)+sizeof(Atom)];
+
+#define CLIPBOARD_XFER_KEY(key,window,property) \
+   memcpy(key,&window,sizeof(XWindow));\
+   memcpy(((unsigned char*)key) + sizeof(XWindow),&property,sizeof(Atom))
 
 typedef union _unix_sys_data
 {
@@ -880,6 +926,8 @@ prima_update_rotated_fonts( PCachedFont f, const char * text, int len, Bool wide
 
 extern void
 prima_free_rotated_entry( PCachedFont f);
+
+#define frUnix_int 1000 
 
 extern int
 unix_rm_get_int( Handle self, XrmQuark class_detail, XrmQuark name_detail, int default_value);

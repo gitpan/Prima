@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Drawable.pm,v 1.16 2002/11/18 13:04:23 dk Exp $
+#  $Id: Drawable.pm,v 1.17 2002/11/30 18:57:34 dk Exp $
 #
 use strict;
 use Prima;
@@ -1628,9 +1628,9 @@ sub get_text_box
    
    my $w = $self-> get_text_width( $text, $len);
    my @ret = (
-      -$ovxa,      $self-> {font}-> {ascent},
+      -$ovxa,      $self-> {font}-> {ascent} - 1,
       -$ovxa,     -$self-> {font}-> {descent}, 
-      $w - $ovxb,  $self-> {font}-> {ascent},
+      $w - $ovxb,  $self-> {font}-> {ascent} - 1,
       $w - $ovxb, -$self-> {font}-> {descent},
       $w, 0
    );

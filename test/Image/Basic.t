@@ -1,5 +1,5 @@
-# $Id: Basic.t,v 1.11 2002/11/01 13:54:31 dk Exp $
-print "1..20 create,type check,paintInfo,paint type consistency,palette,pixel,paint,get_paint_state(),type,pixel,stretch,pixel bpp1,reverse stretch,bpp4,bpp8,RGB,short,long,float,offline put_image\n";
+# $Id: Basic.t,v 1.12 2003/01/21 21:30:53 dk Exp $
+print "1..20 create,type check,paintInfo,paint type consistency,palette,pixel,paint,get_paint_state(),type,pixel,stretch,pixel bpp1,reverse stretch,bpp4,bpp8,RGB,short,long,float,complex,offline put_image\n";
 
 my $i = Prima::Image-> create(
    width => 20,

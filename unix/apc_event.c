@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_event.c,v 1.75 2002/10/31 12:56:39 dk Exp $
+ * $Id: apc_event.c,v 1.79 2003/01/16 13:23:33 dk Exp $
  */
 
 /***********************************************************/
@@ -248,8 +248,10 @@ input_disabled( PDrawableSysData XX, Bool ignore_horizon)
    Handle horizon = application;
 
    if ( guts. message_boxes) return true;
-   if ( guts. modal_count > 0 && !ignore_horizon)
+   if ( guts. modal_count > 0 && !ignore_horizon) {
       horizon = CApplication(application)-> map_focus( application, XX-> self);
+      if ( XX-> self == horizon) return !XF_ENABLED(XX);
+   }
    while (XX->self && XX-> self != horizon && XX-> self != application) {
       if (!XF_ENABLED(XX)) return true;
       XX = X(PWidget(XX->self)->owner);
@@ -268,6 +270,35 @@ prima_no_input( PDrawableSysData XX, Bool ignore_horizon, Bool beep)
    }
    return false;
 }
+
+static void
+syntetic_mouse_move( void)
+{
+   XMotionEvent e, last;
+   e. root = guts. root;
+   e. window = None;
+   while ( 1) {
+      last = e;
+      XQueryPointer( DISP, e.root, &e. root, &e. window, &e.x_root, 
+                     &e.y_root, &e.x, &e.y, &e. state);
+      if ( e. window == None) {
+         e. window = last. window;
+         break;
+      }
+      e. root = e. window;
+   }
+   if ( prima_xw2h( e. window)) {
+      e. type        = MotionNotify;
+      e. send_event  = true;
+      e. display     = DISP;
+      e. subwindow   = e. window;
+      e. root        = guts. root;
+      e. time        = guts. last_time;
+      e. same_screen = true;
+      e. is_hint     = false;
+      XSendEvent( DISP, e. window, false, 0, ( XEvent*) &e);
+   }
+} 
 
 typedef struct _WMSyncData
 {
@@ -484,7 +515,6 @@ wm_event( Handle self, XEvent *xev, PEvent ev)
    return false;
 }
 
-
 /*
 static char * xevdefs[] = { "0", "1"
 ,"KeyPress" ,"KeyRelease" ,"ButtonPress" ,"ButtonRelease" ,"MotionNotify" ,"EnterNotify"
@@ -513,8 +543,7 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
       prima_ximage_event( ev);
       return;
    }
-
-
+   
    if ( guts. message_boxes) {
       struct MsgDlg * md = guts. message_boxes;
       XWindow win = ev-> xany. window;
@@ -548,6 +577,27 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
    case UnmapNotify:
       win = ev-> xunmap. window;
       break;
+   case DestroyNotify:
+      if ( guts. clipboard_xfers && 
+           hash_fetch( guts. clipboard_xfers, &ev-> xdestroywindow. window, sizeof( XWindow))) {
+          prima_handle_selection_event( ev, ev-> xproperty. window, nilHandle);
+          return;
+      }
+      goto DEFAULT;
+   case PropertyNotify:
+      guts. last_time = ev-> xproperty. time;
+      if ( guts. clipboard_xfers) {
+         Handle value;
+         ClipboardXferKey key;
+         CLIPBOARD_XFER_KEY( key, ev-> xproperty. window, ev-> xproperty. atom);
+         value = ( Handle) hash_fetch( guts. clipboard_xfers, key, sizeof( key));
+         if ( value) {
+            prima_handle_selection_event( ev, ev-> xproperty. window, value);
+            return;
+         }
+      }
+      goto DEFAULT;
+   DEFAULT:
    default:
       win = ev-> xany. window;
    }
@@ -617,7 +667,6 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
       guts. last_time = ev-> xbutton. time;
       if ( guts. currentMenu) prima_end_menu();
       if (prima_no_input(XX, false, true)) return;
-
       if ( guts. grab_widget != nilHandle && self != guts. grab_widget) {
          XWindow rx;
          XTranslateCoordinates( DISP, X_WINDOW, PWidget(guts. grab_widget)-> handle, 
@@ -839,6 +888,8 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
          return;
       }   
 
+      syntetic_mouse_move(); /* XXX - simulated MouseMove event for compatibility reasons */
+
       if (!XT_IS_WINDOW(XX))
          frame = CApplication(application)-> top_frame( application, self);
       if ( CApplication(application)-> map_focus( application, frame) != frame) {
@@ -857,6 +908,7 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
       guts. focused = self;
       prima_update_cursor( guts. focused);
       e. cmd = cmReceiveFocus;
+
       break;
    }
    case FocusOut: {
@@ -886,6 +938,7 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
    case KeymapNotify: {
       break;
    }
+   case GraphicsExpose:
    case Expose: {
       XRectangle r;
       if ( !was_sent) {
@@ -905,9 +958,6 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
 
       process_transparents(self);
       return;
-   }
-   case GraphicsExpose: {
-      break;
    }
    case NoExpose: {
       break;
@@ -1187,8 +1237,8 @@ prima_wm_sync( Handle self, int eventType)
    /* measuring round-trip time */
    XSync( DISP, false);
    gettimeofday( &timeout, nil);
-   delay = 2 * (( timeout. tv_sec - start_time. tv_sec) * 1000000 + 
-      ( timeout. tv_usec - start_time. tv_usec)) + guts. wm_event_timeout;
+   delay = 2 * (( timeout. tv_sec - start_time. tv_sec) * 1000 + 
+                ( timeout. tv_usec - start_time. tv_usec) / 1000) + guts. wm_event_timeout;
    /* printf("Sync took %ld.%03ld sec\n", timeout. tv_sec - start_time. tv_sec, (timeout. tv_usec - start_time. tv_usec) / 1000); */
 
    /* got response already? happens if no wm present or  */
@@ -1197,19 +1247,19 @@ prima_wm_sync( Handle self, int eventType)
    r = copy_events( self, events, &wmsd, eventType);
    if ( r < 0) return;
    /* printf("pass 1, copied %ld events %s\n", evx, r ? "GOT CONF!" : ""); */
-   if ( delay < 50000) delay = 50000; /* wait 50 ms just in case */
+   if ( delay < 50) delay = 50; /* wait 50 ms just in case */
    /* waiting for ConfigureNotify or timeout */
    /* printf("enter cycle, size: %d %d\n", wmsd.size.x, wmsd.size.y); */
    start_time = timeout;
    while ( 1) {
       gettimeofday( &timeout, nil);
-      diff = ( timeout. tv_sec - start_time. tv_sec) * 1000000 + 
-             ( timeout. tv_usec - start_time. tv_usec);
+      diff = ( timeout. tv_sec - start_time. tv_sec) * 1000 + 
+             ( timeout. tv_usec - start_time. tv_usec) / 1000;
       if ( delay <= diff) 
          break;
-      timeout. tv_sec  = ( delay - diff) / 1000000;
-      timeout. tv_usec = ( delay - diff) % 1000000;
-      /* printf("want timeout:%g\n", (double)( delay - diff) / 1000000); */
+      timeout. tv_sec  = ( delay - diff) / 1000;
+      timeout. tv_usec = (( delay - diff) % 1000) * 1000;
+      /* printf("want timeout:%g\n", (double)( delay - diff) / 1000); */
       FD_ZERO( &zero);   
       FD_ZERO( &read);
       FD_SET( guts.connection, &read);

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: codec_ungif.c,v 1.12 2002/10/26 19:47:33 dk Exp $
+ * $Id: codec_ungif.c,v 1.13 2003/01/15 21:55:47 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 
@@ -124,6 +124,7 @@ copy_palette( PImage i, ColorMapObject * pal)
    GifColorType * c = pal-> Colors;
    
    if ( !pal) return;
+   memset( r, 0, 768);
    i-> palSize = ( pal-> ColorCount > 256) ? 256 : pal-> ColorCount;
    for ( j = 0; j < i-> palSize; j++) {
       r-> r = c-> Red;
@@ -362,18 +363,22 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
 
             /* copying & converting data */
             {
-               int j, pass = 0, idst = 0;
+               int j, k, pass = 0, idst = 0;
                Byte * src = data, *dst = i-> data;
 
                for ( j = 0; j < i-> h; j++) {
                   dst = i-> data + ( i-> h - 1 - idst) * i-> lineSize;
+
+                  for ( k = 0; k < i-> w; k++)
+                     if ( src[k] >= i-> palSize) i-> palSize = src[k] + 1;
+                  
                   if ( l-> gft-> Image. Interlace) {
                      idst += interlaceStep[ pass];
                      if ( idst >= i-> h && pass < 3)
                         idst = interlaceOffs[ ++pass];
                   } else 
                      idst++;
-        
+
                   switch( i-> type & imBPP) {
                   case imbpp1:
                      bc_byte_mono_cr( src, dst, i-> w, map_stdcolorref);   break;

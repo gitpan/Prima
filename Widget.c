@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Widget.c,v 1.119 2002/10/31 22:34:21 dk Exp $
+ * $Id: Widget.c,v 1.121 2003/01/22 12:37:04 dk Exp $
  */
 
 #include "apricot.h"
@@ -221,7 +221,7 @@ Widget_update_sys_handle( Handle self, HV * profile)
    parentHandle = pexist( parentHandle) ? pget_i( parentHandle) : apc_widget_get_parent_handle( self);
 
    if ( parentHandle) {
-      if (( owner != application) && clipOwner)
+      if (( owner != application) && clipOwner) 
          croak("RTC008D: Cannot accept 'parentHandle' for non-application child and clip-owner widget");
    }
    
@@ -260,8 +260,13 @@ Widget_attach( Handle self, Handle objectHandle)
 {
    if ( objectHandle == nilHandle) return;
    if ( var-> stage > csNormal) return;
-   if ( kind_of( objectHandle, CWidget)) 
+   if ( kind_of( objectHandle, CWidget)) {
+      if ( list_index_of( &var-> widgets, objectHandle) >= 0) {
+         warn( "RTC0040: Object attach failed");
+         return;
+      }
       list_add( &var-> widgets, objectHandle);
+   }
    inherited-> attach( self, objectHandle);
 }
 
@@ -1554,7 +1559,6 @@ Bool
 Widget_validate_owner( Handle self, Handle * owner, HV * profile)
 {
    *owner = pget_H( owner);
-   if ( *owner == nilHandle) *owner = application;
    if ( !kind_of( *owner, CWidget)) return false;
    return inherited-> validate_owner( self, owner, profile);
 }

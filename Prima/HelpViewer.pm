@@ -26,7 +26,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: HelpViewer.pm,v 1.17 2002/10/23 09:25:21 dk Exp $
+#  $Id: HelpViewer.pm,v 1.22 2003/02/06 14:10:25 dk Exp $
 
 use strict;
 use Prima;
@@ -110,6 +110,28 @@ sub link_click
 sub load_link
 {
    my ( $self, $link) = @_;
+   
+   if ( $link =~ /^(http|ftp):\//) {
+      $self-> owner-> status("Starting browser for $link...");
+      if ( Prima::Application-> get_system_info->{apc} == apc::Win32) {
+         open UNIQUE_FILE_HANDLE_NEVER_TO_BE_CLOSED, "|start $link";
+         close UNIQUE_FILE_HANDLE_NEVER_TO_BE_CLOSED if 0;
+      } else {
+         my $pg = $::application-> sys_action('browser');
+         $self-> owner-> status("Cannot start browser"), return unless $pg;
+         my $f = fork;
+         if ( $f < 0) {
+            Prima::MsgBox::message("Cannot fork:$!"); 
+         } elsif ( $f == 0) {
+            exec("$pg $link");
+            eval "use Prima;";
+            Prima::MsgBox::message("Cannot execute $pg:$!");
+            die "Cannot execute $pg:$!";
+         }   
+      }   
+      return;
+   }
+
    my $ret = $self-> SUPER::load_link( $link);
    $self-> owner-> update;
    return $ret;
@@ -176,27 +198,29 @@ sub profile_default
    my %prf = (
      menuItems => 
         [[ '~File' => [
-           ['~Open' => 'F3' => 'F3' => 'load_dialog' ],
-           ['~Go to...' => 'goto' ],
+           ['~Open' => 'Ctrl+O' => '^O' => 'load_dialog' ],
+           ['~Go to...' => 'G' => 'G' => 'goto' ],
            ['~New window' => 'Ctrl+N' => '^N' => 'new_window'],
            [],
-           ['~Print ...' => 'print'],
+           ['~Print ...' => 'Ctrl+P' => '^P' => 'print'],
            [],
-           ['~Close window' => 'Alt+F4' => '@F4' => sub { $_[0]-> close }],
-           ['Close ~all windows' => 'Alt+X' => '@X' => sub { Prima::HelpViewer-> close }],
+           ['~Close window' => 'Ctrl-W' => '^W' => sub { $_[0]-> close }],
+           ['E~xit' => 'Ctrl+Q' => '^Q' => sub { Prima::HelpViewer-> close }],
         ]], [ '~View' => [
            [ '~Increase font' => 'Ctrl +' => '^+' => sub {
-               return if $_[0]-> {text}-> font-> size > 100;
-               $_[0]-> {text}-> font-> size( $_[0]-> {text}-> font-> size + 2);
-               $inifile-> section('View')-> {FontSize} = $_[0]-> {text}-> font-> size;
+               return if $_[0]-> {text}-> {defaultFontSize} > 100;
+               $_[0]-> {text}-> {defaultFontSize} += 2;
+               $_[0]-> {text}-> format(1);
+               $inifile-> section('View')-> {FontSize} = $_[0]-> {text}-> {defaultFontSize};
            }],
            [ '~Decrease font' => 'Ctrl -' => '^-' => sub {
-               return if $_[0]-> {text}-> font-> size < 4;
-               $_[0]-> {text}-> font-> size( $_[0]-> {text}-> font-> size - 2);
-               $inifile-> section('View')-> {FontSize} = $_[0]-> {text}-> font-> size;
+               return if $_[0]-> {text}-> {defaultFontSize} < 4;
+               $_[0]-> {text}-> {defaultFontSize} -= 2;
+               $_[0]-> {text}-> format(1);
+               $inifile-> section('View')-> {FontSize} = $_[0]-> {text}-> {defaultFontSize};
           }],
           [],
-          [ 'fullView' => 'Full text ~view' => sub {
+          [ 'fullView' => 'Full text ~view' => 'Ctrl+V' => '^V' => sub {
              $_[0]-> {text}-> topicView( ! $_[0]-> menu-> toggle( $_[1]));
              $_[0]-> update;
              $inifile-> section('View')-> {FullText} = $_[0]-> {text}-> topicView ? 0 : 1;
@@ -219,7 +243,7 @@ sub profile_default
             [ '-goback' => '~Back' => 'Alt + LeftArrow' => km::Alt | kb::Left, 'back' ],
             [ '-goforw' => '~Forward' => 'Alt + RightArrow' => km::Alt | kb::Right, 'forward' ],
             [],
-            [ '-goup'   => '~Up' => 'Alt + UpArrow' => km::Alt | kb::Right, 'up' ],
+            [ '-goup'   => '~Up' => 'Alt + UpArrow' => km::Alt | kb::Up, 'up' ],
             [ '-goprev'   => '~Previous' => 'prev' ],
             [ '-gonext'   => '~Next' => 'next' ],
           ]
@@ -323,7 +347,7 @@ sub init
    if ( exists $sec-> {FontSize} ) {
       my $fs = $sec-> {FontSize};
       if ( $fs =~ /^\d+$/ && $fs > 4 && $fs < 100) {
-         $self-> {text}-> font-> size( $fs);
+         $self-> {text}-> {defaultFontSize} = $fs;
       }
    }
    
@@ -352,7 +376,7 @@ sub init
       if $sec-> {ColorLink};
 
    push @Prima::HelpViewer::helpWindows, $self;
-   
+
    return %profile;
 }
 
@@ -361,7 +385,7 @@ sub on_close
    my $self = $_[0];
    my $sec = $inifile-> section('View');
 
-   $sec-> {FontSize}     = $self-> {text}-> font-> size;
+   $sec-> {FontSize}     = $self-> {text}-> {defaultFontSize};
    $sec-> {FontEncoding} = $self-> {text}-> {fontPalette}->[0]->{encoding};
    $sec-> {FullText}     = $self-> {text}-> topicView ? 0 : 1;
 }
@@ -672,9 +696,13 @@ sub select_findout
   
    if ( 4 == scalar @sel) {
       $t-> selection( @sel);
-      @sel = $t-> info2xy( @sel[0,1]);
-      $t-> offset( $sel[0]);
-      $t-> topLine( $sel[1]);
+      my @s = ( $t-> info2xy( @sel[0,1]), $t-> info2xy( @sel[2,3]));
+      $sel[0] += $t-> text2xoffset( @sel[0,1]);
+      $sel[2] += $t-> text2xoffset( @sel[2,3]);
+      my $x = $t-> offset;
+      my @sz = $t-> get_active_area( 2, $t-> size);
+      $t-> offset( $sel[0]) if $x > $sel[0] || $x + $sz[0] < $sel[2];
+      $t-> topLine( $s[1]);
    }
 }
 

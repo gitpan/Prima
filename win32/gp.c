@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: gp.c,v 1.73 2002/11/01 11:12:48 dk Exp $
+ * $Id: gp.c,v 1.75 2002/11/30 18:57:36 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #ifndef _APRICOT_H_
@@ -1576,7 +1576,7 @@ apc_gp_get_text_box( Handle self, const char* text, int len, Bool utf8)
          return nil;
       }
 
-   pt[0].y = pt[2]. y = var font. ascent;
+   pt[0].y = pt[2]. y = var font. ascent - 1;
    pt[1].y = pt[3]. y = - var font. descent;
    pt[4].y = pt[0]. x = pt[1].x = 0;
    pt[3].x = pt[2]. x = pt[4].x = gp_get_text_width( self, text, len, false, utf8);
@@ -1614,10 +1614,10 @@ apc_gp_get_text_box( Handle self, const char* text, int len, Bool utf8)
       float s = sin( var font. direction / ( 10 * GRAD));
       float c = cos( var font. direction / ( 10 * GRAD));
       for ( i = 0; i < 5; i++) {
-         int x = pt[i]. x;
-         int y = pt[i]. y;
-         pt[i]. x = x * c - y * s;
-         pt[i]. y = x * s + y * c;
+         float x = pt[i]. x * c - pt[i]. y * s;
+         float y = pt[i]. x * s + pt[i]. y * c;
+         pt[i]. x = x + (( x > 0) ? 0.5 : -0.5);
+         pt[i]. y = y + (( y > 0) ? 0.5 : -0.5);
       }
    }
 

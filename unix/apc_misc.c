@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_misc.c,v 1.85 2002/10/31 15:42:20 dk Exp $
+ * $Id: apc_misc.c,v 1.89 2003/01/22 12:39:30 dk Exp $
  */
 
 /***********************************************************/
@@ -213,6 +213,9 @@ apc_fetch_resource( const char *className, const char *name,
             break;
          case frFont:
             prima_font_pp2font( s, ( Font *) result);
+            break;
+         case frUnix_int:
+            *((int*)result) = atoi( s);
             break;
          default:
             return false;
@@ -658,7 +661,9 @@ apc_pointer_get_state( Handle self)
       (( mask & Button2Mask) ? mb2 : 0) |
       (( mask & Button3Mask) ? mb3 : 0) |
       (( mask & Button4Mask) ? mb4 : 0) |
-      (( mask & Button5Mask) ? mb5 : 0);
+      (( mask & Button5Mask) ? mb5 : 0) |
+      (( mask & Button6Mask) ? mb6 : 0) |
+      (( mask & Button7Mask) ? mb7 : 0);
 }
 
 int
@@ -1131,8 +1136,8 @@ apc_sys_get_value( int v)  /* XXX one big XXX */
    case svShapeExtension:	return guts. shape_extension;
    case svDblClickDelay:        return guts. double_click_time_frame;
    case svColorPointer:         return 0;
-   case svCanUTF8_Input:        return 0;
-   case svCanUTF8_Output:       return 0;
+   case svCanUTF8_Input:        return 1;
+   case svCanUTF8_Output:       return 1;
    default:
       warn( "apc_sys_get_value(): illegal query: %d", v);
    }
@@ -1172,6 +1177,7 @@ apc_beep_tone( int freq, int duration)
    XChangeKeyboardControl( DISP, KBBellPitch | KBBellDuration, &xkc);
    
    XBell( DISP, 100);
+   XFlush( DISP);
    
    xkc. bell_pitch    = xks. bell_pitch;
    xkc. bell_duration = xks. bell_duration;
