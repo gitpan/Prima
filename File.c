@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: File.c,v 1.20 2002/05/14 13:22:16 dk Exp $
+ * $Id: File.c,v 1.21 2003/06/05 18:47:00 dk Exp $
  */
 
 #include "apricot.h"
@@ -61,6 +61,7 @@ File_init( Handle self, HV * profile)
      ( query_method( self, "on_exception", 0) ? feException : 0);
    File_reset_notifications( self);
    my-> set_file( self, pget_sv( file));
+   CORE_INIT_TRANSIENT(File);
 }
 
 void

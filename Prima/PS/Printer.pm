@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Printer.pm,v 1.15 2002/11/19 10:09:03 dk Exp $
+#  $Id: Printer.pm,v 1.16 2003/07/07 15:08:29 dk Exp $
 #
 =pod
 
@@ -48,6 +48,7 @@ compliant with Prima::Printer interface.
 
 use strict;
 use Prima;
+use Prima::Utils;
 use Prima::PS::Drawable;
 
 package Prima::PS::Printer;
@@ -65,7 +66,7 @@ sub profile_default
 {
    my $def = $_[ 0]-> SUPER::profile_default;
    my %prf = (
-      resFile       => Prima::path . '/Printer',
+      resFile       => Prima::Utils::path . '/Printer',
       printer       => undef,
       defaultData   => {
          color          => 1,

@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: MsgBox.pm,v 1.18 2002/09/09 21:08:10 dk Exp $
+#  $Id: MsgBox.pm,v 1.19 2003/05/02 22:32:15 dk Exp $
 package Prima::MsgBox;
 
 use strict;
@@ -239,6 +239,7 @@ sub import
    no strict 'refs';
    my $callpkg = $Prima::__import || caller;
    for my $sym (qw(message_box message input_box)) {
+      next if $callpkg eq 'Prima' && $sym eq 'message'; # leave Prima::message intact
       *{"${callpkg}::$sym"} = \&{"Prima::MsgBox::$sym"}
    }
    use strict 'refs';

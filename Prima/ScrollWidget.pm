@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ScrollWidget.pm,v 1.13 2003/04/05 21:47:46 dk Exp $
+#  $Id: ScrollWidget.pm,v 1.14 2003/06/02 10:17:22 dk Exp $
 use strict;
 use Prima::Const;
 use Prima::Classes;
@@ -209,6 +209,8 @@ and C<whole> properties are maintained if the document or widget extensions chan
 
 =head2 Properties
 
+=over
+
 =item deltas X, Y
 
 Selects horizontal and vertical document offsets.
@@ -232,6 +234,8 @@ Selects horizontal document extension.
 =item limitY INTEGER
 
 Selects vertical document extension.
+
+=back
  
 =head1 AUTHOR
 

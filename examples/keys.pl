@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: keys.pl,v 1.12 2002/10/31 12:56:37 dk Exp $
+#  $Id: keys.pl,v 1.14 2003/07/07 22:44:45 dk Exp $
 #
 
 =pod 
@@ -71,10 +71,10 @@ my $w = Prima::Window-> create(
          $repeat = $repeat ? 0 : 1;
          $_[0]-> menu-> checked( 'rr', $repeat);
        }],
-       [ ( Prima::want_unicode_input()   ? '*' : '') . # is is on?
-         ( Prima::want_unicode_input(-1) ? '' : '-') . # is it writable ?
+       [ ( $::application-> wantUnicodeInput()   ? '*' : '') . # is is on?
+         ( $::application-> get_system_value( sv::CanUTF8_Input) ? '' : '-') . # is it writable ?
           'uu' => '~Unicode input' => sub {
-          Prima::want_unicode_input( $_[0]-> menu-> toggle( 'uu'));
+          $::application-> wantUnicodeInput( $_[0]-> menu-> toggle( 'uu'));
        }],
        [],
        ["Set ~font..." => "Ctrl+F" => '^F' => sub {

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Object.c,v 1.29 2003/04/06 21:37:53 dk Exp $
+ * $Id: Object.c,v 1.31 2003/06/18 14:29:35 dk Exp $
  */
 
 #include "apricot.h"
@@ -191,7 +191,10 @@ Object_destroy( Handle self)
     /*  ENTER;
         SAVEINT recursiveCall; */
       protect_chain( owner = var-> owner, 1);
-      if ( enter_stage > csConstructing) my-> cleanup( self);
+      if ( enter_stage > csConstructing) 
+         my-> cleanup( self);
+      else if ( enter_stage == csConstructing && var-> transient_class) 
+         ((PObject_vmt)var-> transient_class)-> cleanup( self);
       if ( var-> stage == csHalfDead) {
          var-> stage = csFinalizing;
          my-> done( self);
@@ -263,10 +266,11 @@ void Object_init    ( Handle self, HV * profile)
 {
    if ( var-> stage != csDeadInInit) croak( "Unexpected call of Object::init");
    var-> stage = csConstructing;
+   CORE_INIT_TRANSIENT(Object);
 }
 
 void Object_cleanup ( Handle self) {}
-void Object_setup   ( Handle self) {}
+void Object_setup( Handle self) {}
 
 #ifdef __cplusplus
 }

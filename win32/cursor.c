@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: cursor.c,v 1.22 2002/05/14 13:22:36 dk Exp $
+ * $Id: cursor.c,v 1.23 2003/06/18 15:31:35 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -158,7 +158,6 @@ apc_pointer_get_bitmap( Handle self, Handle icon)
 {
    ICONINFO  ii;
    PIcon     i = ( PIcon) icon;
-   int j;
    HDC dc;
    XBITMAPINFO bi = {{
       sizeof( BITMAPINFOHEADER), 0, 0, 1, 1
@@ -177,7 +176,7 @@ apc_pointer_get_bitmap( Handle self, Handle icon)
    if (!( dc = dc_alloc())) return false; 
    if ( ii. hbmColor) {
       HDC ops = dsys( icon) ps;
-      HDC obm = dsys( icon) bm;
+      HBITMAP obm = dsys( icon) bm;
       dsys( icon) ps = dc;
       dsys( icon) bm = ii. hbmColor;
       image_query_bits( icon, false);

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Classes.pm,v 1.61 2003/04/05 21:47:47 dk Exp $
+# $Id: Classes.pm,v 1.63 2003/05/13 10:16:46 dk Exp $
 use strict;
 package Prima::VB::Classes;
 
@@ -2786,14 +2786,14 @@ sub open
    );
    $self-> {B}->{master} = $self;
 
-   my $xb = $self-> {B}-> {vScroll} ? $self-> {B}-> {vScrollBar}-> width : 0;
+   my $xb = $::application-> get_system_value( sv::XScrollbar);
    $self-> {B}-> insert( Button => 
-      origin => [ $self-> {B}-> width - $xb - $self-> {B}-> indents()-> [2], 
+      origin => [ $self-> {B}-> indents()-> [0], 
                  $self-> {B}-> height - $xb - $self-> {B}-> indents()-> [3]],
       size   => [ ( $xb ) x 2],
       font   => { height => $xb - 4 * 0.8, style => fs::Bold },
       text   => 'X',
-      growMode => gm::GrowLoX|gm::GrowLoY,
+      growMode => gm::GrowLoY,
       onClick => sub { $self-> {B}-> popup-> popup($_[0]-> origin)},
    );
 

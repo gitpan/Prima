@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: win32guts.h,v 1.57 2003/03/26 22:18:49 dk Exp $ */
+/* $Id: win32guts.h,v 1.58 2003/06/18 15:31:35 dk Exp $ */
 
 #ifndef _WIN32_H_
 #define _WIN32_H_
@@ -132,7 +132,7 @@ typedef HANDLE WINHANDLE;
 #define apiErr {                                            \
    rc = GetLastError();                                     \
    apcError = errApcError;                                  \
-   fprintf( stderr, "WIN_%d (%s) at line %d in %s", rc,     \
+   fprintf( stderr, "WIN_%d (%s) at line %d in %s", (int)rc,     \
       err_msg( rc, nil), __LINE__, __FILE__);                    \
 }
 #define apcErr( err) {                                      \
@@ -141,7 +141,7 @@ typedef HANDLE WINHANDLE;
 #define apiAltErr( err) {                                   \
    apcError = errApcError;                                  \
    rc = err;                                                \
-   fprintf( stderr, "WIN_%d (%s) at line %d at %s", rc,     \
+   fprintf( stderr, "WIN_%d (%s) at line %d at %s", (int)rc,     \
         err_msg( rc, nil), __LINE__, __FILE__);                  \
 }
 /*  #endif */

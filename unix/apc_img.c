@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_img.c,v 1.77 2003/03/21 23:49:46 dk Exp $
+ * $Id: apc_img.c,v 1.81 2003/07/06 15:56:54 dk Exp $
  */
 /*
  * System dependent image routines (unix, x11)
@@ -34,7 +34,7 @@
 #include "Icon.h"
 #include "DeviceBitmap.h"
 
-#define REVERT(a)	( XX-> size. y + XX-> menuHeight - (a) - 1 )
+#define REVERT(a)	( XX-> size. y - (a) - 1 )
 #define SHIFT(a,b)	{ (a) += XX-> gtransform. x + XX-> btransform. x; \
                            (b) += XX-> gtransform. y + XX-> btransform. y; }
 /* Multiple evaluation macro! */
@@ -371,6 +371,10 @@ apc_image_update_change( Handle self)
    else
       XX-> type.pixmap = 0;
    XX-> type.bitmap = !!XX-> type.pixmap;
+   if ( XX-> cached_region) {
+      XDestroyRegion( XX-> cached_region);
+      XX-> cached_region = nil;
+   }
    return true;
 }
 
@@ -502,6 +506,17 @@ create_cache1_1( Image *img, ImageCache *cache, Bool for_icon)
       cache-> image = ximage;
    }
    return true;
+}
+
+static void
+create_rgb_to_8_lut( int ncolors, const PRGBColor pal, Pixel8 *lut)
+{
+   int i;
+   for ( i = 0; i < ncolors; i++) 
+      lut[i] = 
+            (((pal[i].r << guts. red_range  ) >> 8) << guts.   red_shift) |
+            (((pal[i].g << guts. green_range) >> 8) << guts. green_shift) |
+            (((pal[i].b << guts. blue_range ) >> 8) << guts.  blue_shift);
 }
 
 static void
@@ -716,6 +731,31 @@ create_cache_equal( Image *img, ImageCache *cache)
    return true;
 }
 
+static Bool
+create_cache8_8_tc( Image *img, ImageCache *cache)
+{
+   Pixel8 lut[ NPalEntries8];
+   Pixel8 *data;
+   int x, y;
+   int ls;
+   int h = img-> h, w = img-> w;
+
+   create_rgb_to_8_lut( img-> palSize, img-> palette, lut);
+
+   cache->image = prima_prepare_ximage( w, h, false);
+   if ( !cache->image) return false;
+   ls = get_ximage_bytes_per_line( cache->image);
+   data = get_ximage_data( cache->image);
+
+   for ( y = h-1; y >= 0; y--) {
+      register unsigned char *line = img-> data + y*img-> lineSize;
+      register Pixel8 *d = (Pixel8*)(ls*(h-y-1)+(unsigned char *)data);
+      for ( x = 0; x < w; x++) {
+	 *d++ = lut[line[x]];
+      }
+   }
+   return true;
+}
 
 static Bool
 create_cache8_16( Image *img, ImageCache *cache)
@@ -913,7 +953,10 @@ static Bool
 create_cache8( Image* img, ImageCache *cache, int bpp)
 {
    switch (bpp) {
-   case 8:      return create_cache_equal( img, cache);
+   case 8:      
+      return ( guts. visualClass == TrueColor || guts. visualClass == DirectColor) ?
+               create_cache8_8_tc( img, cache) :
+               create_cache_equal( img, cache);
    case 16:     return create_cache8_16( img, cache);
    case 24:     return create_cache8_24( img, cache);
    case 32:     return create_cache8_32( img, cache);
@@ -1132,7 +1175,8 @@ prima_create_icon_pixmaps( Handle self, Pixmap *xor, Pixmap *and)
       if (p2 != None) XFreePixmap( DISP, p2);
       return false;
    }
-   gc = XCreateGC( DISP, p1, 0, &gcv);
+   gcv. graphics_exposures = false;
+   gc = XCreateGC( DISP, p1, GCGraphicsExposures, &gcv);
    XSetForeground( DISP, gc, 0);
    XSetBackground( DISP, gc, 1);
    prima_put_ximage( p2, gc, cache->icon, 0, 0, 0, 0, icon-> w, icon-> h);
@@ -1157,9 +1201,9 @@ put_pixmap( Handle self, Handle pixmap, int dst_x, int dst_y, int src_x, int src
 
    XCHECKPOINT;
    XCopyArea( DISP, YY-> gdrawable, XX-> gdrawable, XX-> gc,
-              src_x, YY->size.y + YY-> menuHeight - src_y - h,
+              src_x, YY->size.y - src_y - h,
               w, h,
-              dst_x, XX->size.y + XX-> menuHeight - dst_y - h);
+              dst_x, XX->size.y - dst_y - h);
    XCHECKPOINT;
    return true;
 }
@@ -1361,11 +1405,21 @@ convert_16_to_24( XImage *i, PImage img)
    for ( y = 0; y < h; y++) {
       d = (Pixel16 *)(i-> data + (h-y-1)*i-> bytes_per_line);
       line = (Pixel24*)(img-> data + y*img-> lineSize);
-      for ( x = 0; x < w; x++) {
-         line-> a0 = (((*d & guts. visual. blue_mask)  >> guts. blue_shift) << 8) >> guts. blue_range; 
-         line-> a1 = (((*d & guts. visual. green_mask) >> guts. green_shift) << 8) >> guts. green_range;
-         line-> a2 = (((*d & guts. visual. red_mask)   >> guts. red_shift) << 8) >> guts. red_range;
-	 d++; line++;
+      if ( guts.machine_byte_order != guts.byte_order) {
+         for ( x = 0; x < w; x++) {
+            register Pixel16 dd = REVERSE_BYTES_16(*d);
+            line-> a0 = (((dd & guts. visual. blue_mask)  >> guts. blue_shift) << 8) >> guts. blue_range; 
+            line-> a1 = (((dd & guts. visual. green_mask) >> guts. green_shift) << 8) >> guts. green_range;
+            line-> a2 = (((dd & guts. visual. red_mask)   >> guts. red_shift) << 8) >> guts. red_range;
+            line++; d++;
+         }
+      } else {
+         for ( x = 0; x < w; x++) {
+            line-> a0 = (((*d & guts. visual. blue_mask)  >> guts. blue_shift) << 8) >> guts. blue_range; 
+            line-> a1 = (((*d & guts. visual. green_mask) >> guts. green_shift) << 8) >> guts. green_range;
+            line-> a2 = (((*d & guts. visual. red_mask)   >> guts. red_shift) << 8) >> guts. red_range;
+            line++; d++;
+         }
       }
    }
 }
@@ -1454,39 +1508,38 @@ prima_query_image( Handle self, XImage * i)
    if ( target_depth == 1) {
       prima_copy_xybitmap( img-> data, (Byte*)i-> data, img-> w, img-> h, img-> lineSize, i-> bytes_per_line);
    } else {
-      if ( guts. idepth != target_depth) {
-         switch ( guts. idepth) {
-         case 16:
-            switch ( target_depth) {
-            case 24:
-               convert_16_to_24( i, img);
-               break;
-            default: goto slurp_image_unsupported_depth;
-            }
-            break;
-         case 32:
-            switch ( target_depth) {
-            case 24:
-               convert_32_to_24( i, img);
-               break;
-            default: goto slurp_image_unsupported_depth;
-            }
-            break;
+     switch ( guts. idepth) {
+     case 8:
+        switch ( target_depth) {
+        case 4:
+           CImage( self)-> create_empty( self, img-> w, img-> h, 8);
+        case 8:
+           convert_equal_paletted( i, img);
+           break;
+        default: goto slurp_image_unsupported_depth;
+        }
+        break;
+     case 16:
+        switch ( target_depth) {
+        case 24:
+           convert_16_to_24( i, img);
+           break;
+        default: goto slurp_image_unsupported_depth;
+        }
+        break;
+     case 32:
+        switch ( target_depth) {
+        case 24:
+           convert_32_to_24( i, img);
+           break;
+        default: goto slurp_image_unsupported_depth;
+        }
+        break;
 slurp_image_unsupported_depth:
-         default:
-            warn("UAI_023: unsupported backing image conversion from %d to %d\n", guts.idepth, target_depth);
-            return false;
-         }
-      } else {
-         switch ( target_depth) {
-         case 8:
-            convert_equal_paletted( i, img);
-            break;
-         default:  
-            warn("UAI_024: unsupported backing image\n");
-            return false;
-         }
-      }
+     default:
+        warn("UAI_023: unsupported backing image conversion from %d to %d\n", guts.idepth, target_depth);
+        return false;
+     }
    }
    return true;
 }   
@@ -1523,7 +1576,8 @@ prima_std_pixmap( Handle self, int type)
        ( type == CACHE_BITMAP) ? 1 : guts. depth);
    if ( !px) return nilHandle;
    
-   gc = XCreateGC( DISP, guts. root, 0, &gcv);
+   gcv. graphics_exposures = false;
+   gc = XCreateGC( DISP, guts. root, GCGraphicsExposures, &gcv);
    if ( guts. palSize > 0) {
       fore = prima_color_find( self,
           RGB_COMPOSITE( img-> palette[1].r, img-> palette[1].g, img-> palette[1].b),
@@ -1819,7 +1873,6 @@ do_stretch( Handle self, PrimaXImage *cache,
    int yclipstart, yclipsize;
 
    prima_gp_get_clip_rect( self, &cr);
-   cr. y += X(self)-> menuHeight;
    xclipstart = cr. x - dst_x;
    xclipsize = cr. width;
    yclipstart = cr. y - dst_y;
@@ -2019,7 +2072,7 @@ apc_gp_stretch_image( Handle self, Handle image,
    }
    
    SHIFT( dst_x, dst_y);
-   dst_y = XX->size.y + XX-> menuHeight - dst_y - ABS(dst_h);
+   dst_y = XX->size.y - dst_y - ABS(dst_h);
    src_y = img-> h - src_y - ABS(src_h);
 
    if ( XGetGCValues( DISP, XX-> gc, GCFunction, &gcv) == 0) 
@@ -2130,9 +2183,9 @@ apc_application_get_bitmap( Handle self, Handle image, int x, int y, int xLen, i
 
    CImage( image)-> create_empty( image, xLen, yLen, guts. qdepth);
    if ( guts. idepth == 1)
-      i = XGetImage( DISP, XX-> gdrawable, x, XX-> size.y + XX-> menuHeight - y - yLen, xLen, yLen, 1, XYPixmap);
+      i = XGetImage( DISP, XX-> gdrawable, x, XX-> size.y - y - yLen, xLen, yLen, 1, XYPixmap);
    else
-      i = XGetImage( DISP, XX-> gdrawable, x, XX-> size.y + XX-> menuHeight - y - yLen, xLen, yLen, AllPlanes, ZPixmap);
+      i = XGetImage( DISP, XX-> gdrawable, x, XX-> size.y - y - yLen, xLen, yLen, AllPlanes, ZPixmap);
    XCHECKPOINT;
 
    if ( i) {

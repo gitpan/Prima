@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ExtLists.pm,v 1.18 2002/12/11 12:54:33 dk Exp $
+#  $Id: ExtLists.pm,v 1.19 2003/05/08 14:57:36 dk Exp $
 
 # contains:
 #   CheckList
@@ -46,7 +46,7 @@ my @images = (
 );
 
 my @imgSize = (0,0);
-@imgSize = $images[0]-> size;
+@imgSize = $images[0]-> size if $images[0];
 
 sub profile_default
 {

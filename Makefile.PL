@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Makefile.PL,v 1.145 2003/03/25 21:47:52 dk Exp $
+#  $Id: Makefile.PL,v 1.154 2003/07/07 07:39:33 dk Exp $
 #
 
 BEGIN {
@@ -74,6 +74,9 @@ use vars @ovvars = qw(
     $WANTNOCODECS
     $DL_LOAD_FLAGS
     $DEBUG
+    $WITH_XFT
+    $WITH_ICONV
+    $CODEC_PRIGRAPH
 );
 
 use vars @path_expand_ovvars = qw(
@@ -98,6 +101,7 @@ use vars @path_expand_ovvars = qw(
 use vars qw(
     $CWD
     $Win32
+    $cygwin
     $NeedX11
     $OS2
     $OS2DLLF
@@ -158,11 +162,15 @@ sub quoted_split
    my @neww = ();
    my $text = shift;
    while ($text =~ m<
-       ("[^\"\\]*(?:\\.[^\"\\]*)*")\s*
+       "((?:[^\"\\]*\\.[^\"\\]*)*)"\s*
      | (\S+)\s*
      | \s+
    >gx) {
-          push @neww, $+ if defined $+;
+      if ( defined $1) {
+          push @neww, $1;
+      } elsif ( defined $2) {
+          push @neww, $2;
+      }
    }
    return @neww;
 }
@@ -211,7 +219,7 @@ sub cc_command_line
     push @cc, $srcf;
     return @cc if $compile_only;
     push @cc, $CLINKPREFIX;
-    push @cc, map { "$CLIBPATHFLAG$_"} @LIBPATH if $COMPILER eq 'msvc';
+    push @cc, map { "\"$CLIBPATHFLAG\\\"$_\\\"\"" } @LIBPATH if $COMPILER eq 'msvc';
     push @cc, map { "$LDLIBFLAG$_"} @LIBS;
     return @cc;
 }
@@ -226,11 +234,15 @@ sub ld_command_line
         push @ld, ",", $dstf, ", ,", @LIBS, ",", "win32\\Prima.def,";
     }
     else {
-        push @ld, map { "$LDLIBPATHFLAG$_"} @LIBPATH;
+        push @ld, map { 
+          m/\s/ ? 
+            "$SHQUOTE$LDLIBPATHFLAG$_$SHQUOTE" :
+            "$LDLIBPATHFLAG$_"
+        } @LIBPATH;
         push @ld, "$LDOUTFLAG$dstf", @_;
         push @ld, map { "$LDLIBFLAG$_"} @LIBS;
         push @ld, "os2\\Prima.def" if $OS2;
-        push @ld, "/def:win32\\Prima.def" if $Win32;
+        push @ld, "/def:win32\\Prima.def" if $Win32 && !$cygwin;
     }
     return @ld;
 }
@@ -337,7 +349,7 @@ sub find_lib
        }
        return undef;
     }
-
+    
     local @LIBS = @LIBS;
     push @LIBS, $lib;
     foreach $libpath ( @_) {
@@ -391,7 +403,7 @@ sub have_define
     chdir $TMPDIR;
     my $tmpsrc = qd( tempfile( "pmts%04d.c"));
     my $tmpo = $tmpsrc;
-    if ( $Win32) {
+    if ( $Win32 && !$cygwin) {
         $tmpo =~ s/\.c$/\.obj/;
     }
     else {
@@ -690,6 +702,7 @@ sub setup_variables
     setvar( 'TMPDIR', $ENV{ TMPDIR} || $ENV{ TEMPDIR} || ( $Win32 ? ( $ENV{ TEMP} || "$ENV{ SystemDrive}\\TEMP") : "/tmp"));
     setvar( 'NULLDEV', "$CWD/makefile.log");
     setvar( 'DL_LOAD_FLAGS', ( $Win32 || $OS2) ? 0 : -1);
+    setvar( 'SHQUOTE', $Win32 ? '"' : "'");
 
     setvar( 'CC', $Config{ cc});
     print "Determining compiler type... ";
@@ -735,7 +748,7 @@ sub setup_variables
     # Checking some Config.pm - were empty for ActiveState 626
     $Config{PATCHLEVEL} = $Config{patchlevel} if !defined $Config{PATCHLEVEL} || !length $Config{PATCHLEVEL};
     $Config{SUBVERSION} = $Config{subversion} if !defined $Config{SUBVERSION} || !length $Config{SUBVERSION};
-    $Config{ld} = ($Win32 ? 'link' : 'ld'), print("** warning: malformed Config.pm\n")
+    $Config{ld} = (($Win32 && !$cygwin) ? 'link' : 'ld'), print("** warning: malformed Config.pm\n")
        unless length $Config{ld};
 
     my $ccflags   = $Config{ ccflags};
@@ -780,7 +793,7 @@ sub setup_variables
     setvar( 'LIBOFLAG', $cc_specs{ $COMPILER}->{ liboflag});
 
     setvar( 'SCRIPT_EXT',
-            ( $Win32 ? '.bat' : ( $OS2 ? '.cmd' : '')));
+            (( $Win32 && !$cygwin) ? '.bat' : ( $OS2 ? '.cmd' : '')));
     setvar( 'DL_EXT', "." . $Config{ dlext});
     setvar( 'INCPATH', (
                         "include",
@@ -789,17 +802,6 @@ sub setup_variables
                        )
           );
     my @libpaths = quoted_split( $Config{ libpth});
-    if ( $COMPILER eq 'msvc') {
-       # explanation: link /LIBPATH:"Program Files" dirty fails, hail to M$ :E,
-       # trying to link Files.obj with /LIBPATH:Program
-       my %envlibs = map { lc($_) => 1} split(';', $ENV{LIB});
-       @libpaths = grep {
-          my $d = lc $_;
-          $d =~ s/^"//;
-          $d =~ s/"$//;
-          exists($envlibs{$d}) ? 0 : 1
-       } @libpaths;
-    }
     push( @libpaths, '/usr/local/lib') if $platform eq 'unix';  # or perl makefile.pl LIBPATH+=/usr/local/lib
     setvar( 'LIBPATH', @libpaths);
     my @libs = map { s/^$LDLIBFLAG//; $_} quoted_split($Config{ libs});
@@ -813,6 +815,11 @@ sub setup_variables
     }
     setvar( 'LIBS', ());
     my @flibs;
+    
+    if ( $cygwin) {
+       $Config{libperl} =~ s/^lib(.*)\.a$/$1/i;
+       push @libs, qw(gdi32 mpr winspool); # add more when appropriate
+    }
 
 # here starts lot of execs...
 
@@ -880,10 +887,10 @@ sub setup_variables
     $MAKETYPE = 'make' if $MAKETYPE =~ /^gmake|pmake$/;
     die "Unknown make utility" unless $MAKETYPE =~ /^make|nmake|dmake$/;
     setvar( 'RM', $Config{ rm});
-    setvar( 'SHQUOTE', $Win32 ? '"' : "'");
     $OS2DLLF = 'Prima';
     $OS2DLLF = &DynaLoader::mod2fname([$OS2DLLF]) if $OS2 && defined &DynaLoader::mod2fname;
-    $PrimaLib    = qd( "auto/Prima/Prima$LIB_EXT");
+    my $libprefix = ( $cygwin ? 'lib' : '');
+    $PrimaLib    = qd( "auto/Prima/${libprefix}Prima$LIB_EXT");
     $PrimaTarget = qd( "auto/Prima/$OS2DLLF$DL_EXT");
     $extralibs = '';
     $extralibs = qd("auto/Prima/Prima.lib") if $OS2;
@@ -901,11 +908,15 @@ sub setup_variables
     $DEFINES{PRIMA_SUBVERSION} = $ver2;
     setvar( 'DISTNAME', "Prima-$ver1.$ver2");
     setvar( 'WANTNOCODECS', 0);
+    setvar( 'CODEC_PRIGRAPH', 1);
     @executables = qw(
        Prima/VB/VB.pl
        Prima/VB/cfgmaint.pl
     );
-    $install_manuals = (!$Win32 && !$OS2);
+    my $unix = (!$Win32 && !$OS2);
+    setvar('WITH_ICONV', $unix);
+    setvar('WITH_XFT', $unix);
+    $install_manuals = $cygwin || (!$Win32 && !$OS2);
 
     @Prima_exports = qw(
 apc_application_begin_paint
@@ -1304,8 +1315,10 @@ sub setup_defines
         have_header( 'gc.h');
     }
 
-    have_funcs_in( 'string.h', 'strcasecmp') || have_funcs_in( 'strings.h', 'stricmp');
-    have_funcs_in( 'stdio.h', 'snprintf') || have_funcs_in( 'stdio.h', '_snprintf');
+    have_funcs_in( 'string.h', 'strcasecmp');
+    have_funcs_in( 'strings.h', 'stricmp');
+    have_funcs_in( 'stdio.h', 'snprintf');
+    have_funcs_in( 'stdio.h', '_snprintf');
     have_funcs_in( 'stdlib.h', 'reallocf');
     have_funcs_in( 'string.h', 'bzero');
     if ( $Win32) {
@@ -1325,6 +1338,79 @@ sub setup_defines
         $DEFINES{ $defname} = ( $DEFINES{ $defname} || '') . join( '', @{ $USER_DEFINES_ADDONS{ $defname}});
     }
 }
+
+sub setup_xft
+{
+    if ( $WITH_XFT) {
+	my $HAVE_XFT = 0;
+	my $NEED_XFT = 4;
+	my @pre_xft_libs = @LIBS;
+
+	print "Checking for presence of freetype/freetype.h... ";
+	my $incpath = find_header( qd("freetype/freetype.h"), "",
+				   qd("/usr/X11R6/include/freetype2"),
+				   qd("/usr/X11/include/freetype2"),
+				   qd("/usr/X/include/freetype2"),
+				   qd("/usr/openwin/include/freetype2"),
+				   qd("/usr/local/include/freetype2"));
+	if (defined $incpath) {
+	    print "yes";
+	    print ", in $incpath" if $incpath;
+	    print "\n";
+	    push @INCPATH, $incpath if $incpath;
+	    if ( defined find_lib( 'freetype', '', '')) {
+		push @LIBS, 'freetype';
+		$HAVE_XFT++;
+	    } else {
+		$DEFINES{HAVE_FREETYPE_FREETYPE_H} = undef;
+	    }
+	}
+
+	if ( have_header( "fontconfig/fontconfig.h")) {
+	    if ( defined find_lib( 'fontconfig', '', '')) {
+		push @LIBS, 'fontconfig';
+		$HAVE_XFT++;
+	    } else {
+		$DEFINES{HAVE_FONTCONFIG_FONTCONFIG_H} = undef;
+	    }
+	}
+
+	if ( have_header( "X11/extensions/Xrender.h", "X11/X.h", 
+			  "X11/Xlib.h", "X11/extensions/Xext.h")) {
+	    if ( defined find_lib( 'Xrender', '', '')) {
+		push @LIBS, 'Xrender';
+		$HAVE_XFT++;
+	    } else {
+		$DEFINES{HAVE_X11_EXTENSIONS_XRENDER_H} = undef;
+	    }
+	}
+
+	if ( have_header( "X11/Xft/Xft.h", "X11/X.h", "X11/Xlib.h", 
+			  "X11/extensions/Xext.h", "X11/extensions/Xrender.h")) {
+	    if ( defined find_lib( 'Xft', '', '')) {
+		push @LIBS, 'Xft';
+		$HAVE_XFT++;
+	    } else {
+		$DEFINES{HAVE_X11_XFT_XFT_H} = undef;
+	    }
+	}
+
+	$WITH_XFT = 0 unless $HAVE_XFT == $NEED_XFT;
+	@LIBS = @pre_xft_libs unless $WITH_XFT;
+    }
+
+    $WITH_ICONV = 0 unless $WITH_XFT; # iconv is used for xft only
+    if ( $WITH_ICONV && have_header( "iconv.h")) {
+	if ( defined find_lib( 'iconv', '', '')) {
+	    push @LIBS, 'iconv';
+	} else {
+	    $DEFINES{HAVE_ICONV_H} = undef;
+	    $WITH_ICONV = 0;
+	}
+    } else {
+	$WITH_ICONV = 0;
+    }
+}       
 
 sub generate_win32_def
 {
@@ -1362,7 +1448,17 @@ sub setup_misc
 {
     # finding image codecs
     my %libs = map { $_ => 1 } @LIBS;
-    while (<img/codec_*.c>) {
+    my @codecs;
+    my $stop_codecs;
+    while ( <img/codec_*.c>) {
+       if ( m/prigraph/) {
+          unshift @codecs, $_; # put it first
+       } else {
+          push @codecs, $_;
+       }
+    }
+    
+    for ( @codecs) {
        my @inc;
        m/codec_(.*)\.c$/i;
        my ( $fn, $lib) = ( $_, $1);
@@ -1371,8 +1467,24 @@ sub setup_misc
           push @inc, $_ if m/^\s*#include\s*\</;
        }
        close F;
-       $lib.='.lib' if $Win32 || $OS2;
-       if ( $libs{$lib} || defined find_lib( $lib, join('', @inc), '')) {
+       $lib.='.lib' if ( $Win32 && !$cygwin) || $OS2;
+       if ( !$stop_codecs && ( $libs{$lib} || defined find_lib( $lib, join('', @inc), ''))) {
+          if ( $lib eq 'prigraph') {
+             if ( $CODEC_PRIGRAPH) {
+          print <<PRIGRAPH_WARNING unless defined $USER_VARS{CODEC_PRIGRAPH};
+          
+** Warning: image library 'prigraph' cannot coexist with the other image
+libraries, so these are disabled. To disable 'prigraph' instead, run
+
+perl Makefile.PL CODEC_PRIGRAPH=0
+
+PRIGRAPH_WARNING
+                $stop_codecs = 1;
+             } else {
+                $PASSIVE_CODECS{$fn} = 1;
+                next;
+             }
+          }
           push( @ACTIVE_CODECS, $1);
           push( @LIBS, $lib) unless $libs{$lib};
           print "Using image library '$lib'\n";
@@ -1852,7 +1964,8 @@ CONTENT
 # $usePrigraph = env_true( 'PRIMA_PRIGRAPH');
 $useGC = env_true( 'PRIMA_USE_GC');
 
-$Win32 = ( $^O =~ /mswin32/i);
+$Win32 = ( $^O =~ /mswin32|cygwin/i);
+$cygwin = ( $^O =~ /cygwin/i);
 $OS2 = ( $^O =~ /os2/i);
 $dir_sep = (( ( $path_sep = $Config{ path_sep}) eq ':') || ( defined $Config{ emxpath})) ? '/' : '\\';
 
@@ -1870,7 +1983,7 @@ if ( $#ARGV >= 0 && $ARGV[ 0] =~ /^\-\-cp(bin)?$/) {
             open SRCPL, "<$src" or die "Cannot open $src: $!";
             open DSTPL, ">$dst" or die "Cannot create $dst: $!";
             chmod 0555, $dst unless $Win32 || $OS2;
-            if ( $Win32) {
+            if ( $Win32 && !$cygwin) {
                 print DSTPL <<EOF;
 \@rem = '--*-Perl-*--
 \@echo off
@@ -1904,7 +2017,7 @@ EOF
                 $filestart = 0;
                 print DSTPL;
             }
-            if ( $Win32) {
+            if ( $Win32 && !$cygwin) {
                 print DSTPL <<EOF;
 __END__
 :endofperl
@@ -2101,6 +2214,7 @@ FOOTER
     setup_variables;
     setup_paths;
     setup_defines;
+    setup_xft;
     
     my $config_dir = "include/generic";
     my $config_h = "$config_dir/config.h";
@@ -2164,6 +2278,7 @@ EOF
         $make .= cmake( $_);
     }
     while ( <$PLATFORM/*.c>) {
+        next if !$WITH_XFT && m/xft.c/;
         $make .= cmake( $_);
     }
     while ( <examples/*>) {
@@ -2321,13 +2436,18 @@ EOF
         $cpbin{$src} = qd( "$dst/" . basename( $src, '.pl')) . $SCRIPT_EXT;
     }
     dump_cmd( sub { "$_[0] $cpbin{$_[0]}"}, 'CPBIN', keys %cpbin);
+    
+    print MAKE "\n\t\@echo Updating config...\n";
+    print MAKE "\t$^X Makefile.PL --updateconfig $INSTALLSITEARCH/Prima/Config.pm";
+    print MAKE " $INSTALLSITEARCH/Prima.pm" if $DL_LOAD_FLAGS;
 
     my @man_to_remove;
     if ( $install_manuals) {
        my $cmd = "\t\@pod2man --lax --section=\%d \%s " . ( length( $Config{gzip} ) ? 
            "| $Config{gzip} -c > \%s.gz\n" : 
            "> \%s\n" );
-       print MAKE "\t\@echo Installing man pages...\n";
+       print MAKE "\n\t\@echo Installing man pages...\n";
+       print MAKE "\t\@\$(MD) $INSTALL_MAN1 $INSTALL_MAN3\n";
        while ( scalar @allman ) {
           push @man_to_remove, $allman[1];
           $allman[1] =~ m/\.(\d+)$/;
@@ -2335,10 +2455,6 @@ EOF
        }
        if ( length $Config{gzip}) { s/$/.gz/ for @man_to_remove }
     }
-
-    print MAKE "\n\t\@echo Updating config...\n";
-    print MAKE "\t$^X Makefile.PL --updateconfig $INSTALLSITEARCH/Prima/Config.pm";
-    print MAKE " $INSTALLSITEARCH/Prima.pm" if $DL_LOAD_FLAGS;
 
     print MAKE "\n\ndeinstall:\n";
     my %dirs_to_rm;

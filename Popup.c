@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Popup.c,v 1.18 2002/10/31 22:34:21 dk Exp $
+ * $Id: Popup.c,v 1.19 2003/06/05 18:47:00 dk Exp $
  */
 
 #include "apricot.h"
@@ -46,6 +46,7 @@ Popup_init( Handle self, HV * profile)
 {
    inherited init( self, profile);
    opt_assign( optAutoPopup, pget_B( autoPopup));
+   CORE_INIT_TRANSIENT(Popup);
 }
 
 void

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: DeviceBitmap.c,v 1.12 2002/05/14 13:22:16 dk Exp $
+ * $Id: DeviceBitmap.c,v 1.13 2003/06/05 18:47:00 dk Exp $
  */
 
 #include "apricot.h"
@@ -51,6 +51,7 @@ DeviceBitmap_init( Handle self, HV * profile)
       croak("RTC0110: Cannot create device bitmap");
    inherited begin_paint( self);
    opt_set( optInDraw);
+   CORE_INIT_TRANSIENT(DeviceBitmap);
 }
 
 void

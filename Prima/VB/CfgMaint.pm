@@ -23,9 +23,10 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: CfgMaint.pm,v 1.10 2002/10/17 20:30:55 dk Exp $
+# $Id: CfgMaint.pm,v 1.11 2003/07/07 15:08:30 dk Exp $
 package Prima::VB::CfgMaint;
 use strict;
+use Prima::Utils;
 use vars qw(@pages %classes $backup $userCfg $rootCfg $systemWide);
 
 @pages      = ();
@@ -57,14 +58,10 @@ sub open_cfg
       $file =~ s[\\][/]g;
       eval "require \"$file\";";
    } else {
-      warn "Environment variable HOME does not exist\n" unless exists $ENV{HOME};
-      my $home = ( defined($ENV{HOME}) ? $ENV{HOME} : '' ) . '/.prima';
-      $home =~ s[\\][/]g;
-      $home =~ s/\/$//;
-      $file = "$home/$userCfg";
+      $file = Prima::Utils::path($userCfg);
       $pkg  = "Prima::VB::UserConfig";
       return 1 unless -f $file;
-      eval "require \"$home/$userCfg\";";
+      eval "require \"$file\";";
    }
    return (0,  "$@") if $@;
 

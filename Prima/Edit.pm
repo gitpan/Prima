@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Edit.pm,v 1.39 2003/04/06 10:36:40 dk Exp $
+#  $Id: Edit.pm,v 1.40 2003/07/03 15:00:14 tobez Exp $
 #
 # edit block types
 package bt;
@@ -111,6 +111,9 @@ sub profile_default
          [ Cut            => 0, 0, km::Shift|kb::Delete, q(cut)],
          [ Copy           => 0, 0, km::Ctrl |kb::Insert, q(copy)],
          [ Paste          => 0, 0, km::Shift|kb::Insert, q(paste)],
+         [ CutMS          => 0, 0, '^X', q(cut)],
+         [ CopyMS         => 0, 0, '^C', q(copy)],
+         [ PasteMS        => 0, 0, '^V', q(paste)],
       ],
       autoIndent        => 1,
       autoHScroll       => 1,

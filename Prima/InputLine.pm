@@ -26,7 +26,7 @@
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #  Modifications by Anton Berezin <tobez@tobez.org>
 #
-#  $Id: InputLine.pm,v 1.24 2002/07/22 09:30:51 dk Exp $
+#  $Id: InputLine.pm,v 1.25 2003/07/03 15:00:14 tobez Exp $
 
 package Prima::InputLine;
 use vars qw(@ISA);
@@ -368,6 +368,29 @@ sub on_keydown
            $self-> copy if $start != $end;
        } else {
            $self-> paste;
+       }
+       $self-> clear_event;
+       return;
+   }
+
+   my $c = chr($code & 0xff);
+   if ($c eq "\cC") {
+       $self-> copy if $start != $end;
+       $self-> clear_event;
+       return;
+   } elsif ($c eq "\cV") {
+       $self-> paste;
+       $self-> clear_event;
+       return;
+   } elsif ($c eq "\cX") {
+       if ( !$self-> {readOnly} && $start != $end) {
+          my $del;
+          $del = substr( $cap, $start, $end - $start);
+          substr( $cap, $start, $end - $start) = '';
+          $self-> set_selection(0,0);
+          $self-> text( $cap);
+          $self-> charOffset( $start);
+          $::application-> Clipboard->store('Text', $del);
        }
        $self-> clear_event;
        return;

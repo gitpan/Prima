@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Application.c,v 1.66 2003/04/06 21:37:53 dk Exp $
+ * $Id: Application.c,v 1.69 2003/07/07 22:44:44 dk Exp $
  */
 
 #include "apricot.h"
@@ -129,6 +129,7 @@ Application_init( Handle self, HV * profile)
    pdelete( popupItems);
 
    my-> set( self, profile);
+   CORE_INIT_TRANSIENT(Application);
 }
 
 void
@@ -928,6 +929,18 @@ Application_modalHorizon( Handle self, Bool set, Bool modalHorizon)
 {
    return true;
 }
+
+Bool
+Application_wantUnicodeInput( Handle self, Bool set, Bool want_ui)
+{
+   if ( !set) return var-> wantUnicodeInput;
+#ifdef PERL_SUPPORTS_UTF8
+   if ( apc_sys_get_value( svCanUTF8_Input)) 
+      var-> wantUnicodeInput = want_ui;
+#endif
+   return 0;
+}
+
 
 void   Application_update_sys_handle( Handle self, HV * profile) {}
 Bool   Application_get_capture( Handle self) { return false; }

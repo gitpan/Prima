@@ -25,11 +25,12 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: PodView.pm,v 1.22 2003/04/04 21:10:41 dk Exp $
+#  $Id: PodView.pm,v 1.26 2003/07/07 15:08:28 dk Exp $
 
 use strict;
 use Prima;
 use Config;
+use Prima::Utils;
 use Prima::TextView;
 
 package Prima::PodView::Link;
@@ -76,13 +77,13 @@ use constant STYLE_ITEM   => 4;
 use constant STYLE_LINK   => 5;
 use constant STYLE_MAX_ID => 5;
 
-# model layout indeces
+# model layout indices
 use constant M_INDENT      => 0; # pod-content driven indent
 use constant M_TEXT_OFFSET => 1; # contains same info as BLK_TEXT_OFFSET
 use constant M_FONT_ID     => 2; # 0 or 1 ( i.e., variable or fixed )
 use constant M_START       => 3; # start of data, same purpose as BLK_START
 
-# topic layout indeces
+# topic layout indices
 use constant T_MODEL_START => 0; # beginning of topic
 use constant T_MODEL_END   => 1; # length of a topic
 use constant T_DESCRIPTION => 2; # topic name
@@ -514,10 +515,11 @@ sub load_file
       push @ext, ( '.bat' ) if $^O =~ /win32/i;
       push @ext, ( '.bat', '.cmd' ) if $^O =~ /os2/;
       push @ext, ( '.com' ) if $^O =~ /VMS/;
-      for ( map { $_, "$_/pod" } 
+      for ( map { $_, "$_/pod", "$_/pods" } 
               grep { defined && length && -d } 
                  @INC, 
                  split( $Config::Config{path_sep}, $ENV{PATH})) {
+                 print "$_/$manpage\n";
          if ( -f "$_/$manpage") {
             $manpage = "$_/$manpage";
             $path = $_;
@@ -634,7 +636,7 @@ sub add_formatted
                       grep { defined && length && -d } 
                       ( length($self-> {manpath}) ? $self->{manpath} : (), 
                         @INC, split( $Config::Config{path_sep}, $ENV{PATH}));
-                  $src = Prima::find_image( $src);
+                  $src = Prima::Utils::find_image( $src);
                   next unless $src;
                }
                $src = Prima::Image-> load( $src, index => $frame);
@@ -1168,7 +1170,12 @@ sub format
    $self-> paneSize(0,0);
    $self-> {formatTimer}-> start;
    $self-> select_text_offset( $autoOffset) if $autoOffset;
-   $self-> format_chunks;
+
+   while ( 1) {
+      $self-> format_chunks;
+      last unless $self->{formatData} && $self-> {blocks}->[-1] &&
+                  $self-> {blocks}->[-1]->[tb::BLK_Y] < $ph;
+   }
 }
 
 sub FormatTimer_Tick
@@ -1621,7 +1628,7 @@ the man page is viewed by topics or as a whole. When it is viewed as topics,
 C<{modelRange}> array selects the model blocks that include the topic.
 Thus, having a single model loaded, text blocks change dynamically.
 
-Topics contained in C<{topics}> array, each is an array with indeces of C<T_XXX>
+Topics contained in C<{topics}> array, each is an array with indices of C<T_XXX>
 constants:
 
     T_MODEL_START - beginning of topic

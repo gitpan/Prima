@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_clipboard.c,v 1.12 2003/01/06 12:57:20 dk Exp $
+ * $Id: apc_clipboard.c,v 1.13 2003/07/07 15:08:31 dk Exp $
  */
 
 #include "unix/guts.h"
@@ -132,7 +132,7 @@ get_typename( long id, int index)
 {
    switch ( id) {
    case cfText:
-      if ( !wantUnicodeInput) break;
+      if ( !PApplication(application)-> wantUnicodeInput) break;
       if ( index > 1) return None;
       return ( index == 0) ? UTF8_STRING : CF_NAME(id);
    case cfBitmap:

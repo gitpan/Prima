@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Config.pm,v 1.13 2002/10/02 07:41:36 dk Exp $
+# $Id: Config.pm,v 1.14 2003/05/06 19:05:07 tobez Exp $
 package Prima::VB::Config;
 
 sub pages
@@ -146,13 +146,6 @@ sub classes
       RTModule => 'Prima::Lists',
       module   => 'Prima::VB::CoreClasses',
    },
-   'Prima::CheckBoxGroup' => {
-      icon     => 'VB::classes.gif:11',
-      page     => 'Additional',
-      class    => 'Prima::VB::GroupCheckBox',
-      RTModule => 'Prima::Buttons',
-      module   => 'Prima::VB::CoreClasses',
-   },
    'Prima::CheckBox' => {
       icon     => 'VB::classes.gif:2',
       page     => 'General',
@@ -165,13 +158,6 @@ sub classes
       page     => 'Sliders',
       class    => 'Prima::VB::CircularSlider',
       RTModule => 'Prima::Sliders',
-      module   => 'Prima::VB::CoreClasses',
-   },
-   'Prima::RadioGroup' => {
-      icon     => 'VB::classes.gif:12',
-      page     => 'Additional',
-      class    => 'Prima::VB::GroupRadioBox',
-      RTModule => 'Prima::Buttons',
       module   => 'Prima::VB::CoreClasses',
    },
    'Prima::DetailedList' => {

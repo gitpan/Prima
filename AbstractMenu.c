@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: AbstractMenu.c,v 1.54 2003/01/22 12:37:04 dk Exp $
+ * $Id: AbstractMenu.c,v 1.55 2003/06/05 18:47:00 dk Exp $
  */
 
 #include "apricot.h"
@@ -383,6 +383,7 @@ AbstractMenu_init( Handle self, HV * profile)
    my-> set_items( self, pget_sv( items));
    if ( var-> system) apc_menu_update( self, nil, var-> tree);
    if ( pget_B( selected)) my-> set_selected( self, true);
+   CORE_INIT_TRANSIENT(AbstractMenu);
 }
 
 void

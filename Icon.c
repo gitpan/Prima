@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Icon.c,v 1.36 2003/03/24 21:25:44 dk Exp $
+ * $Id: Icon.c,v 1.37 2003/06/05 18:47:00 dk Exp $
  */
 
 #include "apricot.h"
@@ -265,6 +265,7 @@ Icon_init( Handle self, HV * profile)
    my-> set_maskColor( self, pget_i( maskColor));
    my-> set_autoMasking( self, pget_i( autoMasking));
    my-> set_mask( self, pget_sv( mask));
+   CORE_INIT_TRANSIENT(Icon);
 }
 
 

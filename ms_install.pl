@@ -24,11 +24,11 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: ms_install.pl,v 1.1 2002/04/30 20:47:37 dk Exp $
+#  $Id: ms_install.pl,v 1.4 2003/06/20 13:27:28 dk Exp $
 #
 
 BEGIN {
-  die <<UX if $^O !~ /os2|win32/i;
+  die <<UX if $^O !~ /os2|win32|cygwin/i;
   This program is only intented to be run under MSWin32 and OS/2,
   for the binary installations. Please install the toolkit from the 
   source distribution, by typing 
@@ -68,14 +68,19 @@ SD
    }
 }
 
+my $os2 = $^O eq 'os2';
+my $mswin32 = ($^O =~ /win32/);
+my $cygwin = ($^O =~ /cygwin/);
 
 my $iarc = $Config{ installsitearch};
 my $ibin = $Config{ installbin};
 my $perlpath = $Config{ perlpath};
-$perlpath =~ s/(perl)(\.exe)?$/$1__$2/i if $perlpath =~ /perl(\.exe)?$/i;
+$perlpath =~ s/(perl)(\.exe)?$/$1__$2/i if $os2 && $perlpath =~ /perl(\.exe)?$/i;
 
-$iarc =~ s/\//\\/g;
-$ibin =~ s/\//\\/g;
+unless ( $cygwin) {
+   $iarc =~ s/\//\\/g;
+   $ibin =~ s/\//\\/g;
+}
 
 die "Broken config: cannot find directory $iarc\n" unless -d $iarc;
 die "Broken config: cannot find directory $ibin\n" unless -d $ibin;
@@ -87,7 +92,6 @@ $binlib =~ s/\s/_/g;
 die "No distribution found. The install script must be put into the toolkit root directory\n" 
    unless -f 'Prima.pm';
 
-my $os2 = $^O eq 'os2';
 
 my (@instfiles, @instdir);
 
@@ -121,7 +125,7 @@ if ( $install) {
 
       return if -d $_ && m/(utils|pod|test|win32|os2|unix|img|CVS|include|scripts)$/i;
       return if $File::Find::dir =~ /test|CVS|include|win32|os2|unix|bsd|scripts/i;
-      return if m/ms_install|Makefile|\.(pdb|opt|pal|obj|log|dsp|dsw|ncb|c|cls|h|inc|def|tml)/;
+      return if m/ms_install|Makefile|\.(pdb|opt|pal|obj|log|dsp|dsw|ncb|c|cls|h|inc|def|tml|o)/;
 
       if ( -d $_) {
          print "Creating $destdir/$_\n";
@@ -149,7 +153,7 @@ if ( $install) {
    print "Copying executables...\n";
    for ( @cpbin) {
       my ( $src, $dst) = @$_;
-      $dst .= ( $os2 ? '.cmd' : '.bat');
+      $dst .= ( $os2 ? '.cmd' : ( $mswin32 ? '.bat' : ''));
       push @instfiles, $dst;
       print "Installing $src ...\n";
       if ( $os2) {
@@ -166,7 +170,7 @@ ENDP
          }
          close SRCPL;
          close DSTPL;
-      } else {
+      } elsif ( $mswin32) {
          my $i = system("pl2bat $src");
          $src =~ s/pl$//i;
          $src .= 'bat';
@@ -174,6 +178,20 @@ ENDP
          print "Installing $dst ...\n";
          abort "Error:$!\n" unless copy $src, $dst;
          unlink $src;
+      } else {
+         open SRCPL, "<$src" or abort "Cannot open $src: $!";
+         open DSTPL, ">$dst" or abort "Cannot create $dst: $!";
+         print DSTPL <<ENDP;
+#!$Config{perlpath} -w
+ENDP
+         my $filestart = 1;
+         while ( <SRCPL>) {
+             next if $filestart && /^\#\!/;
+             $filestart = 0;
+             print DSTPL;
+         }
+         close SRCPL;
+         close DSTPL;
       }
    }
 

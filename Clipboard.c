@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Clipboard.c,v 1.38 2002/11/08 11:49:46 dk Exp $
+ * $Id: Clipboard.c,v 1.39 2003/06/05 18:47:00 dk Exp $
  */
 
 #include "apricot.h"
@@ -81,6 +81,7 @@ Clipboard_init( Handle self, HV * profile)
       Clipboard_register_format_proc( self, "Image", (void*)image_server);
    }
    clipboards++;
+   CORE_INIT_TRANSIENT(Clipboard);
 }
 
 void

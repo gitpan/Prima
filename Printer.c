@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Printer.c,v 1.20 2002/10/31 22:34:21 dk Exp $
+ * $Id: Printer.c,v 1.21 2003/06/05 18:47:00 dk Exp $
  */
 
 #include "apricot.h"
@@ -50,6 +50,7 @@ Printer_init( Handle self, HV * profile)
    prn = pget_c( printer);
    if ( strlen( prn) == 0) prn = my-> get_default_printer( self);
    my-> set_printer( self, prn);
+   CORE_INIT_TRANSIENT(Printer);
 }
 
 void

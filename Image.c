@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Image.c,v 1.111 2003/01/16 13:19:18 dk Exp $
+ * $Id: Image.c,v 1.112 2003/06/05 18:47:00 dk Exp $
  */
 
 #include "img.h"
@@ -110,6 +110,7 @@ Image_init( Handle self, HV * profile)
    }
    apc_image_create( self);
    my->update_change( self);
+   CORE_INIT_TRANSIENT(Image);
 }
 
 void

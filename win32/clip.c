@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: clip.c,v 1.30 2003/04/23 09:15:24 dk Exp $
+ * $Id: clip.c,v 1.32 2003/07/07 15:08:31 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -115,12 +115,10 @@ apc_clipboard_get_data( Handle self, long id, PClipboardDataRec c)
    {
       case CF_BITMAP:
          {
-             PImage image = (PImage) c-> image;
              Handle self  = c-> image;
              HBITMAP b = GetClipboardData( CF_BITMAP);
-             HBITMAP op, p = GetClipboardData( CF_PALETTE);
+             HPALETTE op = nil, p = GetClipboardData( CF_PALETTE);
              HBITMAP obm = sys bm;
-             XBITMAPINFO xbi;
              HDC dc, ops;
 
              if ( b == nil) {
@@ -148,7 +146,7 @@ apc_clipboard_get_data( Handle self, long id, PClipboardDataRec c)
          }
          break;
       case CF_TEXT:
-         if ( wantUnicodeInput && HAS_WCHAR && IsClipboardFormatAvailable( CF_UNICODETEXT)) {
+         if ( PApplication(application)-> wantUnicodeInput && HAS_WCHAR && IsClipboardFormatAvailable( CF_UNICODETEXT)) {
              WCHAR *ptr, *p;
              int i, len, size;
              char *utf;
@@ -213,7 +211,6 @@ apc_clipboard_get_data( Handle self, long id, PClipboardDataRec c)
       default:
          {
             char *ptr;
-            void *ret;
             void *ph = GetClipboardData( id);
 
             if ( ph == nil) {
@@ -261,7 +258,7 @@ apc_clipboard_set_data( Handle self, long id, PClipboardDataRec c)
                     utf8_length( c-> text. text, c-> text. text + c-> text. length) : 
                     c-> text. length;
             int i, cr = 0;
-            void *ptr, *oemptr;
+            void *ptr = nil, *oemptr = nil;
             char *dst;
             HGLOBAL glob, oemglob;
 

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: CoreClasses.pm,v 1.29 2003/04/05 21:47:47 dk Exp $
+# $Id: CoreClasses.pm,v 1.32 2003/05/06 21:10:15 dk Exp $
 package Prima::VB::CoreClasses;
 use strict;
 
@@ -89,18 +89,6 @@ sub classes
          class  => 'Prima::VB::GroupBox',
          page   => 'General',
          icon   => 'VB::classes.gif:10',
-      },
-      'Prima::CheckBoxGroup' => {
-         RTModule => 'Prima::Buttons',
-         class  => 'Prima::VB::GroupCheckBox',
-         page   => 'Additional',
-         icon   => 'VB::classes.gif:11',
-      },
-      'Prima::RadioGroup' => {
-         RTModule => 'Prima::Buttons',
-         class  => 'Prima::VB::GroupRadioBox',
-         page   => 'Additional',
-         icon   => 'VB::classes.gif:12',
       },
       'Prima::ScrollBar' => {
          RTModule => 'Prima::ScrollBar',
@@ -275,7 +263,7 @@ sub prf_types
    my %de = (
       bool    => ['flat','vertical','default','checkable','checked', 'autoRepeat'],
       uiv     => ['glyphs','borderWidth','defaultGlyph','hiliteGlyph','disabledGlyph','pressedGlyph','holdGlyph'],
-      upv     => ['imageScale',],
+      uiv     => ['imageScale',],
       modalResult  => ['modalResult',],
       icon    => ['image',],
    );
@@ -532,6 +520,26 @@ package Prima::VB::GroupBox;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::CommonControl);
 
+sub profile_default
+{
+   my $def = $_[ 0]-> SUPER::profile_default;
+   my %prf = (
+      mainEvent => 'onRadioClick',
+   );
+   @$def{keys %prf} = values %prf;
+   return $def;
+}
+
+sub prf_types
+{
+   my $pt = $_[ 0]-> SUPER::prf_types;
+   my %de = (
+      uiv    => ['index'],
+   );
+   $_[0]-> prf_types_add( $pt, \%de);
+   return $pt;
+}
+
 sub on_paint
 {
    my ( $self, $canvas) = @_;
@@ -553,46 +561,6 @@ sub on_paint
    }
    $self-> common_paint($canvas);
 }
-
-
-package Prima::VB::GroupRadioBox;
-use vars qw(@ISA);
-@ISA = qw(Prima::VB::GroupBox);
-
-sub profile_default
-{
-   my $def = $_[ 0]-> SUPER::profile_default;
-   my %prf = (
-      mainEvent => 'onRadioClick',
-   );
-   @$def{keys %prf} = values %prf;
-   return $def;
-}
-
-sub prf_types
-{
-   my $pt = $_[ 0]-> SUPER::prf_types;
-   my %de = (
-      uiv    => ['index'],
-   );
-   $_[0]-> prf_types_add( $pt, \%de);
-   return $pt;
-}
-
-package Prima::VB::GroupCheckBox;
-use vars qw(@ISA);
-@ISA = qw(Prima::VB::GroupBox);
-
-sub prf_types
-{
-   my $pt = $_[ 0]-> SUPER::prf_types;
-   my %de = (
-      uiv    => ['value'],
-   );
-   $_[0]-> prf_types_add( $pt, \%de);
-   return $pt;
-}
-
 
 package Prima::VB::BiScroller;
 

@@ -24,14 +24,14 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Encodings.pm,v 1.4 2002/10/17 20:30:54 dk Exp $
+#  $Id: Encodings.pm,v 1.6 2003/07/07 15:08:29 dk Exp $
 #
 
 package Prima::PS::Encodings;
 use vars qw(%files %fontspecific %cache);
 
 use strict;
-use Prima;
+use Prima::Utils;
 
 %files = (
   'default'    => 'PS/locale/ascii',
@@ -100,7 +100,7 @@ sub load
 
    return $cache{$fx} if exists $cache{$fx};
 
-   my $f = Prima-> find_image( $fx); 
+   my $f = Prima::Utils::find_image( $fx); 
    unless ( $f) {
       warn("Prima::PS::Encodings: cannot find encoding file for $cp\n");
       return load('default') unless $cp eq 'default';
@@ -141,6 +141,8 @@ thus relying on PS interpreter capabilities. Latter is obviously preferable,
 but as it's not possible to know beforehand what glyphs are supported by
 PS interpreter, the Latin glyph set was selected as a ground level.
 
+=over
+
 =item files
 
 It's unlikely that users will need to supply their own encodings, however
@@ -166,6 +168,8 @@ If fails, loads default encoding, which defines only glyphs from
 =item unique
 
 Returns list of Latin-based encoding string unique keys.
+
+=back
 
 =cut
 

@@ -6,7 +6,7 @@ Data is stored as an array of lines.
 Lines are stored with bottom line first, moving upwards.
 Each line is an array of pixels, leftmost first.
 Lines are padded to be a multiple of a dword long.
-Palettised pixels are either a 1 bit, 4 bit, or 8 bit indexes.
+Palettised pixels are either a 1 bit, 4 bit, or 8 bit indices.
 Alternately a B, G, R triple in that order is stored.
 This format exactly matches the format used by OS/2 and Windows bitmaps.
 
@@ -53,7 +53,7 @@ gbm_read_data may only be legally invoked after an immediately preceeding
 gbm_read_palette. In the case of a 24bpp file (which therefore has no
 palette), gbm_read_data is additionally allowed to follow a gbm_read_header.
 
-$Id: gbm.h,v 1.4 2002/05/14 13:22:30 dk Exp $
+$Id: gbm.h,v 1.6 2003/06/04 11:18:41 dk Exp $
 
 */
 

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Utils.c,v 1.10 2002/05/14 13:22:18 dk Exp $
+ * $Id: Utils.c,v 1.11 2003/07/07 15:08:28 dk Exp $
  */
 
 #include "apricot.h"
@@ -62,6 +62,44 @@ long Utils_ceil( double x)
 long Utils_floor( double x)
 {
     return floor( x);
+}
+
+XS(Utils_getdir_FROMPERL) {
+   dXSARGS;
+   Bool wantarray = ( GIMME_V == G_ARRAY);
+   char *dirname;
+   PList dirlist;
+   int i;
+
+   if ( items >= 2) {
+      croak( "invalid usage of Prima::Utils::getdir");
+   }
+   dirname = SvPV( ST( 0), na);
+   dirlist = apc_getdir( dirname);
+   SPAGAIN;
+   SP -= items;
+   if ( wantarray) {
+      if ( dirlist) {
+         EXTEND( sp, dirlist-> count);
+         for ( i = 0; i < dirlist-> count; i++) {
+            PUSHs( sv_2mortal(newSVpv(( char *)dirlist-> items[i], 0)));
+            free(( char *)dirlist-> items[i]);
+         }
+         plist_destroy( dirlist);
+      }
+   } else {
+      if ( dirlist) {
+         XPUSHs( sv_2mortal( newSViv( dirlist-> count / 2)));
+         for ( i = 0; i < dirlist-> count; i++) {
+            free(( char *)dirlist-> items[i]);
+         }
+         plist_destroy( dirlist);
+      } else {
+         XPUSHs( &sv_undef);
+      }
+   }
+   PUTBACK;
+   return;
 }
 
 #ifdef __cplusplus

@@ -26,7 +26,7 @@
 #  Created by:
 #     Vadim Belman <voland@lflat.org>
 #
-#  $Id: FrameSet.pm,v 1.5 2002/10/17 20:30:51 dk Exp $
+#  $Id: FrameSet.pm,v 1.6 2003/05/02 22:32:58 dk Exp $
 use strict;
 use Prima;
 use Prima::Const;
@@ -877,6 +877,12 @@ sub frames
 {
     my $me = shift;
     return wantarray ? @{$me->{frames}} : $me->{frames};
+}
+
+sub frame
+{
+   my ( $self, $frameIndex) = @_;
+   return $self->{frames}->[$frameIndex];
 }
 
 sub insert_to_frame

@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: EditDialog.pm,v 1.10 2002/10/17 20:30:51 dk Exp $
+#  $Id: EditDialog.pm,v 1.11 2003/06/02 15:06:37 dk Exp $
 
 #  contains:
 #      FindDialog
@@ -306,7 +306,8 @@ also uses the module, and realizes its own searching algorithm.
    if ( $res == mb::Ok) {
       print $dlg-> findText, " is to be found\n";
    } elsif ( $res == mb::ChangeAll) {
-      print "all occurences of ", $dlg-> findText, " is to be replaced by ", $dlg-> replaceText;
+      print "all occurences of ", $dlg-> findText, 
+         " is to be replaced by ", $dlg-> replaceText;
    } 
 
 The C<mb::ChangeAll> constant, one of possible results of C<execute> method, is

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Object.cls,v 1.8 2002/05/14 13:22:17 dk Exp $
+# $Id: Object.cls,v 1.9 2003/06/05 18:47:00 dk Exp $
 
 object Prima::Object
 {
@@ -31,6 +31,7 @@ object Prima::Object
    int  protectCount;
    int  destroyRefCount;
    Handle  owner;
+   void *  transient_class;
    ObjectOptions options;
    method SV*	 can( char *name, Bool cacheIt = 1);
    method void   cleanup();

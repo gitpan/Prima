@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_misc.c,v 1.89 2003/01/22 12:39:30 dk Exp $
+ * $Id: apc_misc.c,v 1.93 2003/07/06 15:56:54 dk Exp $
  */
 
 /***********************************************************/
@@ -44,6 +44,8 @@
 /* Miscellaneous system-dependent functions */
 
 #define X_COLOR_TO_RGB(xc)     (ARGB(((xc).red>>8),((xc).green>>8),((xc).blue>>8)))
+#define RANGE(a)        { if ((a) < -16383) (a) = -16383; else if ((a) > 16383) a = 16383; }
+#define RANGE2(a,b)     RANGE(a) RANGE(b)
 
 Bool
 log_write( const char *format, ...)
@@ -538,6 +540,7 @@ apc_cursor_set_pos( Handle self, int x, int y)
 {
    DEFXX;
    prima_no_cursor( self);
+   RANGE2(x,y);
    XX-> cursor_pos. x = x;
    XX-> cursor_pos. y = y;
    prima_update_cursor( self);
@@ -549,6 +552,10 @@ apc_cursor_set_size( Handle self, int x, int y)
 {
    DEFXX;
    prima_no_cursor( self);
+   if ( x < 0) x = 1;
+   if ( y < 0) y = 1;
+   if ( x > 16383) x = 16383;
+   if ( y > 16383) y = 16383;
    XX-> cursor_size. x = x;
    XX-> cursor_size. y = y;
    prima_update_cursor( self);
@@ -709,6 +716,7 @@ apc_message( Handle self, PEvent e, Bool is_post)
          TAILQ_INSERT_TAIL( &guts.peventq, pe, peventq_link);
       } else {
          CComponent(self)->message( self, e);
+         if ( PObject( self)-> stage == csDead) return false; 
       }
       break;
    }
@@ -884,10 +892,9 @@ apc_show_message( const char * message, Bool utf8)
       int max;
       
       apc_sys_get_msg_font( &f);
-      apc_font_pick( nilHandle, &f, &f);
+      prima_core_font_pick( nilHandle, &f, &f);
       cf = prima_find_known_font( &f, false, false);
       if ( !cf || !cf-> id) {
-         warn( "UAF_007: internal error (cf:%08x)", (IV)cf); /* the font was not cached, can't be */
          warn( "%s", message);
          return false;
       }

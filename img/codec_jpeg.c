@@ -23,19 +23,20 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * $Id: codec_jpeg.c,v 1.8 2003/01/23 10:15:50 dk Exp $
+ * $Id: codec_jpeg.c,v 1.9 2003/06/18 16:40:44 dk Exp $
  *
  */
+
+#include <sys/types.h>
+#include <stdio.h>
+#include <jpeglib.h>
+/* Prima-specific undefs */
+#undef LOCAL
 
 #include "img.h"
 #include "img_conv.h"
 #include "Image.h"
 
-/* Prima-specific undefs */
-#undef HAVE_STDLIB_H
-#undef LOCAL
-#include <stdio.h>
-#include <jpeglib.h>
 
 #ifdef __cplusplus
 extern "C" {

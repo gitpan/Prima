@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: IntUtils.pm,v 1.22 2003/04/05 21:47:46 dk Exp $
+#  $Id: IntUtils.pm,v 1.24 2003/05/29 18:50:07 dk Exp $
 package Prima::IntUtils;
 
 use strict;
@@ -129,7 +129,12 @@ use Prima::ScrollBar;
 
 sub setup_indents
 {
-   $_[0]-> {indents} = [ 0,0,0,0];
+	my ($self) = @_;
+	$self->{indents} = [ 0,0,0,0];
+	my $bw = $self->{borderWidth};
+	$self->{indents}->[$_] += $bw for 0..3;
+	$self->{indents}->[1] += $self->{hScrollBar}->height - 1 if $self->{hScroll};
+	$self->{indents}->[2] += $self->{vScrollBar}->width - 1 if $self->{vScroll};
 }
 
 sub set_border_width
@@ -154,7 +159,7 @@ sub set_border_width
    ) if $self-> {vScroll};
    $self-> insert_bone if defined $self-> {bone};
    my $d = $bw - $obw;
-   $self-> {indents}-> [$_] += $d for 0..3;
+   $self->setup_indents;
 }
 
 
@@ -170,6 +175,7 @@ sub insert_bone
       size   => [ $self->{vScrollBar}-> width-2, $self->{hScrollBar}-> height-1],
       growMode  => gm::GrowLoX,
       widgetClass => wc::ScrollBar,
+      designScale => undef,
       onPaint   => sub {
          my ( $self, $canvas, $owner, $w, $h) = ($_[0], $_[1], $_[0]-> owner, $_[0]-> size);
          $canvas-> color( $self-> backColor);
@@ -195,8 +201,9 @@ sub set_h_scroll
          pointerType => cr::Arrow,
          width       => $self-> width - 2 * $bw + 2 - ( $self->{vScroll} ? $self->{vScrollBar}-> width - 2 : 0),
          delegations => ['Change'],
+         designScale => undef,
       );
-      $self-> {indents}->[1] += $self->{hScrollBar}-> height - 1;
+      $self->setup_indents;
       if ( $self->{vScroll})
       {
          my $h = $self-> {hScrollBar}-> height;
@@ -207,7 +214,7 @@ sub set_h_scroll
          $self-> insert_bone;
       }
    } else {
-      $self->{indents}->[1] -= $self->{hScrollBar}-> height - 1;
+      $self->setup_indents;
       $self->{hScrollBar}-> destroy;
       if ( $self->{vScroll})
       {
@@ -237,8 +244,9 @@ sub set_v_scroll
          growMode => gm::GrowLoX | gm::GrowHiY,
          pointerType  => cr::Arrow,
          delegations  => ['Change'],
+         designScale => undef,
       );
-      $self->{indents}->[2] += $self->{vScrollBar}-> width - 1;
+      $self->setup_indents;
       if ( $self->{hScroll})
       {
          $self-> {hScrollBar}->width(
@@ -248,7 +256,7 @@ sub set_v_scroll
          $self-> insert_bone;
       }
    } else {
-      $self->{indents}->[2] -= $self->{vScrollBar}-> width - 1;
+      $self->setup_indents;
       $self-> {vScrollBar}-> destroy;
       if ( $self->{hScroll})
       {

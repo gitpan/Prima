@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Vadim Belman   <voland@plab.ku.dk>
 #
-#  $Id: Gencls.pm,v 1.15 2002/05/14 13:22:21 dk Exp $
+#  $Id: Gencls.pm,v 1.16 2003/06/04 11:18:39 dk Exp $
 #
 # max error is APC058
 
@@ -200,7 +200,7 @@ sub init_variables
     @allMethods = ();	        # methods names
     @allMethodsBodies = ();	# methods bodies, as is
     @allMethodsDefaults = ();   # methods default parameters
-    %allMethods = ();	        # hash, containing indeces of methods
+    %allMethods = ();	        # hash, containing indices of methods
     %allMethodsHosts = ();	# hash, bonded methods => hosts
     @portableMethods = ();	# c & perl portable methods
     @newMethods = ();        	# portable methods that declared first time

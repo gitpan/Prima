@@ -4,12 +4,12 @@ package Prima::Config;
 use vars qw(%Config %Config_inst);
 
 %Config_inst = (
-  incpaths              => [ '/usr/local/lib/perl5/site_perl/5.005/i386-freebsd/Prima/CORE','/usr/local/lib/perl5/site_perl/5.005/i386-freebsd/Prima/CORE/generic','/usr/libdata/perl/5.00503/mach/CORE','/usr/local/include','/usr/X11R6/include' ],
+  incpaths              => [ '/usr/local/lib/perl5/site_perl/5.8.0/i386-freebsd/Prima/CORE','/usr/local/lib/perl5/site_perl/5.8.0/i386-freebsd/Prima/CORE/generic','/usr/local/lib/perl5/5.8.0/i386-freebsd/CORE','/usr/local/include','/usr/X11R6/include','/usr/local/include/freetype2' ],
   gencls                => '/usr/local/bin\\gencls',
   tmlink                => '/usr/local/bin\\tmlink',
-  libname               => '/usr/local/lib/perl5/site_perl/5.005/i386-freebsd/Prima.a',
-  dlname                => '/usr/local/lib/perl5/site_perl/5.005/i386-freebsd/auto/Prima/Prima.so',
-  ldpaths               => ['/usr/lib','/usr/local/lib','/usr/X11R6/lib'],
+  libname               => '/usr/local/lib/perl5/site_perl/5.8.0/i386-freebsd/Prima.a',
+  dlname                => '/usr/local/lib/perl5/site_perl/5.8.0/i386-freebsd/auto/Prima/Prima.so',
+  ldpaths               => ['/usr/lib','/usr/local/lib','/usr/local/lib','/usr/X11R6/lib'],
 );
 
 %Config = (
@@ -17,14 +17,14 @@ use vars qw(%Config %Config_inst);
   quote                 => '\'',
   platform              => 'unix',
   compiler              => 'gcc',
-  incpaths              => [ '/usr/home/dk/src/Prima/include','/usr/home/dk/src/Prima/include/generic','/usr/libdata/perl/5.00503/mach/CORE','/usr/local/include','/usr/X11R6/include' ],
+  incpaths              => [ '/usr/home/dk/src/Prima/include','/usr/home/dk/src/Prima/include/generic','/usr/local/lib/perl5/5.8.0/i386-freebsd/CORE','/usr/local/include','/usr/X11R6/include','/usr/local/include/freetype2' ],
   platform_path         => '/usr/home/dk/src/Prima/unix',
-  gencls                => '\'perl\' /usr/home/dk/src/Prima/utils/gencls.pl',
-  tmlink                => '\'perl\' /usr/home/dk/src/Prima/utils/tmlink.pl',
+  gencls                => '\'/usr/local/bin/perl58\' /usr/home/dk/src/Prima/utils/gencls.pl',
+  tmlink                => '\'/usr/local/bin/perl58\' /usr/home/dk/src/Prima/utils/tmlink.pl',
   scriptext             => '',
   genclsoptions         => '--tml --h --inc',
   cc                    => 'cc',
-  cflags                => '-c  -Wall    ',
+  cflags                => '-c -DHAS_FPSETMASK -DHAS_FLOATINGPOINT_H -fno-strict-aliasing -I/usr/local/include -Wall  -O  ',
   cdebugflags           => '-g -O',
   cincflag              => '-I',
   cobjflag              => '-o ',
@@ -38,17 +38,17 @@ use vars qw(%Config %Config_inst);
   dlname                => '/usr/home/dk/src/Prima/auto/Prima/Prima.so',
   dlext                 => '.so',
   ld                    => 'cc',
-  ldflags               => ' -Wl,-E -shared -lperl -lm   ',
+  ldflags               => ' -shared  -L/usr/local/lib  ',
   lddefflag             => '',
   lddebugflags          => '-g',
   ldoutflag             => '-o ',
   ldlibflag             => '-l',
   ldlibpathflag         => '-L',
-  ldpaths               => ['/usr/lib','/usr/local/lib','/usr/X11R6/lib'],
-  ldlibs                => ['m','c','crypt','gcc','X11','Xext','Xpm','jpeg','png','tiff','ungif'],
+  ldpaths               => ['/usr/lib','/usr/local/lib','/usr/local/lib','/usr/X11R6/lib'],
+  ldlibs                => ['m','c','crypt','util','gcc','X11','Xext','freetype','fontconfig','Xrender','Xft','iconv','jpeg','png','tiff','ungif','Xpm'],
   ldlibext              =>'',
   inline                => 'inline',
-  perl                  => 'perl',
+  perl                  => '/usr/local/bin/perl58',
   dl_load_flags         => 1,
 );
 

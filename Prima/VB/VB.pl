@@ -22,9 +22,9 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: VB.pl,v 1.73 2003/04/05 21:47:47 dk Exp $
+# $Id: VB.pl,v 1.75 2003/07/07 15:08:30 dk Exp $
 use strict;
-use Prima qw(StdDlg Notebooks MsgBox ComboBox ColorDialog IniFile);
+use Prima qw(StdDlg Notebooks MsgBox ComboBox ColorDialog IniFile Utils);
 use Prima::VB::VBLoader;
 use Prima::VB::VBControls;
 use Prima::VB::CfgMaint;
@@ -1238,7 +1238,7 @@ sub init
       origin    => [ 4, $self-> height - 30],
       size      => [ 26, 26],
       hint      => 'New',
-      imageFile => Prima::find_image( 'VB::VB.gif').':1',
+      imageFile => Prima::Utils::find_image( 'VB::VB.gif').':1',
       glyphs    => 2,
       onClick   => sub { $VB::main-> new; } ,
    );
@@ -1247,7 +1247,7 @@ sub init
       origin    => [ 32, $self-> height - 30],
       size      => [ 26, 26],
       hint      => 'Open',
-      imageFile => Prima::find_image( 'VB::VB.gif').':2',
+      imageFile => Prima::Utils::find_image( 'VB::VB.gif').':2',
       glyphs    => 2,
       onClick   => sub { $VB::main-> open; } ,
    );
@@ -1256,7 +1256,7 @@ sub init
        origin    => [ 60, $self-> height - 30],
        size      => [ 26, 26],
        hint      => 'Save',
-       imageFile => Prima::find_image( 'VB::VB.gif').':3',
+       imageFile => Prima::Utils::find_image( 'VB::VB.gif').':3',
        glyphs    => 2,
        onClick   => sub { $VB::main-> save; } ,
     );
@@ -1265,7 +1265,7 @@ sub init
       origin    => [ 88, $self-> height - 30],
       size      => [ 26, 26],
       hint      => 'Run',
-      imageFile => Prima::find_image( 'VB::VB.gif').':4',
+      imageFile => Prima::Utils::find_image( 'VB::VB.gif').':4',
       glyphs    => 2,
       onClick   => sub { $VB::main-> form_run} ,
    );
@@ -1343,7 +1343,7 @@ sub init
    my $font = $self-> font;
    
    $self-> {iniFile} = Prima::IniFile-> create( 
-      file    => Prima::path('VisualBuilder'),
+      file    => Prima::Utils::path('VisualBuilder'),
       default => [
          'View' => [
             'SnapToGrid' => 1,
@@ -1440,7 +1440,7 @@ sub reset_tabs
       my $i = undef;
       if ( $info{icon}) {
          $info{icon} =~ s/\:(\d+)$//;
-         my @parms = ( Prima::find_image( $info{icon}));
+         my @parms = ( Prima::Utils::find_image( $info{icon}));
          push( @parms, 'index', $1) if defined $1;
          $i = Prima::Icon-> create;
          unless ( defined $parms[0] && $i-> load( @parms)) {
@@ -2245,7 +2245,7 @@ sub bring_code_editor
 
 package VisualBuilder;
 
-$::application-> icon( Prima::Image-> load( Prima::find_image( 'VB::VB.gif'), index => 6));
+$::application-> icon( Prima::Image-> load( Prima::Utils::find_image( 'VB::VB.gif'), index => 6));
 $::application-> accelItems( VB::accelItems);
 $VB::main = MainPanel-> create;
 $VB::inspector = ObjectInspector-> create(
@@ -2429,7 +2429,11 @@ value, so it is assigned according to the order of widget creation.
 
 =back
 
+=over
+
 =item View
+
+=over
 
 =item Object inspector
 
@@ -2470,6 +2474,10 @@ This command is an alias to a 'run' icon on the panel.
 
 Explicitly terminates the execution session, initiated by L<Run>
 command.
+
+=back
+
+=back
 
 =over
 

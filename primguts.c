@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: primguts.c,v 1.90 2002/11/08 11:49:46 dk Exp $
+ * $Id: primguts.c,v 1.93 2003/07/07 15:08:28 dk Exp $
  */
 /* Guts library, main file */
 
@@ -582,33 +582,6 @@ XS( Prima_dl_export)
    XSRETURN_EMPTY;
 }
 
-XS( Prima_want_unicode_input)
-{
-   dXSARGS;
-   (void)items;
-   switch ( items) {
-   case 0:
-      XSRETURN_IV( wantUnicodeInput);
-      break;
-   case 1:
-      {
-#ifdef PERL_SUPPORTS_UTF8
-         Bool writable = apc_sys_get_value( svCanUTF8_Input);
-         if ( writable) {
-            int i = SvIV( ST(0));
-            if ( i >= 0) wantUnicodeInput = ( i ? 1 : 0);
-         }
-         XSRETURN_IV( writable);
-#else
-         XSRETURN_IV( 0);
-#endif
-      }
-      break;
-   default:
-      croak("Invalid usage of Prima::%s", "want_unicode_input");
-   }
-}
-
 Bool
 build_dynamic_vmt( void *vvmmtt, const char *ancestorName, int ancestorVmtSize)
 {
@@ -1127,7 +1100,7 @@ SV** temporary_prf_Sv;
 Bool dolbug;
 Bool waitBeforeQuit;
 
-#if defined(BROKEN_COMPILER) || (PRIMA_PLATFORM == apcUnix)
+#if defined(BROKEN_COMPILER) || (PRIMA_PLATFORM == apcUnix) || defined(__CYGWIN__)
 #ifndef NAN
 double NAN;
 #endif
@@ -1292,7 +1265,6 @@ NAN = 0.0;
    newXS( "Prima::Object::alive", Object_alive_FROMPERL, "Prima::Object");
    newXS( "Prima::message", Prima_message_FROMPERL, "Prima");
    newXS( "Prima::dl_export", Prima_dl_export, "Prima");
-   newXS( "Prima::want_unicode_input", Prima_want_unicode_input, "Prima");
    register_constants();
    register_Object_Class();
    register_Utils_Package();
@@ -1482,44 +1454,6 @@ FillPattern fillPatterns[] = {
   {0x02, 0x27, 0x05, 0x00, 0x20, 0x72, 0x50, 0x00}
 };
 
-
-XS(Utils_getdir_FROMPERL) {
-   dXSARGS;
-   Bool wantarray = ( GIMME_V == G_ARRAY);
-   char *dirname;
-   PList dirlist;
-   int i;
-
-   if ( items >= 2) {
-      croak( "invalid usage of Prima::Utils::getdir");
-   }
-   dirname = SvPV( ST( 0), na);
-   dirlist = apc_getdir( dirname);
-   SPAGAIN;
-   SP -= items;
-   if ( wantarray) {
-      if ( dirlist) {
-         EXTEND( sp, dirlist-> count);
-         for ( i = 0; i < dirlist-> count; i++) {
-            PUSHs( sv_2mortal(newSVpv(( char *)dirlist-> items[i], 0)));
-            free(( char *)dirlist-> items[i]);
-         }
-         plist_destroy( dirlist);
-      }
-   } else {
-      if ( dirlist) {
-         XPUSHs( sv_2mortal( newSViv( dirlist-> count / 2)));
-         for ( i = 0; i < dirlist-> count; i++) {
-            free(( char *)dirlist-> items[i]);
-         }
-         plist_destroy( dirlist);
-      } else {
-         XPUSHs( &sv_undef);
-      }
-   }
-   PUTBACK;
-   return;
-}
 
 /* list section */
 
@@ -1752,7 +1686,10 @@ hash_store( PHash h, const void *key, int keyLen, void *val)
 {
    HE *he;
    ksv_check;
-   if ( he) return false;
+   if ( he) {
+      HeVAL( he) = &sv_undef;
+      hv_delete_ent( h, ksv, G_DISCARD, 0);
+   }
    he = hv_store_ent( h, ksv, &sv_undef, 0);
    HeVAL( he) = ( SV *) val;
    return true;

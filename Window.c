@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Window.c,v 1.48 2003/01/22 12:37:04 dk Exp $
+ * $Id: Window.c,v 1.49 2003/06/05 18:47:00 dk Exp $
  */
 
 #include "apricot.h"
@@ -67,6 +67,7 @@ Window_init( Handle self, HV * profile)
       my-> set_menuItems( self, sv);
    my-> set_modalResult( self, pget_i( modalResult));
    my-> set_modalHorizon( self, pget_B( modalHorizon));
+   CORE_INIT_TRANSIENT(Window);
 }
 
 void

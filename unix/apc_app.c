@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_app.c,v 1.86 2002/12/31 22:49:43 dk Exp $
+ * $Id: apc_app.c,v 1.90 2003/07/09 10:18:47 dk Exp $
  */
 
 /***********************************************************/
@@ -53,6 +53,7 @@
 
 UnixGuts guts;
 
+
 static int
 x_error_handler( Display *d, XErrorEvent *ev)
 {
@@ -72,7 +73,19 @@ x_error_handler( Display *d, XErrorEvent *ev)
 	 tail = 0;
    }
 
-   if ( ev-> request_code == 42 /*X_SetInputFocus*/) return 0;
+   switch ( ev-> request_code) {
+   case 38: /* X_QueryPointer - apc_event uses sequence of XQueryPointer calls,
+               to find where the pointer belongs. The error is raised when one
+               of the windows disappears . */
+   case 42: /* X_SetInputFocus */
+      return 0;
+   }
+
+   if ( ev-> request_code == guts. xft_xrender_major_opcode &&
+        ev-> request_code > 127 && 
+        ev-> error_code == BadLength)
+      /* Xrender large polygon request failed */ 
+      guts. xft_disable_large_fonts = 1;
 
    XGetErrorText( d, ev-> error_code, buf, BUFSIZ);
    XGetErrorDatabaseText( d, name, "XError", "X Error", mesg, BUFSIZ);
@@ -186,6 +199,7 @@ window_subsystem_init( void)
       "FOREGROUND",
       "BACKGROUND"
    };
+   char hostname_buf[256], *hostname = hostname_buf;
    
    bzero( &guts, sizeof( guts));
    {
@@ -272,7 +286,7 @@ window_subsystem_init( void)
    guts.qscrollfirst = *ql++;
    guts.qScrollnext = *ql++;
    guts.qscrollnext = *ql++;
-
+  
    guts. mouse_buttons = XGetPointerMapping( DISP, guts. buttons_map, 256);
    XCHECKPOINT;
 
@@ -297,7 +311,7 @@ window_subsystem_init( void)
 		     &guts. cursor_width,
 		     &guts. cursor_height);
    XCHECKPOINT;
-
+   
    TAILQ_INIT( &guts.paintq);
    TAILQ_INIT( &guts.peventq);
    TAILQ_INIT( &guts.bitmap_gc_pool);
@@ -306,7 +320,8 @@ window_subsystem_init( void)
    guts. windows = hash_create();
    guts. menu_windows = hash_create();
    guts. ximages = hash_create();
-   guts. menugc = XCreateGC( DISP, guts. root, 0, &gcv);
+   gcv. graphics_exposures = false;
+   guts. menugc = XCreateGC( DISP, guts. root, GCGraphicsExposures, &gcv);
    guts. resolution. x = 25.4 * guts. displaySize. x / DisplayWidthMM( DISP, SCREEN);
    guts. resolution. y = 25.4 * DisplayHeight( DISP, SCREEN) / DisplayHeightMM( DISP, SCREEN);
    guts. depth = DefaultDepth( DISP, SCREEN);
@@ -345,6 +360,11 @@ window_subsystem_init( void)
    bzero( &guts. cursor_gcv, sizeof( guts. cursor_gcv));
    guts. cursor_gcv. cap_style = CapButt;
    guts. cursor_gcv. function = GXcopy;
+
+   gethostname( hostname, 256);
+   hostname[255] = '\0';
+   XStringListToTextProperty((char **)&hostname, 1, &guts. hostname);
+
 /*    XSynchronize( DISP, true); */
    return true;
 }
@@ -376,22 +396,25 @@ window_subsystem_done( void)
 {
    if ( !DISP) return;
 
+   if ( guts. hostname. value) {
+      XFree( guts. hostname. value);
+      guts. hostname. value = nil;
+   }
+
    prima_end_menu();
    free_gc_pool(&guts.bitmap_gc_pool);
    free_gc_pool(&guts.screen_gc_pool);
    prima_done_color_subsystem();
    free( guts. clipboard_formats);
 
-   if ( DISP) {
-      XFreeGC( DISP, guts. menugc);
-      prima_gc_ximages();          /* verrry dangerous, very quiet please */
-      if ( guts.pointer_font) {
-         XFreeFont( DISP, guts.pointer_font);
-         guts.pointer_font = nil;
-      }
-      XCloseDisplay( DISP);
-      DISP = nil;
+   XFreeGC( DISP, guts. menugc);
+   prima_gc_ximages();          /* verrry dangerous, very quiet please */
+   if ( guts.pointer_font) {
+      XFreeFont( DISP, guts.pointer_font);
+      guts.pointer_font = nil;
    }
+   XCloseDisplay( DISP);
+   DISP = nil;
    
    plist_destroy( guts. files);
    guts. files = nil;
@@ -433,7 +456,7 @@ apc_application_create( Handle self)
    XX-> type.drawable = true;
 
    attrs. event_mask = StructureNotifyMask | PropertyChangeMask;
-   X_WINDOW = XCreateWindow( DISP, guts. root,
+   XX-> client = X_WINDOW = XCreateWindow( DISP, guts. root,
 			     0, 0, 1, 1, 0, CopyFromParent,
 			     InputOutput, CopyFromParent,
 			     CWEventMask, &attrs);

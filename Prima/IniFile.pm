@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@tobez.org>
 #
-#  $Id: IniFile.pm,v 1.16 2002/10/17 20:30:51 dk Exp $
+#  $Id: IniFile.pm,v 1.18 2003/06/04 11:18:39 dk Exp $
 
 package Prima::IniFile;
 
@@ -683,7 +683,7 @@ Returns array of section names.
 
 Assigns VALUES to ITEM in SECTION. If number of new values are equal or greater
 than the number of the old, the method is same as L<replace_values>. Otherwise,
-the values with indexes higher than the number of new values are not touched.
+the values with indices higher than the number of new values are not touched.
 
 =item write
 

@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Sliders.pm,v 1.31 2002/10/17 20:30:52 dk Exp $
+#  $Id: Sliders.pm,v 1.32 2003/05/06 21:40:22 tobez Exp $
 
 # contains:
 #   SpinButton
@@ -456,7 +456,7 @@ sub InputLine_KeyDown
    my ( $self, $edit, $code, $key, $mod) = @_;
    $edit-> clear_event, return if 
       $key == kb::NoKey && !($mod & (km::Alt | km::Ctrl)) &&
-      chr($code) !~ /^[\d+-]$/;
+      chr($code) !~ /^[.\d+-]$/;
    if ( $key == kb::Up || $key == kb::Down || $key == kb::PgDn || $key == kb::PgUp) {
       my ($s,$pgs) = ( $self-> step, $self-> pageStep);
       my $z = ( $key == kb::Up) ? $s : (( $key == kb::Down) ? -$s :

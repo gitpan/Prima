@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Application.cls,v 1.33 2002/10/31 22:34:21 dk Exp $
+# $Id: Application.cls,v 1.35 2003/07/07 22:44:44 dk Exp $
 
 object Prima::Application( Prima::Widget)
 {
@@ -65,6 +65,7 @@ object Prima::Application( Prima::Widget)
    property  Bool   transparent;
    property  SV *   text;
    property  Bool   visible;
+   property  Bool   wantUnicodeInput;
 
    method Bool   begin_paint();
    method Bool   begin_paint_info();
@@ -129,6 +130,7 @@ object Prima::Application( Prima::Widget)
    Handle  topSharedModal;
    Handle  sharedModal;
    List    modalHorizons;
+   Bool    wantUnicodeInput;
 
    c_only  Handle map_focus( Handle from);
    c_only  Handle top_frame( Handle from);

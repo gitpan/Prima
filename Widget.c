@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Widget.c,v 1.122 2003/03/07 13:47:21 dk Exp $
+ * $Id: Widget.c,v 1.125 2003/06/05 18:47:00 dk Exp $
  */
 
 #include "apricot.h"
@@ -199,6 +199,7 @@ Widget_init( Handle self, HV * profile)
    my-> set_visible     ( self, pget_B( visible));
    if ( pget_B( capture)) my-> set_capture( self, 1, nilHandle);
    if ( pget_B( current)) my-> set_current( self, 1);
+   CORE_INIT_TRANSIENT(Widget);
 }
 
 
@@ -969,7 +970,7 @@ Widget_next_positional( Handle self, int dx, int dy)
    /*
       In order to compute positional difference, using four penalties.
       To simplify algorithm, Rect will be translated to int[4] and
-      minor, major and extraDiff assigned to array indexes for those 
+      minor, major and extraDiff assigned to array indices for those 
       steps - minor for first and third, major for second and extraDiff for last one.
     */
    

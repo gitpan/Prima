@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 1997-2003 The Protein Laboratory, University of Copenhagen
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Prima.pm,v 1.50 2003/04/24 08:11:07 dk Exp $
+#  $Id: Prima.pm,v 1.53 2003/07/15 09:20:50 dk Exp $
 
 package Prima;
 
@@ -34,7 +34,7 @@ require DynaLoader;
 use vars qw($VERSION @ISA $__import);
 @ISA = qw(DynaLoader);
 sub dl_load_flags { 0x00 }
-$VERSION = '1.10';
+$VERSION = '1.11';
 bootstrap Prima $VERSION;
 unless ( UNIVERSAL::can('Prima', 'init')) {
    $::application = 0;
@@ -57,18 +57,6 @@ sub run
    $::application = undef if $::application and not $::application->alive;
 }
 
-sub find_image
-{
-   my $mod = @_ > 1 ? shift : 'Prima';
-   my $name = shift;
-   $name =~ s!::!/!g;
-   $mod =~ s!::!/!g;
-   for (@INC) {
-      return "$_/$mod/$name" if -f "$_/$mod/$name" && -r _;
-   }
-   return undef;
-}
-
 sub import
 {
    my @module = @_;
@@ -85,31 +73,6 @@ sub import
       }
       $__import = 0;
    }
-}
-
-# returns a preferred path for the toolkit configuration files,
-# or, if a filename given, returns the name appended to the path
-# and proofs that the path exists
-sub path
-{
-   my $path;
-   if ( exists $ENV{HOME}) {
-      $path = "$ENV{HOME}/.prima";
-   } elsif ( $^O =~ /win32/ && exists $ENV{WINDIR}) {
-      $path = "$ENV{WINDIR}/.prima";
-   } else {
-      $path = "/.prima";
-   }
-
-   if ( $_[0]) {
-      unless ( -d $path) {
-         eval "use File::Path"; die "$@\n" if $@;
-         File::Path::mkpath( $path);
-      }
-      $path .= "/$_[0]";
-   }
-
-   return $path;
 }
 
 1;
@@ -248,36 +211,14 @@ namespace.
 
 =over
 
-=item find_image PATH
-
-Converts PATH from perl module notation into a file path, and
-searches for the file in C<@INC> paths set. If a file is
-found, its full filename is returned; otherwise C<undef> is
-returned.
-
 =item message TEXT 
 
 Displays a system message box with TEXT.
-
-=item path [ FILE ]
-
-If called with no parameters, returns path to a directory,
-usually F<~/.prima>, that can be used to contain the user settings
-of a toolkit module or a program. If FILE is specified, appends
-it to the path and returns the full file name. In the latter case 
-the path is automatically created by C<File::Path::mkpath> unless it
-already exists.
 
 =item run
 
 Enters the program event loop. The loop is ended when C<Prima::Application>'s C<destroy>
 or C<close> method is called.
-
-=item want_unicode_input [ BOOLEAN ]
-
-Selects if the system is allowed to generate key codes in unicode. 
-Returns the effective state of the unicode input flag, which cannot be
-changed if perl or system do not support UTF8.
 
 =back
 
@@ -334,6 +275,8 @@ L<Prima::Edit> - text editor widget
 L<Prima::ExtLists> - listbox with checkboxes
 
 L<Prima::FrameSet> - frameset widget class
+
+L<Prima::Grids> - grid widgets
 
 L<Prima::Header> - a multi-tabbed header widget
 

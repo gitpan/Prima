@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: misc.c,v 1.26 2003/03/26 22:18:50 dk Exp $
+ * $Id: misc.c,v 1.28 2003/06/18 16:40:44 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -79,6 +79,7 @@ apc_beep_tone( int freq, int duration)
          Sleep( duration);
          return true;
       }   
+#ifndef __CYGWIN__
       // Nastiest hack ever - Beep() doesn't work under W9X.
       __asm {
         in      al,0x61                  ;Stop sound, if any
@@ -92,7 +93,7 @@ apc_beep_tone( int freq, int duration)
         mov     bx,ax                    ;Save Count in BX
         in      al,0x61                  ;Check the value in port 0x61
         test    al,3                     ;Bits 0 and 1 set if speaker is on
-        jnz     SetCount                 ;If they're already on, continue
+        jnz     SetCount                 ;If they are already on, continue
 
                                          ;Turn on speaker
         or      al,3                     ;Set bits 0 and 1
@@ -112,6 +113,7 @@ SetCount:
          and    al, 0xfc
          out    0x61, al
       }    
+#endif
    }   
    return true;
 }
@@ -124,6 +126,11 @@ apc_query_drives_map( const char *firstDrive, char *map, int len)
    DWORD driveMap;
    int i;
 
+#ifdef __CYGWIN__
+   if ( !map || len <= 0) return true;
+   *map = 0;
+   return true;
+#endif   
    if ( !map) return false;
 
    beg = toupper( *firstDrive);
@@ -164,6 +171,9 @@ int
 apc_query_drive_type( const char *drive)
 {
    char buf[ 256];                        //  Win95 fix
+#ifdef __CYGWIN__
+   return false;
+#endif   
    strncpy( buf, drive, 256);             //     sometimes D: isn't enough for 95,
    if ( buf[1] == ':' && buf[2] == 0) {   //     but ok for D:\.
       buf[2] = '\\';                      //
@@ -186,6 +196,44 @@ apc_get_user_name()
 PList
 apc_getdir( const char *dirname)
 {
+#ifdef __CYGWIN__   
+   DIR *dh;
+   struct dirent *de;
+   PList dirlist = nil;
+   char *type, *dname;
+   char path[ 2048];
+   struct stat s;
+
+   if ( *dirname == '/' && dirname[1] == '/') dirname++;
+   if ( strcmp( dirname, "/") == 0)
+      dname = "";
+   else
+      dname = dirname;
+      
+
+   if (( dh = opendir( dirname)) && (dirlist = plist_create( 50, 50))) {
+      while (( de = readdir( dh))) {
+	 list_add( dirlist, (Handle)duplicate_string( de-> d_name));
+         snprintf( path, 2047, "%s/%s", dname, de-> d_name);
+         type = nil;
+         if ( stat( path, &s) == 0) {
+            switch ( s. st_mode & S_IFMT) {
+            case S_IFIFO:        type = "fifo";  break;
+            case S_IFCHR:        type = "chr";   break;
+            case S_IFDIR:        type = "dir";   break;
+            case S_IFBLK:        type = "blk";   break;
+            case S_IFREG:        type = "reg";   break;
+            case S_IFLNK:        type = "lnk";   break;
+            case S_IFSOCK:       type = "sock";  break;
+            }
+         }
+         if ( !type) type = "reg";
+	 list_add( dirlist, (Handle)duplicate_string( type));
+      }
+      closedir( dh);
+   }
+   return dirlist;
+#else   
     long		len;
     char		scanname[MAX_PATH+3];
     WIN32_FIND_DATA	FindData;
@@ -255,6 +303,7 @@ apc_getdir( const char *dirname)
 #undef FILE
 #undef DIR
     return ret;
+#endif    
 }
 
 Bool
@@ -402,9 +451,7 @@ prf_exists( HKEY hk, char * path, int * info)
 {
    HKEY hKey;
    long cache;
-   Bool user = false;
-
-   if ( cache = ( long) hash_fetch( regnodeMan, path, strlen( path))) {
+   if (( cache = ( long) hash_fetch( regnodeMan, path, strlen( path)))) {
       if ( info) *info = cache;
       return cache & rgxExists;
    }
@@ -438,7 +485,7 @@ prf_find( HKEY hk, char * path, List * ids, int firstName, char * result)
    int j = 2, info;
 
    while ( j--) {
-      snprintf( buf, MAXREGLEN, "%s\\%s", path, ids[j].items[ firstName]);
+      snprintf( buf, MAXREGLEN, "%s\\%s", path, ( char*) ids[j].items[ firstName]);
       if ( prf_exists( hk, buf, nil)) {
          if ( ids[j].count > firstName + 1) {
             if ( prf_find( hk, buf, ids, firstName + 1, result))

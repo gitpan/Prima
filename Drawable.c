@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Drawable.c,v 1.79 2003/03/25 21:33:56 dk Exp $
+ * $Id: Drawable.c,v 1.80 2003/06/05 18:47:00 dk Exp $
  */
 
 #include "apricot.h"
@@ -75,6 +75,7 @@ Drawable_init( Handle self, HV * profile)
    SvHV_Font( pget_sv( font), &Font_buffer, "Drawable::init");
    my-> set_font( self, Font_buffer);
    my-> set_palette( self, pget_sv( palette));
+   CORE_INIT_TRANSIENT(Drawable);
 }
 
 static void

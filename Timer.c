@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Timer.c,v 1.21 2003/01/22 12:37:04 dk Exp $
+ * $Id: Timer.c,v 1.22 2003/06/05 18:47:00 dk Exp $
  */
 
 #include "apricot.h"
@@ -46,6 +46,7 @@ Timer_init( Handle self, HV * profile)
 {
    inherited init( self, profile);
    my-> update_sys_handle( self, profile);
+   CORE_INIT_TRANSIENT(Timer);
 }
 
 void

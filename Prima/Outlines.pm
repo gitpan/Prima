@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Outlines.pm,v 1.36 2003/04/06 10:36:40 dk Exp $
+#  $Id: Outlines.pm,v 1.40 2003/06/18 16:40:44 dk Exp $
 
 # contains:
 #   OutlineViewer
@@ -1379,7 +1379,7 @@ use vars qw(@ISA);
 #  2 : icon width
 #  3 : drive icon, only for roots
 
-my $unix = Prima::Application-> get_system_info->{apc} == apc::Unix;
+my $unix = Prima::Application-> get_system_info->{apc} == apc::Unix || $^O =~ /cygwin/;
 my @images;
 my @drvImages;
 
@@ -1752,7 +1752,7 @@ C<Prima::StringOutline>, C<Prima::Outline>, and C<Prima::DirectoryOutline>.
 Presents a generic interface for browsing the tree-like lists.
 A node in a linked list represents each item.
 The format of node is predefined, and is an anonymous array
-with the following definitions of indexes:
+with the following definitions of indices:
 
 =over
 
@@ -1778,7 +1778,7 @@ Width of an item in pixels.
 
 =back
 
-The indexes above 3 should not be used, because eventual changes to the
+The indices above 3 should not be used, because eventual changes to the
 implementation of the class may use these. It should be enough item 0 to store 
 any value.
 
@@ -2129,6 +2129,10 @@ Default value: 1
 =item openedIcon OBJECT
 
 Provides an icon representation for the expanded items.
+
+=item path STRING
+
+Runtime-only property. Selects current file system path.
 
 =item showDotDirs BOOLEAN
 

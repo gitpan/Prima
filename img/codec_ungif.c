@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: codec_ungif.c,v 1.13 2003/01/15 21:55:47 dk Exp $
+ * $Id: codec_ungif.c,v 1.14 2003/06/19 12:45:25 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 
@@ -84,6 +84,12 @@ static void *
 init( ImgCodecInfo ** info, void * param)
 {
    char vd[1024];
+#ifdef __CYGWIN__
+   /* This is the last remedy. Because otherwise it compiles, it runs,
+      it crashes. The trouble is probably deep inside libungif, which
+      is also probably because of its long buggy history */
+   return nil;
+#endif
    *info = &codec_info;
    sscanf( GIF_LIB_VERSION, "%s %d.%d", vd, &((*info)-> versionMaj), &((*info)-> versionMin));
    if ((*info)-> versionMaj > 4) EGifSetGifVersion( "89a");

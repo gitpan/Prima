@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: DockManager.pm,v 1.6 2002/10/17 20:30:50 dk Exp $
+#  $Id: DockManager.pm,v 1.7 2003/07/07 15:08:28 dk Exp $
 #
 # contains
 #    DockManager
@@ -38,6 +38,7 @@
 
 use strict;
 use Prima;
+use Prima::Utils;
 use Prima::Docks;
 use Prima::Notebooks;
 use Prima::Lists;
@@ -1008,7 +1009,7 @@ sub class
    $image =~ s/\:(\d+)$//;
    my $index = $1 || 0;
    my $i = Prima::Icon-> create;
-   undef($i) unless $i-> load(Prima::find_image($image), index => $index);
+   undef($i) unless $i-> load(Prima::Utils::find_image($image), index => $index);
    return $action, {
       class   => 'Prima::SpeedButton',
       profile => {

@@ -25,10 +25,11 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: StdBitmap.pm,v 1.14 2002/09/15 20:19:37 dk Exp $
+#  $Id: StdBitmap.pm,v 1.15 2003/07/07 15:08:29 dk Exp $
 package Prima::StdBitmap;
 use strict;
 use Prima;
+use Prima::Utils;
 
 my %bmCache;
 
@@ -54,7 +55,7 @@ sub load_std_bmp
    return $i;
 }
 
-my $bmImageFile = Prima-> find_image( "sysimage.gif");
+my $bmImageFile = Prima::Utils::find_image( "sysimage.gif");
 sub icon { return load_std_bmp( $_[0], 1, 0, $bmImageFile); }
 sub image{ return load_std_bmp( $_[0], 0, 0, $bmImageFile); }
 

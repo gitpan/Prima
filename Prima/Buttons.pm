@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Buttons.pm,v 1.33 2002/10/17 20:30:50 dk Exp $
+#  $Id: Buttons.pm,v 1.36 2003/06/04 11:18:39 dk Exp $
 
 # contains:
 #   Button
@@ -1195,8 +1195,8 @@ can be logically split vertically into several equal sub-images. This allows
 the button resource to contain all button states into one image file. 
 The C<glyphs> property assigns how many such sub-images the image object contains.
 
-The sub-image indexes can be assigned for rendition of the different states.
-These indexes are selected by the following integer properties: L<defaultGlyph>,
+The sub-image indices can be assigned for rendition of the different states.
+These indices are selected by the following integer properties: L<defaultGlyph>,
 L<hiliteGlyph>, L<disabledGlyph>, L<pressedGlyph>, L<holdGlyph>.
 
 Default value: 1
@@ -1249,8 +1249,10 @@ modal window, and is pressed, its C<modalResult> value is copied to the C<modalR
 property of the owner window, and the latter is closed. 
 This scheme is helpful for the dialog design:
 
-   $dialog-> insert( 'Prima::Button', modalResult => mb::OK, text => '~Ok', default => 1);
-   $dialog-> insert( 'Prima::Button', modalResult => mb::Cancel, text => 'Cancel);
+   $dialog-> insert( 'Prima::Button', modalResult => mb::OK, 
+      text => '~Ok', default => 1);
+   $dialog-> insert( 'Prima::Button', modalResult => mb::Cancel, 
+      text => 'Cancel);
    return if $dialog-> execute != mb::OK.
 
 The toolkit defines the following constants for C<modalResult> use:
@@ -1337,7 +1339,7 @@ Reverts the C<checked> state of the button and returns the new state.
 Represents a standard radio button, that can be either in checked, or in unchecked state.
 When checked, delivers L<RadioClick> event to the owner ( if the latter provides one ).
 
-The button uses the standard toolkit images with C<sbmp::RadioXXX> indexes. 
+The button uses the standard toolkit images with C<sbmp::RadioXXX> indices. 
 If the images can not be loaded, the button is drawn with the graphic primitives.
 
 =head2 Events
@@ -1354,7 +1356,7 @@ Called when a button is checked.
 
 Represents a standard check box button, that can be either in checked, or in unchecked state.
 
-The button uses the standard toolkit images with C<sbmp::CheckBoxXXX> indexes. 
+The button uses the standard toolkit images with C<sbmp::CheckBoxXXX> indices. 
 If the images can not be loaded, the button is drawn with graphic primitives.
 
 =head1 Prima::GroupBox

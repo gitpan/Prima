@@ -26,7 +26,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: HelpViewer.pm,v 1.23 2003/03/14 14:59:17 dk Exp $
+#  $Id: HelpViewer.pm,v 1.27 2003/07/07 15:08:28 dk Exp $
 
 use strict;
 use Prima;
@@ -35,6 +35,7 @@ use Prima::Buttons;
 use Prima::InputLine;
 use Prima::StdDlg;
 use Prima::IniFile;
+use Prima::Utils;
 
 package Prima::HelpViewer;
 use vars qw(@helpWindows $windowClass);
@@ -118,16 +119,8 @@ sub load_link
          close UNIQUE_FILE_HANDLE_NEVER_TO_BE_CLOSED if 0;
       } else {
          my $pg = $::application-> sys_action('browser');
-         $self-> owner-> status("Cannot start browser"), return unless $pg;
-         my $f = fork;
-         if ( $f < 0) {
-            Prima::MsgBox::message("Cannot fork:$!"); 
-         } elsif ( $f == 0) {
-            { exec("$pg $link"); }
-            eval "use Prima;";
-            Prima::MsgBox::message("Cannot execute $pg:$!");
-            die "Cannot execute $pg:$!";
-         }   
+         $self-> owner-> status("Cannot start browser"), return unless
+           defined $pg && ! system( "$pg $link &");
       }   
       return;
    }
@@ -190,7 +183,7 @@ use vars qw(@ISA $loaddlg $finddlg $prndlg $setupdlg $inifile
 $defaultVariableFont $defaultFixedFont);
 @ISA = qw(Prima::Window);
 
-$inifile = Prima::IniFile-> create( Prima::path( 'HelpWindow'));
+$inifile = Prima::IniFile-> create( Prima::Utils::path( 'HelpWindow'));
 
 sub profile_default
 {
@@ -282,7 +275,8 @@ sub init
       $defaultVariableFont = $self-> {text}-> {fontPalette}-> [0]-> {name};
       $defaultFixedFont    = $self-> {text}-> {fontPalette}-> [1]-> {name};
    }
-   my $enc = (($^O =~ /win32/i) ? 'Western' : 'iso8859-1'); # set a fall-back latin-1 encoding
+   my $enc = ((Prima::Application-> get_system_info->{apc} == apc::Win32) ?
+               'Western' : 'iso8859-1'); # set a fall-back latin-1 encoding
    $enc = $::application-> font_encodings->[0] unless 
       grep { $_ eq $enc } @{$::application-> font_encodings};
    if ( defined $enc) {

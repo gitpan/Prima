@@ -26,7 +26,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: TextView.pm,v 1.14 2003/04/05 21:47:46 dk Exp $
+#  $Id: TextView.pm,v 1.16 2003/07/03 15:00:14 tobez Exp $
 
 use strict;
 use Prima;
@@ -64,7 +64,7 @@ use constant BACKCOLOR_FLAG        => 0x02000000; # OP_COLOR flag for backColor
 use constant BACKCOLOR_DEFAULT     => BACKCOLOR_FLAG|COLOR_INDEX|1;
 use constant COLOR_MASK            => 0xFCFFFFFF;
 
-# OP_TRANSPOSE - indeces
+# OP_TRANSPOSE - indices
 use constant X_X     => 1;
 use constant X_Y     => 2;
 use constant X_FLAGS => 3;
@@ -75,7 +75,7 @@ use constant X_DIMENSION_FONT_HEIGHT => 1; # used only in formatting
 use constant X_TRANSPOSE             => 0;
 use constant X_EXTEND                => 2;
 
-# block header indeces
+# block header indices
 use constant  BLK_FLAGS            => 0;
 use constant  BLK_WIDTH            => 1;
 use constant  BLK_HEIGHT           => 2;
@@ -1344,7 +1344,9 @@ sub on_keydown
       $self-> clear_event; 
    }
 
-   if (( $key == kb::Insert) && ( $mod & km::Ctrl) && $self-> has_selection) {
+   if (((( $key == kb::Insert) && ( $mod & km::Ctrl)) ||
+       chr($code & 0xff) eq "\cC") && $self-> has_selection)
+   {
       $self-> copy;
       $self-> clear_event;
    }

@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: apricot.h,v 1.158 2003/01/22 12:37:05 dk Exp $ */
+/* $Id: apricot.h,v 1.162 2003/07/07 15:08:31 dk Exp $ */
 
 #ifndef _APRICOT_H_
 #define _APRICOT_H_
@@ -59,7 +59,7 @@
    extern double                 NAN;
 #endif
 
-#if PRIMA_PLATFORM == 3
+#if PRIMA_PLATFORM == 3 || defined(__CYGWIN__)
 #ifndef NAN
    extern double NAN;
 #endif
@@ -1426,8 +1426,6 @@ extern U8 *
 prima_uv_to_utf8( U8 * utf8, UV uv);
 
 #endif
-
-extern Bool wantUnicodeInput;
 
 extern int
 prima_utf8_length( const char * utf8);

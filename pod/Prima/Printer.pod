@@ -1,4 +1,4 @@
-=for rcs $Id: Printer.pod,v 1.5 2002/10/16 21:24:23 dk Exp $
+=for rcs $Id: Printer.pod,v 1.6 2003/06/02 10:30:44 dk Exp $
 
 =head1 NAME
 
@@ -187,6 +187,8 @@ Returns a string, identifying a default printer device.
 =item get_handle
 
 Returns a system handle for a printer object.
+
+=back
 
 =head1 AUTHOR
 
