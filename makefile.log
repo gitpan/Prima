@@ -1,0 +1,94 @@
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib /tmp/pmts0001.c  -lm
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib /tmp/pmts0001.c  -lc
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib /tmp/pmts0001.c  -lcrypt
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+/tmp/pmts0001.c:2: io.h: No such file or directory
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+/tmp/pmts0001.c:2: stdint.h: No such file or directory
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+/tmp/pmts0001.c: In function `main':
+/tmp/pmts0001.c:7: `stricmp' undeclared (first use in this function)
+/tmp/pmts0001.c:7: (Each undeclared identifier is reported only once
+/tmp/pmts0001.c:7: for each function it appears in.)
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext -ljpeg
+/usr/libexec/elf/ld: cannot find -lprigraph
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext -ljpeg -lprigraph
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext -ljpeg -lungif
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib /tmp/pmts0001.c  -lm
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib /tmp/pmts0001.c  -lc
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib /tmp/pmts0001.c  -lcrypt
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+/tmp/pmts0001.c:2: io.h: No such file or directory
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+/tmp/pmts0001.c:2: stdint.h: No such file or directory
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+/tmp/pmts0001.c: In function `main':
+/tmp/pmts0001.c:7: `stricmp' undeclared (first use in this function)
+/tmp/pmts0001.c:7: (Each undeclared identifier is reported only once
+/tmp/pmts0001.c:7: for each function it appears in.)
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+/tmp/pmts0001.c: In function `main':
+/tmp/pmts0001.c:7: `_snprintf' undeclared (first use in this function)
+/tmp/pmts0001.c:7: (Each undeclared identifier is reported only once
+/tmp/pmts0001.c:7: for each function it appears in.)
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -c -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000.o /tmp/pmts0001.c
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext -ljpeg
+/usr/libexec/elf/ld: cannot find -lprigraph
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext -ljpeg -lprigraph
+cc -g -O -Iinclude -Iinclude/generic -I/usr/libdata/perl/5.00503/mach/CORE -I/usr/include -I/usr/local/include -I/usr/X11R6/include -DHAVE_CONFIG_H=1 -o/tmp/pmts0000 -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib /tmp/pmts0001.c  -lm -lc -lcrypt -lX11 -lXext -ljpeg -lungif
