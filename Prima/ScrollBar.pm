@@ -30,7 +30,7 @@
 #  Documentation by:
 #     Anton Berezin  <tobez@tobez.org>
 #
-#  $Id: ScrollBar.pm,v 1.16 2003/04/14 10:35:46 dk Exp $
+#  $Id: ScrollBar.pm,v 1.17 2003/11/18 13:11:35 dk Exp $
 
 package Prima::ScrollBar;
 use vars qw(@ISA @stdMetrics);
@@ -801,6 +801,11 @@ is 0. The notification conforms the general I<Prima> rule:
 it is sent when appropriate, regardless to whether this was a
 result of user interaction, or a side effect of some method
 programmer has called.
+
+=item Track
+
+If C<autoTrack> is 0, called when the user changes the thumb position by the mouse
+instead of C<Change>.
 
 =back
 

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_graphics.c,v 1.107 2003/07/30 12:06:29 dk Exp $
+ * $Id: apc_graphics.c,v 1.109 2003/11/10 17:04:48 dk Exp $
  */
 
 /***********************************************************/
@@ -236,7 +236,6 @@ Unbuffered:
    apc_gp_set_fill_pattern( self, XX-> saved_fill_pattern);
 
    if ( !XX-> flags. reload_font && XX-> font && XX-> font-> id) {
-      /* fprintf( stderr, "set font g: %s\n", XX-> font-> load_name); */
       XSetFont( DISP, XX-> gc, XX-> font-> id);
       XCHECKPOINT;
    } else {
@@ -1149,11 +1148,16 @@ apc_gp_get_pixel( Handle self, int x, int y)
          } else 
             c = guts.palette[pixel]. composite;
       } else {
+         int r, g, b, rmax, gmax, bmax;
+         rmax = gmax = bmax = 0xff;
          switch ( guts. idepth) {
          case 16:
             p32 = *(( uint16_t*)(im-> data));
             if ( guts.machine_byte_order != guts.byte_order) 
                p32 = REVERSE_BYTES_16(p32);
+            rmax = 0xff & ( 0xff << ( 8 - guts. red_range));
+            gmax = 0xff & ( 0xff << ( 8 - guts. green_range));
+            bmax = 0xff & ( 0xff << ( 8 - guts. blue_range));
             goto COMP;
          case 24:   
             p32 = (im-> data[0] << 16) | (im-> data[1] << 8) | im-> data[2];
@@ -1165,10 +1169,13 @@ apc_gp_get_pixel( Handle self, int x, int y)
             if ( guts.machine_byte_order != guts.byte_order) 
                p32 = REVERSE_BYTES_32(p32);
          COMP:   
-            c = 
-              ((((p32 & guts. visual. blue_mask)  >> guts. blue_shift) << 8) >> guts. blue_range) |
-              (((((p32 & guts. visual. green_mask) >> guts. green_shift) << 8) >> guts. green_range) << 8) |
-              (((((p32 & guts. visual. red_mask)   >> guts. red_shift)   << 8) >> guts. red_range) << 16);
+            r = ((((p32 & guts. visual. red_mask)   >> guts. red_shift) << 8) >> guts. red_range) & 0xff;
+            g = ((((p32 & guts. visual. green_mask) >> guts. green_shift) << 8) >> guts. green_range) & 0xff;
+            b = ((((p32 & guts. visual. blue_mask)  >> guts. blue_shift) << 8) >> guts. blue_range) & 0xff;
+            if ( r == rmax ) r = 0xff;
+            if ( g == gmax ) g = 0xff;
+            if ( b == bmax ) b = 0xff;
+            c = b | ( g << 8 ) | ( r << 16);
             break;
          default:
             warn("UAG_009: get_pixel not implemented for %d depth", guts.idepth);
@@ -1557,13 +1564,13 @@ gp_text_out_rotated( Handle self, const char * text, int x, int y, int len, Bool
       dsx = x + rx. i. i - psx;
       dsy = REVERT( y + ry. i. i) + psy - r-> dimension. y + 1;
 
-      /*       
-      printf("shift %d %d\n", r-> shift.x, r-> shift.y);            
-      printf("point ref: %d %d => %d %d. dims: %d %d, [%d %d %d]\n", px, py, psx, psy, r-> dimension.x, r-> dimension.y, 
-           cs-> lbearing, cs-> rbearing - cs-> lbearing, cs-> width - cs-> rbearing);
-      printf("plot ref: %d %d => %d %d\n", ax, ay, rx.i.i, ry.i.i);
-      printf("at: %d %d ( sz = %d), dest: %d %d\n", x, y, XX-> size.y, dsx, dsy);
-      */
+      if ( guts. debug & DEBUG_FONTS) {
+	 _debug("shift %d %d\n", r-> shift.x, r-> shift.y);            
+	 _debug("point ref: %d %d => %d %d. dims: %d %d, [%d %d %d]\n", px, py, psx, psy, r-> dimension.x, r-> dimension.y, 
+	      cs-> lbearing, cs-> rbearing - cs-> lbearing, cs-> width - cs-> rbearing);
+	 _debug("plot ref: %d %d => %d %d\n", ax, ay, rx.i.i, ry.i.i);
+	 _debug("at: %d %d ( sz = %d), dest: %d %d\n", x, y, XX-> size.y, dsx, dsy);
+      }
       
 /*   GXandReverse   ropNotDestAnd */		/* dest = (!dest) & src */
 /*   GXorReverse    ropNotDestOr */		/* dest = (!dest) | src */

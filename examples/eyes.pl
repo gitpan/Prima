@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: eyes.pl,v 1.6 2003/08/01 09:45:30 dk Exp $
+#  $Id: eyes.pl,v 1.7 2003/10/15 10:43:17 dk Exp $
 #
 =pod 
 =item NAME
@@ -125,7 +125,7 @@ my $x = Prima::MainWindow-> create(
       my @eye = ( $sz[0] * $eye, $sz[1] * $eye * 2);
       my @pp = $self-> pointerPos;
       for ( 0..1) {
-         $canvas-> transform( @cc);
+         $canvas-> translate( @cc);
          $canvas-> ellipse( 0, 0, @eye);
          my @dd = ( $pp[0] - $cc[0], $pp[1] - $cc[1]);
          my $angle = atan2( $dd[1], $dd[0]);

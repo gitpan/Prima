@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_misc.c,v 1.93 2003/07/06 15:56:54 dk Exp $
+ * $Id: apc_misc.c,v 1.96 2003/11/10 17:04:49 dk Exp $
  */
 
 /***********************************************************/
@@ -183,20 +183,18 @@ apc_fetch_resource( const char *className, const char *name,
    classes[nc]          = 0;
    instances[ni]        = 0;
 
-   /*
-   if (0) {
+   if (guts. debug & DEBUG_XRDB) {
       int i;
-      fprintf( stderr, "inst: ");
+      _debug( "misc: inst: ");
       for ( i = 0; i < ni; i++) {
-         fprintf( stderr, "%s ", XrmQuarkToString( instances[i]));
+         _debug( "%s ", XrmQuarkToString( instances[i]));
       }
-      fprintf( stderr, "\nclas: ");
+      _debug( "\nmisc: class: ");
       for ( i = 0; i < nc; i++) {
-         fprintf( stderr, "%s ", XrmQuarkToString( classes[i]));
+         _debug( "%s ", XrmQuarkToString( classes[i]));
       }
-      fprintf( stderr, "\n");
+      _debug( "\n");
    }
-   */
    
    if ( XrmQGetResource( guts.db,
                          instances,
@@ -995,6 +993,7 @@ apc_show_message( const char * message, Bool utf8)
       XTextProperty p;
       XSizeHints xs;
       XSetWindowAttributes attrs;
+      Atom net_data[2];
       attrs. event_mask = 0
 	 | KeyPressMask
 	 | ButtonPressMask
@@ -1028,6 +1027,10 @@ apc_show_message( const char * message, Bool utf8)
          XSetWMName( DISP, md. w, &p);
          XFree( p. value);
       }
+      net_data[0] = NET_WM_STATE_SKIP_TASKBAR;
+      net_data[1] = NET_WM_STATE_MODAL;
+      XChangeProperty( DISP, md. w, NET_WM_STATE, XA_ATOM, 32,
+          PropModeReplace, ( unsigned char *) net_data, 2);
    }
 
    storage = &guts. message_boxes;
@@ -1146,7 +1149,7 @@ apc_sys_get_value( int v)  /* XXX one big XXX */
    case svCanUTF8_Input:        return 1;
    case svCanUTF8_Output:       return 1;
    default:
-      warn( "apc_sys_get_value(): illegal query: %d", v);
+      return -1;
    }
    return 0;
 }

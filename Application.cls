@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Application.cls,v 1.35 2003/07/07 22:44:44 dk Exp $
+# $Id: Application.cls,v 1.37 2003/11/10 17:04:45 dk Exp $
 
 object Prima::Application( Prima::Widget)
 {

@@ -25,14 +25,16 @@
  
  Created by Dmitry Karasik <dk@plab.ku.dk> 
 
- $Id: codec_Xpm.c,v 1.4 2003/06/19 10:31:27 dk Exp $
+ $Id: codec_Xpm.c,v 1.5 2003/09/17 10:24:40 dk Exp $
 
  */
 
 
+#include "img.h"
 #define Drawable        XDrawable
 #define Font            XFont
 #define Window          XWindow
+#undef FUNC
 #include <X11/xpm.h>
 #undef Font
 #undef Drawable
@@ -42,7 +44,6 @@
 #define XBool int
 #undef Complex
 #undef FUNC
-#include "img.h"
 #include "Icon.h"
 
 #ifdef __cplusplus

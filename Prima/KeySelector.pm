@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: KeySelector.pm,v 1.7 2002/10/17 20:30:51 dk Exp $
+#  $Id: KeySelector.pm,v 1.8 2003/10/15 10:14:26 dk Exp $
 #
 #  Contains:
 #       Prima::KeySelector
@@ -129,7 +129,7 @@ sub init
    $sz[1] -= $fh + 6;
    $self->{keyhook} = $self->insert( Widget =>
       name        => 'Hook',
-      delegations => [qw(Paint KeyDown)],
+      delegations => [qw(Paint KeyDown TranslateAccel )],
       origin     => [ 0, $sz[1]],
       size       => [ $sz[0], $fh + 2],
       growMode   => gm::GrowHiX, 
@@ -176,6 +176,13 @@ sub Hook_KeyDown
    my ( $self, $hook, $code, $key, $mod) = @_;
    $self-> key( Prima::AbstractMenu-> translate_key( $code, $key, $mod));
 }   
+
+sub Hook_TranslateAccel
+{
+   my ( $self, $hook, $code, $key, $mod) = @_;
+   return unless $hook-> focused;
+   $hook-> clear_event unless $key == kb::Tab || $key == kb::BackTab;
+}
 
 sub Hook_Paint
 {

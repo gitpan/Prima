@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Printer.pm,v 1.16 2003/07/07 15:08:29 dk Exp $
+#  $Id: Printer.pm,v 1.18 2003/11/02 14:17:54 dk Exp $
 #
 =pod
 
@@ -180,7 +180,7 @@ sub printer
    $self-> {data} = {};
    $self-> data( $self-> {defaultData});
    $self-> data( $self-> {printers}-> {$printer});
-   $self-> transform( 0, 0);
+   $self-> translate( 0, 0);
    return 1;
 }
 

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: primguts.c,v 1.95 2003/07/30 17:45:55 dk Exp $
+ * $Id: primguts.c,v 1.97 2003/11/10 17:04:45 dk Exp $
  */
 /* Guts library, main file */
 
@@ -77,6 +77,7 @@ CPerlObj* pPerl;
 static PHash vmtHash = nil;
 static List  staticObjects;
 static List  staticHashes;
+static Bool  prima_init_ok = 0;
 
 Handle application = nilHandle;
 long   apcError = 0;
@@ -531,10 +532,45 @@ register_notifications( PVMT vmt)
    sv_free( package);
 }
 
+XS(Prima_options)
+{
+   dXSARGS;
+   char * option, * value = nil;
+   (void)items;
+
+   switch ( items) {
+   case 0:
+      {
+	 int i, argc = 0;
+	 char ** argv;
+	 window_subsystem_get_options( &argc, &argv);
+         EXTEND( sp, argc);
+	 for ( i = 0; i < argc; i++) 
+            PUSHs( sv_2mortal( newSVpv( argv[i], 0)));
+	 PUTBACK;
+	 return;    
+      }
+      break;
+   case 2:
+      value  = (SvOK( ST(1)) ? ( char*) SvPV( ST(1), na) : nil);
+   case 1:
+      option = ( char*) SvPV( ST(0), na);
+      window_subsystem_set_option( option, value);
+      break;
+   default:
+      croak("Invalid call to Prima::options");
+   }
+   SPAGAIN;
+   XSRETURN_EMPTY;
+}
+
 XS(Prima_init)
 {
    dXSARGS;
    (void)items;
+
+   if ( items < 1) croak("Invalid call to Prima::init"); 
+
    {
       SV * ref;
       SV * package = newSVpv( "Prima::Object", 0);
@@ -559,6 +595,15 @@ XS(Prima_init)
    register_notifications((PVMT)CWindow);
    register_notifications((PVMT)CApplication);
    register_notifications((PVMT)CPrinter);
+
+   if ( !window_subsystem_init()) {
+      apc_show_message( "Error initializing PRIMA", 0);
+      ST(0) = &sv_no;
+      XSRETURN(1);
+   };
+
+   prima_init_image_subsystem();
+   prima_init_ok = 1;
    SPAGAIN;
    XSRETURN_EMPTY;
 }
@@ -1142,14 +1187,16 @@ XS( prima_cleanup)
    hash_first_that( primaObjects, (void*)kill_objects, nil, nil, nil);
    hash_destroy( primaObjects, false);
    primaObjects = nil;
-   prima_cleanup_image_subsystem();
-   window_subsystem_cleanup();
+   if ( prima_init_ok) {
+      prima_cleanup_image_subsystem();
+      window_subsystem_cleanup();
+   }
    hash_destroy( vmtHash, false);
    list_delete_all( &staticObjects, true);
    list_destroy( &staticObjects);
    list_destroy( &postDestroys);
    kill_zombies();
-   window_subsystem_done();
+   if ( prima_init_ok) window_subsystem_done();
    list_first_that( &staticHashes, (void*)kill_hashes, nil);
    list_destroy( &staticHashes);
 #ifdef PARANOID_MALLOC
@@ -1255,13 +1302,6 @@ NAN = 0.0;
 
    list_create( &staticObjects, 16, 16);
    list_create( &staticHashes, 16, 16);
-   if ( !window_subsystem_init()) {
-      apc_show_message( "Error initializing PRIMA", 0);
-      ST(0) = &sv_no;
-      XSRETURN(1);
-   };
-
-   prima_init_image_subsystem();
    primaObjects = hash_create();
    vmtHash      = hash_create();
    list_create( &postDestroys, 16, 16);
@@ -1270,6 +1310,7 @@ NAN = 0.0;
    newXS( "::destroy_mate", destroy_mate, MODULE);
    newXS( "Prima::cleanup", prima_cleanup, "Prima");
    newXS( "Prima::init", Prima_init, "Prima");
+   newXS( "Prima::options", Prima_options, "Prima");
    newXS( "Prima::Utils::getdir", Utils_getdir_FROMPERL, "Prima::Utils");
    /* register built-in classes */
    newXS( "Prima::Object::create",  create_from_Perl, "Prima::Object");

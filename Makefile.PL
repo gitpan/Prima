@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Makefile.PL,v 1.156 2003/08/27 19:53:17 dk Exp $
+#  $Id: Makefile.PL,v 1.157 2003/10/24 14:03:17 dk Exp $
 #
 
 BEGIN {
@@ -2371,6 +2371,8 @@ test: all
 \t\@$^X -w test/startup.pl
 \t\@$^X -w test/Tester.pl
 
+ppd:
+\t\@$^X -e "print qq{<SOFTPKG NAME=\\"Prima\\" VERSION=\\"$DEFINES{PRIMA_VERSION},$DEFINES{PRIMA_SUBVERSION},0,0\\">\\n}. qq{\\t<TITLE>Prima</TITLE>\\n}. qq{\\t<ABSTRACT>Perl GUI toolkit</ABSTRACT>\\n}. qq{\\t<AUTHOR>Dmitry Karasik</AUTHOR>\\n}. qq{\\t<IMPLEMENTATION>\\n}. qq{\\t\\t<OS NAME=\\"$^O\\" />\\n}. qq{\\t\\t<ARCHITECTURE NAME=\\"$Config{myarchname}\\" />\\n}. qq{\\t\\t<CODEBASE HREF=\\"http://www.prima.eu.org/download/Prima-$DEFINES{PRIMA_VERSION}.$DEFINES{PRIMA_SUBVERSION}.tar.gz\\" />\\n}. qq{\\t</IMPLEMENTATION>\\n}. qq{</SOFTPKG>\\n}" > Prima.ppd
 
 Makefile: Makefile.PL @Makefile_deps
 \t\@echo Rebuilding Makefile...

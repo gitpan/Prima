@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Classes.pm,v 1.66 2003/07/30 10:22:14 dk Exp $
+# $Id: Classes.pm,v 1.67 2003/10/15 10:43:16 dk Exp $
 use strict;
 package Prima::VB::Classes;
 
@@ -854,7 +854,7 @@ sub prf_types
       lineWidth     => ['lineWidth'],
       rop           => ['rop', 'rop2'],
       bool          => ['textOutBaseline', 'textOpaque'],
-      point         => ['transform'],
+      point         => ['translate'],
       palette       => ['palette'],
       image         => ['region'],
       uiv           => ['splinePrecision'],
@@ -905,7 +905,7 @@ sub prf_adjust_default
       splinePrecision
       textOpaque
       textOutBaseline
-      transform
+      translate
    );
    $def->{text} = '' unless defined $def->{text};
 }

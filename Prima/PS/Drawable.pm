@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Drawable.pm,v 1.20 2003/07/30 10:22:13 dk Exp $
+#  $Id: Drawable.pm,v 1.22 2003/10/23 13:24:45 dk Exp $
 #
 use strict;
 use Prima;
@@ -136,7 +136,7 @@ sub save_state
       rop rop2 textOpaque textOutBaseline font 
    );
    $self-> {saveState}-> {$_} = [$self-> $_()] for qw( 
-      transform clipRect
+      translate clipRect
    );
    $self-> {saveState}-> {localeEncoding} = 
       $self-> {useDeviceFonts} ? [ @{$self-> {localeEncoding}}] : [];
@@ -149,7 +149,7 @@ sub restore_state
          rop rop2 textOpaque textOutBaseline font)) {
        $self-> $_( $self-> {saveState}->{$_});     
    }      
-   for ( qw( transform clipRect)) {
+   for ( qw( translate clipRect)) {
        $self-> $_( @{$self-> {saveState}->{$_}});
    }      
    $self-> {localeEncoding} = $self-> {saveState}-> {localeEncoding};
@@ -186,13 +186,12 @@ sub change_transform
 {
    return if $_[0]-> {delay};
    
-   my @tp = $_[0]-> transform;
+   my @tp = $_[0]-> translate;
    my @cr = $_[0]-> clipRect;
    my @sc = $_[0]-> scale;
    my $ro = $_[0]-> rotate;
    $cr[2] -= $cr[0];
    $cr[3] -= $cr[1];
-   my $mcr2 = -$cr[2];
    my $doClip = grep { $_ != 0 } @cr;
    my $doTR   = grep { $_ != 0 } @tp; 
    my $doSC   = grep { $_ != 0 } @sc; 
@@ -204,6 +203,7 @@ sub change_transform
 
    @cr = $_[0]-> pixel2point( @cr);
    @tp = $_[0]-> pixel2point( @tp);
+   my $mcr2 = -$cr[2];
    
    $_[0]-> emit('grestore') unless $_[1];
    $_[0]-> emit('gsave');
@@ -307,7 +307,8 @@ sub stroke
       }
 
       if ( $self-> {changed}-> {lineWidth}) {
-         $self-> emit( $self-> lineWidth . ' setlinewidth');       
+         my ($lw) = $self-> pixel2point($self-> lineWidth);
+         $self-> emit( $lw . ' setlinewidth');
          $self-> {changed}-> {lineWidth} = 0;
       }
 
@@ -491,7 +492,7 @@ sub new_page
    $self-> {pages}++;
    $self-> emit('grestore');
    $self-> emit("showpage\n%%Page: $self->{pages} $self->{pages}\n");
-   $self-> $_( @{$self-> {saveState}->{$_}}) for qw( transform clipRect);
+   $self-> $_( @{$self-> {saveState}->{$_}}) for qw( translate clipRect);
    $self-> change_transform(1);
    $self-> emit( $self-> {pagePrefix});
 }
@@ -603,11 +604,11 @@ sub rop2
    $self-> SUPER::rop2( $rop);
 }
 
-sub transform
+sub translate
 {
-   return $_[0]-> SUPER::transform unless $#_;
+   return $_[0]-> SUPER::translate unless $#_;
    my $self = shift;
-   $self-> SUPER::transform(@_);
+   $self-> SUPER::translate(@_);
    $self-> change_transform;
 }
 
@@ -1634,7 +1635,7 @@ Can be called for direct PostScript code injection. Example:
 
 =item pixel2point and point2pixel
 
-Helpers for transformation from pixel to points and vice versa.
+Helpers for translation from pixel to points and vice versa.
 
 =item fill & stroke
 

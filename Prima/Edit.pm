@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Edit.pm,v 1.40 2003/07/03 15:00:14 tobez Exp $
+#  $Id: Edit.pm,v 1.41 2003/09/17 10:12:36 dk Exp $
 #
 # edit block types
 package bt;
@@ -2492,7 +2492,7 @@ used by L<blockType> property.
 
 =head1 USAGE
 
-   use Prima:Edit;
+   use Prima::Edit;
    my $e = Prima::Edit-> create(
       text         => 'Hello $world',
       syntaxHilite => 1,

@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: ImageViewer.pm,v 1.19 2002/10/17 20:30:51 dk Exp $
+#  $Id: ImageViewer.pm,v 1.20 2003/10/15 10:43:15 dk Exp $
 #
 use strict;
 use Prima::ScrollWidget;
@@ -95,7 +95,7 @@ sub on_paint
    $canvas-> rect3d( 0, 0, $size[0]-1, $size[1]-1, $bw, $self-> dark3DColor, $self-> light3DColor) if $bw;
    my @r = $self-> get_active_area( 0, @size);
    $canvas-> clipRect( @r);
-   $canvas-> transform( @r[0,1]);
+   $canvas-> translate( @r[0,1]);
    my $imY  = $self->{imageY};
    my $imX  = $self->{imageX};
    my $z = $self->{zoom};

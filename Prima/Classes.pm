@@ -27,15 +27,15 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Classes.pm,v 1.78 2003/08/27 18:59:24 dk Exp $
+#  $Id: Classes.pm,v 1.81 2003/11/15 08:50:10 dk Exp $
 use Prima;
 use Prima::Const;
 
 # class Object; base class of all Prima classes
 package Prima::Object;
+use vars qw(@hooks);
 use strict;
 use Carp;
-
 
 sub CREATE
 {
@@ -57,7 +57,7 @@ sub profile_add
 {
    my ($self,$profile) = @_;
    my $default  = $_[0]-> profile_default;
-
+   $_->( $self, $profile, $default) for @hooks;
    $self-> profile_check_in( $profile, $default);
    delete @$default{keys %$profile};
    @$profile{keys %$default}=values %$default;
@@ -295,7 +295,7 @@ sub profile_default
       splinePrecision => 24,
       textOutBaseline => 0,
       textOpaque      => 0,
-      transform       => [ 0, 0],
+      translate       => [ 0, 0],
    );
    @$def{keys %prf} = values %prf;
    return $def;
@@ -586,7 +586,7 @@ sub profile_default
 
 # class Widget
 package Prima::Widget;
-use vars qw(@ISA %WidgetProfile);
+use vars qw(@ISA %WidgetProfile @default_font_box);
 @ISA = qw(Prima::Drawable);
 
 {
@@ -815,7 +815,11 @@ sub profile_check_in
       }
       if ( exists $p-> { designScale}) {
          my @d = @{$p->{ designScale}};
-         my @a = ( $p->{ font}->{ width}, $p->{ font}->{ height});
+         unless ( @default_font_box) {
+            my $f = $::application-> get_default_font;
+            @default_font_box = ( $f->{ width}, $f->{ height});
+         }
+         my @a = @default_font_box;
          $p->{left}    *= $a[0] / $d[0] if exists $p->{left};
          $p->{right}   *= $a[0] / $d[0] if exists $p->{right};
          $p->{top}     *= $a[1] / $d[1] if exists $p->{top};

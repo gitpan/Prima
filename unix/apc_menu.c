@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_menu.c,v 1.39 2003/08/29 20:43:52 dk Exp $
+ * $Id: apc_menu.c,v 1.41 2003/11/13 15:04:59 dk Exp $
  */
 
 /***********************************************************/
@@ -630,7 +630,7 @@ menu_enter_item( PMenuSysData XX, PMenuWindow w, int index, int type)
 
 
 static void
-store_char( U8 * src, int * srcptr, U8 * dst, int * dstptr, Bool utf8, MenuDrawRec * data)
+store_char( char * src, int * srcptr, char * dst, int * dstptr, Bool utf8, MenuDrawRec * data)
 {
    if ( utf8) {
       STRLEN char_len;
@@ -646,7 +646,7 @@ store_char( U8 * src, int * srcptr, U8 * dst, int * dstptr, Bool utf8, MenuDrawR
       }
    } else {
       if ( data-> xft_map8) {
-         uint32_t c = src[ *srcptr];
+         uint32_t c = (( U8*) src)[ *srcptr];
          if ( c > 127)
             c = data-> xft_map8[ c - 128];
          *(( uint32_t*)(dst + *dstptr)) = c;
@@ -980,6 +980,7 @@ prima_handle_menu_event( XEvent *ev, XWindow win, Handle self)
          if ( guts. currentMenu == self) prima_end_menu();
          w-> sz. x = ev-> xconfigure. width;
          w-> sz. y = ev-> xconfigure. height;
+	 XClearArea( DISP, win, 0, 0, 0, 0, true);
 
 AGAIN:             
          w-> last = -1;

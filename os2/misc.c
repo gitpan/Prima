@@ -22,7 +22,7 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  *
- * $Id: misc.c,v 1.16 2002/10/31 12:56:39 dk Exp $
+ * $Id: misc.c,v 1.17 2003/10/31 10:48:23 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #define INCL_DOSFILEMGR
@@ -414,7 +414,7 @@ apc_sys_get_value( int sysValue)
    case svCanUTF8_Output :
       return 0;
    default:
-      apcErr( errInvParams);
+      return -1;
    }
    return 0;
 }

@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: guts.h,v 1.14 2003/06/05 18:47:02 dk Exp $ */
+/* $Id: guts.h,v 1.16 2003/11/10 17:04:47 dk Exp $ */
 #ifndef _GUTS_H_
 #define _GUTS_H_
 
@@ -59,6 +59,8 @@ extern PHash  primaObjects;
 #define CORE_INIT_TRANSIENT(cls) ((PObject)self)->transient_class = (void*)C##cls
 
 extern Bool window_subsystem_init( void);
+extern Bool window_subsystem_set_option( char * option, char * value);
+extern Bool window_subsystem_get_options( int * argc, char *** argv);
 extern void window_subsystem_cleanup( void);
 extern void window_subsystem_done( void);
 extern void build_static_vmt( void *vmt);

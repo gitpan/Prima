@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: xft.c,v 1.4 2003/07/17 09:09:18 dk Exp $
+ * $Id: xft.c,v 1.7 2003/11/10 17:04:49 dk Exp $
  */
 
 /*********************************/
@@ -141,7 +141,8 @@ prima_xft_init(void)
    CharSetInfo *csi;
    unsigned char in[128], *iptr;
    uint32_t *optr;
-   int ibl, obl, i, j;
+   int i, j;
+   size_t ibl, obl;
    FcCharSet * fcs_ascii;
 #ifdef HAVE_ICONV_H
    iconv_t ii;
@@ -163,6 +164,7 @@ prima_xft_init(void)
    }
    /* After this point guts.use_xft must never be altered */
    if ( !guts. use_xft) return;
+   Fdebug("XFT ok\n");
 
    csi = std_charsets;
    fcs_ascii = FcCharSetCreate();
@@ -244,9 +246,9 @@ fcpattern2font( FcPattern * pattern, PFont font)
 
    /* FcPatternPrint( pattern); */
    if ( FcPatternGetString( pattern, FC_FAMILY, 0, &s) == FcResultMatch)
-      strncpy( font-> name, s, 255);
+      strncpy( font-> name, (char*)s, 255);
    if ( FcPatternGetString( pattern, FC_FOUNDRY, 0, &s) == FcResultMatch)
-      strncpy( font-> family, s, 255);
+      strncpy( font-> family, (char*)s, 255);
    font-> style = 0;
    if ( FcPatternGetInteger( pattern, FC_SLANT, 0, &i) == FcResultMatch) 
       if ( i == FC_SLANT_ITALIC || i == FC_SLANT_OBLIQUE)
@@ -261,11 +263,11 @@ fcpattern2font( FcPattern * pattern, PFont font)
       font-> pitch = (( i == FC_PROPORTIONAL) ? fpVariable : fpFixed);
 
    if ( FcPatternGetInteger( pattern, FC_PIXEL_SIZE, 0, &font-> height) == FcResultMatch) {
-       /* printf("height factor read:%d\n", font-> height); */
+       Fdebug("xft:height factor read:%d\n", font-> height);
    }
    font-> width = 100; /* warning, FC_WIDTH does not reflect FC_MATRIX scale changes */
    if ( FcPatternGetInteger( pattern, FC_WIDTH, 0, &font-> width) == FcResultMatch) {
-       /* printf("width factor read:%d\n", font-> width); */
+       Fdebug("xft:width factor read:%d\n", font-> width);
    }
    font-> width = ( font-> width * font-> height) / 100.0 + .5;
    font-> yDeviceRes = guts. resolution. y;
@@ -378,7 +380,7 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
    /* see if the font is not present in xft - the hashed negative matches
          are stored with width=0, as the width alterations are derived */
    xft_build_font_key( &key, &f, by_size);
-   /* printf("want %d.%d.%d.%d.%s\n", key.height, key. width, key.style, key.pitch, key.name); */
+   Fdebug("xft:want %d.%d.%d.%d.%s\n", key.height, key. width, key.style, key.pitch, key.name);
    
    key. width = 0;
    if ( hash_fetch( mismatch, &key, sizeof( FontKey))) {
@@ -437,7 +439,7 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
    
    /* create FcPattern request */
    if ( !( request = FcPatternCreate())) return false;
-   FcPatternAddString( request, FC_FAMILY,  f. name);
+   FcPatternAddString( request, FC_FAMILY, ( FcChar8*) f. name);
    if ( by_size) {
       if ( size)
          FcPatternAddDouble( request, FC_SIZE, *size);
@@ -569,7 +571,7 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
          ksz = try_size( self, f1, ( double) sz / 10.0);
          if ( ksz) {
             h = ksz-> font. height;
-            /* printf("init:%d, %d => %d\n", f1.height, sz, h); */
+            Fdebug("xft-match:init:%d, %d => %d\n", f1.height, sz, h);
             if ( h != f1. height) {
                prima_init_try_height( &hgs, f1. height, sz);
                while ( 1) {
@@ -579,12 +581,12 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
                   ksz = try_size( self, f1, ( double) sz / 10.0);
                   if ( !ksz) break;
                   h = ksz-> font. height;
-                  /* printf("%d => %d\n", sz, h); */
+                  Fdebug("%d => %d\n", sz, h);
                   if ( h == f1. height) break;
                }
             }
             if ( sz < 0) sz = last_sz;
-            /* printf("fini:%d\n", sz); */
+            Fdebug("fini:%d\n", sz);
             if ( sz > 0) f1. size = (double) sz / 10.0 + 0.5;
          }
 
@@ -597,7 +599,7 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
                   memcpy( &kf-> font, &f1, sizeof( Font));
                   kf-> xft = kf-> xft_base = xf;
                   hash_store( guts. font_hash, &key, sizeof( FontKey), kf);
-                  /* printf("store %x:%d.%d.%d.%d.%s\n", kf->xft, key.height, key. width, key.style, key.pitch, key.name); */
+                  Fdebug("xft:store %x:%d.%d.%d.%d.%s\n", kf->xft, key.height, key. width, key.style, key.pitch, key.name);
                }
             }
 
@@ -606,7 +608,7 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
             f1. height = xf-> height;
             f1. internalLeading = xf-> height - f1. size * guts. resolution. y / 72.27 + 0.5;
          }
-         /* printf("sz:%d, h:%d\n", f1.size, f1.height); */
+         Fdebug("xft:sz:%d, h:%d\n", f1.size, f1.height); 
       } else 
          f1. height  = xf-> height;
 
@@ -641,7 +643,7 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
          kf-> xft = xf;
          kf-> xft_base = kf_base ? kf_base-> xft : xf;
          hash_store( guts. font_hash, &key, sizeof( FontKey), kf);
-         /* printf("store %x:%d.%d.%d.%d.%s\n", kf->xft, key.height, key. width, key.style, key.pitch, key.name); */
+         Fdebug("xft:store %x:%d.%d.%d.%d.%s\n", kf->xft, key.height, key. width, key.style, key.pitch, key.name); 
       }
    }
    
@@ -655,7 +657,7 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
             kf-> xft = xf;
             kf-> xft_base = kf_base ? kf_base-> xft : xf;
             hash_store( guts. font_hash, &key, sizeof( FontKey), kf);
-            /* printf("store %x:%d.%d.%d.%d.%s\n", kf->xft, key.height, key. width, key.style, key.pitch, key.name); */
+            Fdebug("xft:store %x:%d.%d.%d.%d.%s\n", kf->xft, key.height, key. width, key.style, key.pitch, key.name); 
          }
       }
    }
@@ -724,7 +726,7 @@ prima_xft_fonts( PFont array, const char *facename, const char * encoding, int *
    }
 
    pat = FcPatternCreate();
-   if ( facename) FcPatternAddString( pat, FC_FAMILY, facename);
+   if ( facename) FcPatternAddString( pat, FC_FAMILY, ( FcChar8*) facename);
    FcPatternAddBool( pat, FC_SCALABLE, 1);
    os = FcObjectSetBuild( FC_FAMILY, FC_CHARSET, FC_ASPECT, 
         FC_SLANT, FC_WEIGHT, FC_SIZE, FC_PIXEL_SIZE, FC_SPACING,
@@ -820,7 +822,7 @@ prima_xft_font_encodings( PHash hash)
    int i;
    for ( i = 0; i < MAX_CHARSET; i++) {
       if ( !std_charsets[i]. enabled) continue;
-      hash_store( hash, std_charsets[i]. name, strlen(std_charsets[i]. name), (void*) std_charsets + i);
+      hash_store( hash, std_charsets[i]. name, strlen(std_charsets[i]. name), (void*) (std_charsets + i));
    }
 }
    
@@ -830,7 +832,7 @@ xft_text2ucs4( const unsigned char * text, int len, Bool utf8, uint32_t * map8)
    FcChar32 *ret, *r;
    if ( utf8) {
       STRLEN charlen;
-      if ( len < 0) len = prima_utf8_length( text);
+      if ( len < 0) len = prima_utf8_length(( char*) text);
       if ( !( r = ret = malloc( len * sizeof( FcChar32)))) return nil;
       while ( len--) {
          *(r++) = utf8_to_uvchr(( U8*) text, &charlen);
@@ -838,7 +840,7 @@ xft_text2ucs4( const unsigned char * text, int len, Bool utf8, uint32_t * map8)
       }
    } else {
       int i;
-      if ( len < 0) len = strlen( text);
+      if ( len < 0) len = strlen(( char*) text);
       if ( !( ret = malloc( len * sizeof( FcChar32)))) return nil;
       for ( i = 0; i < len; i++) 
          ret[i] = ( text[i] < 128) ? text[i] : map8[ text[i] - 128];
@@ -1248,7 +1250,7 @@ prima_xft_map8( const char * encoding)
 Bool
 prima_xft_parse( char * ppFontNameSize, Font * font)
 {
-   FcPattern * p = FcNameParse( ppFontNameSize);
+   FcPattern * p = FcNameParse(( FcChar8*) ppFontNameSize);
    FcCharSet * c = nil;
    Font f, def = guts. default_font;
 
@@ -1268,9 +1270,9 @@ prima_xft_parse( char * ppFontNameSize, Font * font)
       }
    }
    FcPatternDestroy( p);
-   if ( ! prima_xft_font_pick( nilHandle, &f, &def, nil)) return false;
-   def. width = 0;
+   if ( !prima_xft_font_pick( nilHandle, &f, &def, nil)) return false;
    *font = def;
+   Fdebug( "parsed ok: %d.%s\n", def.size, def.name);
    return true;
 }
 

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: os2guts.c,v 1.23 2002/05/14 13:22:32 dk Exp $
+ * $Id: os2guts.c,v 1.25 2003/11/10 17:04:48 dk Exp $
  */
 /* Created by:
      Dmitry Karasik <dk@plab.ku.dk>
@@ -173,6 +173,19 @@ window_subsystem_init( void)
    signal( SIGFPE , sigh);
 
    return true;
+}
+
+Bool
+window_subsystem_get_options( int * argc, char *** argv)
+{
+   *argc = 0;
+   return true;
+}
+
+Bool
+window_subsystem_set_option( char * option, char * value)
+{
+   return false;
 }
 
 Bool freePS( HPS ps, void * dummy)    { WinEndPaint ( ps); return false; }

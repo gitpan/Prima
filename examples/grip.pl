@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: grip.pl,v 1.13 2003/08/08 11:43:57 dk Exp $
+#  $Id: grip.pl,v 1.14 2003/10/15 10:43:17 dk Exp $
 #
 
 =pod 
@@ -98,7 +98,7 @@ sub paint
    my ( $self, $canvas) = @_;
    $self-> notify(q(Paint), $canvas);
    $canvas-> clipRect( 0, 0, $self-> size);
-   $canvas-> transform(0, 0);
+   $canvas-> translate(0, 0);
    $canvas-> palette([]);
    my @c = $self-> widgets;
    for ( @c) {

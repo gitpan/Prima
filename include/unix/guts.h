@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: guts.h,v 1.122 2003/08/29 20:43:51 dk Exp $ */
+/* $Id: guts.h,v 1.126 2003/11/12 23:15:23 dk Exp $ */
 
 #ifndef _UNIX_GUTS_H_
 #define _UNIX_GUTS_H_
@@ -381,7 +381,7 @@ typedef struct {
 #define AI_NET_WM_STATE                  13
 #define AI_NET_WM_STATE_SKIP_TASKBAR     14
 #define AI_NET_WM_STATE_MAXIMIZED_VERT   15
-#define AI_NET_WM_STATE_MAXIMIZED_HORIZ  16
+#define AI_NET_WM_STATE_MAXIMIZED_HORZ   16
 #define AI_NET_WM_NAME                   17
 #define AI_NET_WM_ICON_NAME              18
 #define AI_UTF8_STRING                   19
@@ -391,7 +391,10 @@ typedef struct {
 #define AI_FOREGROUND                    23
 #define AI_BACKGROUND                    24
 #define AI_MOTIF_WM_HINTS                25
-#define AI_count                         26
+#define AI_NET_WM_STATE_MODAL            26
+#define AI_NET_SUPPORTED                 27
+#define AI_NET_WM_STATE_MAXIMIZED_HORIZ  28
+#define AI_count                         29
 
 #define FXA_RESOLUTION_X guts. atoms[ AI_FXA_RESOLUTION_X]
 #define FXA_RESOLUTION_Y guts. atoms[ AI_FXA_RESOLUTION_Y]
@@ -413,7 +416,7 @@ typedef struct {
 #define NET_WM_STATE guts. atoms[ AI_NET_WM_STATE]
 #define NET_WM_STATE_SKIP_TASKBAR guts. atoms[ AI_NET_WM_STATE_SKIP_TASKBAR]
 #define NET_WM_STATE_MAXIMIZED_VERT guts. atoms[ AI_NET_WM_STATE_MAXIMIZED_VERT]
-#define NET_WM_STATE_MAXIMIZED_HORIZ guts. atoms[ AI_NET_WM_STATE_MAXIMIZED_HORIZ]
+#define NET_WM_STATE_MAXIMIZED_HORZ guts. atoms[ (guts. net_wm_maximize_HORZ_vs_HORIZ > 0) ? guts. net_wm_maximize_HORZ_vs_HORIZ : AI_NET_WM_STATE_MAXIMIZED_HORZ]
 #define NET_WM_NAME guts. atoms[ AI_NET_WM_NAME]
 #define NET_WM_ICON_NAME guts. atoms[ AI_NET_WM_ICON_NAME]
 #define UTF8_STRING guts. atoms[ AI_UTF8_STRING]
@@ -423,6 +426,26 @@ typedef struct {
 #define CF_FOREGROUND guts. atoms[ AI_FOREGROUND]
 #define CF_BACKGROUND guts. atoms[ AI_BACKGROUND]
 #define XA_MOTIF_WM_HINTS guts. atoms[ AI_MOTIF_WM_HINTS]
+#define NET_WM_STATE_MODAL guts. atoms[ AI_NET_WM_STATE_MODAL]
+#define NET_SUPPORTED guts. atoms[ AI_NET_SUPPORTED]
+
+
+#define DEBUG_FONTS 0x01
+#define DEBUG_CLIP  0x02
+#define DEBUG_EVENT 0x04
+#define DEBUG_MISC  0x08
+#define DEBUG_COLOR 0x10
+#define DEBUG_XRDB  0x20
+#define DEBUG_ALL   0x3f
+#define _debug prima_debug
+extern int
+prima_debug( const char *format, ...);
+#define Fdebug if (guts.debug & DEBUG_FONTS) _debug
+#define Cdebug if (guts.debug & DEBUG_CLIP) _debug
+#define Edebug if (guts.debug & DEBUG_EVENT) _debug
+#define Mdebug if (guts.debug & DEBUG_MISC) _debug
+#define Pdebug if (guts.debug & DEBUG_COLOR) _debug
+#define Xdebug if (guts.debug & DEBUG_XRDB) _debug
 
 typedef struct _UnixGuts
 {
@@ -590,6 +613,10 @@ typedef struct _UnixGuts
    XFontStruct *                font_abc_nil_hack;
    Atom                         atoms[AI_count];
    XTextProperty                hostname;
+   unsigned int			debug;
+   Bool                         icccm_only;
+   Bool                         net_wm_maximization;
+   int                          net_wm_maximize_HORZ_vs_HORIZ;
 } UnixGuts;
 
 extern UnixGuts guts;
@@ -704,6 +731,7 @@ typedef struct _drawable_sys_data
       unsigned reload_font		: 1;
       unsigned sizeable                 : 1;
       unsigned sizemax_set              : 1;
+      unsigned suppress_cmMinimize      : 1;
       unsigned sync_paint               : 1;
       unsigned task_listed              : 1;
       unsigned transparent              : 1;
@@ -881,9 +909,15 @@ prima_init_clipboard_subsystem( void);
 
 extern Bool
 prima_init_font_subsystem( void);
+   
+extern Bool
+prima_font_subsystem_set_option( char *, char *);
 
 extern Bool
 prima_init_color_subsystem( void);
+
+extern Bool
+prima_color_subsystem_set_option( char *, char *);
 
 extern void
 prima_done_color_subsystem( void);
@@ -1046,6 +1080,9 @@ prima_handle_menu_shortcuts( Handle self, XEvent * ev, KeySym keysym);
 extern void
 prima_wm_sync( Handle self, int eventType);
 
+extern Bool
+prima_wm_net_state_read_maximization( XWindow window, Atom property);
+
 extern PFontABC
 prima_xfont2abc( XFontStruct * fs, int firstChar, int lastChar);
 
@@ -1166,4 +1203,5 @@ prima_xft_parse( char * ppFontNameSize, Font * font);
 
 extern void
 prima_xft_set_region( Handle self, Region region);
+
 

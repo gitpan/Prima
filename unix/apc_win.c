@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_win.c,v 1.71 2003/08/29 20:43:52 dk Exp $
+ * $Id: apc_win.c,v 1.77 2003/11/13 14:53:14 dk Exp $
  */
 
 /***********************************************************/
@@ -38,31 +38,44 @@
 #include "Window.h"
 #include "Application.h"
 
+/* Tell a NET-compliant window manager that the window needs special treatment.
+    See freedesktop.org for docs 
+
+    params - -1 - don't touch, 0 - clear, 1 - set
+ */
 static void
-apc_window_task_listed( Handle self, Bool task_list)
+set_net_hints( XWindow window, int task_listed, int modal, int zoom)
 {
-   DEFXX;
-   Atom data[32], type, * prop;
+   Atom data[40], type, * prop;
    int count = 0, format;
    XClientMessageEvent ev;
    unsigned long i, n, left;
+   
+   if ( guts. icccm_only) return;
 
-   if ( XGetWindowProperty( DISP, X_WINDOW, NET_WM_STATE, 0, 32, false, XA_ATOM,
+   /* read and preserve all state properties we don't know about */
+   if ( XGetWindowProperty( DISP, window, NET_WM_STATE, 0, 32, false, XA_ATOM,
           &type, &format, &n, &left, (unsigned char**)&prop) == Success) {
      if ( prop) {
          if ( n > 32) n = 32;
-         for ( i = 0; i < n; i++) 
-            if ( prop[i] != NET_WM_STATE_SKIP_TASKBAR)
+         for ( i = 0; i < n; i++) {
+            if (( prop[i] != NET_WM_STATE_SKIP_TASKBAR || task_listed < 0) && 
+                ( prop[i] != NET_WM_STATE_MODAL || modal < 0) && 
+                (( prop[i] != NET_WM_STATE_MAXIMIZED_VERT && 
+                   prop[i] != NET_WM_STATE_MAXIMIZED_HORZ) || ( zoom < 0)))
                data[ count++] = prop[i];
+         }
          XFree(( unsigned char *) prop);
       }
    }
 
-   XX-> flags. task_listed = ( task_list ? 1 : 0);
+   /* Send change message to root window, it's responsible for
+      on-the-fly changes. Otherwise, the properties are not re-read
+      until next XMapWindow() */
    bzero( &ev, sizeof(ev));
    ev. type = ClientMessage;
    ev. display = DISP;
-   ev. window = X_WINDOW;
+   ev. window = window;
    ev. message_type = NET_WM_STATE;
    ev. format = 32;
    /*
@@ -70,16 +83,102 @@ apc_window_task_listed( Handle self, Bool task_list)
       _NET_WM_STATE_ADD           1    // add/set property 
       _NET_WM_STATE_TOGGLE        2    // toggle property  
     */
-   ev. data. l[0] = task_list ? 0 : 1;
-   ev. data. l[1] = ( long) NET_WM_STATE_SKIP_TASKBAR;
-   ev. data. l[2] = 0;
-   XSendEvent( DISP, guts. root, false, 0, (XEvent*)&ev);
-   XCHECKPOINT;
 
-   if ( !task_list) data[ count++] = NET_WM_STATE_SKIP_TASKBAR;
+   if ( task_listed >= 0) {
+      ev. data. l[0] = ( task_listed > 0) ? 0 : 1;
+      ev. data. l[1] = ( long) NET_WM_STATE_SKIP_TASKBAR;
+      ev. data. l[2] = 0;
+      XSendEvent( DISP, guts. root, false, 0, (XEvent*)&ev);
+   }
 
-   XChangeProperty( DISP, X_WINDOW, NET_WM_STATE, XA_ATOM, 32,
+   if ( modal >= 0) {
+      ev. data. l[0] = ( modal > 0) ? 1 : 0;
+      ev. data. l[1] = ( long) NET_WM_STATE_MODAL;
+      XSendEvent( DISP, guts. root, false, 0, (XEvent*)&ev);
+   }
+
+   if ( zoom >= 0) {
+      ev. data. l[0] = ( zoom > 0) ? 1 : 0;
+      ev. data. l[1] = ( long) NET_WM_STATE_MAXIMIZED_VERT;
+      ev. data. l[2] = ( long) NET_WM_STATE_MAXIMIZED_HORZ;
+      XSendEvent( DISP, guts. root, false, 0, (XEvent*)&ev);
+   }
+
+   /* finally reset the list of properties */
+   if ( task_listed == 0) data[ count++] = NET_WM_STATE_SKIP_TASKBAR;
+   if ( modal > 0) data[ count++] = NET_WM_STATE_MODAL;
+   if ( zoom > 0)  {
+      data[ count++] = NET_WM_STATE_MAXIMIZED_VERT;
+      data[ count++] = NET_WM_STATE_MAXIMIZED_HORZ;
+   }
+   XChangeProperty( DISP, window, NET_WM_STATE, XA_ATOM, 32,
        PropModeReplace, ( unsigned char *) data, count);
+} 
+
+Bool
+prima_wm_net_state_read_maximization( XWindow window, Atom property)
+/*
+   reads property, returns true if it has both vertical and horizontal properties set.
+  */
+{
+   Atom type, * prop;
+   int format, offset = 0;
+   unsigned long i, n, left;
+   int horiz = 0, vert = 0;
+
+   if ( guts. icccm_only) return false;
+
+   while ( XGetWindowProperty( DISP, window, property, offset, 2048, false, XA_ATOM,
+          &type, &format, &n, &left, (unsigned char**)&prop) == Success) {
+     if ( prop) {
+         for ( i = 0; i < n; i++) {
+            if ( prop[i] == NET_WM_STATE_MAXIMIZED_VERT) vert = 1;
+            /* KDE v2 defines _HORIZ, KDE v3 defines _HORZ - a horrible hack follows */
+            else if ( prop[i] == guts. atoms[ AI_NET_WM_STATE_MAXIMIZED_HORZ]) {
+               if ( guts. net_wm_maximize_HORZ_vs_HORIZ == 0) {
+                  guts. net_wm_maximize_HORZ_vs_HORIZ = AI_NET_WM_STATE_MAXIMIZED_HORZ;
+                  Mdebug("wm: kde-3 style detected\n");
+               }
+               horiz = 1;
+            }
+            else if ( prop[i] == guts. atoms[ AI_NET_WM_STATE_MAXIMIZED_HORIZ]) {
+               if ( guts. net_wm_maximize_HORZ_vs_HORIZ == 0) {
+                  guts. net_wm_maximize_HORZ_vs_HORIZ = AI_NET_WM_STATE_MAXIMIZED_HORIZ;
+                  Mdebug("wm: kde-2 style detected\n");
+               }
+               horiz = 1;
+            }
+         }
+         XFree(( unsigned char *) prop);
+         if ( vert && horiz) return true;
+         offset += n;
+      }
+      if ( left <= 0) break;
+   }
+   return false;
+}
+
+static Bool
+net_supports_maximization(void)
+/* If WM supports customization, root.NET_SUPPORTED contains NET_WM_STATE_MAXIMIZED atoms.
+   Stores result in guts. net_wm_maximization, so ConfigureEvent handler doesn't apply
+   maximization heuristics. */
+{
+   Bool has_max;
+   has_max = prima_wm_net_state_read_maximization( guts. root, NET_SUPPORTED);
+   if ( has_max != guts. net_wm_maximization) {
+      guts. net_wm_maximization = has_max;
+      Mdebug( has_max ? "wm: supports maximization\n" : "win: WM quits supporting maximization\n");
+   }
+   return has_max;
+}
+
+static void
+apc_window_task_listed( Handle self, Bool task_list)
+{
+   DEFXX;
+   XX-> flags. task_listed = ( task_list ? 1 : 0);
+   set_net_hints( X_WINDOW, XX-> flags.task_listed, -1, -1);
 } 
 
 static void
@@ -90,6 +189,8 @@ set_motif_hints( XWindow window, int border_style, int border_icons)
      int32_t  input_mode;
      uint32_t status;
    } mwmhints;
+
+   if ( guts. icccm_only) return;
 
    bzero( &mwmhints, sizeof(mwmhints));
    mwmhints.flags |= (1L << 1); /*  MWM_HINTS_DECORATIONS */
@@ -304,8 +405,16 @@ apc_window_create( Handle self, Handle owner, Bool sync_paint, int border_icons,
       XX-> zoomRect. top   = XX-> size. y;
       XX-> size. x *= 0.75;
       XX-> size. y *= 0.75;
-   } else
+   } else {
       XX-> flags. zoomed = 1;
+      set_net_hints( X_WINDOW, -1, -1, 1);
+      if ( net_supports_maximization()) {
+         XX-> zoomRect. right = XX-> size. x;
+         XX-> zoomRect. top   = XX-> size. y;
+         XX-> size. x *= 0.75;
+         XX-> size. y *= 0.75;
+      }
+   }
    XX-> origin. x = XX-> origin. y = 
    XX-> ackOrigin. x = XX-> ackOrigin. y = 
    XX-> ackSize. x = XX-> ackOrigin. y = 
@@ -917,7 +1026,7 @@ apc_window_set_window_state( Handle self, int state)
 {
    DEFXX;
    Event e;
-   int sync = 0;
+   int sync = 0, did_net_zoom = 0;
 
    switch ( state) {
    case wsMinimized:
@@ -932,7 +1041,47 @@ apc_window_set_window_state( Handle self, int state)
    default:
        return false;
    }   
-
+   
+   /* operate via NET_WM */
+   if ( state == wsMaximized && !XX-> flags. zoomed && net_supports_maximization()) {
+      Bool visible = XX-> flags. mapped;
+      Rect zoomRect;
+   /* net hints changes by themselves do not result in maximization -
+      need explicit map/unmap. */
+      if ( visible) {
+	 XUnmapWindow( DISP, X_WINDOW);
+         /* suppress reaction to UnmapNotify */
+         XX-> flags. suppress_cmMinimize = 1;
+         prima_wm_sync( self, UnmapNotify);
+         XX-> flags. suppress_cmMinimize = 0;
+	 /* in case WM removes NET properties on unmap ( pretty valid )
+	    wait a bit so we can push our net hints. Still a race, but 
+	    nothing bad if we lose - heuristic maximization works fine also, after all. */
+	 XSync( DISP, false);
+      }
+      set_net_hints( X_WINDOW, -1, -1, 1);
+      zoomRect. left   = XX-> origin.x;
+      zoomRect. bottom = XX-> origin.y;
+      zoomRect. right  = XX-> size.x;
+      zoomRect. top    = XX-> size.y;
+      if ( visible) {
+         XMapWindow( DISP, X_WINDOW);
+         /* again, wait and suppress reaction to UnmapNotify */
+         XX-> flags. suppress_cmMinimize = 1;
+         prima_wm_sync( self, ConfigureNotify);
+         XX-> flags. suppress_cmMinimize = 0;
+	 if ( !prima_wm_net_state_read_maximization( X_WINDOW, NET_WM_STATE)) {
+	    /* wm denies maximization request, or we lost in the race ( see above ),
+	       do maximization by casual heuristic */
+	    goto FALL_THROUGH;
+	 }
+      }
+      XX-> zoomRect = zoomRect; /* often reset in ConfigureNotify to already maximized window */
+      XX-> flags. zoomed = 1;
+      did_net_zoom = 1;
+      sync = 0;
+   FALL_THROUGH:
+   }
 
    if ( !XX-> flags. withdrawn) {
       if ( state == wsMinimized) {
@@ -940,12 +1089,12 @@ apc_window_set_window_state( Handle self, int state)
          if ( XX-> flags. mapped) sync = UnmapNotify;
       } else {
          XMapWindow( DISP, X_WINDOW);
-         if ( !XX-> flags. mapped) sync = MapNotify;
+         if ( !XX-> flags. mapped && !did_net_zoom) sync = MapNotify;
       }   
    }     
    XX-> flags. iconic = ( state == wsMinimized) ? 1 : 0; 
    
-   if ( state == wsMaximized && !XX-> flags. zoomed) {
+   if ( state == wsMaximized && !XX-> flags. zoomed && !did_net_zoom) {
       int dx = ( XX-> decorationSize. x > 0 ) ? XX-> decorationSize. x : 2;
       int dy = ( XX-> decorationSize. y > 0 ) ? XX-> decorationSize. y : 20;
       XX-> zoomRect. left   = XX-> origin.x;
@@ -959,12 +1108,13 @@ apc_window_set_window_state( Handle self, int state)
    }
 
    if ( XX-> flags. zoomed && state != wsMaximized) {
+      set_net_hints( X_WINDOW, -1, -1, 0);
       apc_window_set_rect( self, XX-> zoomRect. left, XX-> zoomRect. bottom, 
          XX-> zoomRect. right, XX-> zoomRect. top);
       if ( XX-> flags. zoomed) sync = ConfigureNotify;
       XX-> flags. zoomed = 0; 
    }   
-   
+
    bzero( &e, sizeof(e));
    e. gen. source = self;
    e. cmd = cmWindowState;
@@ -997,7 +1147,9 @@ window_start_modal( Handle self, Bool shared, Handle insert_before)
 Bool
 apc_window_execute( Handle self, Handle insert_before)
 {
-   X(self)-> flags.modal = true;
+   DEFXX;
+   XX-> flags.modal = true;
+   set_net_hints( X_WINDOW, -1, XX-> flags.modal, -1);
    if ( !window_start_modal( self, false, insert_before))
       return false;
    if (!application) return false;
@@ -1005,8 +1157,9 @@ apc_window_execute( Handle self, Handle insert_before)
    protect_object( self);
 
    XSync( DISP, false);
-   while ( prima_one_loop_round( true, true) && X(self) && X(self)-> flags.modal)
+   while ( prima_one_loop_round( true, true) && XX && XX-> flags.modal)
       ;
+   if ( XX) set_net_hints( X_WINDOW, -1, XX-> flags.modal, -1);
    unprotect_object( self);
    return true;
 }

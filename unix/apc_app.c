@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_app.c,v 1.91 2003/08/29 20:43:51 dk Exp $
+ * $Id: apc_app.c,v 1.97 2003/11/12 23:15:24 dk Exp $
  */
 
 /***********************************************************/
@@ -150,8 +150,14 @@ get_idepth( void)
    return idepth;
 }
 
-Bool
-window_subsystem_init( void)
+static Bool  do_x11     = true;
+static Bool  do_sync    = false;
+static char* do_display = NULL;
+static int   do_debug   = 0;
+static Bool  do_icccm_only = false;
+
+static Bool
+init_x11( void)
 {
    /*XXX*/ /* Namely, support for -display host:0.0 etc. */
    XrmQuark common_quarks_list[26];  /*XXX change number of elements if necessary */
@@ -186,30 +192,24 @@ window_subsystem_init( void)
       "WM_DELETE_WINDOW",
       "WM_PROTOCOLS",
       "WM_TAKE_FOCUS",
-      "NET_WM_STATE",
-      "NET_WM_STATE_SKIP_TASKBAR",
-      "NET_WM_STATE_MAXIMIZED_VERT",
-      "NET_WM_STATE_MAXIMIZED_HORIZ",
-      "NET_WM_NAME",
-      "NET_WM_ICON_NAME",
+      "_NET_WM_STATE",
+      "_NET_WM_STATE_SKIP_TASKBAR",
+      "_NET_WM_STATE_MAXIMIZED_VERT",
+      "_NET_WM_STATE_MAXIMIZED_HORZ",
+      "_NET_WM_NAME",
+      "_NET_WM_ICON_NAME",
       "UTF8_STRING",
       "TARGETS",
       "INCR",
       "PIXEL",
       "FOREGROUND",
       "BACKGROUND",
-      "_MOTIF_WM_HINTS"
+      "_MOTIF_WM_HINTS",
+      "_NET_WM_STATE_MODAL",
+      "_NET_SUPPORTED",
+      "_NET_WM_STATE_MAXIMIZED_HORIZ"
    };
    char hostname_buf[256], *hostname = hostname_buf;
-   
-   bzero( &guts, sizeof( guts));
-   {
-      char * noX = getenv("PRIMA_DEVEL_WANT_NO_X");
-      if ( noX && strcmp( noX, "YES") == 0) {
-         fprintf( stderr, "** warning: PRIMA_DEVEL_WANT_NO_X environment variable is set, proceed on your own risk!\n");
-         return true;
-      }
-   }
 
    guts. click_time_frame = 200;
    guts. double_click_time_frame = 200;
@@ -219,12 +219,16 @@ window_subsystem_init( void)
    guts. last_time = CurrentTime;
 
    guts. ri_head = guts. ri_tail = 0;
-   DISP = XOpenDisplay( nil);
+   DISP = XOpenDisplay( do_display);
    if (!DISP) {
       char * disp = getenv("DISPLAY");
-      fprintf( stderr, "Error: Can't open display: %s\n", disp ? disp : "");
+      fprintf( stderr, "Error: Can't open display '%s'\n", do_display ? do_display : (disp ? disp : ""));
+      free( do_display);
+      do_display = nil;
       return false;
    }
+   free( do_display);
+   do_display = nil;
    XSetErrorHandler( x_error_handler);
    guts.main_error_handler = x_error_handler;
    (void)x_io_error_handler;
@@ -366,8 +370,131 @@ window_subsystem_init( void)
    hostname[255] = '\0';
    XStringListToTextProperty((char **)&hostname, 1, &guts. hostname);
 
-/*    XSynchronize( DISP, true); */
+   if ( do_sync) XSynchronize( DISP, true);
    return true;
+}
+
+Bool
+window_subsystem_init( void)
+{
+   bzero( &guts, sizeof( guts));
+   guts. debug = do_debug;
+   guts. icccm_only = do_icccm_only;
+   Mdebug("init x11:%d, debug:%x, sync:%d, display:%s\n", do_x11, guts.debug, 
+	  do_sync, do_display ? do_display : "(default)");
+   if ( do_x11) return init_x11();
+   return true;
+}
+
+int
+prima_debug( const char *format, ...)
+{
+   int rc = 0;
+   va_list args;
+   va_start( args, format);
+   rc = vfprintf( stderr, format, args);
+   va_end( args);
+   return rc;
+}
+
+Bool
+window_subsystem_get_options( int * argc, char *** argv)
+{
+   static char * x11_argv[] = {
+   "no-x11", "runs Prima without X11 display initialized",
+   "display", "selects X11 DISPLAY (--display=:0.0)",
+   "visual", "X visual id (--visual=0x21, run `xdpyinfo` for list of supported visuals)",
+   "sync", "synchronize X connection",
+   "icccm", "do not use NET_WM (kde/gnome) and MOTIF extensions, ICCCM only",
+   "debug", "turns on debugging on subsystems, selected by characters (--debug=FC). "\
+            "Recognized characters are: "\
+	    " C(clipboard),"\
+	    " E(events),"\
+	    " F(fonts),"\
+	    " M(miscellaneous),"\
+	    " P(palettes and colors),"\
+	    " X(XRDB),"\
+	    " A(all together)",
+#ifdef USE_XFT
+   "no-xft", "do not use XFT",
+#endif   
+   "font", 
+#ifdef USE_XFT
+            "default prima font in XLFD (-helv-misc-*-*-) or XFT(Helv-12) format",
+#else      
+            "default prima font in XLFD (-helv-misc-*-*-) format",
+#endif
+   "menu-font", "default menu font",
+   "msg-font", "default message box font",
+   "widget-font", "default widget font",
+   "caption-font", "MDI caption font",
+   "fg", "default foreground color",
+   "bg", "default background color",
+   "hilite-fg", "default highlight foreground color",
+   "hilite-bg", "default highlight background color",
+   "hilite-fg", "default disabled foreground color",
+   "hilite-bg", "default disabled background color",
+   "light", "default light-3d color",
+   "dark", "default dark-3d color"
+   };
+   *argv = x11_argv;
+   *argc = sizeof( x11_argv) / sizeof( char*);
+   return true;
+}
+
+Bool
+window_subsystem_set_option( char * option, char * value)
+{
+   Mdebug("%s=%s\n", option, value);
+   if ( strcmp( option, "no-x11") == 0) {
+      if ( value) warn("`--no-x11' option has no parameters");
+      do_x11 = false;
+      return true;
+   } else if ( strcmp( option, "display") == 0) {
+      free( do_display);
+      do_display = duplicate_string( value);
+      return true;
+   } else if ( strcmp( option, "icccm") == 0) {
+      if ( value) warn("`--icccm' option has no parameters");
+      do_icccm_only = true;
+      return true;
+   } else if ( strcmp( option, "debug") == 0) {
+      if ( !value) {
+	 warn("`--debug' must be given parameters. `--debug=A` assumed\n");
+	 guts. debug |= DEBUG_ALL;
+         do_debug = guts. debug;
+	 return true;
+      }
+      while ( *value) switch ( tolower(*(value++))) {
+      case 'c':
+	 guts. debug |= DEBUG_CLIP;
+	 break;
+      case 'e':
+	 guts. debug |= DEBUG_EVENT;
+	 break;
+      case 'f':
+	 guts. debug |= DEBUG_FONTS;
+	 break;
+      case 'm':
+	 guts. debug |= DEBUG_MISC;
+	 break;
+      case 'p':
+	 guts. debug |= DEBUG_COLOR;
+	 break;
+      case 'x':
+	 guts. debug |= DEBUG_XRDB;
+	 break;
+      case 'a':
+	 guts. debug |= DEBUG_ALL;
+	 break;
+      }
+      do_debug = guts. debug;
+   } else if ( prima_font_subsystem_set_option( option, value)) {
+      return true;
+   } else if ( prima_color_subsystem_set_option( option, value)) {
+      return true;
+   }
+   return false;
 }
 
 void
@@ -449,8 +576,10 @@ apc_application_create( Handle self)
 {
    XSetWindowAttributes attrs;
    DEFXX;
-
-   if ( !DISP) return false;
+   if ( !DISP) {
+      Mdebug("apc_application_create: failed, x11 layer is not up\n");
+      return false;
+   }
 
    XX-> type.application = true;
    XX-> type.widget = true;

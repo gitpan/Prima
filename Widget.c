@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Widget.c,v 1.129 2003/08/27 18:59:24 dk Exp $
+ * $Id: Widget.c,v 1.130 2003/11/15 08:44:53 dk Exp $
  */
 
 #include "apricot.h"
@@ -1795,10 +1795,22 @@ Widget_set_popup_font( Handle self, Font font)
 /* event handlers */
 
 void
-Widget_on_paint( Handle self, Handle canvas)
+Widget_on_paint( Handle self, SV * canvas)
 {
-   PDrawable c = ( PDrawable) canvas;
-   c-> self-> clear( canvas, -1, -1, -1, -1);
+	int i;
+   dSP;
+   ENTER;
+   SAVETMPS;
+   PUSHMARK( sp);
+   XPUSHs( canvas);
+	for ( i = 0; i < 4; i++)
+      XPUSHs( sv_2mortal( newSViv( -1)));
+   PUTBACK;
+   PERL_CALL_METHOD( "clear", G_DISCARD);
+   SPAGAIN;
+   PUTBACK;
+   FREETMPS;
+   LEAVE;
 }
 
 /*

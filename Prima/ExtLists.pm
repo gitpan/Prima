@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ExtLists.pm,v 1.19 2003/05/08 14:57:36 dk Exp $
+#  $Id: ExtLists.pm,v 1.20 2003/11/15 08:45:32 dk Exp $
 
 # contains:
 #   CheckList
@@ -52,7 +52,7 @@ sub profile_default
 {
    my $def = $_[ 0]-> SUPER::profile_default;
    my %prf = (
-      vector => 0,
+      vector => '',
    );
    @$def{keys %prf} = values %prf;
    return $def;

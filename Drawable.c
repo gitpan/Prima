@@ -34,7 +34,7 @@
  * of this code, and for a DISCLAIMER OF ALL WARRANTIES.
  * ---------------------------------------------------------------------
  *
- * $Id: Drawable.c,v 1.85 2003/08/27 09:32:04 dk Exp $
+ * $Id: Drawable.c,v 1.87 2003/10/15 10:43:14 dk Exp $
  */
 
 #include "apricot.h"
@@ -74,15 +74,15 @@ Drawable_init( Handle self, HV * profile)
    my-> set_textOpaque   ( self, pget_B ( textOpaque));
    my-> set_textOutBaseline( self, pget_B ( textOutBaseline));
    my-> set_splinePrecision( self, pget_i ( splinePrecision));
-   if ( pexist( transform))
+   if ( pexist( translate))
    {
-      AV * av = ( AV *) SvRV( pget_sv( transform));
+      AV * av = ( AV *) SvRV( pget_sv( translate));
       Point tr = {0,0};
       SV ** holder = av_fetch( av, 0, 0);
-      if ( holder) tr.x = SvIV( *holder); else warn("RTC0059: Array panic on 'transform'");
+      if ( holder) tr.x = SvIV( *holder); else warn("RTC0059: Array panic on 'translate'");
       holder = av_fetch( av, 1, 0);
-      if ( holder) tr.y = SvIV( *holder); else warn("RTC0059: Array panic on 'transform'");
-      my-> set_transform( self, tr);
+      if ( holder) tr.y = SvIV( *holder); else warn("RTC0059: Array panic on 'translate'");
+      my-> set_translate( self, tr);
    }
    SvHV_Font( pget_sv( font), &Font_buffer, "Drawable::init");
    my-> set_font( self, Font_buffer);
@@ -171,16 +171,16 @@ Drawable_set( Handle self, HV * profile)
       my-> set_font( self, Font_buffer);
       pdelete( font);
    }
-   if ( pexist( transform))
+   if ( pexist( translate))
    {
-      AV * av = ( AV *) SvRV( pget_sv( transform));
+      AV * av = ( AV *) SvRV( pget_sv( translate));
       Point tr = {0,0};
       SV ** holder = av_fetch( av, 0, 0);
-      if ( holder) tr.x = SvIV( *holder); else warn("RTC0059: Array panic on 'transform'");
+      if ( holder) tr.x = SvIV( *holder); else warn("RTC0059: Array panic on 'translate'");
       holder = av_fetch( av, 1, 0);
-      if ( holder) tr.y = SvIV( *holder); else warn("RTC0059: Array panic on 'transform'");
-      my-> set_transform( self, tr);
-      pdelete( transform);
+      if ( holder) tr.y = SvIV( *holder); else warn("RTC0059: Array panic on 'translate'");
+      my-> set_translate( self, tr);
+      pdelete( translate);
    }
    if ( pexist( width) && pexist( height)) {
       Point size;
@@ -469,7 +469,7 @@ Drawable_text_out( Handle self, SV * text, int x, int y, int len)
    STRLEN dlen;
    char * c_text = SvPV( text, dlen);
    Bool   utf8 = SvUTF8( text);
-   if ( utf8) dlen = utf8_length(( U8*) c_text, c_text + dlen);
+   if ( utf8) dlen = utf8_length(( U8*) c_text, ( U8*) c_text + dlen);
    if ( len < 0 || len > dlen) len = dlen;
    return apc_gp_text_out( self, c_text, x, y, len, utf8);
 }
@@ -807,7 +807,7 @@ Drawable_get_text_width( Handle self, SV * text, int len, Bool addOverhang)
    STRLEN dlen;
    char * c_text = SvPV( text, dlen);
    Bool   utf8 = SvUTF8( text);
-   if ( utf8) dlen = utf8_length(( U8*) c_text, c_text + dlen);
+   if ( utf8) dlen = utf8_length(( U8*) c_text, ( U8*) c_text + dlen);
    if ( len < 0 || len > dlen) len = dlen;
    gpENTER;
    res = apc_gp_get_text_width( self, c_text, len, addOverhang, utf8);
@@ -825,7 +825,7 @@ Drawable_get_text_box( Handle self, SV * text, int len)
    STRLEN dlen;
    char * c_text = SvPV( text, dlen);
    Bool   utf8 = SvUTF8( text);
-   if ( utf8) dlen = utf8_length(( U8*) c_text, c_text + dlen);
+   if ( utf8) dlen = utf8_length(( U8*) c_text, ( U8*) c_text + dlen);
    if ( len < 0 || len > dlen) len = dlen;
    gpENTER;
    p = apc_gp_get_text_box( self, c_text, len, utf8);
@@ -1428,11 +1428,11 @@ Drawable_textOutBaseline( Handle self, Bool set, Bool textOutBaseline)
 }
 
 Point
-Drawable_transform( Handle self, Bool set, Point transform)
+Drawable_translate( Handle self, Bool set, Point translate)
 {
    if (!set) return apc_gp_get_transform( self);
-   apc_gp_set_transform( self, transform. x, transform. y);
-   return transform;
+   apc_gp_set_transform( self, translate. x, translate. y);
+   return translate;
 }
 
 SV *

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Drawable.cls,v 1.32 2003/07/30 10:22:11 dk Exp $
+# $Id: Drawable.cls,v 1.33 2003/10/15 10:43:15 dk Exp $
 
 use Types;
 
@@ -55,7 +55,7 @@ object Prima::Drawable ( Prima::Component)
    property     int           splinePrecision;
    property     Bool          textOpaque;
    property     Bool          textOutBaseline;
-   property     Point         transform;
+   property     Point         translate;
    property     int           width;
 
    # globals

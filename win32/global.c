@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: global.c,v 1.81 2003/07/07 15:08:32 dk Exp $
+ * $Id: global.c,v 1.83 2003/11/10 17:04:50 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -267,6 +267,19 @@ window_subsystem_init()
    guts. smDblClk. y = GetSystemMetrics( SM_CYDOUBLECLK);
 
    return true;
+}
+
+Bool
+window_subsystem_get_options( int * argc, char *** argv)
+{
+   *argc = 0;
+   return true;
+}
+
+Bool
+window_subsystem_set_option( char * option, char * value)
+{
+   return false;
 }
 
 void

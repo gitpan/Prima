@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Prima.pm,v 1.56 2003/09/03 07:53:21 dk Exp $
+#  $Id: Prima.pm,v 1.60 2003/11/19 10:13:34 dk Exp $
 
 package Prima;
 
@@ -34,7 +34,7 @@ require DynaLoader;
 use vars qw($VERSION @ISA $__import);
 @ISA = qw(DynaLoader);
 sub dl_load_flags { 0x00 }
-$VERSION = '1.12';
+$VERSION = '1.13';
 bootstrap Prima $VERSION;
 unless ( UNIVERSAL::can('Prima', 'init')) {
    $::application = 0;
@@ -43,7 +43,27 @@ unless ( UNIVERSAL::can('Prima', 'init')) {
 $::application = undef;
 require Prima::Const;
 require Prima::Classes;
-init Prima $VERSION;
+
+# process @ARGV
+if ( @ARGV) {
+   my %options = Prima::options();
+   for ( my $i = 0; $i < @ARGV; $i++) {
+      if ( $ARGV[$i] =~ m/^--(?:([^\=]+)\=)?(.*)$/) {
+         my ( $option, $value) = ( defined( $1) ? ( $1, $2) : ( $2, undef));
+	 last unless defined($option);
+	 if ( $option eq 'help') {
+            my @options = Prima::options();
+	    printf "   --%-10s - %s\n", shift @options, shift @options
+	       while @options;
+	    exit(0);
+	 }
+	 next unless exists $options{$option};
+	 Prima::options( $option, $value);
+         splice @ARGV, $i--, 1;
+      }
+   }
+}
+Prima::init($VERSION);
 
 sub END
 {
@@ -222,6 +242,17 @@ or C<close> method is called.
 
 =back
 
+=head1 OPTIONS
+
+Prima applications do not have a portable set of arguments; it depends on the
+particular platform. Run  
+
+   perl -e '$ARGV[0]=q(--help); require Prima'
+
+or any Prima program with C<--help> argument to get the list of supported
+arguments. Programmaticaly, setting and obtaining these options can be done
+by using C<Prima::options> routine.
+
 =head1 SEE ALSO
 
 The toolkit documentation is divided by several
@@ -319,6 +350,8 @@ L<Prima::Sliders> - sliding bars, spin buttons and input lines, dial widget etc.
 L<Prima::StartupWindow> - a simplistic startup banner window
 
 L<Prima::TextView> - rich text browser widget
+
+L<Prima::Themes> - widget themes manager
 
 =item Standard dialogs
 

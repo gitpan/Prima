@@ -26,7 +26,7 @@
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #  Modifications by Anton Berezin <tobez@tobez.org>
 #
-#  $Id: InputLine.pm,v 1.27 2003/07/30 17:45:56 dk Exp $
+#  $Id: InputLine.pm,v 1.28 2003/10/15 10:43:15 dk Exp $
 
 package Prima::InputLine;
 use vars qw(@ISA);
@@ -126,7 +126,7 @@ sub on_paint
    return if $size[0] <= $border * 2 + 2;
    my $cap   = $self-> {line};
    $canvas-> clipRect  ( $border + 1, $border + 1, $size[0] - $border - 2, $size[1] - $border - 2);
-   $canvas-> transform ( $border + 1, $border + 1);
+   $canvas-> translate ( $border + 1, $border + 1);
    $size[0] -= ( $border + 1) * 2;
    $size[1] -= ( $border + 1) * 2;
 
