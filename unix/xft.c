@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: xft.c,v 1.18 2004/11/25 15:11:56 dk Exp $
+ * $Id: xft.c,v 1.19 2005/03/30 08:56:32 dk Exp $
  */
 
 /*********************************/
@@ -398,7 +398,12 @@ prima_xft_font_pick( Handle self, Font * source, Font * dest, double * size)
 
    /* convert encoding */
    csi = ( CharSetInfo*) hash_fetch( encodings, f. encoding, strlen( f. encoding));
-   if ( !csi) csi = locale;
+   if ( !csi) {
+      /* xft has no such encoding, pass it back */
+      if ( prima_core_font_encoding( f. encoding) || !guts. xft_priority)
+         return false;
+      csi = locale;
+   }
 
    /* see if cached font exists */
    if (( kf = hash_fetch( guts. font_hash, &key, sizeof( FontKey)))) {

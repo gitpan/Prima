@@ -1,4 +1,4 @@
-# $Id: makedoc.pl,v 1.3 2005/01/25 16:44:51 dk Exp $
+# $Id: makedoc.pl,v 1.4 2005/04/20 09:01:51 dk Exp $
 use strict;
 use Config;
 
@@ -103,7 +103,7 @@ if ( $build) {
       my $cow = 1;
       for ( <W>) {
          if ( m/^=for\s*podview\s*<\s*img\s*src=\"?([^\"\s]+)\"?\s*(cut\s*=\s*1)?\s*>/) {
-            my ( $gif, $eps) = ( $1, $1);
+            my ( $gif, $eps, $do_cut) = ( $1, $1, $2);
 	    $eps =~ s/\//_/g;
             $eps =~ s/\.[^\.]+$/.eps/;
             unless ( -f $eps) {
@@ -122,7 +122,7 @@ if ( $build) {
             }
             if ( -f $eps) {
                $cow = 1;
-	       $cut = 1 if defined $2;
+	       $cut = 1 if $do_cut;
                push @ctx, "=for latex \n\\includegraphics[keepaspectratio]{$eps}\n\n";
             } else {
                warn "** error creating $eps\n";

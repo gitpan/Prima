@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: stock.c,v 1.72 2004/05/27 08:24:55 dk Exp $
+ * $Id: stock.c,v 1.73 2005/03/30 08:56:32 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 /*
@@ -965,7 +965,7 @@ font_font2gp_internal( PFont font, Point res, Bool forceSize, HDC theDC)
    // check encoding match
    if (( es. passedCount == 0) && ( elf. lfCharSet != DEFAULT_CHARSET)) {
       int r;
-      font-> encoding[0] = 0; // DEFAULT_CHARSET
+      font-> name[0] = 0; // any name
       r = font_font2gp_internal( font, res, forceSize, dc);
       out( r);
    }

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_font.c,v 1.88 2004/12/13 15:54:17 dk Exp $
+ * $Id: apc_font.c,v 1.89 2005/03/30 08:56:32 dk Exp $
  */
 
 /***********************************************************/
@@ -1527,6 +1527,12 @@ AGAIN:
    if ( struckout) dest-> style |= fsStruckOut;
    dest-> direction = direction;
    return true;
+}
+
+Bool
+prima_core_font_encoding( char * encoding)
+{
+   return hash_fetch( encodings, encoding, strlen( encoding)) != NULL;
 }
 
 Bool

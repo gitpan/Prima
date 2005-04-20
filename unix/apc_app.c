@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_app.c,v 1.108 2004/12/14 11:13:09 dk Exp $
+ * $Id: apc_app.c,v 1.109 2005/04/04 13:41:16 dk Exp $
  */
 
 /***********************************************************/
@@ -446,8 +446,8 @@ window_subsystem_get_options( int * argc, char *** argv)
    "bg", "default background color",
    "hilite-fg", "default highlight foreground color",
    "hilite-bg", "default highlight background color",
-   "hilite-fg", "default disabled foreground color",
-   "hilite-bg", "default disabled background color",
+   "disabled-fg", "default disabled foreground color",
+   "disabled-bg", "default disabled background color",
    "light", "default light-3d color",
    "dark", "default dark-3d color"
    };

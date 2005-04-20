@@ -26,7 +26,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Grids.pm,v 1.6 2004/12/19 19:54:38 dk Exp $
+#  $Id: Grids.pm,v 1.7 2005/03/30 19:33:44 dk Exp $
 
 use strict;
 use Prima;
@@ -1888,7 +1888,7 @@ sub on_getrange
 sub on_measure
 {
    my ( $self, $col, $row, $sref) = @_;
-   $$sref = $self-> get_text_width( $self-> get_cell_text( $col, $row), -1, 1);
+   $$sref = $self-> get_text_width( $self-> get_cell_text( $col, $row), 1);
 }
 
 package Prima::GridViewer;
@@ -2150,7 +2150,7 @@ sub on_measure
 {
    my ( $self, $column, $index, $sref) = @_;
    if ( $column) {
-      $$sref = $self-> get_text_width( $self->{cells}->[0]->[$index], -1, 1);
+      $$sref = $self-> get_text_width( $self->{cells}->[0]->[$index], 1);
    } else {
       $$sref = $self-> font-> height + 2;
    }

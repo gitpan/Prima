@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: listbox.pl,v 1.9 2003/08/08 11:43:57 dk Exp $
+#  $Id: listbox.pl,v 1.10 2005/03/10 12:24:35 dk Exp $
 #
 #  Example of listbox extended usage
 #
@@ -138,6 +138,7 @@ $w-> insert( "ListBox",
    hScroll        => 1,
    multiSelect    => 0,
    extendedSelect => 1,
+   dragable        => 1,
    name            => 'ListBox1',
    font            => { size => 24},
    items           => ['Items', 'created', 'indirect'],

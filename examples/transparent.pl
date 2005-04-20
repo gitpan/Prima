@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: transparent.pl,v 1.10 2003/08/01 09:45:30 dk Exp $
+#  $Id: transparent.pl,v 1.11 2005/01/29 10:15:44 dk Exp $
 #
 =pod 
 =item NAME
@@ -92,12 +92,14 @@ $w-> insert(
    },
 );
 
+
+my $string = "Hello from Prima::OnScreenDisplay!";
 my $tt = Prima::Widget-> create(
    name => 'W1',
    onPaint => sub {
       $_[1]-> color( cl::LightRed);
       $_[1]-> font-> size( 36);
-      $_[1]-> text_out("Hello!", 0, 0);
+      $_[1]-> text_out( $string, 0, 0);
    },
    onMouseDown => sub {
      $_[0]->{drag}    = [ $_[3], $_[4]];
@@ -120,14 +122,20 @@ my $tt = Prima::Widget-> create(
    },
 );
 
+$tt-> begin_paint_info;
+$tt-> font-> size(36);
+my $font = $tt-> font;
+$tt-> width( $tt-> get_text_width( $string));
+$tt-> end_paint_info;
+
 my $i = Prima::Image-> create( width => $tt-> width, height => $tt-> height,
 type => im::BW, conversion => ict::None);
 $i-> begin_paint;
 $i-> color( cl::Black);
 $i-> bar(0,0,$i-> size);
 $i-> color( cl::White);
-$i-> font-> size( 36);
-$i-> text_out("Hello!", 0, 0);
+$i-> font($font);
+$i-> text_out( $string, 0, 0);
 $i-> end_paint;
 $tt-> shape($i);
 $tt-> bring_to_front;

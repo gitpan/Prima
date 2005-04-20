@@ -1,4 +1,4 @@
-=for rcs $Id: faq.pod,v 1.3 2004/10/03 20:34:02 dk Exp $
+=for rcs $Id: faq.pod,v 1.5 2005/04/20 08:37:55 dk Exp $
 
 =head1 NAME
 
@@ -51,7 +51,7 @@ of the toolkit.
 =head2 I'd like to contribute.
 
 You can do this is several ways. The project would probably best benefit from
-the advocacy, because not many people use it. Of course, you can send it new
+the advocacy, because not many people use it. Of course, you can send in new
 widgets, patches, suggestions, or even donations. Also, documentation is the
 thing that needs a particular attention, since my native language is not
 English, so if there are volunteers for polishing of the Prima docs, you are
@@ -146,7 +146,7 @@ library.
 
 =head2 Compile error
 
-There are various reasons why a compilation reason may fail. The best would be
+There are various reasons why a compilation may fail. The best would be
 to copy the output together with outputs of env and perl -V and send these into
 the Prima mailing list.
 
@@ -155,7 +155,7 @@ the Prima mailing list.
 Again, there are reasons for Prima to fail during the start.
 
 First, check whether all main files are installed correctly. F<Prima.pm> must
-be in your perl folder, and Prima library file ( F<Prima.a> or F<Prima.so> for
+be in your perl directory, and Prima library file ( F<Prima.a> or F<Prima.so> for
 unix, F<Prima.dll> for win32, and F<PrimaDI.dll> for os2 ) is copied in the
 correct location in the perl tree. 
 
@@ -186,7 +186,7 @@ having been compiled with Xft/fontconfig. Read more in L<Prima::X11> .
 
 Prima documentation comes in .pm and .pod files. These, when installed,
 are copied under perl tree, and under man tree in unix. So, 
-'perldoc Prima' should be a sufficient command to invoke the main page
+'perldoc Prima' should be sufficient to invoke the main page
 of the Prima documentation. Other pages can be invoked as 'perldoc Prima::Buttons',
 say, or, for the graphical pod reader, 'podview Prima::Buttons'. podview
 is the Prima doc viewer, which is also capable of displaying any POD page.
@@ -237,17 +237,17 @@ have a time to write it myself. Send in a patch, and I promise I'll check it out
 This would most certainly happen when you rely on your own screen properties.
 There are several ways to avoid this problem. 
 
-First, if you program a window where there are many widgets independent of each
-other size, you actually can supply coordinates for these widget as they are 
-positioned on your screen. The only thing not to forget is to set C<designScale>
-property of the parent window, which is dimension of font used to design the
-window. You can get these for example by executing
+First, if one programs a window where there are many widgets independent of each
+other size, one actually can supply coordinates for these widgets as they are 
+positioned on a screen. Don't forget to set C<designScale>
+property of the parent window, which contains dimensions of the font used to design the
+window. One can get these by executing
 
     perl -MPrima -MPrima::Application -le '$_=$::application->font; print $_->width, q( ), $_->height';
 
-This way, the window and widget would get resized automatically under another font.
+This way, the window and the widgets would get resized automatically under another font.
 
-Second, in case your widget layout is not that independent, you can position the
+Second, in case the widget layout is not that independent, one can position the
 widgets relatively to each other by explicitly calculating widget extension. For
 example, an C<InputLine> would have height relative to the font, and to have a
 widget placed exactly say 2 pixels above the input line, code something like
@@ -255,10 +255,13 @@ widget placed exactly say 2 pixels above the input line, code something like
     my $input = $owner-> insert( InputLine, ... );
     my $widget = $owner-> insert( Widget, bottom => $input-> top + 2 );
 
-Of course you can change the font yourself, but it is a bad idea since users
-would get annoyed by this. 
+Of course one can change the font as well, but it is a bad idea since users
+would get annoyed by this.
 
-Finally, check your layouts with L<Prima::Stress> written specifically for this
+Third, one can use geometry managers, similar to the ones in Tk. See
+L<Prima::Widget::pack> and L<Prima::Widget::place>.
+
+Finally, check the widget layouts with L<Prima::Stress> written specifically for this
 purpose:
 
     perl -MPrima::Stress myprogram
@@ -325,6 +328,32 @@ Write some documentation and example of use.
 Check Prima/VB/examples/Widgety.pm . This file, if loaded through
 'Add widget' command in VB, adds example widget class and example 
 VB property into the VB palette and Object Inspector.
+
+=head2 How would I use unicode/UTF8 in Prima?
+
+Basically, 
+
+   $::application-> wantUnicodeInput(1)
+
+is enough to tell Prima to provide input in Unicode/UTF8. Note, that if the
+data received in that fashion are to be put through file I/O, the C<'utf8'> IO
+layer must be selected ( see L<open> ).
+
+Prima can input and output UTF8 text if the underlying system capabilities
+support that ( check Prima::Application::get_system_value, C<sv::CanUTF8_Input>
+and C<sv::CanUTF8_Output> ).  Displaying UTF8 text is transparent, because Perl
+scalars can be unambiguously told whether the text they contain is in UTF8 or
+not. The text that comes from the user input
+- keyboard and clipboard - can be treated and reported to Prima
+either as UTF8 or plain text, depending on
+C<Prima::Application::wantUnicodeInput> property.
+
+The keyboard input is easy, because a character key event comes with the character
+code, not the character itself, and conversion between these is done via
+standard perl's C<chr> and C<ord>.  The clipboard input is more complicated,
+because the clipboard may contain both UTF8 and plain text data at once, and it
+must be decided by the programmer explicitly which one is desired.  See more in
+L<Prima::Clipboard/Unicode>.
 
 =head1 AUTHOR
 

@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: guts.h,v 1.140 2004/12/14 11:13:09 dk Exp $ */
+/* $Id: guts.h,v 1.141 2005/03/30 08:56:32 dk Exp $ */
 
 #ifndef _UNIX_GUTS_H_
 #define _UNIX_GUTS_H_
@@ -1107,6 +1107,9 @@ prima_build_font_key( PFontKey key, PFont f, Bool bySize);
 
 extern Bool
 prima_core_font_pick( Handle self, Font * source, Font * dest);
+
+extern Bool
+prima_core_font_encoding( char * encoding);
 
 extern void
 prima_init_try_height( HeightGuessStack * p, int target, int firstMove );

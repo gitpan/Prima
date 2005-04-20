@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Anton Berezin  <tobez@tobez.org>
 #
-#  $Id: Lists.pm,v 1.47 2004/08/19 22:04:57 dk Exp $
+#  $Id: Lists.pm,v 1.51 2005/03/10 15:45:01 dk Exp $
 package Prima::Lists;
 
 # contains:
@@ -65,6 +65,7 @@ my %RNT = (
    DrawItem    => nt::Action,
    Stringify   => nt::Action,
    MeasureItem => nt::Action,
+   DragItem    => nt::Default,
 );
 
 sub notification_types { return \%RNT; }
@@ -79,6 +80,7 @@ sub profile_default
       autoVScroll    => 1,
       borderWidth    => 2,
       extendedSelect => 0,
+      dragable       => 0,
       focusedItem    => -1,
       gridColor      => cl::Black,
       hScroll        => 0,
@@ -103,7 +105,8 @@ sub profile_check_in
 {
    my ( $self, $p, $default) = @_;
    $self-> SUPER::profile_check_in( $p, $default);
-   $p-> { multiSelect}    = 1 if exists $p-> { extendedSelect} && $p-> {extendedSelect};
+   $p-> { multiSelect}    = 1 
+   	if exists $p-> { extendedSelect} && $p-> {extendedSelect} && !exists $p->{multiSelect};
    $p-> { autoHeight}     = 0 if exists $p-> { itemHeight} && !exists $p->{autoHeight};
    $p-> {autoHScroll} = 0 if exists $p-> {hScroll};
    $p-> {autoVScroll} = 0 if exists $p-> {vScroll};
@@ -115,7 +118,8 @@ sub init
    for ( qw( lastItem topItem focusedItem))
       { $self->{$_} = -1; }
    for ( qw( autoHScroll autoVScroll scrollTransaction gridColor dx dy hScroll vScroll 
-             itemWidth offset multiColumn count autoHeight multiSelect extendedSelect borderWidth))
+             itemWidth offset multiColumn count autoHeight multiSelect 
+	     extendedSelect borderWidth dragable))
       { $self->{$_} = 0; }
    for ( qw( itemHeight integralHeight))
       { $self->{$_} = 1; }
@@ -125,7 +129,7 @@ sub init
    $self->{selectedItems} = {} unless $profile{multiSelect};
    for ( qw( autoHScroll autoVScroll gridColor hScroll vScroll offset multiColumn 
              itemHeight autoHeight itemWidth multiSelect extendedSelect integralHeight 
-             focusedItem topItem selectedItems borderWidth))
+             focusedItem topItem selectedItems borderWidth dragable))
       { $self->$_( $profile{ $_}); }
    $self-> reset;
    $self-> reset_scrolls;
@@ -321,7 +325,7 @@ sub on_keydown
    {
       my $newItem = $self->{focusedItem};
       my $doSelect = 0;
-      if ( $mod == 0 || ( $mod & km::Shift && $self->{ extendedSelect}))
+      if ( $mod == 0 || ( $mod & km::Shift && $self-> {multiSelect} && $self->{ extendedSelect}))
       {
          my $pgStep  = $self->{rows} - 1;
          $pgStep = 1 if $pgStep <= 0;
@@ -340,7 +344,7 @@ sub on_keydown
          $doSelect = $mod & km::Shift;
       }
       if (( $mod & km::Ctrl) ||
-         ((( $mod & ( km::Shift|km::Ctrl))==(km::Shift|km::Ctrl)) && $self->{ extendedSelect}))
+         ((( $mod & ( km::Shift|km::Ctrl))==(km::Shift|km::Ctrl)) && $self->{multiSelect} && $self->{ extendedSelect}))
       {
          if ( $key == kb::PgUp || $key == kb::Home) { $newItem = 0};
          if ( $key == kb::PgDn || $key == kb::End)  { $newItem = $self->{count} - 1};
@@ -439,17 +443,30 @@ sub on_mousedown
       $x < $a[0] || $x >= $a[2];
 
    my $item = $self-> point2item( $x, $y);
-   if (( $self->{multiSelect} && !$self->{extendedSelect}) ||
-       ( $self->{extendedSelect} && ( $mod & (km::Ctrl|km::Shift))))
-   {
-      $self-> toggle_item( $item);
-      return if $self->{extendedSelect};
-   } else {
-      $self-> {anchor} = $item if $self->{extendedSelect};
-   }
-   $self-> {mouseTransaction} = 1;
    my $foc = $item >= 0 ? $item : 0;
-   $self-> selectedItems([$foc]) if $self->{extendedSelect};
+
+   if ( $self->{multiSelect}) {
+      if ( $self->{extendedSelect}) {
+         if ($mod & km::Shift) {
+            my $foc = $self-> focusedItem;
+            return $self->selectedItems(( $foc < $item) ? [$foc..$item] : [ $item..$foc]);
+	 } elsif ( $mod & km::Ctrl) {
+            return $self->toggle_item( $item);
+	 } elsif ( !$mod) {
+            $self-> {anchor} = $item;
+            $self-> selectedItems([$foc]);
+	 }
+      } elsif ( $mod & (km::Ctrl||km::Shift)) {
+         return $self->toggle_item( $item);
+      }
+   }
+   $self-> {mouseTransaction} = 
+      (( $mod & ( km::Alt | ($self->{multiSelect} ? 0 : km::Ctrl))) && $self->{dragable}) ? 2 : 1;
+   if ( $self-> {mouseTransaction} == 2) {
+      $self-> {dragItem} = $foc;
+      $self-> {mousePtr} = $self-> pointer;
+      $self-> pointer( cr::Move);
+   }
    $self-> focusedItem( $foc);
    $self-> capture(1);
 }
@@ -484,12 +501,13 @@ sub on_mousemove
       $self-> topItem( $self-> {topItem} + $aux);
       $item += (( $top != $self-> {topItem}) ? $aux : 0);
    }
-
-   if ( $self-> {extendedSelect} && exists $self->{anchor})
+   if ( $self->{multiSelect} && $self-> {extendedSelect} 
+       && exists $self->{anchor} && $self->{mouseTransaction} != 2)
    {
        my ( $a, $b, $c) = ( $self->{anchor}, $item, $self->{focusedItem});
        my $globSelect = 0;
-       if (( $b <= $a && $c > $a) || ( $b >= $a && $c < $a)) { $globSelect = 1
+       if (( $b <= $a && $c > $a) || ( $b >= $a && $c < $a)) { 
+          $globSelect = 1
        } elsif ( $b > $a) {
           if ( $c < $b) { $self-> add_selection([$c + 1..$b], 1) }
           elsif ( $c > $b) { $self-> add_selection([$b + 1..$c], 0) }
@@ -514,11 +532,19 @@ sub on_mouseup
    my ( $self, $btn, $mod, $x, $y) = @_;
    return if $btn != mb::Left;
    return unless defined $self->{mouseTransaction};
+   my @dragnotify;
+   if ( $self->{mouseTransaction} == 2) {
+      $self-> pointer( $self-> {mousePtr});
+      my $fci = $self-> focusedItem;
+      @dragnotify = ($self-> {dragItem}, $fci) 
+         if $fci != $self-> {dragItem} and $self->{dragItem} >= 0;
+   }
    delete $self->{mouseTransaction};
    delete $self->{mouseHorizontal};
    delete $self->{anchor};
    $self-> capture(0);
    $self-> clear_event;
+   $self-> notify(q(DragItem), @dragnotify) if @dragnotify;
 }
 
 sub on_mousewheel
@@ -707,11 +733,7 @@ sub set_count
 sub set_extended_select
 {
    my ( $self, $esel) = @_;
-   if ( $self-> {extendedSelect} = $esel)
-   {
-      $self-> multiSelect( 1);
-      $self-> selectedItems([$self-> {focusedItem}]);
-   }
+   $self-> {extendedSelect} = $esel;
 }
 
 sub set_focused_item
@@ -723,7 +745,9 @@ sub set_focused_item
    return if $self->{focusedItem} == $foc;
    return if $foc < -1;
    $self->{focusedItem} = $foc;
-   $self-> selectedItems([$foc]) if $self->{extendedSelect} && ! exists $self->{anchor};
+   $self-> selectedItems([$foc]) 
+      if $self->{multiSelect} && $self->{extendedSelect} 
+         && ! exists $self->{anchor} && $self->{mouseTransaction} != 2;
    $self-> notify(q(SelectItem), [ $foc], 1) if $foc >= 0 && !exists $self-> {selectedItems}-> {$foc};
    my $topSet = undef;
    if ( $foc >= 0)
@@ -752,6 +776,12 @@ sub colorIndex
    ( $index == ci::Grid) ?
       ( $self-> gridColor( $color), $self-> notify(q(ColorChanged), ci::Grid)) :
       ( $self-> SUPER::colorIndex( $index, $color));
+}
+
+sub dragable
+{
+   return $_[0]-> {dragable} unless $#_;
+   $_[0]->{dragable} = $_[1];
 }
 
 sub set_grid_color
@@ -812,7 +842,6 @@ sub set_multi_select
    return if $ms == $self->{multiSelect};
    unless ( $self-> {multiSelect} = $ms)
    {
-      $self-> extendedSelect( 0);
       $self-> selectedItems([]);
       $self-> repaint;
    } else {
@@ -1035,6 +1064,11 @@ sub set_v_scroll
 #sub on_selectitem
 #{
 #   my ($self, $itemIndex, $selectState) = @_;
+#}
+
+#sub on_dragitem
+#{
+#    my ( $self, $from, $to) = @_;
 #}
 
 sub autoHeight    {($#_)?$_[0]->set_auto_height    ($_[1]):return $_[0]->{autoHeight}     }
@@ -1467,6 +1501,32 @@ sub on_keydown
    $self-> SUPER::on_keydown( $code, $key, $mod);
 }
 
+sub on_dragitem
+{
+   my ( $self, $from, $to) = @_;
+   my ( $is, $iw) = ( $self-> {items}, $self-> {widths});
+   if ( $self-> {multiSelect}) {
+      my @k = sort { $b <=> $a } keys %{$self->{selectedItems}};
+      my @is = @$is[@k];
+      my @iw = @$iw[@k];
+      my $nto = $to;
+      for my $k ( @k) {
+         $nto-- if $k <= $to;
+         splice( @$is, $k, 1);
+         splice( @$iw, $k, 1);
+      }
+      $nto++ if $nto != $to;
+      splice( @$is, $nto, 0, reverse @is);
+      splice( @$iw, $nto, 0, reverse @iw);
+      @{$self->{selectedItems}}{$nto .. $nto + @k - 1} = delete @{$self->{selectedItems}}{@k};
+   } else {
+      splice( @$is, $to, 0, splice( @$is, $from, 1));
+      splice( @$iw, $to, 0, splice( @$iw, $from, 1));
+   }
+   $self-> repaint;
+   $self-> clear_event;
+}
+
 sub autoWidth     {($#_)?$_[0]->{autoWidth} = $_[1]       :return $_[0]->{autoWidth}      }
 sub count         {($#_)?$_[0]->raise_ro('count')         :return $_[0]->{count}          }
 sub items         {($#_)?$_[0]->set_items( $_[1])         :return $_[0]->{items}          }
@@ -1603,12 +1663,20 @@ Since it is tied to the item storage organization, and hence,
 to possibility of changing the number of items, this property
 is often declared as read-only in descendants of C<Prima::AbstractListViewer>.
 
+=item dragable BOOLEAN
+
+If 1, allows the items to be dragged interactively by pressing control key
+together with left mouse button. If 0, item dragging is disabled.
+
+Default value: 1
+
 =item extendedSelect BOOLEAN
 
 Regards the way the user selects multiple items and is only actual
 when C<multiSelect> is 1. If 0, the user must click each item
 in order to mark as selected. If 1, the user can drag mouse
-or use C<Shift> key plus arrow keys to perform range selection.
+or use C<Shift> key plus arrow keys to perform range selection;
+the C<Control> key can be used to select individual items.
 
 Default value: 0
 
@@ -1702,7 +1770,7 @@ Only for multi-select mode.
 
 Removes selection from all items.
 
-Only for mult-select mode.
+Only for multi-select mode.
 
 =item draw_items CANVAS, ITEMS
 
@@ -1766,20 +1834,20 @@ Redraws all items in ITEMS array.
 
 Selects all items.
 
-Only for mult-select mode.
+Only for multi-select mode.
 
 =item set_item_selected INDEX, FLAG
 
 Sets selection flag of INDEXth item.
 If FLAG is 1, the item is selected. If 0, it is deselected.
 
-Only for mult-select mode.
+Only for multi-select mode.
 
 =item select_item INDEX
 
 Selects INDEXth item.
 
-Only for mult-select mode.
+Only for multi-select mode.
 
 =item std_draw_text_items CANVAS, ITEMS
 
@@ -1805,13 +1873,13 @@ See L<DrawItem> for parameters description.
 
 Toggles selection of INDEXth item.
 
-Only for mult-select mode.
+Only for multi-select mode.
 
 =item unselect_item INDEX
 
 Deselects INDEXth item.
 
-Only for mult-select mode.
+Only for multi-select mode.
 
 =back
 
@@ -1823,6 +1891,12 @@ Only for mult-select mode.
 
 Called when the user presses return key or double-clicks on
 an item. The index of the item is stored in C<focusedItem>.
+
+=item DragItem OLD_INDEX, NEW_INDEX
+
+Called when the user finishes the drag of an item
+from OLD_INDEX to NEW_INDEX position. The default action
+rearranges the item list in accord with the dragging action.
 
 =item DrawItem CANVAS, INDEX, X1, Y1, X2, Y2, SELECTED, FOCUSED
 

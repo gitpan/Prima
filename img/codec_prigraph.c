@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: codec_prigraph.c,v 1.13 2004/01/21 20:25:17 dk Exp $
+ * $Id: codec_prigraph.c,v 1.14 2005/02/08 21:49:04 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 
@@ -515,7 +515,7 @@ open_save( PImgCodec instance, PImgSaveFileInstance fi)
       g-> params += 4;
    }   
 
-   if (( g-> fd = gbm_io_open( fi-> fileName, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY)) < 0) {
+   if (( g-> fd = gbm_io_create( fi-> fileName, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY)) < 0) {
       free( g);
       return nil;      
    }  

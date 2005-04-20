@@ -22,7 +22,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: VB.pl,v 1.78 2004/09/03 13:49:59 dk Exp $
+# $Id: VB.pl,v 1.79 2005/03/17 08:50:44 dk Exp $
 use strict;
 use Prima qw(StdDlg Notebooks MsgBox ComboBox ColorDialog IniFile Utils);
 use Prima::VB::VBLoader;
@@ -1148,6 +1148,8 @@ sub prf_icon
 
 sub prf_menuItems
 {
+   local $_[0]->{syncRecting};
+   $_[0]->{syncRecting} = 'height';
    $_[0]-> menuItems( $_[1]);
 }
 
