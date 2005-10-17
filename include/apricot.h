@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: apricot.h,v 1.173 2004/12/14 11:13:09 dk Exp $ */
+/* $Id: apricot.h,v 1.174 2005/10/17 15:11:37 dk Exp $ */
 
 #ifndef _APRICOT_H_
 #define _APRICOT_H_
@@ -238,6 +238,17 @@ extern "C" {
       #endif
    #endif
 #endif
+
+#ifndef PTR2UV
+#define PTR2UV(x) ((UV)(x))
+#endif
+#ifndef PTR2IV
+#define PTR2IV(x) ((IV)(x))
+#endif
+#ifndef INT2PTR
+#define INT2PTR(type,x) ((type)((UV)x))
+#endif
+
 
 #define PERL_CALL_SV_DIE_BUG_AWARE 1
 

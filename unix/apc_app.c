@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_app.c,v 1.109 2005/04/04 13:41:16 dk Exp $
+ * $Id: apc_app.c,v 1.110 2005/09/27 16:16:36 dk Exp $
  */
 
 /***********************************************************/
@@ -426,6 +426,7 @@ window_subsystem_get_options( int * argc, char *** argv)
 	    " P(palettes and colors),"\
 	    " X(XRDB),"\
 	    " A(all together)",
+   "no-core-fonts", "do not use core fonts",
 #ifdef USE_XFT
    "no-xft",        "do not use XFT",
    "no-aa",         "do not anti-alias XFT fonts",

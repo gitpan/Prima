@@ -1,10 +1,11 @@
-# $Id: Unicode.t,v 1.4 2003/01/21 21:30:54 dk Exp $
+# $Id: Unicode.t,v 1.5 2005/10/13 17:22:54 dk Exp $
 
 unless ( $] >= 5.006 && 
-         $::application-> get_system_value( sv::CanUTF8_Output)) {
-   print "1..1 support\n";
-   skip;
-   return 1;
+	$::application-> get_system_value( sv::CanUTF8_Output)
+) {
+	print "1..1 support\n";
+	skip;
+	return 1;
 }
 
 print "1..2 support,wrap utf8 text\n";

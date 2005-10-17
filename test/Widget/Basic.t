@@ -1,12 +1,12 @@
-# $Id: Basic.t,v 1.2 2000/10/18 11:58:23 tobez Exp $
+# $Id: Basic.t,v 1.3 2005/10/13 17:22:54 dk Exp $
 print "1..5 create,onCreate,onPostMessage,onPostMessage,onDestroy\n";
 
 $dong = 0;
 my @xpm = (0,0);
 my $c = $w-> insert( Widget =>
-   onCreate  => \&__dong,
-   onDestroy => \&__dong,
-   onPostMessage => sub { $dong = 1; @xpm = ($_[1],$_[2])}
+	onCreate  => \&__dong,
+	onDestroy => \&__dong,
+	onPostMessage => sub { $dong = 1; @xpm = ($_[1],$_[2])}
 );
 ok($c);
 ok($dong);

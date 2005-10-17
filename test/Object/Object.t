@@ -1,4 +1,4 @@
-# $Id: Object.t,v 1.3 2001/04/30 15:35:35 dk Exp $
+# $Id: Object.t,v 1.4 2005/10/13 17:22:54 dk Exp $
 print "1..8 init,create result,alive,method override,done,destroy,done on croak,croak during init\n";
 
 my $stage = 1;
@@ -9,26 +9,26 @@ use vars qw(@ISA);
 
 sub init
 {
-   my $self = shift;
-   main::ok( $self) if $stage == 1;
-   my %profile = @_;
-   %profile = $self-> SUPER::init( %profile);
-   croak("test!") if $stage == 2;
-   return %profile;
+	my $self = shift;
+	main::ok( $self) if $stage == 1;
+	my %profile = @_;
+	%profile = $self-> SUPER::init( %profile);
+	croak("test!") if $stage == 2;
+	return %profile;
 }
 
 
 sub setup
 {
-   $main::dong = 1;
-   $_[0]-> SUPER::setup;
+	$main::dong = 1;
+	$_[0]-> SUPER::setup;
 }
 
 sub done
 {
-   my $self = $_[0];
-   $self-> SUPER::done;
-   main::ok(1);
+	my $self = $_[0];
+	$self-> SUPER::done;
+	main::ok(1);
 }
 
 package main;

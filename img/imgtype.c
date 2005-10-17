@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: imgtype.c,v 1.19 2002/11/10 12:51:47 dk Exp $
+ * $Id: imgtype.c,v 1.20 2005/09/29 08:59:17 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "img_conv.h"
@@ -514,7 +514,10 @@ ic_type_convert( Handle self, Byte * dstData, PRGBColor dstPal, int dstType, int
           case imLong:    ic_float_complex_Long(BCPARMS); break;
           case imDouble:  ic_float_complex_double(BCPARMS); break;
           case imFloat:   ic_float_complex_float( BCPARMS); break;
-      }                   
+      }
+      break;
+      /* imComplex */
+
       case imDComplex: switch( dstType) {
           case imMono: case im16: case imRGB:
              ic_Byte_convert( BCPARMS, true);
@@ -529,7 +532,9 @@ ic_type_convert( Handle self, Byte * dstData, PRGBColor dstPal, int dstType, int
           case imLong:    ic_double_complex_Long(BCPARMS); break;
           case imDouble:  ic_double_complex_double(BCPARMS); break;
           case imFloat:   ic_double_complex_float( BCPARMS); break;
-      }                   
+      }     
+      break;
+      /* imDComplex */
    }
 }
 

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: File.c,v 1.22 2004/12/13 15:54:17 dk Exp $
+ * $Id: File.c,v 1.23 2005/09/29 08:03:58 dk Exp $
  */
 
 #include "apricot.h"
@@ -106,7 +106,7 @@ SV *
 File_file( Handle self, Bool set, SV * file)
 {
    if ( !set)
-      return var-> file ? var-> file : nilSV;
+      return var-> file ? newSVsv( var-> file) : nilSV;
    if ( var-> file) {
       apc_file_detach( self);
       sv_free( var-> file);

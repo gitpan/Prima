@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc.c,v 1.116 2004/12/14 11:36:50 dk Exp $
+ * $Id: apc.c,v 1.118 2005/10/11 20:58:57 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -325,6 +325,7 @@ files_rehash( Handle self, void * dummy)
 static Bool
 process_msg( MSG * msg)
 {
+   Bool postpone_msg_translation = false;
    switch ( msg-> message)
    {
    case WM_TERMINATE:
@@ -337,6 +338,12 @@ process_msg( MSG * msg)
          warn(( char *) msg-> lParam);
       return true;
    case WM_SYSKEYDOWN:
+      /*
+	 If Prima handles an Alt-Key combination that is also handled by a menu
+	 in TranslateMessage(), we need to prevent the message from being
+	 processed by the menu, by setting guts.dont_xlate_message flag.
+       */
+      postpone_msg_translation = true;
    case WM_SYSKEYUP:
    case WM_KEYDOWN:
    case WM_KEYUP:
@@ -430,8 +437,15 @@ process_msg( MSG * msg)
       }
       return true;
    }
-   TranslateMessage( msg);
+   if ( !postpone_msg_translation) 
+      TranslateMessage( msg);
    DispatchMessage( msg);
+   if ( postpone_msg_translation) { 
+      if ( guts. dont_xlate_message)
+         guts. dont_xlate_message = false;
+      else
+         TranslateMessage( msg);
+   }
    kill_zombies();
    return true;
 }
@@ -3150,9 +3164,9 @@ win32_openfile( const char * params)
 	 if ( stricmp( params, "EXPLORER") == 0) o. Flags |=              OFN_EXPLORER; else
 	 if ( stricmp( params, "NODEREFERENCELINKS") == 0) o. Flags |=    OFN_NODEREFERENCELINKS; else
 	 if ( stricmp( params, "LONGNAMES") == 0) o. Flags |=             OFN_LONGNAMES; else
-	 warn("win32.OpenFile: Unknown constant OFN_%s", params);
-	 params = cp + 1;
-	 if ( !pp) break;
+         warn("win32.OpenFile: Unknown constant OFN_%s", params);
+         params = cp + 1;
+         if ( !pp) break;
       }
    } else if (( strncmp( params, "open", 4) == 0) || 
               ( strncmp( params, "save", 4) == 0)) {
@@ -3162,8 +3176,19 @@ win32_openfile( const char * params)
       guts. focSysDialog = 1;
       o. lpstrFile = filename;
       ret = (strncmp( params, "open", 4) == 0) ? 
-	 GetOpenFileName( &o) :
+         GetOpenFileName( &o) :
          GetSaveFileName( &o);
+      if ( ret == 0) {
+         DWORD error;
+         error = CommDlgExtendedError();
+         if ( error != 0) {
+            warn("win32.OpenFile: Get%sFileName error %d at line %d at %s\n", 
+        	 (strncmp( params, "open", 4) == 0) ? "Open" : "Save",
+                 error,
+        	 __LINE__, __FILE__
+            );
+         }
+      }
       guts. focSysDialog = 0;
       if ( !ret) return 0;
       strncpy( directory, o. lpstrFile, o. nFileOffset);

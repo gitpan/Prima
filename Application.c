@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Application.c,v 1.73 2004/05/19 13:44:26 dk Exp $
+ * $Id: Application.c,v 1.74 2005/04/29 09:06:05 dk Exp $
  */
 
 #include "apricot.h"
@@ -153,7 +153,11 @@ Application_done( Handle self)
 void
 Application_cleanup( Handle self)
 {
-   my-> first_that( self, (void*)kill_all, nil);
+   int i;
+
+   for ( i = 0; i < var-> widgets. count; i++)
+      Object_destroy( var-> widgets. items[i]);
+      
    if ( var-> icon)
       my-> detach( self, var-> icon, true);
    var-> icon = nilHandle;

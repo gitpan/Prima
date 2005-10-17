@@ -1,15 +1,15 @@
-# $Id: Mouse.t,v 1.2 2000/10/18 11:58:24 tobez Exp $
+# $Id: Mouse.t,v 1.3 2005/10/13 17:22:54 dk Exp $
 print "1..9 send,post,mouse up,mouse move,click,doubleclick,capture,positioning,simulated movement\n";
 
 $dong = 0;
 my @keydata = ();
 my $c = $w-> insert( Widget =>
-   onCreate  => \&__dong,
-   onDestroy => \&__dong,
-   onMouseDown  => sub { $dong = 1; push( @keydata, [@_]); },
-   onMouseUp    => sub { $dong = 1; },
-   onMouseMove  => sub { $dong = 1; },
-   onMouseClick => sub { $dong = 1; push( @keydata, [@_]);},
+	onCreate  => \&__dong,
+	onDestroy => \&__dong,
+	onMouseDown  => sub { $dong = 1; push( @keydata, [@_]); },
+	onMouseUp    => sub { $dong = 1; },
+	onMouseMove  => sub { $dong = 1; },
+	onMouseClick => sub { $dong = 1; push( @keydata, [@_]);},
 );
 
 $c-> mouse_event( cm::MouseDown, mb::Left, 0, 1, 2, 0, 0);

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: extlist.pl,v 1.9 2003/08/08 11:43:57 dk Exp $
+#  $Id: extlist.pl,v 1.11 2005/10/15 14:02:53 dk Exp $
 #
 
 =pod 
@@ -43,18 +43,19 @@ use Prima;
 use Prima::ExtLists;
 use Prima::Application;
 
-my $w = Prima::MainWindow->create(
-   size => [ 200, 200],
+my $w = Prima::MainWindow-> create(
+	size => [ 200, 200],
 );
 my $v = '';
 vec($v, 0, 8) = 0x77;
 $w-> insert( Prima::CheckList =>
-   pack     => { fill => 'both', expand => 1},
-   items    => [qw( 'SpaceBar' toggles selection, 'Enter' toggles checkbox )],
-   multiColumn => 1,
-   multiSelect => 1,
-   vector   => $v,
-   extendedSelect => 0,
+	pack     => { fill => 'both', expand => 1},
+	items    => [qw( 'SpaceBar' toggles selection 'Enter' toggles checkbox )],
+	multiColumn => 1,
+	vertical => 0,
+	multiSelect => 1,
+	vector   => $v,
+	extendedSelect => 0,
 );
 
 run Prima;

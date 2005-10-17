@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: edit.pl,v 1.15 2004/05/04 21:07:12 dk Exp $
+#  $Id: edit.pl,v 1.16 2005/10/13 17:22:53 dk Exp $
 #
 
 =pod 
@@ -43,16 +43,16 @@ use Prima 'InputLine', Application => { name => 'InputLine sample', wantUnicodeI
 my $w = Prima::MainWindow-> create( size => [ 700, 300]);
 
 my $l = $w-> insert( InputLine =>
-   text        => '0:::1234 5678 90ab cdef ghij klmn oprq stuv:1::1234 5678 90ab cdef ghij klmn oprq stuv:2::1234 5678 90ab cdef ghij klmn oprq stuv:3::1234 5678 90ab cdef ghij klmn oprq stuv:4::1234 5678 90ab cdef ghij klmn oprq stuv::End',
-   centered    => 1,
-   width       => 300,
+	text        => '0:::1234 5678 90ab cdef ghij klmn oprq stuv:1::1234 5678 90ab cdef ghij klmn oprq stuv:2::1234 5678 90ab cdef ghij klmn oprq stuv:3::1234 5678 90ab cdef ghij klmn oprq stuv:4::1234 5678 90ab cdef ghij klmn oprq stuv::End',
+	centered    => 1,
+	width       => 300,
 #  firstChar   => 10,
-   alignment   => ta::Center,
-   font        => { size => 18, },
-   growMode    => gm::GrowHiX,
-   buffered    => 1,
-   borderWidth => 3,
-   autoSelect  => 0,
+	alignment   => ta::Center,
+	font        => { size => 18, },
+	growMode    => gm::GrowHiX,
+	buffered    => 1,
+	borderWidth => 3,
+	autoSelect  => 0,
 );
 
 run Prima;

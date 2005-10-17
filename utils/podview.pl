@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: podview.pl,v 1.2 2004/03/16 13:25:17 dk Exp $
+#  $Id: podview.pl,v 1.3 2005/10/13 17:22:55 dk Exp $
 #
 
 use strict;
@@ -37,8 +37,8 @@ use vars qw(@ISA);
 
 sub on_destroy
 {
-   $_[0]-> SUPER::on_destroy;
-   $::application-> close unless @Prima::HelpViewer::helpWindows;
+	$_[0]-> SUPER::on_destroy;
+	$::application-> close unless @Prima::HelpViewer::helpWindows;
 }
 
 package main;
@@ -47,9 +47,9 @@ $Prima::HelpViewer::windowClass = 'SoleHelpViewer';
 
 my $htx = ( @ARGV ? $ARGV[0] : 'Prima' );
 if ( -f $htx) {
-   $htx = "file://$htx";
+	$htx = "file://$htx";
 } else {
-   $htx .= '/' unless $htx =~ /\//;
+	$htx .= '/' unless $htx =~ /\//;
 }
 $::application-> open_help( $htx);
 

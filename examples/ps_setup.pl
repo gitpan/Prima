@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: ps_setup.pl,v 1.5 2002/05/14 13:22:26 dk Exp $
+# $Id: ps_setup.pl,v 1.6 2005/10/13 17:22:53 dk Exp $
 =pod 
 =item NAME
 
@@ -50,15 +50,15 @@ $::application-> icon( Prima::StdBitmap::icon(0));
 
 my $x = Prima::PS::Printer-> create;
 my %z = %{$x-> {data}};
-my %p = %{$x-> {data}->{devParms}};
+my %p = %{$x-> {data}-> {devParms}};
 $x-> setup_dialog;
 
 for ( keys %z) {
-   next if $_ eq 'devParms';
-#   print "$_:$z{$_} => $x->{data}->{$_}\n";
+	next if $_ eq 'devParms';
+#	print "$_:$z{$_} => $x->{data}->{$_}\n";
 }
 for ( keys %p) {
-#   print "$_:$p{$_} => $x->{data}->{devParms}->{$_}\n";
+#	print "$_:$p{$_} => $x->{data}->{devParms}->{$_}\n";
 }
 
 $x-> begin_doc;

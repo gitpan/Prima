@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: cv.pl,v 1.14 2002/05/14 13:22:26 dk Exp $
+#  $Id: cv.pl,v 1.17 2005/10/17 14:22:42 dk Exp $
 #
 
 =pod 
@@ -34,18 +34,42 @@ Standard color dialog
 =item FEATURES
 
 Demonstrates usage of a standard color dialog.
-Note the right-button drag effect from the color wheel with Shift
-or Alt button pressed.
+Note the left-button drag effect from the color wheel with 
+compbinations of Shift,Alt,and Control.
 
 =cut
 
+use strict;
 use Prima 'StdDlg', Application => { name => 'CV' };
 
 my $p = Prima::ColorDialog-> create(
-  value => 0x3030F0,
-  visible => 1,
-  quality => 1,
-  onDestroy => sub {$::application-> close;},
+	value => 0x3030F0,
+	visible => 1,
+	quality => 1,
 );
+
+my $banner = $p-> {wheel}-> insert( Label => 
+	text => <<MSG,
+Drag colors from the color wheel by left mouse button together with combinations of Alt, Shift, and Control
+MSG
+	autoHeight => 1,
+	wordWrap   => 1,
+	transparent => 1,
+	alignment => ta::Center,
+	left  => $p-> {wheel}-> width * 0.125,
+	top => 0,
+	width => $p-> {wheel}-> width * 0.75,
+);
+
+$p-> insert( Timer => 
+	timeout => 100,
+	onTick  => sub {
+		if ( $banner-> bottom > $p->{wheel}-> height) {
+			$_[0]-> destroy;
+		} else {
+			$banner-> bottom( $banner-> bottom + 2);
+		}
+	},
+)-> start;
 
 $p-> execute;

@@ -1,4 +1,4 @@
-=for rcs $Id: Object.pod,v 1.14 2005/03/31 15:22:43 dk Exp $
+=for rcs $Id: Object.pod,v 1.15 2005/09/28 09:14:52 dk Exp $
 
 =head1 NAME
 
@@ -896,6 +896,8 @@ See C<push_event>, L<"Events">
 Calls C<PostMessage> event with parameters SCALAR1 and SCALAR2 once during idle
 event loop. Returns immediately.  Does not guarantee that C<PostMessage> will
 be called, however.
+
+See also L<Prima::Utils/post>
 
 =item push_event
 

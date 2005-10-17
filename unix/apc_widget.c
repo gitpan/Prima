@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_widget.c,v 1.94 2004/06/04 16:09:53 dk Exp $
+ * $Id: apc_widget.c,v 1.95 2005/04/28 15:03:18 dk Exp $
  */
 
 /***********************************************************/
@@ -1157,21 +1157,17 @@ apc_widget_set_size( Handle self, int width, int height)
    widg-> virtualSize. x = width;
    widg-> virtualSize. y = height;
 
-   width = ( width > 0)
-      ? (( width >= widg-> sizeMin. x)
+   width = ( width >= widg-> sizeMin. x)
 	  ? (( width <= widg-> sizeMax. x)
 	      ? width
 	      : widg-> sizeMax. x)
-	  : widg-> sizeMin. x)
-      : 0;
+	  : widg-> sizeMin. x;
 
-   height = ( height > 0)
-      ? (( height >= widg-> sizeMin. y)
+   height = ( height >= widg-> sizeMin. y)
 	  ? (( height <= widg-> sizeMax. y)
 	      ? height
 	      : widg-> sizeMax. y)
-	  : widg-> sizeMin. y)
-      : 0;
+	  : widg-> sizeMin. y;
    
    if ( XX-> parentHandle == nilHandle && XX-> size. x == width && XX-> size. y == height)
       return true;
@@ -1224,21 +1220,17 @@ apc_widget_set_rect( Handle self, int x, int y, int width, int height)
    widg-> virtualSize. x = width;
    widg-> virtualSize. y = height;
 
-   width = ( width > 0)
-      ? (( width >= widg-> sizeMin. x)
+   width = ( width >= widg-> sizeMin. x)
 	  ? (( width <= widg-> sizeMax. x)
 	      ? width
 	      : widg-> sizeMax. x)
-	  : widg-> sizeMin. x)
-      : 0;
+	  : widg-> sizeMin. x;
 
-   height = ( height > 0)
-      ? (( height >= widg-> sizeMin. y)
+   height = ( height >= widg-> sizeMin. y)
 	  ? (( height <= widg-> sizeMax. y)
 	      ? height
 	      : widg-> sizeMax. y)
-	  : widg-> sizeMin. y)
-      : 0;
+	  : widg-> sizeMin. y;
    
    if ( XX-> parentHandle == nilHandle && 
         XX-> size. x == width && XX-> size. y == height &&

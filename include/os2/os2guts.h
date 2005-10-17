@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: os2guts.h,v 1.19 2004/05/27 10:06:47 dk Exp $ */
+/* $Id: os2guts.h,v 1.20 2005/08/23 14:00:03 dk Exp $ */
 
 #ifndef _OS2GUTS_H_
 #define _OS2GUTS_H_
@@ -40,8 +40,6 @@
 #define __PMPRINTF__  /* OS/2 logging facility */
 #include <PMPRINTF.H>
 #endif
-
-#define SEVERE_DEBUG
 
 #define WM_PRIMA_CREATE                   ( WM_USER + 1)
 #define WM_MENUCOMMAND                    ( WM_USER + 2)
@@ -135,11 +133,7 @@ extern int ctx_cr2SPTR[];
 extern Bool   appDead;
 extern Handle lastMouseOver;
 
-#ifndef  SEVERE_DEBUG
-#define apiErr       { rc = WinGetLastError( guts. anchor);    apcError = errApcError; }
-#define apcErr( err)    apcError = err;
-#define apiAltErr( err) { apcError = errApcError; rc = err; }
-#else
+#if PRIMA_DEBUG
 #define apiErr {                                            \
    rc = WinGetLastError( guts. anchor);                     \
    apcError = errApcError;                                  \
@@ -154,7 +148,12 @@ extern Handle lastMouseOver;
    rc = err;                                                \
    printf("OS2_%03x at line %d, file %s\n", (int)rc, __LINE__, __FILE__); \
 }
+#else
+#define apiErr       { rc = WinGetLastError( guts. anchor);    apcError = errApcError; }
+#define apcErr( err)    apcError = err;
+#define apiAltErr( err) { apcError = errApcError; rc = err; }
 #endif
+
 #define apiErrRet         { apiErr;               return (Bool)false; }
 #define apiErrCheckRet    { apiErrCheck; if ( rc) return (Bool)false; }
 #define apcErrRet(err)    { apcErr(err);          return (Bool)false; }

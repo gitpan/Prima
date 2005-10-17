@@ -1,9 +1,9 @@
-# $Id: Position.t,v 1.2 2000/10/18 11:58:25 tobez Exp $
+# $Id: Position.t,v 1.3 2005/10/13 17:22:54 dk Exp $
 print "1..7 create,runtime,horizontal,vertical,hidden,event,reparent\n";
 
 my $ww = $w-> insert( Widget =>
-   origin    => [ 10, 10],
-   growMode  => gm::GrowLoX,
+	origin    => [ 10, 10],
+	growMode  => gm::GrowLoX,
 );
 
 ok( $ww-> left == 10 && $ww-> bottom == 10);

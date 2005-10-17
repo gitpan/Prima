@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: win32guts.h,v 1.63 2004/12/14 11:13:09 dk Exp $ */
+/* $Id: win32guts.h,v 1.65 2005/09/27 06:36:25 dk Exp $ */
 
 #ifndef _WIN32_H_
 #define _WIN32_H_
@@ -124,11 +124,7 @@ typedef HANDLE SOCKETHANDLE;
 
 
 
-/*  #ifndef  SEVERE_DEBUG */
-/*  #define apiErr       { rc = GetLastError();    apcError = errApcError; } */
-/*  #define apcErr( err)    apcError = err; */
-/*  #define apiAltErr( err) { apcError = errApcError; rc = err; } */
-/*  #else */
+#if PRIMA_DEBUG
 #define apiErr {                                            \
    rc = GetLastError();                                     \
    apcError = errApcError;                                  \
@@ -144,7 +140,12 @@ typedef HANDLE SOCKETHANDLE;
    fprintf( stderr, "WIN_%d (%s) at line %d at %s", (int)rc,     \
         err_msg( rc, nil), __LINE__, __FILE__);                  \
 }
-/*  #endif */
+#else
+#define apiErr       { rc = GetLastError();    apcError = errApcError; }
+#define apcErr( err)    apcError = err;
+#define apiAltErr( err) { apcError = errApcError; rc = err; }
+#endif /* PRIMA_DEBUG */
+
 #define apiErrRet         { apiErr;               return false; }
 #define apiErrCheckRet    { apiErrCheck; if ( rc) return false; }
 #define apcErrRet(err)    { apcErr(err);          return false; }
@@ -226,6 +227,7 @@ typedef struct _WinGuts
     HANDLE         socketMutex;        // thread semaphore
     HANDLE         socketThread;       // thread id
     Bool           socketPostSync;     // semaphore
+    Bool           dont_xlate_message; // one-time stopper to TranslateMessage() call
 } WinGuts, *PWinGuts;
 
 typedef struct _WindowData

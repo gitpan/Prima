@@ -26,7 +26,7 @@
 #
 #  Main widget description
 #
-# $Id: Widget.cls,v 1.51 2003/11/15 08:44:53 dk Exp $
+# $Id: Widget.cls,v 1.52 2005/04/29 09:06:05 dk Exp $
 
 object Prima::Widget( Prima::Drawable)
 {
@@ -50,6 +50,7 @@ object Prima::Widget( Prima::Drawable)
    char   *  text;                     # caption text
    int       widgetClass;              # predefined system class
    List      widgets;		       # list of child widgets
+   Handle *  enum_lists;               # list of currently running enumerators
 
 #  geometry managers data
 #  common:   

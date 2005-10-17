@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: drivecombo.pl,v 1.10 2003/08/08 11:43:57 dk Exp $
+#  $Id: drivecombo.pl,v 1.11 2005/10/13 17:22:53 dk Exp $
 #
 
 =pod 
@@ -46,21 +46,21 @@ package UserInit;
 $::application = Prima::Application-> create( name => "DriveCombo");
 
 my $w = Prima::MainWindow-> create(
-   text   => "Combo box",
-   left   => 100,
-   bottom => 300,
-   width  => 250,
-   height => 250,
+	text   => "Combo box",
+	left   => 100,
+	bottom => 300,
+	width  => 250,
+	height => 250,
 );
 
 $w-> insert( DriveComboBox =>
-   pack => { side => 'bottom', padx => 20, pady => 20, fill => 'x' },
-   onChange => sub { $w-> DirectoryListBox1->path( $_[0]->text); },
+	pack => { side => 'bottom', padx => 20, pady => 20, fill => 'x' },
+	onChange => sub { $w-> DirectoryListBox1-> path( $_[0]-> text); },
 );
 
 $w-> insert( DirectoryListBox =>
-   pack => { side => 'bottom', padx => 20, pady => 20, fill => 'both', expand => 1, },
-   onChange => sub { print $_[0]-> path."\n"},
+	pack => { side => 'bottom', padx => 20, pady => 20, fill => 'both', expand => 1, },
+	onChange => sub { print $_[0]-> path."\n"},
 );
 
 run Prima;

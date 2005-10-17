@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_win.c,v 1.84 2004/12/14 13:11:58 dk Exp $
+ * $Id: apc_win.c,v 1.86 2005/09/28 13:27:32 dk Exp $
  */
 
 /***********************************************************/
@@ -885,20 +885,19 @@ window_set_client_size( Handle self, int width, int height)
    widg-> virtualSize. x = width;
    widg-> virtualSize. y = height;
 
-   width = ( width > 0)
-      ? (( width >= widg-> sizeMin. x)
+   width = ( width >= widg-> sizeMin. x)
 	  ? (( width <= widg-> sizeMax. x)
               ? width 
 	      : widg-> sizeMax. x)
-	  : widg-> sizeMin. x)
-      : 1; 
-   height = ( height > 0)
-      ? (( height >= widg-> sizeMin. y)
+	  : widg-> sizeMin. x;
+   if ( width == 0) width = 1;
+
+   height = ( height >= widg-> sizeMin. y)
 	  ? (( height <= widg-> sizeMax. y)
 	      ? height
 	      : widg-> sizeMax. y)
-	  : widg-> sizeMin. y)
-      : 1;
+	  : widg-> sizeMin. y;
+   if ( height == 0) height = 1;
 
    if ( XX-> flags. zoomed) {
       XX-> zoomRect. right = width;
@@ -950,20 +949,19 @@ apc_window_set_client_rect( Handle self, int x, int y, int width, int height)
    widg-> virtualSize. x = width;
    widg-> virtualSize. y = height;
 
-   width = ( width > 0)
-      ? (( width >= widg-> sizeMin. x)
+   width = ( width >= widg-> sizeMin. x)
 	  ? (( width <= widg-> sizeMax. x)
               ? width 
 	      : widg-> sizeMax. x)
-	  : widg-> sizeMin. x)
-      : 1; 
-   height = ( height > 0)
-      ? (( height >= widg-> sizeMin. y)
+	  : widg-> sizeMin. x;
+   if ( width == 0) width = 1;
+
+   height = ( height >= widg-> sizeMin. y)
 	  ? (( height <= widg-> sizeMax. y)
 	      ? height
 	      : widg-> sizeMax. y)
-	  : widg-> sizeMin. y)
-      : 1;
+	  : widg-> sizeMin. y;
+   if ( height == 0) height = 1;
 
    if ( XX-> flags. zoomed) {
       XX-> zoomRect. left = x;
@@ -1269,9 +1267,9 @@ apc_window_execute( Handle self, Handle insert_before)
    protect_object( self);
 
    XSync( DISP, false);
-   while ( prima_one_loop_round( true, true) && XX && XX-> flags.modal)
+   while ( prima_one_loop_round( true, true) && XX-> flags.modal)
       ;
-   if ( XX) set_net_hints( X_WINDOW, -1, XX-> flags.modal, -1, -1);
+   if ( X_WINDOW) set_net_hints( X_WINDOW, -1, XX-> flags.modal, -1, -1);
    unprotect_object( self);
    return true;
 }
