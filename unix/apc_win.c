@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_win.c,v 1.86 2005/09/28 13:27:32 dk Exp $
+ * $Id: apc_win.c,v 1.87 2006/01/07 19:54:48 dk Exp $
  */
 
 /***********************************************************/
@@ -1000,6 +1000,7 @@ prima_window_reset_menu( Handle self, int newMenuHeight)
       else
          XX-> size. y -= newMenuHeight - oh;
       
+#ifdef HAVE_X11_EXTENSIONS_SHAPE_H
      if ( XX-> shape_extent. x != 0 || XX-> shape_extent. y != 0) {
         int ny = XX-> size. y + XX-> menuHeight - XX-> shape_extent. y;
         if ( XX-> shape_offset. y != ny) {
@@ -1007,6 +1008,7 @@ prima_window_reset_menu( Handle self, int newMenuHeight)
            XX-> shape_offset. y = ny;
         }
      }
+#endif     
    }
    return ret;
 }

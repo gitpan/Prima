@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: printers.c,v 1.10 2002/05/14 13:22:32 dk Exp $
+ * $Id: printers.c,v 1.11 2006/01/06 19:13:29 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 /* apc.c --- apc/ api for os/2 */
@@ -482,4 +482,22 @@ apc_prn_get_handle( Handle self)
    return ( ApiHandle) sys ps;
 }
 
+
+Bool  
+apc_prn_set_option( Handle self, char * option, char * value) 
+{ 
+    return false; 
+}
+
+Bool apc_prn_get_option( Handle self, char * option, char ** value) 
+{ 
+   *value = nil;
+   return false; 
+}
+
+Bool apc_prn_enum_options( Handle self, int * count, char *** options) 
+{ 
+    *count = 0;
+    return false; 
+}
 

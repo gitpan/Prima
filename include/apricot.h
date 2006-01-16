@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: apricot.h,v 1.174 2005/10/17 15:11:37 dk Exp $ */
+/* $Id: apricot.h,v 1.175 2006/01/06 19:13:29 dk Exp $ */
 
 #ifndef _APRICOT_H_
 #define _APRICOT_H_
@@ -3306,6 +3306,15 @@ apc_prn_new_page( Handle self);
 
 extern Bool
 apc_prn_abort_doc( Handle self);
+
+extern Bool
+apc_prn_enum_options( Handle self, int * count, char *** options);
+
+extern Bool
+apc_prn_get_option( Handle self, char * option, char ** value);
+
+extern Bool
+apc_prn_set_option( Handle self, char * option, char * value);
 
 /* fonts */
 extern PFont

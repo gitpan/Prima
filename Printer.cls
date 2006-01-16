@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Printer.cls,v 1.17 2004/08/20 21:12:44 dk Exp $
+# $Id: Printer.cls,v 1.18 2006/01/06 19:13:29 dk Exp $
 
 object Prima::Printer( Prima::Drawable)
 {
@@ -43,6 +43,7 @@ object Prima::Printer( Prima::Drawable)
    method SV*    font_encodings( char * encoding = "");
    method void   init( HV * profile);
    method Bool   new_page();
+   public void   options();
    method SV *   printers();
    method Bool   setup_dialog()                     => apc_prn_setup;
    c_only Bool   validate_owner( Handle * newOwner, HV * profile);

@@ -1,0 +1,1633 @@
+)g	utils/makedoc/Prima.ps	/^3951 y(int)h(x;)449 4051 y(List)g(list;)449 4150 y/
+A	examples/matrix.gif	/^ =ãêt…M}ÉUFÆ/
+ABS	unix/apc_img.c	/^#define ABS(x) (((x)<0)?(-(x)):(x))$/
+ADD	unix/xft.c	/^#define ADD(ch,flag) if(!xft_add_item(&ret,count,&/
+AM	include/apricot.h	/^#define AM(const_name) CONSTANT(am,const_name)$/
+APC	include/apricot.h	/^#define APC(const_name) CONSTANT(apc,const_name)$/
+ARGB	include/apricot.h	/^#define ARGB(r,g,b) ((long)(((unsigned char)(b)|((/
+AbstractMenu	AbstractMenu.cls	/^object Prima::AbstractMenu ( Prima::Component)$/
+AccelTable	AccelTable.cls	/^object Prima::AccelTable( Prima::AbstractMenu)$/
+ApiHandle	include/apricot.h	/^typedef Handle ApiHandle;$/
+Application	Application.cls	/^object Prima::Application( Prima::Widget)$/
+BADRC	os2/misc.c	/^#define BADRC(func) if ((func)!=NO_ERROR) return d/
+BC	include/img_conv.h	/^#define BC(from,to,conv) void ic_##from##_##to##_i/
+BC2	include/img_conv.h	/^#define BC2(from,to) void ic_##from##_##to( Handle/
+BGRto32	Image.c	/^#define BGRto32(pal) ((var->palette[pal].r<<16) | /
+BI	include/apricot.h	/^#define BI(const_name) CONSTANT(bi,const_name)$/
+BS	include/apricot.h	/^#define BS(const_name) CONSTANT(bs,const_name)$/
+BS_BYTEEXPAND	img/imgscale.c	/^#define BS_BYTEEXPAND( type)                      /
+BS_BYTEIMPACT	img/imgscale.c	/^#define BS_BYTEIMPACT( type)                      /
+Bool	include/apricot.h	/^typedef I32 Bool;$/
+Brush	include/unix/guts.h	/^} Brush;$/
+Byte	include/apricot.h	/^typedef uint8_t         Byte;$/
+C	include/unix/guts.h	/^#define C(obj)		((PClipboardSysData)(PComponent((o/
+CALCBITS	img/img.c	/^#define CALCBITS(x) { \\$/
+CAbstractMenu	include/apricot.h	/^#define CAbstractMenu(h)                (PAbstract/
+CApplication	include/apricot.h	/^#define CApplication(h)                 (PApplicat/
+CComponent	include/apricot.h	/^#define CComponent(h)                   (PComponen/
+CDrawable	include/apricot.h	/^#define CDrawable(h)                    (PDrawable/
+CF_ASSIGN	unix/apc_clipboard.c	/^#define CF_ASSIGN(i,a,b,c) CF_NAME(i)=(a);CF_TYPE(/
+CF_FORMAT	unix/apc_clipboard.c	/^#define CF_FORMAT(x) (guts. clipboard_formats[(x)*/
+CF_NAME	unix/apc_clipboard.c	/^#define CF_NAME(x)   (guts. clipboard_formats[(x)*/
+CF_TYPE	unix/apc_clipboard.c	/^#define CF_TYPE(x)   (guts. clipboard_formats[(x)*/
+CFile	include/apricot.h	/^#define CFile(h)                        (PFile(h)-/
+CI	include/apricot.h	/^#define CI(const_name) CONSTANT(ci,const_name)$/
+CIRCLEQ_EMPTY	include/unix/bsd/queue.h	/^#define CIRCLEQ_EMPTY(head) ((head)->cqh_first == /
+CIRCLEQ_ENTRY	include/unix/bsd/queue.h	/^#define CIRCLEQ_ENTRY(type)						\\$/
+CIRCLEQ_FIRST	include/unix/bsd/queue.h	/^#define CIRCLEQ_FIRST(head) ((head)->cqh_first)$/
+CIRCLEQ_FOREACH	include/unix/bsd/queue.h	/^#define CIRCLEQ_FOREACH(var, head, field)				\\$/
+CIRCLEQ_HEAD	include/unix/bsd/queue.h	/^#define CIRCLEQ_HEAD(name, type)					\\$/
+CIRCLEQ_INIT	include/unix/bsd/queue.h	/^#define	CIRCLEQ_INIT(head) do {						\\$/
+CIRCLEQ_INSERT_AFTER	include/unix/bsd/queue.h	/^#define CIRCLEQ_INSERT_AFTER(head, listelm, elm, f/
+CIRCLEQ_INSERT_BEFORE	include/unix/bsd/queue.h	/^#define CIRCLEQ_INSERT_BEFORE(head, listelm, elm, /
+CIRCLEQ_INSERT_HEAD	include/unix/bsd/queue.h	/^#define CIRCLEQ_INSERT_HEAD(head, elm, field) do {/
+CIRCLEQ_INSERT_TAIL	include/unix/bsd/queue.h	/^#define CIRCLEQ_INSERT_TAIL(head, elm, field) do {/
+CIRCLEQ_LAST	include/unix/bsd/queue.h	/^#define CIRCLEQ_LAST(head) ((head)->cqh_last)$/
+CIRCLEQ_NEXT	include/unix/bsd/queue.h	/^#define CIRCLEQ_NEXT(elm,field) ((elm)->field.cqe_/
+CIRCLEQ_PREV	include/unix/bsd/queue.h	/^#define CIRCLEQ_PREV(elm,field) ((elm)->field.cqe_/
+CIRCLEQ_REMOVE	include/unix/bsd/queue.h	/^#define	CIRCLEQ_REMOVE(head, elm, field) do {				/
+CIcon	include/apricot.h	/^#define CIcon(h)                        (PIcon(h)-/
+CImage	include/apricot.h	/^#define CImage(h)                       (PImage(h)/
+CL	include/apricot.h	/^#define CL(const_name) CONSTANT(cl,const_name)$/
+CLIPBOARD_XFER_KEY	include/unix/guts.h	/^#define CLIPBOARD_XFER_KEY(key,window,property) \\/
+CLR	unix/apc_misc.c	/^#define CLR(x) prima_allocate_color( nilHandle,pri/
+CM	include/apricot.h	/^#define CM(const_name) CONSTANT(cm,const_name)$/
+CMenu	include/apricot.h	/^#define CMenu(h)                        (PMenu(h)-/
+COLOR_B	include/unix/guts.h	/^#define COLOR_B(x) ((x)&0xFF)$/
+COLOR_B16	include/unix/guts.h	/^#define COLOR_B16(x) (((x)<<8)&0xFF00)$/
+COLOR_G	include/unix/guts.h	/^#define COLOR_G(x) (((x)>>8)&0xFF)$/
+COLOR_G16	include/unix/guts.h	/^#define COLOR_G16(x) ((x)&0xFF00)$/
+COLOR_R	include/unix/guts.h	/^#define COLOR_R(x) (((x)>>16)&0xFF)$/
+COLOR_R16	include/unix/guts.h	/^#define COLOR_R16(x) (((x)>>8)&0xFF00)$/
+CONSTANT	include/apricot.h	/^#define CONSTANT(package,const_name) \\$/
+CONSTANT2	include/apricot.h	/^#define CONSTANT2(package,const_name,string_name) /
+CORE_INIT_TRANSIENT	include/guts.h	/^#define CORE_INIT_TRANSIENT(cls) ((PObject)self)->/
+CObject	include/apricot.h	/^#define CObject(h)                      (PObject(h/
+CPopup	include/apricot.h	/^#define CPopup(h)                       (PPopup(h)/
+CPrinter	include/apricot.h	/^#define CPrinter(h)                     (PPrinter(/
+CR	include/apricot.h	/^#define CR(const_name) CONSTANT(cr,const_name)$/
+CTimer	include/apricot.h	/^#define CTimer(h)                       (PTimer(h)/
+CWidget	include/apricot.h	/^#define CWidget(h)                      (PWidget(h/
+CWindow	include/apricot.h	/^#define CWindow(h)                      (PWindow(h/
+CalcData	img/codec_Xpm.c	/^} CalcData;$/
+Cc	pod/Prima/tutorial/menu1.gif	/^udácEt™²–±YBmSçŒ&&ƒ5Nd•k<À55ô€<"d8Ìæ=Š/
+CharSetInfo	unix/xft.c	/^} CharSetInfo;$/
+Clipboard	Clipboard.cls	/^object Prima::Clipboard( Prima::Component)$/
+ClipboardXfer	include/unix/guts.h	/^} ClipboardXfer;$/
+Color	include/apricot.h	/^typedef long Color;$/
+ColorComponent	include/unix/guts.h	/^typedef U8 ColorComponent;$/
+CompType	img/codec_tiff.c	/^} CompType;$/
+Complex	include/apricot.h	/^typedef struct { float  re, im; } Complex;$/
+Component	Component.cls	/^object Prima::Component( Prima::Object)$/
+ConfigureEventPair	include/unix/guts.h	/^} ConfigureEventPair;$/
+DComplex	include/apricot.h	/^typedef struct { double re, im; } DComplex;$/
+DEBUG_FONT	unix/apc_font.c	/^#define DEBUG_FONT(font) font.height,font.width,fo/
+DELTA	win32/stock.c	/^#define DELTA(x,y,offs) \\$/
+DHANDLE	os2/apc.c	/^#define DHANDLE( view) (((( PDrawableData)(( PComp/
+DO_UTF8	include/apricot.h	/^#define DO_UTF8(sv)         0$/
+DT	include/apricot.h	/^#define DT(const_name) CONSTANT(dt,const_name)$/
+DWIM	pod/Prima/tutorial.pod	/^such as DWIM ( do what I mean ) or TMTOWTDI ( ther/
+DeviceBitmap	DeviceBitmap.cls	/^object Prima::DeviceBitmap( Prima::Drawable)$/
+Drawable	Drawable.cls	/^object Prima::Drawable ( Prima::Component)$/
+Duplet16	unix/apc_img.c	/^} Duplet16;$/
+Duplet24	unix/apc_img.c	/^} Duplet24;$/
+Duplet32	unix/apc_img.c	/^} Duplet32;$/
+EDIFF_BEGIN_PIXEL	img/bc_color.c	/^#define EDIFF_BEGIN_PIXEL(red,gre,blu) \\$/
+EDIFF_END_PIXEL	img/bc_color.c	/^#define EDIFF_END_PIXEL(red_err,gre_err,blu_err) /
+EDIFF_END_PIXEL_EX	img/bc_color.c	/^#define EDIFF_END_PIXEL_EX(red_err,gre_err,blu_err/
+END_TABLE	include/apricot.h	/^#define END_TABLE(package,type) END_TABLE4(package/
+END_TABLE4	include/apricot.h	/^#define END_TABLE4(package,type,suffix,conversion)/
+END_TABLE_CHAR	include/apricot.h	/^#define END_TABLE_CHAR(package,type) END_TABLE4(pa/
+EventHook	utils/makedoc/Prima.dvi	/^3These“haÌÐvÙ e“larÑðge“number“of“options,‘[t/
+FDO	include/apricot.h	/^#define FDO(const_name) CONSTANT(fdo,const_name)$/
+FDS	include/apricot.h	/^#define FDS(const_name) CONSTANT(fds,const_name)$/
+FE	include/apricot.h	/^#define FE(const_name) CONSTANT(fe,const_name)$/
+FILL_PALETTE	img/ic_conv.c	/^#define FILL_PALETTE(_pal,_palsize,_maxpalsize,_co/
+FP	include/apricot.h	/^#define FP(const_name) CONSTANT(fp,const_name)$/
+FR	include/apricot.h	/^#define FR(const_name) CONSTANT(fr,const_name)$/
+FS	include/apricot.h	/^#define FS(const_name) CONSTANT(fs,const_name)$/
+FW	include/apricot.h	/^#define FW(const_name) CONSTANT(fw,const_name)$/
+Fep2	win32/stock.c	/^} Fep2;$/
+File	File.cls	/^object Prima::File( Prima::Component)$/
+FileData	include/win32/win32guts.h	/^} FileData;$/
+FileStream	File.c	/^typedef PerlIO *FileStream;$/
+FillPattern	include/generic/Types.h	/^typedef U8 FillPattern[ 8];$/
+FillSession	unix/apc_graphics.c	/^} FillSession;$/
+Fixed	include/img_conv.h	/^} Fixed;$/
+Fn	utils/makedoc/Prima.ps	/^y Fn(auto)p 313 3636 V 29 w(toolbar)p 602 3636 V 2/
+FontFlags	include/unix/guts.h	/^} FontFlags;$/
+FontInfo	os2/fonthash.c	/^} FontInfo;$/
+FreeColorsStruct	unix/color.c	/^} FreeColorsStruct;$/
+GBM	include/gbm.h	/^	} GBM;$/
+GBMFT	include/gbm.h	/^	} GBMFT;$/
+GBMRGB	include/gbm.h	/^typedef struct { byte r, g, b; } GBMRGB;$/
+GBMRec	img/codec_prigraph.c	/^} GBMRec;   $/
+GBM_ERR	include/gbm.h	/^typedef int GBM_ERR;$/
+GCList	include/unix/guts.h	/^} GCList;$/
+GM	include/apricot.h	/^#define GM(const_name) CONSTANT(gm,const_name)$/
+GT	include/apricot.h	/^#define GT(const_name) CONSTANT(gt,const_name)$/
+GUI	include/apricot.h	/^#define GUI(const_name) CONSTANT(gui,const_name)$/
+Handle	include/apricot.h	/^typedef unsigned long Handle;$/
+HandleOptions	include/win32/win32guts.h	/^   unsigned aptWM_PAINT             : 1;       \//
+HeightGuessStack	include/unix/guts.h	/^} HeightGuessStack;$/
+ICT	include/apricot.h	/^#define ICT(const_name) CONSTANT(ict,const_name)$/
+IM	include/apricot.h	/^#define IM(const_name) CONSTANT(im,const_name)$/
+IS	include/apricot.h	/^#define IS(const_name) CONSTANT(is,const_name)$/
+Icon	Icon.cls	/^object Prima::Icon( Prima::Image)$/
+Image	Image.cls	/^object Prima::Image( Prima::Drawable)$/
+ImageCache	include/unix/guts.h	/^} ImageCache;$/
+ImageSignatures	img/codec_prigraph.c	/^} ImageSignatures;$/
+ImageStats	include/generic/Image.h	/^typedef double ImageStats[ 7];$/
+ImgCodec	include/img.h	/^struct ImgCodec {$/
+ImgCodecVMT	include/img.h	/^struct ImgCodecVMT {$/
+J	utils/makedoc/Prima.dvi	/^ùþ É/
+KB	include/apricot.h	/^#define KB(const_name) CONSTANT(kb,const_name)$/
+KM	include/apricot.h	/^#define KM(const_name) CONSTANT(km,const_name)$/
+KeySymToUcs4	unix/apc_event.c	/^KeySymToUcs4(KeySym keysym)$/
+LE	include/apricot.h	/^#define LE(const_name) CONSTANT(le,const_name)$/
+LIST_EMPTY	include/unix/bsd/queue.h	/^#define	LIST_EMPTY(head) ((head)->lh_first == NULL/
+LIST_ENTRY	include/unix/bsd/queue.h	/^#define LIST_ENTRY(type)						\\$/
+LIST_FIRST	include/unix/bsd/queue.h	/^#define LIST_FIRST(head)	((head)->lh_first)$/
+LIST_FOREACH	include/unix/bsd/queue.h	/^#define LIST_FOREACH(var, head, field)					\\$/
+LIST_HEAD	include/unix/bsd/queue.h	/^#define LIST_HEAD(name, type)						\\$/
+LIST_HEAD_INITIALIZER	include/unix/bsd/queue.h	/^#define LIST_HEAD_INITIALIZER(head)					\\$/
+LIST_INIT	include/unix/bsd/queue.h	/^#define	LIST_INIT(head) do {						\\$/
+LIST_INSERT_AFTER	include/unix/bsd/queue.h	/^#define LIST_INSERT_AFTER(listelm, elm, field) do /
+LIST_INSERT_BEFORE	include/unix/bsd/queue.h	/^#define LIST_INSERT_BEFORE(listelm, elm, field) do/
+LIST_INSERT_HEAD	include/unix/bsd/queue.h	/^#define LIST_INSERT_HEAD(head, elm, field) do {			/
+LIST_NEXT	include/unix/bsd/queue.h	/^#define LIST_NEXT(elm, field)	((elm)->field.le_nex/
+LIST_REMOVE	include/unix/bsd/queue.h	/^#define LIST_REMOVE(elm, field) do {					\\$/
+LJ	include/apricot.h	/^#define LJ(const_name) CONSTANT(lj,const_name)$/
+LONGtoBGR	Image.c	/^#define LONGtoBGR(lv,clr)   ((clr).b=(lv)&0xff,(cl/
+LOWER_BYTE	unix/apc_img.c	/^#define LOWER_BYTE(x)           ((x)&ByteMask)$/
+LP	include/apricot.h	/^#define LP(const_name) CONSTANT(lp,const_name)$/
+LPAL_ADDR	include/unix/guts.h	/^#define LPAL_ADDR(i)  (i)>>2$/
+LPAL_GET	include/unix/guts.h	/^#define LPAL_GET(i,j) (((j)>>(((i)&3)*2))&3)$/
+LPAL_MASK	include/unix/guts.h	/^#define LPAL_MASK(i)  (3<<(((i)&3)*2))$/
+LPAL_SET	include/unix/guts.h	/^#define LPAL_SET(i,j) (((j)&3)<<(((i)&3)*2))$/
+LoadRec	img/codec_X11.c	/^} LoadRec;$/
+Long	include/apricot.h	/^typedef int32_t         Long;$/
+M	include/unix/guts.h	/^#define M(obj)		((PMenuSysData)(PComponent((obj))-/
+MB	include/apricot.h	/^#define MB(const_name) CONSTANT(mb,const_name)$/
+MB2	include/apricot.h	/^#define MB2(const_name,string_name) CONSTANT2(mb,c/
+MDI	examples/mdi.pl	/^A MDI ( multiple-document interface ) example$/
+MT	include/apricot.h	/^#define MT(const_name) CONSTANT(mt,const_name)$/
+MWMHINT_OR	unix/apc_win.c	/^#define MWMHINT_OR(field,value) ((guts.X_bug_32_bi/
+MainColorEntry	include/unix/guts.h	/^} MainColorEntry;$/
+Menu	Menu.cls	/^object Prima::Menu ( Prima::AbstractMenu)$/
+MenuDrawRec	unix/apc_menu.c	/^} MenuDrawRec;$/
+ModData	win32/stock.c	/^} ModData;$/
+MsgDlg	include/unix/guts.h	/^struct MsgDlg {$/
+MusClkRec	include/win32/win32guts.h	/^} MusClkRec;$/
+NETBIOS_username	os2/misc.c	/^static const char * NETBIOS_username( void)$/
+NT	include/apricot.h	/^#define NT(const_name) CONSTANT(nt,const_name)$/
+OS2Guts	include/os2/os2guts.h	/^   int   appLock;            \/\/ application lock/
+ObjectOptions	include/apricot.h	/^} ObjectOptions;$/
+PAbstractMenu	include/apricot.h	/^#define PAbstractMenu(h)                Transmogri/
+PAbstractMenu_vmt	include/generic/AbstractMenu.h	/^} AbstractMenu_vmt, *PAbstractMenu_vmt;$/
+PAccelTable	include/generic/AccelTable.h	/^} AccelTable, *PAccelTable;$/
+PAccelTable_vmt	include/generic/AccelTable.h	/^} AccelTable_vmt, *PAccelTable_vmt;$/
+PActionProc	Clipboard.c	/^typedef ActionProc *PActionProc;$/
+PAnyObject	include/apricot.h	/^} AnyObject, *PAnyObject;$/
+PApplication	include/apricot.h	/^#define PApplication(h)                 Transmogri/
+PApplication_vmt	include/generic/Application.h	/^} Application_vmt, *PApplication_vmt;$/
+PBInfo	include/os2/os2guts.h	/^} BInfo, *PBInfo;$/
+PBInfo2	include/os2/os2guts.h	/^} BInfo2, *PBInfo2;$/
+PBitBltProc	img/put.c	/^typedef BitBltProc *PBitBltProc;$/
+PCachedFont	include/unix/guts.h	/^} CachedFont, *PCachedFont;$/
+PClipboard	include/generic/Clipboard.h	/^} Clipboard, *PClipboard;$/
+PClipboardDataItem	include/unix/guts.h	/^} ClipboardDataItem, *PClipboardDataItem;$/
+PClipboardDataRec	include/apricot.h	/^} ClipboardDataRec, *PClipboardDataRec;$/
+PClipboardExchangeFunc	Clipboard.c	/^typedef ClipboardExchangeFunc *PClipboardExchangeF/
+PClipboardFormatReg	Clipboard.c	/^} ClipboardFormatReg, *PClipboardFormatReg;$/
+PClipboardSysData	include/unix/guts.h	/^} ClipboardSysData, *PClipboardSysData;$/
+PClipboard_vmt	include/generic/Clipboard.h	/^} Clipboard_vmt, *PClipboard_vmt;$/
+PComponent	include/apricot.h	/^#define PComponent(h)                   Transmogri/
+PComponent_vmt	include/generic/Component.h	/^} Component_vmt, *PComponent_vmt;$/
+PDCFont	include/win32/win32guts.h	/^} DCFont, *PDCFont;$/
+PDCStylus	include/win32/win32guts.h	/^} DCStylus, *PDCStylus;$/
+PDIBMONOBRUSH	include/win32/win32guts.h	/^} DIBMONOBRUSH, *PDIBMONOBRUSH;$/
+PDeviceBitmap	include/generic/DeviceBitmap.h	/^} DeviceBitmap, *PDeviceBitmap;$/
+PDeviceBitmap_vmt	include/generic/DeviceBitmap.h	/^} DeviceBitmap_vmt, *PDeviceBitmap_vmt;$/
+PDrawable	include/apricot.h	/^#define PDrawable(h)                    Transmogri/
+PDrawableData	include/os2/os2guts.h	/^} DrawableData, *PDrawableData;$/
+PDrawableSysData	include/unix/guts.h	/^} DrawableSysData, *PDrawableSysData;$/
+PDrawable_vmt	include/generic/Drawable.h	/^} Drawable_vmt, *PDrawable_vmt;$/
+PEXTLOGBRUSH	include/win32/win32guts.h	/^} EXTLOGBRUSH, *PEXTLOGBRUSH;$/
+PEXTPEN	include/win32/win32guts.h	/^} EXTPEN, *PEXTPEN;$/
+PEvent	include/apricot.h	/^} Event, *PEvent;$/
+PFEnumStruc	win32/stock.c	/^} FEnumStruc, *PFEnumStruc;$/
+PFile	include/apricot.h	/^#define PFile(h)                        Transmogri/
+PFileList	unix/apc_app.c	/^} FileList, *PFileList;$/
+PFile_vmt	include/generic/File.h	/^} File_vmt, *PFile_vmt;$/
+PFont	include/generic/Types.h	/^} Font, *PFont;$/
+PFontABC	include/apricot.h	/^} FontABC, *PFontABC;$/
+PFontHash	os2/fonthash.c	/^} FontHash, *PFontHash;$/
+PFontHashNode	os2/fonthash.c	/^} FontHashNode, *PFontHashNode;$/
+PFontIdHash	os2/fonthash.c	/^} FontIdHash, *PFontIdHash;$/
+PFontIdHashNode	os2/fonthash.c	/^} FontIdHashNode, *PFontIdHashNode;$/
+PFontInfo	include/unix/guts.h	/^} FontInfo, *PFontInfo;$/
+PFontKey	include/unix/guts.h	/^} FontKey, *PFontKey;$/
+PGIFGraphControlExt	img/codec_ungif.c	/^} GIFGraphControlExt, *PGIFGraphControlExt;$/
+PGenericEvent	include/apricot.h	/^} GenericEvent, *PGenericEvent;$/
+PGeomInfo	include/apricot.h	/^} GeomInfo, *PGeomInfo;$/
+PHash	include/apricot.h	/^typedef HV *PHash;$/
+PHashProc	include/apricot.h	/^typedef HashProc *PHashProc;$/
+PIX	unix/apc_graphics.c	/^#define PIX(x,y) ((data[y][0] & (0x80>>(x)))!=0)$/
+PIcon	include/apricot.h	/^#define PIcon(h)                        Transmogri/
+PIconHandle	include/generic/Icon.h	/^} IconHandle, *PIconHandle;$/
+PIcon_vmt	include/generic/Icon.h	/^} Icon_vmt, *PIcon_vmt;$/
+PImage	include/apricot.h	/^#define PImage(h)                       Transmogri/
+PImage_vmt	include/generic/Image.h	/^} Image_vmt, *PImage_vmt;$/
+PImgCodec	include/img.h	/^typedef struct ImgCodec    *PImgCodec;$/
+PImgCodecInfo	include/img.h	/^} ImgCodecInfo, *PImgCodecInfo;$/
+PImgCodecVMT	include/img.h	/^struct ImgCodec;$/
+PImgLoadFileInstance	include/img.h	/^} ImgLoadFileInstance, *PImgLoadFileInstance;$/
+PImgSaveFileInstance	include/img.h	/^} ImgSaveFileInstance, *PImgSaveFileInstance;$/
+PItemRegRec	include/os2/os2guts.h	/^} ItemRegRec, *PItemRegRec;$/
+PKeyEvent	include/apricot.h	/^} KeyEvent, *PKeyEvent;$/
+PKeyPacket	include/win32/win32guts.h	/^} KeyPacket, *PKeyPacket;$/
+PKmcc	AbstractMenu.c	/^} Kmcc, *PKmcc;$/
+PList	include/apricot.h	/^} List, *PList;$/
+PListProc	include/apricot.h	/^typedef ListProc *PListProc;$/
+PMenu	include/apricot.h	/^#define PMenu(h)                        Transmogri/
+PMenuItemReg	include/apricot.h	/^} MenuItemReg, *PMenuItemReg;$/
+PMenuProc	AbstractMenu.c	/^typedef MenuProc *PMenuProc;$/
+PMenuSysData	include/unix/guts.h	/^} MenuSysData, *PMenuSysData;$/
+PMenuWindow	include/unix/guts.h	/^} MenuWindow, *PMenuWindow;$/
+PMenuWndData	include/os2/os2guts.h	/^} MenuWndData, *PMenuWndData;$/
+PMenu_vmt	include/generic/Menu.h	/^} Menu_vmt, *PMenu_vmt;$/
+PNPoint	include/generic/Types.h	/^} NPoint, *PNPoint;$/
+PObject	include/apricot.h	/^#define PObject(h)                      Transmogri/
+PObject_vmt	include/generic/Object.h	/^} Object_vmt, *PObject_vmt;$/
+PPaintSaveData	include/os2/os2guts.h	/^} PaintSaveData, *PPaintSaveData;$/
+PParentHandleRec	include/os2/os2guts.h	/^} ParentHandleRec, *PParentHandleRec;$/
+PPatResource	include/win32/win32guts.h	/^} PatResource, *PPatResource;$/
+PPoint	include/generic/Types.h	/^} Point, *PPoint;$/
+PPopup	include/apricot.h	/^#define PPopup(h)                       Transmogri/
+PPopup_vmt	include/generic/Popup.h	/^} Popup_vmt, *PPopup_vmt;$/
+PPositionalEvent	include/apricot.h	/^} PositionalEvent, *PPositionalEvent;$/
+PPostMsg	include/apricot.h	/^} PostMsg, *PPostMsg;$/
+PPrinter	include/apricot.h	/^#define PPrinter(h)                     Transmogri/
+PPrinterInfo	include/generic/Types.h	/^} PrinterInfo, *PPrinterInfo;$/
+PPrinter_vmt	include/generic/Printer.h	/^} Printer_vmt, *PPrinter_vmt;$/
+PRGBColor	include/apricot.h	/^} RGBColor, *PRGBColor;$/
+PRect	include/generic/Types.h	/^} Rect, *PRect;$/
+PRemapHash	primguts.c	/^} RemapHash, *PRemapHash;$/
+PRemapHashNode	primguts.c	/^} RemapHashNode, *PRemapHashNode;$/
+PRequestInformation	include/unix/guts.h	/^} RequestInformation, *PRequestInformation;$/
+PRotatedFont	include/unix/guts.h	/^} RotatedFont, *PRotatedFont;$/
+PSimpleConvProc	include/img_conv.h	/^typedef SimpleConvProc *PSimpleConvProc;$/
+PSingleColor	Application.c	/^} SingleColor, *PSingleColor;$/
+PStretchProc	include/img_conv.h	/^typedef StretchProc *PStretchProc;$/
+PStylus	include/win32/win32guts.h	/^} Stylus, *PStylus;$/
+PSzList	win32/stock.c	/^} SzList, *PSzList;$/
+PTextWrapRec	include/apricot.h	/^} TextWrapRec, *PTextWrapRec;$/
+PTimer	include/apricot.h	/^#define PTimer(h)                       Transmogri/
+PTimerSysData	include/unix/guts.h	/^} TimerSysData, *PTimerSysData;$/
+PTimer_vmt	include/generic/Timer.h	/^} Timer_vmt, *PTimer_vmt;$/
+PUnixMenuItem	include/unix/guts.h	/^} UnixMenuItem, *PUnixMenuItem;$/
+PUnixSysData	include/unix/guts.h	/^} UnixSysData, *PUnixSysData;$/
+PVMT	include/apricot.h	/^} VMT, *PVMT;$/
+PViewProfile	os2/apc.c	/^} ViewProfile, *PViewProfile;$/
+PWidget	include/apricot.h	/^#define PWidget(h)                      Transmogri/
+PWidget_vmt	include/generic/Widget.h	/^} Widget_vmt, *PWidget_vmt;$/
+PWinGuts	include/win32/win32guts.h	/^    HWND           console;            \/\/ win32-/
+PWindow	include/apricot.h	/^#define PWindow(h)                      Transmogri/
+PWindow_vmt	include/generic/Window.h	/^} Window_vmt, *PWindow_vmt;$/
+PXBITMAPINFO	include/win32/win32guts.h	/^} XBITMAPINFO, *PXBITMAPINFO;$/
+PXLOGPALETTE	include/win32/win32guts.h	/^} XLOGPALETTE, *PXLOGPALETTE;$/
+Package_func	pod/gencls.pod	/^call Package_func() C function, but internal()$/
+PendingEvent	include/unix/guts.h	/^} PendingEvent;$/
+PerlIO_fileno	File.c	/^#define PerlIO_fileno(f) fileno(f)$/
+Pixel16	unix/apc_img.c	/^typedef uint16_t Pixel16;$/
+Pixel24	unix/apc_img.c	/^} Pixel24;$/
+Pixel32	unix/apc_img.c	/^typedef uint32_t Pixel32;$/
+Pixel8	unix/apc_img.c	/^typedef U8 Pixel8;$/
+Popup	Popup.cls	/^object Prima::Popup( Prima::AbstractMenu)$/
+PostScript	pod/Prima/Printer.pod	/^the default PostScript (tm) interface module I<Pri/
+PrimaXImage	include/unix/guts.h	/^} PrimaXImage;$/
+Printer	Printer.cls	/^object Prima::Printer( Prima::Drawable)$/
+PrinterData	include/os2/os2guts.h	/^} PrinterData;$/
+Q	utils/makedoc/Prima.pdf	/^ÌäQÜâp@‡£‡ªìzG|\\Ð:åeóäõ,*†Xæ$–P‹o_†¦;Íò/
+RANGE	unix/apc_graphics.c	/^#define RANGE(a)        { if ((a) < -16383) (a) = /
+RANGE2	unix/apc_graphics.c	/^#define RANGE2(a,b)     RANGE(a) RANGE(b)$/
+RANGE4	unix/apc_graphics.c	/^#define RANGE4(a,b,c,d) RANGE(a) RANGE(b) RANGE(c)/
+REVERSE_BYTES_16	unix/apc_graphics.c	/^#define REVERSE_BYTES_16(x) ((((x)&0xff)<<8 ) | ((/
+REVERSE_BYTES_24	unix/apc_graphics.c	/^#define REVERSE_BYTES_24(x) ((((x)&0xff)<<16) | ((/
+REVERSE_BYTES_32	unix/apc_graphics.c	/^#define REVERSE_BYTES_32(x) ((((x)&0xff)<<24) | ((/
+REVERT	unix/apc_graphics.c	/^#define REVERT(a)	(XX-> size. y - (a) - 1)$/
+RGB_COMPOSITE	include/unix/guts.h	/^#define RGB_COMPOSITE(R,G,B) ((((R)&0xFF)<<16)|(((/
+ROP	include/apricot.h	/^} ROP;$/
+SBMP	include/apricot.h	/^#define SBMP(const_name) CONSTANT(sbmp,const_name)/
+SBO	utils/makedoc/Prima.pdf	/^‘K'ÐLšQ­_á¥ÐýmµZ¦©–'²,ÓÃvïŽñJÈ´×ŒkÏO¾1`0nui/
+SHIFT	unix/apc_graphics.c	/^#define SHIFT(a,b)	{ (a) += XX-> gtransform. x + X/
+SLIST_EMPTY	include/unix/bsd/queue.h	/^#define	SLIST_EMPTY(head)	((head)->slh_first == NU/
+SLIST_ENTRY	include/unix/bsd/queue.h	/^#define SLIST_ENTRY(type)						\\$/
+SLIST_FIRST	include/unix/bsd/queue.h	/^#define	SLIST_FIRST(head)	((head)->slh_first)$/
+SLIST_FOREACH	include/unix/bsd/queue.h	/^#define SLIST_FOREACH(var, head, field)					\\$/
+SLIST_HEAD	include/unix/bsd/queue.h	/^#define SLIST_HEAD(name, type)						\\$/
+SLIST_HEAD_INITIALIZER	include/unix/bsd/queue.h	/^#define SLIST_HEAD_INITIALIZER(head)					\\$/
+SLIST_INIT	include/unix/bsd/queue.h	/^#define SLIST_INIT(head) {						\\$/
+SLIST_INSERT_AFTER	include/unix/bsd/queue.h	/^#define SLIST_INSERT_AFTER(slistelm, elm, field) d/
+SLIST_INSERT_HEAD	include/unix/bsd/queue.h	/^#define SLIST_INSERT_HEAD(head, elm, field) do {		/
+SLIST_NEXT	include/unix/bsd/queue.h	/^#define SLIST_NEXT(elm, field)	((elm)->field.sle_n/
+SLIST_REMOVE	include/unix/bsd/queue.h	/^#define SLIST_REMOVE(head, elm, type, field) do {	/
+SLIST_REMOVE_HEAD	include/unix/bsd/queue.h	/^#define SLIST_REMOVE_HEAD(head, field) do {				\\$/
+SOCKETHANDLE	include/win32/win32guts.h	/^typedef int SOCKETHANDLE;$/
+SORT	unix/apc_graphics.c	/^#define SORT(a,b)	{ int swp; if ((a) > (b)) { swp=/
+STAILQ_EMPTY	include/unix/bsd/queue.h	/^#define STAILQ_EMPTY(head) ((head)->stqh_first == /
+STAILQ_ENTRY	include/unix/bsd/queue.h	/^#define STAILQ_ENTRY(type)						\\$/
+STAILQ_FIRST	include/unix/bsd/queue.h	/^#define STAILQ_FIRST(head)	((head)->stqh_first)$/
+STAILQ_FOREACH	include/unix/bsd/queue.h	/^#define STAILQ_FOREACH(var, head, field)				\\$/
+STAILQ_HEAD	include/unix/bsd/queue.h	/^#define STAILQ_HEAD(name, type)						\\$/
+STAILQ_HEAD_INITIALIZER	include/unix/bsd/queue.h	/^#define STAILQ_HEAD_INITIALIZER(head)					\\$/
+STAILQ_INIT	include/unix/bsd/queue.h	/^#define	STAILQ_INIT(head) do {						\\$/
+STAILQ_INSERT_AFTER	include/unix/bsd/queue.h	/^#define STAILQ_INSERT_AFTER(head, tqelm, elm, fiel/
+STAILQ_INSERT_HEAD	include/unix/bsd/queue.h	/^#define STAILQ_INSERT_HEAD(head, elm, field) do {	/
+STAILQ_INSERT_TAIL	include/unix/bsd/queue.h	/^#define STAILQ_INSERT_TAIL(head, elm, field) do {	/
+STAILQ_LAST	include/unix/bsd/queue.h	/^#define STAILQ_LAST(head)	(*(head)->stqh_last)$/
+STAILQ_NEXT	include/unix/bsd/queue.h	/^#define STAILQ_NEXT(elm, field)	((elm)->field.stqe/
+STAILQ_REMOVE	include/unix/bsd/queue.h	/^#define STAILQ_REMOVE(head, elm, type, field) do {/
+STAILQ_REMOVE_HEAD	include/unix/bsd/queue.h	/^#define STAILQ_REMOVE_HEAD(head, field) do {				\\/
+START_TABLE	include/apricot.h	/^#define START_TABLE(package,type) \\$/
+STYLUS_USE_BACKING	include/win32/win32guts.h	/^#define STYLUS_USE_BACKING( __ps)                 /
+STYLUS_USE_BRUSH	include/win32/win32guts.h	/^#define STYLUS_USE_BRUSH( __ps)                   /
+STYLUS_USE_PEN	include/win32/win32guts.h	/^#define STYLUS_USE_PEN( __ps)                     /
+STYLUS_USE_TEXT	include/win32/win32guts.h	/^#define STYLUS_USE_TEXT( __ps)                    /
+SV	include/apricot.h	/^#define SV(const_name) CONSTANT(sv,const_name)$/
+SZCPY	os2/printers.c	/^#define SZCPY(field) dest-> field = duplicate_stri/
+SaveRec	img/codec_jpeg.c	/^} SaveRec;$/
+SelectionProcData	unix/apc_clipboard.c	/^} SelectionProcData;$/
+Short	include/apricot.h	/^typedef int16_t         Short;$/
+StretchSeed	unix/apc_img.c	/^} StretchSeed;$/
+SvBOOL	include/apricot.h	/^#define SvBOOL(sv) ({ SV *svsv = sv; SvTRUE(svsv);/
+SvREFCNT_inc	include/apricot.h	/^#define SvREFCNT_inc(sv) ((Sv = (SV*)(sv)),       /
+SvTRUE	pod/Prima/internals.pod	/^SvTRUE( GvSV( errgv)) is true before perl_call_met/
+SvUTF8	include/apricot.h	/^#define SvUTF8(sv)          0$/
+SvUTF8_off	include/apricot.h	/^#define SvUTF8_off(sv)      {}$/
+SvUTF8_on	include/apricot.h	/^#define SvUTF8_on(sv)       {}$/
+TA	include/apricot.h	/^#define TA(const_name) CONSTANT(ta,const_name)$/
+TAILQ_EMPTY	include/unix/bsd/queue.h	/^#define	TAILQ_EMPTY(head) ((head)->tqh_first == NU/
+TAILQ_ENTRY	include/unix/bsd/queue.h	/^#define TAILQ_ENTRY(type)						\\$/
+TAILQ_FIRST	include/unix/bsd/queue.h	/^#define	TAILQ_FIRST(head) ((head)->tqh_first)$/
+TAILQ_FOREACH	include/unix/bsd/queue.h	/^#define TAILQ_FOREACH(var, head, field)					\\$/
+TAILQ_HEAD	include/unix/bsd/queue.h	/^#define TAILQ_HEAD(name, type)						\\$/
+TAILQ_HEAD_INITIALIZER	include/unix/bsd/queue.h	/^#define TAILQ_HEAD_INITIALIZER(head)					\\$/
+TAILQ_INIT	include/unix/bsd/queue.h	/^#define	TAILQ_INIT(head) do {						\\$/
+TAILQ_INSERT_AFTER	include/unix/bsd/queue.h	/^#define TAILQ_INSERT_AFTER(head, listelm, elm, fie/
+TAILQ_INSERT_BEFORE	include/unix/bsd/queue.h	/^#define TAILQ_INSERT_BEFORE(listelm, elm, field) d/
+TAILQ_INSERT_HEAD	include/unix/bsd/queue.h	/^#define TAILQ_INSERT_HEAD(head, elm, field) do {		/
+TAILQ_INSERT_TAIL	include/unix/bsd/queue.h	/^#define TAILQ_INSERT_TAIL(head, elm, field) do {		/
+TAILQ_LAST	include/unix/bsd/queue.h	/^#define	TAILQ_LAST(head, headname) \\$/
+TAILQ_NEXT	include/unix/bsd/queue.h	/^#define	TAILQ_NEXT(elm, field) ((elm)->field.tqe_n/
+TAILQ_PREV	include/unix/bsd/queue.h	/^#define TAILQ_PREV(elm, headname, field) \\$/
+TAILQ_REMOVE	include/unix/bsd/queue.h	/^#define TAILQ_REMOVE(head, elm, field) do {				\\$/
+TM	win32/gp.c	/^#define TM(field) to->field = from->field$/
+TW	include/apricot.h	/^#define TW(const_name) CONSTANT(tw,const_name)$/
+TYPECHECK	primguts.c	/^#define TYPECHECK(s1,s2) \\$/
+Timer	Timer.cls	/^object Prima::Timer( Prima::Component)$/
+TimerData	include/os2/os2guts.h	/^} TimerData;$/
+TransmogrifyHandle	include/apricot.h	/^#define TransmogrifyHandle(c,h)         ((P##c)(h)/
+TrigComplex	include/apricot.h	/^typedef struct { float  r,  ph; } TrigComplex;$/
+TrigDComplex	include/apricot.h	/^typedef struct { double r,  ph; } TrigDComplex;$/
+UNIX	utils/makedoc/Prima.tex	/^versions are 5.005 and above. In UNIX(tm) environm/
+UNIXstyle_username	os2/misc.c	/^static const char * UNIXstyle_username( void)$/
+Um	utils/makedoc/Prima.pdf	/^ä½èt<nþ§UmÇ(2UÓ‡“VÖ)p#£U†ÎÐªß¾¾t*¹T#Póý¨qáyX™Ç/
+UnixGuts	include/unix/guts.h	/^} UnixGuts;$/
+VmtPatch	include/apricot.h	/^} VmtPatch;$/
+WC	include/apricot.h	/^#define WC(const_name) CONSTANT(wc,const_name)$/
+WINHANDLE	include/win32/win32guts.h	/^typedef HANDLE WINHANDLE;$/
+WMSyncData	unix/apc_event.c	/^} WMSyncData;$/
+WS	include/apricot.h	/^#define WS(const_name) CONSTANT(ws,const_name)$/
+Widget	Widget.cls	/^object Prima::Widget( Prima::Drawable)$/
+WinHideWindow	win32/apc.c	/^#define WinHideWindow(WND) SetWindowPos( WND, nil,/
+WinShowWindow	win32/apc.c	/^#define WinShowWindow(WND) SetWindowPos( WND, nil,/
+Window	Window.cls	/^object Prima::Window( Prima::Widget)$/
+WindowData	include/os2/os2guts.h	/^} WindowData;$/
+X	include/unix/guts.h	/^#define X(obj)		((PDrawableSysData)(PComponent((ob/
+XExtDisplayInfo	unix/xft.c	/^} XExtDisplayInfo;$/
+XF_ENABLED	include/unix/guts.h	/^#define XF_ENABLED(x)   ((x)->flags.enabled)$/
+XF_IN_PAINT	include/unix/guts.h	/^#define XF_IN_PAINT(x)  ((x)->flags.paint)$/
+XPixel	unix/apc_img.c	/^typedef unsigned long XPixel;$/
+XPointer	include/unix/guts.h	/^typedef int (*XIfEventProcType)(Display*,XEvent*,X/
+XS	pod/gencls.pod	/^data of these types between C and perl, using XS (/
+XT_IS_APPLICATION	include/unix/guts.h	/^#define XT_IS_APPLICATION(x)    ((x)->type.applica/
+XT_IS_BITMAP	include/unix/guts.h	/^#define XT_IS_BITMAP(x)         ((x)->type.bitmap)/
+XT_IS_DBM	include/unix/guts.h	/^#define XT_IS_DBM(x)            ((x)->type.dbm)$/
+XT_IS_DRAWABLE	include/unix/guts.h	/^#define XT_IS_DRAWABLE(x)       ((x)->type.drawabl/
+XT_IS_ICON	include/unix/guts.h	/^#define XT_IS_ICON(x)           ((x)->type.icon)$/
+XT_IS_IMAGE	include/unix/guts.h	/^#define XT_IS_IMAGE(x)          ((x)->type.image)$/
+XT_IS_MENU	include/unix/guts.h	/^#define XT_IS_MENU(x)           ((x)->type.menu)$/
+XT_IS_PIXMAP	include/unix/guts.h	/^#define XT_IS_PIXMAP(x)         ((x)->type.pixmap)/
+XT_IS_POPUP	include/unix/guts.h	/^#define XT_IS_POPUP(x)          ((x)->type.popup)$/
+XT_IS_TIMER	include/unix/guts.h	/^#define XT_IS_TIMER(x)          ((x)->type.timer)$/
+XT_IS_WIDGET	include/unix/guts.h	/^#define XT_IS_WIDGET(x)         ((x)->type.widget)/
+XT_IS_WINDOW	include/unix/guts.h	/^#define XT_IS_WINDOW(x)         ((x)->type.window)/
+X_COLOR_TO_RGB	unix/apc_misc.c	/^#define X_COLOR_TO_RGB(xc)     (ARGB(((xc).red>>8)/
+Xlib	pod/Prima/X11.pod	/^Sets X display address in Xlib notation. If not se/
+_DLL_InitTerm	os2/os2guts.c	/^unsigned long _DLL_InitTerm( unsigned long modhand/
+_color	utils/makedoc/Prima.cache.tex	/^The methods get\\_nearest\\_color() and get\\_phys/
+_default	utils/makedoc/Prima.cache.tex	/^It is merged with profile\\_default() after passin/
+_dialog	utils/makedoc/Prima.cache.tex	/^only ::save\\_dialog() function, that returns a di/
+_get_osfhandle	win32/files.c	/^#define _get_osfhandle(a) a$/
+_in	utils/makedoc/Prima.cache.tex	/^is performed on the next stage, in profile\\_check/
+_name	utils/makedoc/Prima.cache.tex	/^For example, for managing the object name, set\\_n/
+_types	utils/makedoc/Prima.cache.tex	/^flow is based on prototyping events, by using noti/
+a_get	AbstractMenu.c	/^#define a_get( l_, fl_, num) if ( num >= 0 ) {    /
+add_entry	win32/misc.c	/^#define add_entry(file,info)  {                   /
+add_font_to_cache	unix/apc_font.c	/^add_font_to_cache( PFontKey key, PFontInfo f, cons/
+add_font_to_hash	os2/fonthash.c	/^add_font_to_hash( const PFont key, const PFont fon/
+add_fontid_to_hash	os2/fonthash.c	/^add_fontid_to_hash( void *_hash, int id, const PFo/
+add_item	os2/apc.c	/^add_item( HWND w, Handle menu, PMenuItemReg i)$/
+add_timer	os2/timers.c	/^add_timer( Handle timerObject, Handle self)$/
+alloc1	include/apricot.h	/^#define alloc1(typ)     ((typ*)malloc(sizeof(typ))/
+alloc1z	include/apricot.h	/^#define alloc1z(typ)    ((typ*)prima_mallocz(sizeo/
+alloc_color	unix/color.c	/^alloc_color( XColor * c) $/
+alloc_main_color_range	unix/color.c	/^alloc_main_color_range( XColor * xc, int count, in/
+allocb	include/apricot.h	/^#define allocb(n)       ((Byte*)malloc(n))$/
+allocn	include/apricot.h	/^#define allocn(typ,n)   ((typ*)malloc((n)*sizeof(t/
+allocnz	include/apricot.h	/^#define allocnz(typ,n)  ((typ*)prima_mallocz((n)*s/
+allocs	include/apricot.h	/^#define allocs(n)       ((char*)malloc(n))$/
+any_event	unix/apc_app.c	/^any_event( Display *d, XEvent *ev, XPointer arg)$/
+apcErr	include/os2/os2guts.h	/^#define apcErr( err)    apcError = err;$/
+apcErrRet	include/os2/os2guts.h	/^#define apcErrRet(err)    { apcErr(err);          /
+apc_SetWMNormalHints	unix/apc_win.c	/^apc_SetWMNormalHints( Handle self, XSizeHints * hi/
+apc_XUnmapWindow	unix/apc_widget.c	/^apc_XUnmapWindow( Handle self)$/
+apc_application_begin_paint	os2/apc.c	/^apc_application_begin_paint ( Handle self)$/
+apc_application_begin_paint_info	os2/apc.c	/^apc_application_begin_paint_info( Handle self)$/
+apc_application_close	os2/apc.c	/^apc_application_close( Handle self)$/
+apc_application_create	os2/apc.c	/^apc_application_create( Handle self)$/
+apc_application_destroy	os2/apc.c	/^apc_application_destroy( Handle self)$/
+apc_application_end_paint	os2/apc.c	/^apc_application_end_paint( Handle self)$/
+apc_application_end_paint_info	os2/apc.c	/^apc_application_end_paint_info( Handle self)$/
+apc_application_get_bitmap	examples/grip.pl	/^Tests the correct implementation of apc_applicatio/
+apc_application_get_gui_info	os2/apc.c	/^apc_application_get_gui_info( char * description, /
+apc_application_get_handle	os2/apc.c	/^apc_application_get_handle( Handle self, ApiHandle/
+apc_application_get_os_info	os2/apc.c	/^apc_application_get_os_info( char *system, int sle/
+apc_application_get_size	os2/apc.c	/^apc_application_get_size( Handle self)$/
+apc_application_get_widget_from_point	os2/apc.c	/^apc_application_get_widget_from_point( Handle self/
+apc_application_go	os2/apc.c	/^apc_application_go( Handle self)$/
+apc_application_lock	os2/apc.c	/^apc_application_lock( Handle self)$/
+apc_application_unlock	os2/apc.c	/^apc_application_unlock( Handle self)$/
+apc_application_yield	os2/apc.c	/^apc_application_yield( void)$/
+apc_beep	os2/misc.c	/^apc_beep( int style)$/
+apc_beep_tone	examples/pitch.pl	/^Tests the implementation of apc_beep_tone() functi/
+apc_clipboard_clear	os2/clip.c	/^apc_clipboard_clear( Handle self)$/
+apc_clipboard_close	os2/clip.c	/^apc_clipboard_close( Handle self)$/
+apc_clipboard_create	os2/clip.c	/^apc_clipboard_create( Handle self)$/
+apc_clipboard_deregister_format	os2/clip.c	/^apc_clipboard_deregister_format( Handle self, long/
+apc_clipboard_destroy	os2/clip.c	/^apc_clipboard_destroy( Handle self)$/
+apc_clipboard_get_data	os2/clip.c	/^apc_clipboard_get_data( Handle self, long id, PCli/
+apc_clipboard_get_handle	os2/clip.c	/^apc_clipboard_get_handle( Handle self)$/
+apc_clipboard_has_format	os2/clip.c	/^apc_clipboard_has_format( Handle self, long id)$/
+apc_clipboard_open	os2/clip.c	/^apc_clipboard_open( Handle self)$/
+apc_clipboard_register_format	os2/clip.c	/^apc_clipboard_register_format( Handle self, const /
+apc_clipboard_set_data	os2/clip.c	/^apc_clipboard_set_data( Handle self, long id, PCli/
+apc_component_create	os2/apc.c	/^apc_component_create( Handle self)$/
+apc_component_destroy	os2/apc.c	/^apc_component_destroy( Handle self)$/
+apc_component_fullname_changed_notify	os2/apc.c	/^apc_component_fullname_changed_notify( Handle self/
+apc_cursor_get_pos	os2/pointers.c	/^apc_cursor_get_pos( Handle self)$/
+apc_cursor_get_size	os2/pointers.c	/^apc_cursor_get_size( Handle self)$/
+apc_cursor_get_visible	os2/pointers.c	/^apc_cursor_get_visible( Handle self)$/
+apc_cursor_set_pos	os2/pointers.c	/^apc_cursor_set_pos( Handle self, int x, int y)$/
+apc_cursor_set_size	os2/pointers.c	/^apc_cursor_set_size( Handle self, int x, int y)$/
+apc_cursor_set_visible	os2/pointers.c	/^apc_cursor_set_visible( Handle self, Bool visible)/
+apc_dbm_create	os2/dev.c	/^apc_dbm_create( Handle self, Bool monochrome)$/
+apc_dbm_destroy	os2/dev.c	/^apc_dbm_destroy( Handle self)$/
+apc_dbm_get_handle	os2/dev.c	/^apc_dbm_get_handle( Handle self)$/
+apc_deregister_event	os2/os2guts.c	/^apc_deregister_event( void * sysMessage)$/
+apc_deregister_hook	os2/os2guts.c	/^apc_deregister_hook( int hookType, void * hookProc/
+apc_dl_export	os2/misc.c	/^apc_dl_export(char *path)$/
+apc_fetch_resource	os2/misc.c	/^apc_fetch_resource( const char *className, const c/
+apc_file_attach	os2/files.c	/^apc_file_attach( Handle self)$/
+apc_file_change_mask	os2/files.c	/^apc_file_change_mask( Handle self)$/
+apc_file_detach	os2/files.c	/^apc_file_detach( Handle self)$/
+apc_font_default	os2/stock.c	/^apc_font_default( PFont font)$/
+apc_font_encodings	os2/stock.c	/^apc_font_encodings( Handle self)$/
+apc_font_load	os2/stock.c	/^apc_font_load( const char* filename)$/
+apc_font_pick	os2/stock.c	/^apc_font_pick( Handle self, PFont source, PFont de/
+apc_fonts	os2/stock.c	/^apc_fonts( Handle self, const char* facename, cons/
+apc_get_standard_clipboards	os2/clip.c	/^apc_get_standard_clipboards( void)$/
+apc_get_user_name	os2/misc.c	/^apc_get_user_name( void)$/
+apc_getdir	os2/misc.c	/^apc_getdir( const char *dirname)$/
+apc_gp_arc	os2/gp.c	/^apc_gp_arc ( Handle self, int x, int y, int dX, in/
+apc_gp_bar	os2/gp.c	/^apc_gp_bar( Handle self, int x1, int y1, int x2, i/
+apc_gp_chord	os2/gp.c	/^apc_gp_chord( Handle self, int x, int y,  int dX, /
+apc_gp_clear	os2/gp.c	/^apc_gp_clear( Handle self, int x1, int y1, int x2,/
+apc_gp_done	os2/gp.c	/^apc_gp_done( Handle self)$/
+apc_gp_draw_poly	os2/gp.c	/^apc_gp_draw_poly( Handle self, int numPts, Point */
+apc_gp_draw_poly2	os2/gp.c	/^apc_gp_draw_poly2( Handle self, int numPts, Point /
+apc_gp_ellipse	os2/gp.c	/^apc_gp_ellipse( Handle self, int x, int y, int dX,/
+apc_gp_fill_chord	os2/gp.c	/^apc_gp_fill_chord ( Handle self, int x, int y,  in/
+apc_gp_fill_ellipse	os2/gp.c	/^apc_gp_fill_ellipse( Handle self, int x, int y, in/
+apc_gp_fill_poly	os2/gp.c	/^apc_gp_fill_poly( Handle self, int numPts, Point */
+apc_gp_fill_sector	os2/gp.c	/^apc_gp_fill_sector ( Handle self, int x, int y,  i/
+apc_gp_flood_fill	os2/gp.c	/^apc_gp_flood_fill( Handle self, int x, int y, Colo/
+apc_gp_get_back_color	os2/gp.c	/^apc_gp_get_back_color( Handle self)$/
+apc_gp_get_bpp	os2/gp.c	/^apc_gp_get_bpp( Handle self)$/
+apc_gp_get_clip_rect	os2/gp.c	/^apc_gp_get_clip_rect( Handle self)$/
+apc_gp_get_color	os2/gp.c	/^apc_gp_get_color( Handle self)$/
+apc_gp_get_fill_pattern	os2/gp.c	/^apc_gp_get_fill_pattern( Handle self)$/
+apc_gp_get_fill_winding	os2/gp.c	/^apc_gp_get_fill_winding ( Handle self)$/
+apc_gp_get_font_abc	os2/gp.c	/^apc_gp_get_font_abc( Handle self, int first, int l/
+apc_gp_get_font_ranges	os2/gp.c	/^apc_gp_get_font_ranges( Handle self, int * count)$/
+apc_gp_get_handle	os2/gp.c	/^apc_gp_get_handle( Handle self)$/
+apc_gp_get_line_end	os2/gp.c	/^apc_gp_get_line_end ( Handle self)$/
+apc_gp_get_line_join	os2/gp.c	/^apc_gp_get_line_join ( Handle self)$/
+apc_gp_get_line_pattern	os2/gp.c	/^apc_gp_get_line_pattern( Handle self, unsigned cha/
+apc_gp_get_line_width	os2/gp.c	/^apc_gp_get_line_width( Handle self)$/
+apc_gp_get_nearest_color	os2/gp.c	/^apc_gp_get_nearest_color( Handle self, Color color/
+apc_gp_get_physical_palette	os2/gp.c	/^apc_gp_get_physical_palette( Handle self, int * co/
+apc_gp_get_pixel	os2/gp.c	/^apc_gp_get_pixel ( Handle self, int x, int y)$/
+apc_gp_get_region	os2/gp.c	/^apc_gp_get_region( Handle self, Handle mask)$/
+apc_gp_get_resolution	os2/gp.c	/^apc_gp_get_resolution( Handle self)$/
+apc_gp_get_rop	os2/gp.c	/^apc_gp_get_rop ( Handle self)$/
+apc_gp_get_rop2	os2/gp.c	/^apc_gp_get_rop2 ( Handle self)$/
+apc_gp_get_text_box	os2/gp.c	/^apc_gp_get_text_box( Handle self, const char* text/
+apc_gp_get_text_opaque	os2/gp.c	/^apc_gp_get_text_opaque( Handle self)$/
+apc_gp_get_text_out_baseline	os2/gp.c	/^apc_gp_get_text_out_baseline( Handle self)$/
+apc_gp_get_text_width	os2/gp.c	/^apc_gp_get_text_width ( Handle self, const char* t/
+apc_gp_get_transform	os2/gp.c	/^apc_gp_get_transform( Handle self)$/
+apc_gp_init	os2/gp.c	/^apc_gp_init( Handle self)$/
+apc_gp_line	os2/gp.c	/^apc_gp_line ( Handle self, int x1, int y1, int x2,/
+apc_gp_move	os2/gp.c	/^#define apc_gp_move( ps, x, y) {                  /
+apc_gp_put_image	os2/gp.c	/^apc_gp_put_image( Handle self, Handle image, int x/
+apc_gp_rectangle	os2/gp.c	/^apc_gp_rectangle( Handle self, int x1, int y1, int/
+apc_gp_sector	os2/gp.c	/^apc_gp_sector ( Handle self, int x, int y,  int dX/
+apc_gp_set_back_color	os2/gp.c	/^apc_gp_set_back_color( Handle self, Color color)$/
+apc_gp_set_clip_rect	os2/gp.c	/^apc_gp_set_clip_rect( Handle self, Rect clipRect)$/
+apc_gp_set_color	os2/gp.c	/^apc_gp_set_color( Handle self, Color color)$/
+apc_gp_set_fill_pattern	os2/gp.c	/^apc_gp_set_fill_pattern( Handle self, FillPattern /
+apc_gp_set_fill_winding	os2/gp.c	/^apc_gp_set_fill_winding( Handle self, Bool fillWin/
+apc_gp_set_font	os2/gp.c	/^apc_gp_set_font( Handle self, PFont font)$/
+apc_gp_set_line_end	os2/gp.c	/^apc_gp_set_line_end ( Handle self, int lineEnd)$/
+apc_gp_set_line_join	os2/gp.c	/^apc_gp_set_line_join( Handle self, int lineJoin)$/
+apc_gp_set_line_pattern	os2/gp.c	/^apc_gp_set_line_pattern( Handle self, unsigned cha/
+apc_gp_set_line_width	os2/gp.c	/^apc_gp_set_line_width( Handle self, int lineWidth)/
+apc_gp_set_palette	os2/gp.c	/^apc_gp_set_palette( Handle self)$/
+apc_gp_set_pixel	os2/gp.c	/^apc_gp_set_pixel ( Handle self, int x, int y, Colo/
+apc_gp_set_region	os2/gp.c	/^apc_gp_set_region( Handle self, Handle mask)$/
+apc_gp_set_rop	os2/gp.c	/^apc_gp_set_rop ( Handle self, int rop)$/
+apc_gp_set_rop2	os2/gp.c	/^apc_gp_set_rop2 ( Handle self, int rop)$/
+apc_gp_set_text_opaque	os2/gp.c	/^apc_gp_set_text_opaque( Handle self, Bool opaque)$/
+apc_gp_set_text_out_baseline	os2/gp.c	/^apc_gp_set_text_out_baseline( Handle self, Bool ba/
+apc_gp_set_transform	os2/gp.c	/^apc_gp_set_transform( Handle self, int x, int y)$/
+apc_gp_stretch_image	os2/gp.c	/^apc_gp_stretch_image ( Handle self, Handle image, /
+apc_gp_text_out	os2/gp.c	/^apc_gp_text_out( Handle self, const char * text, i/
+apc_image_begin_paint	os2/dev.c	/^apc_image_begin_paint( Handle self)$/
+apc_image_begin_paint_info	os2/dev.c	/^apc_image_begin_paint_info( Handle self)$/
+apc_image_create	os2/dev.c	/^apc_image_create( Handle self)$/
+apc_image_destroy	os2/dev.c	/^apc_image_destroy( Handle self)$/
+apc_image_end_paint	os2/dev.c	/^apc_image_end_paint( Handle self)$/
+apc_image_end_paint_info	os2/dev.c	/^apc_image_end_paint_info( Handle self)$/
+apc_image_get_handle	os2/dev.c	/^apc_image_get_handle( Handle self)$/
+apc_image_update_change	os2/dev.c	/^apc_image_update_change( Handle self)$/
+apc_kbd_get_state	os2/apc.c	/^apc_kbd_get_state( Handle self)$/
+apc_lookup_color	os2/stock.c	/^apc_lookup_color( const char * colorName)$/
+apc_menu_create	os2/apc.c	/^apc_menu_create ( Handle self, Handle owner)$/
+apc_menu_default_font	os2/apc.c	/^apc_menu_default_font( PFont font)$/
+apc_menu_destroy	os2/apc.c	/^apc_menu_destroy( Handle self)$/
+apc_menu_get_color	os2/apc.c	/^apc_menu_get_color( Handle self, int index)$/
+apc_menu_get_font	os2/apc.c	/^apc_menu_get_font( Handle self, PFont font)$/
+apc_menu_get_handle	os2/apc.c	/^apc_menu_get_handle( Handle self)$/
+apc_menu_item_delete	os2/apc.c	/^apc_menu_item_delete( Handle self, PMenuItemReg m)/
+apc_menu_item_set_accel	os2/apc.c	/^apc_menu_item_set_accel( Handle self, PMenuItemReg/
+apc_menu_item_set_check	os2/apc.c	/^apc_menu_item_set_check ( Handle self, PMenuItemRe/
+apc_menu_item_set_enabled	os2/apc.c	/^apc_menu_item_set_enabled( Handle self, PMenuItemR/
+apc_menu_item_set_image	os2/apc.c	/^apc_menu_item_set_image( Handle self, PMenuItemReg/
+apc_menu_item_set_key	os2/apc.c	/^apc_menu_item_set_key( Handle self, PMenuItemReg m/
+apc_menu_item_set_text	os2/apc.c	/^apc_menu_item_set_text( Handle self, PMenuItemReg /
+apc_menu_set_color	os2/apc.c	/^apc_menu_set_color( Handle self, Color color, int /
+apc_menu_set_font	os2/apc.c	/^apc_menu_set_font( Handle self, PFont font)$/
+apc_menu_update	os2/apc.c	/^apc_menu_update( Handle self, PMenuItemReg oldBran/
+apc_message	os2/apc.c	/^apc_message( Handle self, PEvent ev, Bool post)$/
+apc_pointer_get_bitmap	os2/pointers.c	/^apc_pointer_get_bitmap( Handle self, Handle icon)$/
+apc_pointer_get_hot_spot	os2/pointers.c	/^apc_pointer_get_hot_spot( Handle self)$/
+apc_pointer_get_pos	os2/pointers.c	/^apc_pointer_get_pos( Handle self)$/
+apc_pointer_get_shape	os2/pointers.c	/^apc_pointer_get_shape( Handle self)$/
+apc_pointer_get_size	os2/pointers.c	/^apc_pointer_get_size( Handle self)$/
+apc_pointer_get_state	os2/pointers.c	/^apc_pointer_get_state( Handle self)$/
+apc_pointer_get_visible	os2/pointers.c	/^apc_pointer_get_visible( Handle self)$/
+apc_pointer_set_pos	os2/pointers.c	/^apc_pointer_set_pos( Handle self, int x, int y)$/
+apc_pointer_set_shape	os2/pointers.c	/^apc_pointer_set_shape( Handle self, int sysPtrId)$/
+apc_pointer_set_user	os2/pointers.c	/^apc_pointer_set_user( Handle self, Handle icon, Po/
+apc_pointer_set_visible	os2/pointers.c	/^apc_pointer_set_visible( Handle self, Bool visible/
+apc_popup	os2/apc.c	/^apc_popup( Handle self, int x, int y, Rect * ancho/
+apc_popup_create	os2/apc.c	/^apc_popup_create ( Handle self, Handle owner)$/
+apc_popup_default_font	os2/apc.c	/^apc_popup_default_font( PFont font)$/
+apc_prn_abort_doc	os2/printers.c	/^apc_prn_abort_doc( Handle self)$/
+apc_prn_begin_doc	os2/printers.c	/^apc_prn_begin_doc( Handle self, const char* docNam/
+apc_prn_begin_paint_info	os2/printers.c	/^apc_prn_begin_paint_info( Handle self)$/
+apc_prn_create	os2/printers.c	/^apc_prn_create( Handle self)$/
+apc_prn_destroy	os2/printers.c	/^apc_prn_destroy( Handle self)$/
+apc_prn_end_doc	os2/printers.c	/^apc_prn_end_doc( Handle self)$/
+apc_prn_end_paint_info	os2/printers.c	/^apc_prn_end_paint_info( Handle self)$/
+apc_prn_enumerate	os2/printers.c	/^apc_prn_enumerate( Handle self, int * count)$/
+apc_prn_get_default	os2/printers.c	/^apc_prn_get_default( Handle self)$/
+apc_prn_get_handle	os2/printers.c	/^apc_prn_get_handle( Handle self)$/
+apc_prn_get_resolution	os2/printers.c	/^apc_prn_get_resolution( Handle self)$/
+apc_prn_get_selected	os2/printers.c	/^apc_prn_get_selected( Handle self)$/
+apc_prn_get_size	os2/printers.c	/^apc_prn_get_size( Handle self)$/
+apc_prn_new_page	os2/printers.c	/^apc_prn_new_page( Handle self)$/
+apc_prn_select	os2/printers.c	/^apc_prn_select( Handle self, const char* printer)$/
+apc_prn_setup	os2/printers.c	/^apc_prn_setup( Handle self)$/
+apc_query_drive_type	os2/misc.c	/^apc_query_drive_type( const char *drive)$/
+apc_query_drives_map	os2/misc.c	/^apc_query_drives_map( const char *firstDrive, char/
+apc_register_event	os2/os2guts.c	/^apc_register_event( void * sysMessage)$/
+apc_register_hook	os2/os2guts.c	/^apc_register_hook( int hookType, void * hookProc)$/
+apc_show_message	os2/apc.c	/^apc_show_message( const char * message, Bool utf8)/
+apc_sys_get_caption_font	os2/stock.c	/^apc_sys_get_caption_font( PFont font)$/
+apc_sys_get_insert_mode	os2/misc.c	/^apc_sys_get_insert_mode( void)$/
+apc_sys_get_msg_font	os2/stock.c	/^apc_sys_get_msg_font( PFont font)$/
+apc_sys_get_value	os2/misc.c	/^apc_sys_get_value( int sysValue)$/
+apc_sys_set_insert_mode	os2/misc.c	/^apc_sys_set_insert_mode( Bool insMode)$/
+apc_system_action	os2/misc.c	/^apc_system_action( const char* params)$/
+apc_timer_create	os2/timers.c	/^apc_timer_create ( Handle self, Handle owner, int /
+apc_timer_destroy	os2/timers.c	/^apc_timer_destroy ( Handle self)$/
+apc_timer_get_handle	os2/timers.c	/^apc_timer_get_handle( Handle self)$/
+apc_timer_get_timeout	os2/timers.c	/^apc_timer_get_timeout( Handle self)$/
+apc_timer_set_timeout	os2/timers.c	/^apc_timer_set_timeout( Handle self, int timeout)$/
+apc_timer_start	os2/timers.c	/^apc_timer_start( Handle self)$/
+apc_timer_stop	os2/timers.c	/^apc_timer_stop( Handle self)$/
+apc_watch_filehandle	unix/apc_app.c	/^apc_watch_filehandle( int no, void *sub, void *glo/
+apc_widget_begin_paint	os2/apc.c	/^apc_widget_begin_paint( Handle self, Bool insideOn/
+apc_widget_begin_paint_info	os2/apc.c	/^apc_widget_begin_paint_info( Handle self)$/
+apc_widget_create	os2/apc.c	/^apc_widget_create( Handle self, Handle owner, Bool/
+apc_widget_default_font	os2/apc.c	/^apc_widget_default_font ( PFont font)$/
+apc_widget_destroy	os2/apc.c	/^apc_widget_destroy( Handle self)$/
+apc_widget_end_paint	os2/apc.c	/^apc_widget_end_paint( Handle self)$/
+apc_widget_end_paint_info	os2/apc.c	/^apc_widget_end_paint_info( Handle self)$/
+apc_widget_get_clip_owner	os2/apc.c	/^apc_widget_get_clip_owner( Handle self)$/
+apc_widget_get_color	os2/apc.c	/^apc_widget_get_color( Handle self, int index)$/
+apc_widget_get_first_click	os2/apc.c	/^apc_widget_get_first_click ( Handle self)$/
+apc_widget_get_focused	os2/apc.c	/^apc_widget_get_focused( void)$/
+apc_widget_get_handle	os2/apc.c	/^apc_widget_get_handle( Handle self)$/
+apc_widget_get_invalid_rect	os2/apc.c	/^apc_widget_get_invalid_rect( Handle self)$/
+apc_widget_get_parent_handle	os2/apc.c	/^apc_widget_get_parent_handle( Handle self)$/
+apc_widget_get_pos	os2/apc.c	/^apc_widget_get_pos( Handle self)$/
+apc_widget_get_shape	os2/apc.c	/^apc_widget_get_shape( Handle self, Handle mask)$/
+apc_widget_get_size	os2/apc.c	/^apc_widget_get_size( Handle self)$/
+apc_widget_get_sync_paint	os2/apc.c	/^apc_widget_get_sync_paint( Handle self)$/
+apc_widget_get_transparent	os2/apc.c	/^apc_widget_get_transparent( Handle self)$/
+apc_widget_get_z_order	os2/apc.c	/^apc_widget_get_z_order( Handle self, int zOrderId)/
+apc_widget_invalidate_rect	os2/apc.c	/^apc_widget_invalidate_rect( Handle self, Rect * re/
+apc_widget_is_captured	os2/apc.c	/^apc_widget_is_captured( Handle self)$/
+apc_widget_is_enabled	os2/apc.c	/^apc_widget_is_enabled ( Handle self)$/
+apc_widget_is_exposed	os2/apc.c	/^apc_widget_is_exposed( Handle self)$/
+apc_widget_is_focused	os2/apc.c	/^apc_widget_is_focused ( Handle self)$/
+apc_widget_is_responsive	os2/apc.c	/^apc_widget_is_responsive ( Handle self)$/
+apc_widget_is_showing	os2/apc.c	/^apc_widget_is_showing( Handle self)$/
+apc_widget_is_visible	os2/apc.c	/^apc_widget_is_visible( Handle self)$/
+apc_widget_map_color	os2/apc.c	/^apc_widget_map_color( Handle self, Color color)$/
+apc_widget_map_points	os2/apc.c	/^apc_widget_map_points( Handle self, Bool toScreen,/
+apc_widget_redraw	win32/apc.c	/^#define apc_widget_redraw(self)  apc_widget_invali/
+apc_widget_scroll	os2/apc.c	/^apc_widget_scroll( Handle self, int horiz, int ver/
+apc_widget_set_capture	os2/apc.c	/^apc_widget_set_capture( Handle self, Bool capture,/
+apc_widget_set_color	os2/apc.c	/^apc_widget_set_color( Handle self, Color color, in/
+apc_widget_set_enabled	os2/apc.c	/^apc_widget_set_enabled( Handle self, Bool enable)$/
+apc_widget_set_first_click	os2/apc.c	/^apc_widget_set_first_click( Handle self, Bool firs/
+apc_widget_set_focused	os2/apc.c	/^apc_widget_set_focused( Handle self)$/
+apc_widget_set_font	os2/apc.c	/^apc_widget_set_font( Handle self, PFont font)$/
+apc_widget_set_palette	os2/apc.c	/^apc_widget_set_palette( Handle self)$/
+apc_widget_set_pos	os2/apc.c	/^apc_widget_set_pos( Handle self, int x, int y)$/
+apc_widget_set_rect	os2/apc.c	/^apc_widget_set_rect( Handle self, int x, int y, in/
+apc_widget_set_shape	os2/apc.c	/^apc_widget_set_shape( Handle self, Handle mask)$/
+apc_widget_set_size	os2/apc.c	/^apc_widget_set_size( Handle self, int width, int h/
+apc_widget_set_size_bounds	os2/apc.c	/^apc_widget_set_size_bounds( Handle self, Point min/
+apc_widget_set_visible	os2/apc.c	/^apc_widget_set_visible( Handle self, Bool show)$/
+apc_widget_set_z_order	os2/apc.c	/^apc_widget_set_z_order( Handle self, Handle behind/
+apc_widget_update	os2/apc.c	/^apc_widget_update( Handle self)$/
+apc_widget_user_profile	os2/misc.c	/^apc_widget_user_profile( char * name, Handle owner/
+apc_widget_validate_rect	os2/apc.c	/^apc_widget_validate_rect ( Handle self, Rect rect)/
+apc_window_activate	os2/apc.c	/^apc_window_activate( Handle self)$/
+apc_window_close	os2/apc.c	/^apc_window_close( Handle self)$/
+apc_window_create	os2/apc.c	/^apc_window_create( Handle self, Handle owner, Bool/
+apc_window_end_modal	os2/apc.c	/^apc_window_end_modal( Handle self)$/
+apc_window_execute	os2/apc.c	/^apc_window_execute( Handle self, Handle insertBefo/
+apc_window_execute_shared	os2/apc.c	/^apc_window_execute_shared( Handle self, Handle ins/
+apc_window_get_active	os2/apc.c	/^apc_window_get_active( void)$/
+apc_window_get_border_icons	os2/apc.c	/^apc_window_get_border_icons ( Handle self)$/
+apc_window_get_border_style	os2/apc.c	/^apc_window_get_border_style ( Handle self)$/
+apc_window_get_client_pos	os2/apc.c	/^apc_window_get_client_pos( Handle self)$/
+apc_window_get_client_size	os2/apc.c	/^apc_window_get_client_size( Handle self)$/
+apc_window_get_icon	os2/apc.c	/^apc_window_get_icon( Handle self, Handle icon)$/
+apc_window_get_on_top	os2/apc.c	/^apc_window_get_on_top( Handle self)$/
+apc_window_get_task_listed	os2/apc.c	/^apc_window_get_task_listed( Handle self)$/
+apc_window_get_window_state	os2/apc.c	/^apc_window_get_window_state( Handle self)$/
+apc_window_is_active	os2/apc.c	/^apc_window_is_active( Handle self)$/
+apc_window_set_caption	os2/apc.c	/^apc_window_set_caption( Handle self, const char * /
+apc_window_set_client_pos	os2/apc.c	/^apc_window_set_client_pos( Handle self, int x, int/
+apc_window_set_client_rect	os2/apc.c	/^apc_window_set_client_rect( Handle self, int x, in/
+apc_window_set_client_size	os2/apc.c	/^apc_window_set_client_size( Handle self, int x, in/
+apc_window_set_icon	os2/apc.c	/^apc_window_set_icon( Handle self, Handle icon)$/
+apc_window_set_menu	os2/apc.c	/^apc_window_set_menu( Handle self, Handle menu)$/
+apc_window_set_rect	unix/apc_win.c	/^apc_window_set_rect( Handle self, int x, int y, in/
+apc_window_set_visible	unix/apc_win.c	/^apc_window_set_visible( Handle self, Bool show)$/
+apc_window_set_window_state	os2/apc.c	/^apc_window_set_window_state( Handle self, int stat/
+apc_window_task_listed	unix/apc_win.c	/^apc_window_task_listed( Handle self, Bool task_lis/
+apiAltErr	include/os2/os2guts.h	/^#define apiAltErr( err) { apcError = errApcError; /
+appear	utils/makedoc/Prima.cache.tex	/^( usually, but far not always ) in the geometrical/
+apt_assign	include/os2/os2guts.h	/^#define apt_assign( option, value) ((value)?apt_se/
+apt_clear	include/os2/os2guts.h	/^#define apt_clear( option)         (sys options &=/
+apt_set	include/os2/os2guts.h	/^#define apt_set( option)           (sys options |=/
+arc_completion	unix/apc_graphics.c	/^arc_completion( double * angleStart, double * angl/
+are	utils/makedoc/Prima.cache.tex	/^There are ( at least ) two color properties on eac/
+arg	Prima/Make.pm	/^   foreach my $arg ( @argv) {$/
+ascents	os2/stock.c	/^   #define ascents( fontmtx)               \\$/
+assert	Prima/VB/cfgmaint.pl	/^assert( Prima::VB::CfgMaint::write_cfg) unless $ro/
+assignment	Prima/Make.pm	/^The operations allowed are assignment ( C<DEBUG=1>/
+attach	utils/makedoc/Prima.cache.tex	/^is managed by attach() and detach() methods.$/
+b	utils/makedoc/Prima.ps	/^($_[1],)j($img\\);)648 3624 y(}],)1245 b(#)50 b(im/
+begin_paint	pod/Prima/Drawable.pod	/^switch to the enabled state, begin_paint() method /
+bit	utils/makedoc/Prima.cache.tex	/^Another special case is a 1-bit ( monochrome ) Dev/
+bitmap_make_cache	os2/dev.c	/^bitmap_make_cache( Handle from, Handle self)$/
+bitmap_make_handle	os2/dev.c	/^bitmap_make_handle( Handle img)$/
+bitmap_make_ps	os2/dev.c	/^bitmap_make_ps( Handle img, HPS * hps, HDC * hdc, /
+boot_Prima	pod/Prima/internals.pod	/^procedure boot_Prima() is called. This procedure i/
+bootstrap	makefile.log	/^	DynaLoader::bootstrap('pmts0001', 0) called at -e/
+button	examples/theme.pl	/^$c-> button( $list{$_}, 1) for Prima::Themes::list/
+byte	include/gbm.h	/^typedef unsigned  char  byte;$/
+c	examples/pointers.pl	/^for my $c ( @a[0..$#a-1])$/
+cache_remap_1	unix/apc_img.c	/^cache_remap_1( Image*img, ImageCache* cache)$/
+cache_remap_4	unix/apc_img.c	/^cache_remap_4( Image*img, ImageCache* cache)$/
+cache_remap_8	unix/apc_img.c	/^cache_remap_8( Image*img, ImageCache* cache)$/
+calculate_ellipse_divergence	unix/apc_graphics.c	/^calculate_ellipse_divergence(void)$/
+call	examples/menu.pl	/^- one-call ( large array ) menu set$/
+can	Prima/KeySelector.pm	/^All methods here can ( and must ) be called withou/
+cf2CF	os2/clip.c	/^static long cf2CF( long id)$/
+character	Prima/Const.pm	/^  dt::ExpandTabs            - performs tab charact/
+check_swap	os2/apc.c	/^#define check_swap( parm1, parm2) if ( parm1 > par/
+ciMaxId	include/apricot.h	/^typedef Color ColorSet[ ciMaxId + 1];$/
+classes	Prima/PS/Printer.pm	/^Also contains convenience classes (File, LPR, Pipe/
+cleanup	utils/makedoc/Prima.cache.tex	/^which can be overridden more easily than cleanup()/
+clear	pod/Prima/Clipboard.pod	/^The clear() call in the copying code is necessary /
+clear_caches	unix/apc_img.c	/^clear_caches( Handle self)$/
+clipboard_free_data	unix/apc_clipboard.c	/^clipboard_free_data( void * data, int size, long i/
+clipboard_kill_item	unix/apc_clipboard.c	/^clipboard_kill_item( PClipboardDataItem item, long/
+close_load	pod/Prima/codecs.pod	/^Dummy close_load() is doing simply nothing:$/
+close_msgdlg	unix/apc_misc.c	/^close_msgdlg( struct MsgDlg * md)$/
+cmono_enscreen	os2/dev.c	/^cmono_enscreen( Handle image)$/
+color_to_pixel	unix/apc_graphics.c	/^color_to_pixel( Handle self, Color color, int dept/
+column	Prima/DetailedList.pm	/^support multi-column ( 2D ) cell span. It also ins/
+compress_configure_events	unix/apc_event.c	/^compress_configure_events( XEvent *ev)$/
+convert_16_to_24	unix/apc_img.c	/^convert_16_to_24( XImage *i, PImage img)$/
+convert_32_to_24	unix/apc_img.c	/^convert_32_to_24( XImage *i, PImage img)$/
+convert_equal_paletted	unix/apc_img.c	/^convert_equal_paletted( XImage *i, PImage img)$/
+copy_events	unix/apc_event.c	/^copy_events( Handle self, PList events, WMSyncData/
+count	img/put.c	/^typedef void BitBltProc( Byte * src, Byte * dst, i/
+create	Prima.pm	/^   Prima::Window-> create()$/
+create_cache1	unix/apc_img.c	/^create_cache1( Image* img, ImageCache *cache, int /
+create_cache1_1	unix/apc_img.c	/^create_cache1_1( Image *img, ImageCache *cache, Bo/
+create_cache24	unix/apc_img.c	/^create_cache24( Image* img, ImageCache *cache, int/
+create_cache24_16	unix/apc_img.c	/^create_cache24_16( Image *img, ImageCache *cache)$/
+create_cache24_32	unix/apc_img.c	/^create_cache24_32( Image *img, ImageCache *cache)$/
+create_cache4	unix/apc_img.c	/^create_cache4( Image* img, ImageCache *cache, int /
+create_cache4_16	unix/apc_img.c	/^create_cache4_16( Image *img, ImageCache *cache)$/
+create_cache4_24	unix/apc_img.c	/^create_cache4_24( Image *img, ImageCache *cache)$/
+create_cache4_32	unix/apc_img.c	/^create_cache4_32( Image *img, ImageCache *cache)$/
+create_cache4_8	unix/apc_img.c	/^create_cache4_8( Image *img, ImageCache *cache)$/
+create_cache8	unix/apc_img.c	/^create_cache8( Image* img, ImageCache *cache, int /
+create_cache8_16	unix/apc_img.c	/^create_cache8_16( Image *img, ImageCache *cache)$/
+create_cache8_24	unix/apc_img.c	/^create_cache8_24( Image *img, ImageCache *cache)$/
+create_cache8_32	unix/apc_img.c	/^create_cache8_32( Image *img, ImageCache *cache)$/
+create_cache8_8_tc	unix/apc_img.c	/^create_cache8_8_tc( Image *img, ImageCache *cache)/
+create_cache_equal	unix/apc_img.c	/^create_cache_equal( Image *img, ImageCache *cache)/
+create_font_hash	os2/fonthash.c	/^create_font_hash( void)$/
+create_fontid_hash	os2/fonthash.c	/^create_fontid_hash( void)$/
+create_group	os2/apc.c	/^create_group( Handle self, Handle owner, Bool sync/
+create_instance	include/apricot.h	/^#define create_instance( obj)  (                  /
+create_no_aa_font	unix/xft.c	/^create_no_aa_font( XftFont * font)$/
+create_rgb_to_16_lut	unix/apc_img.c	/^create_rgb_to_16_lut( int ncolors, const PRGBColor/
+create_rgb_to_8_lut	unix/apc_img.c	/^create_rgb_to_8_lut( int ncolors, const PRGBColor /
+create_rgb_to_xpixel_lut	unix/apc_img.c	/^create_rgb_to_xpixel_lut( int ncolors, const PRGBC/
+create_std_palettes	unix/color.c	/^create_std_palettes( XColor * xc, int count)$/
+croak	makefile.log	/^	DynaLoader::croak('Can\\'t load \\'\/tmp\/pmts000/
+ctx_remap	include/apricot.h	/^#define ctx_remap(a,b,c)        ctx_remap_def((a),/
+ctx_remap_end	include/apricot.h	/^#define ctx_remap_end(a,b,c)    ctx_remap_def((a),/
+cursor_update	os2/pointers.c	/^cursor_update( Handle self)$/
+dBITS	img/img.c	/^#define dBITS(a) int i = 0x80, match = ( flags & (/
+dDASH_FIX	unix/apc_graphics.c	/^#define dDASH_FIX(line_width,source,length) \\$/
+data	Clipboard.c	/^struct _ClipboardFormatReg;$/
+defname	Prima/Make.pm	/^   foreach my $defname ( keys %USER_DEFINES) {$/
+delete_xfer	unix/apc_clipboard.c	/^delete_xfer( PClipboardSysData cc, ClipboardXfer */
+delete_xfers	unix/apc_clipboard.c	/^delete_xfers( Handle self, int keyLen, void * key,/
+description	pod/gencls.pod	/^or a bare root object description ( with no ancest/
+destroy	utils/makedoc/Prima.cache.tex	/^all execution flow is passed through destroy() met/
+destroy_font_hash	os2/fonthash.c	/^destroy_font_hash( void)$/
+destroy_fontid_hash	os2/fonthash.c	/^destroy_fontid_hash( void *_hash)$/
+destroy_one_ximage	unix/apc_img.c	/^destroy_one_ximage( PrimaXImage *i, int nothing1, /
+destroy_ximage	unix/apc_img.c	/^destroy_ximage( PrimaXImage *i)$/
+detach_xfers	unix/apc_clipboard.c	/^detach_xfers( PClipboardSysData XX, long id, Bool /
+detail_font_info	unix/apc_font.c	/^detail_font_info( PFontInfo f, PFont font, Bool ad/
+disabled	pod/Prima/Menu.pod	/^treated as part of the name but as indicator that /
+do_stretch	unix/apc_img.c	/^do_stretch( Handle self, PrimaXImage *cache,$/
+dobjCheck	include/os2/os2guts.h	/^#define dobjCheck(handle) if ((( PObject)handle)->/
+done	utils/makedoc/Prima.cache.tex	/^done() method is the pair to init(), and is the pl/
+dsys	os2/apc.c	/^#define  dsys( view) (( PDrawableData)(( PComponen/
+dump_class	utils/p-class.pl	/^dump_class($_) for @classes;$/
+dump_font	unix/apc_font.c	/^dump_font( PFont f)$/
+dvips	utils/makedoc/Prima.ps	/^%%Creator: dvips(k) 5.92b Copyright 2002 Radical E/
+dword	include/gbm.h	/^typedef unsigned  long dword;$/
+elf_hash	os2/fonthash.c	/^elf_hash( const char *name, int size)$/
+elf_hash_by_size	os2/fonthash.c	/^elf_hash_by_size( const Font *f)$/
+elsif	Makefile.PL	/^elsif ( $#ARGV >= 0 && $ARGV[ 0] eq '--md') {$/
+enscreen	os2/dev.c	/^enscreen( Handle image)$/
+execute	pod/Prima/Window.pod	/^Any window, called execute() is set on top of the /
+expand_clipboards	unix/apc_clipboard.c	/^expand_clipboards( Handle self, int keyLen, void */
+f	utils/makedoc/Prima.ps	/^(},)399 2047 y(\\)->)f(execute;)275 2223 y Fm(A)20/
+fcpattern2font	unix/xft.c	/^fcpattern2font( FcPattern * pattern, PFont font)$/
+fetch_sys_timer	unix/apc_timer.c	/^fetch_sys_timer( Handle self, PTimerSysData *s, Bo/
+file	pod/Prima/faq.pod	/^be in your perl directory, and Prima library file /
+fill	unix/apc_graphics.c	/^fill( FillSession * fs, int sx, int sy, int d, int/
+fill_cubic	unix/color.c	/^fill_cubic( XColor * xc, int d)$/
+fill_default_font	unix/apc_font.c	/^fill_default_font( Font * font )$/
+find_atoms	unix/apc_clipboard.c	/^find_atoms( Atom * data, int length, int id)$/
+find_id_node	os2/fonthash.c	/^find_id_node( void *_hash, const PFont font)$/
+find_image	Prima/StdBitmap.pm	/^$sysimage = Prima::Utils::find_image($/
+find_node	os2/fonthash.c	/^find_node( const PFont font, Bool bySize)$/
+find_oid	os2/os2guts.c	/^find_oid( PAbstractMenu menu, PMenuItemReg m, int /
+fixed2float	os2/stock.c	/^double fixed2float( FIXED f)$/
+float2fixed	os2/stock.c	/^FIXED float2fixed( double f)$/
+floor	Prima/Utils.pm	/^Returns stdlib's floor() of DOUBLE$/
+flow	os2/os2guts.c	/^#define flow(cm)  ev.cmd = (cm); ( PWidget) v = ct/
+flowb	os2/os2guts.c	/^#define flowb(cm) flow(cm) break;$/
+flush_events	unix/apc_widget.c	/^flush_events( Display * disp, XEvent * ev, Handle /
+flush_refocus	unix/apc_widget.c	/^flush_refocus( Display * disp, XEvent * ev, void */
+fmtx_adj	os2/stock.c	/^         #define fmtx_adj( field) fmtx. field = fm/
+font_cp2enc	os2/stock.c	/^font_cp2enc( USHORT codepage)$/
+font_enc2cp	os2/stock.c	/^font_enc2cp( const char * encoding)$/
+font_font2gp	os2/stock.c	/^font_font2gp( PFont font, Point res, Bool forceSiz/
+font_font2gp_internal	os2/stock.c	/^font_font2gp_internal( PFont font, Point res, Bool/
+font_fontmetrics2font	os2/stock.c	/^font_fontmetrics2font( PFONTMETRICS m, PFont f, Bo/
+font_gp2pp	os2/stock.c	/^font_gp2pp( PFont font, char * buf)$/
+font_pp2gp	os2/stock.c	/^font_pp2gp( char * ppFontNameSize, PFont font)$/
+font_query_name	unix/apc_font.c	/^font_query_name( XFontStruct * s, PFontInfo f)$/
+font_style	os2/stock.c	/^font_style( PFONTMETRICS fm)$/
+for	Prima/Classes.pm	/^for ( qw( size name width height direction style p/
+frame2client	os2/apc.c	/^frame2client( Handle self, Point p, Bool f2c)$/
+free	include/apricot.h	/^#define free(ptr) _test_free((ptr),__LINE__,__FILE/
+freePS	os2/os2guts.c	/^Bool freePS( HPS ps, void * dummy)    { WinEndPain/
+freeWinPS	os2/os2guts.c	/^Bool freeWinPS( HPS ps, void * dummy) { WinRelease/
+free_gc_pool	unix/apc_app.c	/^free_gc_pool( struct gc_head *head)$/
+free_rotated_entries	unix/apc_font.c	/^free_rotated_entries( PCachedFont f, int keyLen, v/
+free_unix_items	unix/apc_menu.c	/^free_unix_items( PMenuWindow w)$/
+fs_get_pixel	unix/apc_graphics.c	/^fs_get_pixel( FillSession * fs, int x, int y)$/
+functions	pod/gencls.pod	/^A prefix is used with object functions ( methods )/
+g	utils/makedoc/Prima.ps	/^($dlg->)g(save\\()f($image)h(\\);)299 5628 y(print/
+gather_stats	Image.c	/^#define gather_stats(TYP) if ( var->data) {       /
+generic_frame_handler	os2/os2guts.c	/^generic_frame_handler( HWND win, ULONG msg, MPARAM/
+generic_menu_handler	os2/os2guts.c	/^generic_menu_handler( HWND win, ULONG msg, MPARAM /
+generic_view_handler	os2/os2guts.c	/^generic_view_handler( HWND w, ULONG msg, MPARAM mp/
+geometry_reset_all	Widget_geometry.c	/^#define geometry_reset_all() geometry_reset(MASTER/
+get_accel	include/generic/AbstractMenu.h	/^#define get_accel(__hs,__var1)         accel((__hs/
+get_accelItems	include/generic/Application.h	/^#define get_accelItems(__hs)         accelItems((_/
+get_accelTable	include/generic/Application.h	/^#define get_accelTable(__hs)         accelTable((_/
+get_action	include/generic/AbstractMenu.h	/^#define get_action(__hs,__var1)         action((__/
+get_autoClose	include/generic/Application.h	/^#define get_autoClose(__hs)         autoClose((__h/
+get_autoEnableChildren	include/generic/Application.h	/^#define get_autoEnableChildren(__hs)         autoE/
+get_autoMasking	include/generic/Icon.h	/^#define get_autoMasking(__hs)         autoMasking(/
+get_autoPopup	include/generic/Popup.h	/^#define get_autoPopup(__hs)         autoPopup((__h/
+get_backColor	include/generic/Application.h	/^#define get_backColor(__hs)         backColor((__h/
+get_binfo	os2/dev.c	/^get_binfo( Handle self)$/
+get_borderIcons	include/generic/Window.h	/^#define get_borderIcons(__hs)         borderIcons(/
+get_borderStyle	include/generic/Window.h	/^#define get_borderStyle(__hs)         borderStyle(/
+get_bottom	include/generic/Application.h	/^#define get_bottom(__hs)         bottom((__hs),0,(/
+get_briefKeys	include/generic/Application.h	/^#define get_briefKeys(__hs)         briefKeys((__h/
+get_buffered	include/generic/Application.h	/^#define get_buffered(__hs)         buffered((__hs)/
+get_checked	include/generic/AbstractMenu.h	/^#define get_checked(__hs,__var1)         checked((/
+get_class_quark	unix/apc_misc.c	/^get_class_quark( const char *name)$/
+get_clipOwner	include/generic/Application.h	/^#define get_clipOwner(__hs)         clipOwner((__h/
+get_clipRect	include/generic/Application.h	/^#define get_clipRect(__hs)         clipRect((__hs)/
+get_color	include/generic/Application.h	/^#define get_color(__hs)         color((__hs),0,(Co/
+get_colorIndex	include/generic/Application.h	/^#define get_colorIndex(__hs)         colorIndex((_/
+get_conversion	include/generic/Icon.h	/^#define get_conversion(__hs)         conversion((_/
+get_current	include/generic/Application.h	/^#define get_current(__hs)         current((__hs),0/
+get_currentWidget	include/generic/Application.h	/^#define get_currentWidget(__hs)         currentWid/
+get_cursor	unix/apc_pointer.c	/^get_cursor( Handle self, Pixmap *source, Pixmap *m/
+get_cursorPos	include/generic/Application.h	/^#define get_cursorPos(__hs)         cursorPos((__h/
+get_cursorSize	include/generic/Application.h	/^#define get_cursorSize(__hs)         cursorSize((_/
+get_cursorVisible	include/generic/Application.h	/^#define get_cursorVisible(__hs)         cursorVisi/
+get_data	include/generic/AbstractMenu.h	/^#define get_data(__hs,__var1)         data((__hs),/
+get_database	unix/apc_app.c	/^get_database( void)$/
+get_delegations	include/generic/AbstractMenu.h	/^#define get_delegations(__hs)         delegations(/
+get_designScale	include/generic/Application.h	/^#define get_designScale(__hs)         designScale(/
+get_enabled	include/generic/AbstractMenu.h	/^#define get_enabled(__hs,__var1)         enabled((/
+get_eventFlag	include/generic/AbstractMenu.h	/^#define get_eventFlag(__hs)         eventFlag((__h/
+get_file	include/generic/File.h	/^#define get_file(__hs)         file((__hs),0,(SV */
+get_fillPattern	include/generic/Application.h	/^#define get_fillPattern(__hs)         fillPattern(/
+get_fillWinding	include/generic/Application.h	/^#define get_fillWinding(__hs)         fillWinding(/
+get_firstClick	include/generic/Application.h	/^#define get_firstClick(__hs)         firstClick((_/
+get_focused	include/generic/Application.h	/^#define get_focused(__hs)         focused((__hs),0/
+get_font_abc	unix/apc_menu.c	/^get_font_abc( PCachedFont font, char * index, Bool/
+get_font_from_hash	os2/fonthash.c	/^get_font_from_hash( PFont font, int *vectored, PFO/
+get_fontid_from_hash	os2/fonthash.c	/^get_fontid_from_hash( void *_hash, const PFont fon/
+get_frameOrigin	include/generic/Window.h	/^#define get_frameOrigin(__hs)         frameOrigin(/
+get_frameSize	include/generic/Window.h	/^#define get_frameSize(__hs)         frameSize((__h/
+get_geomHeight	include/generic/Application.h	/^#define get_geomHeight(__hs)         geomHeight((_/
+get_geomSize	include/generic/Application.h	/^#define get_geomSize(__hs)         geomSize((__hs)/
+get_geomWidth	include/generic/Application.h	/^#define get_geomWidth(__hs)         geomWidth((__h/
+get_geometry	include/generic/Application.h	/^#define get_geometry(__hs)         geometry((__hs)/
+get_growMode	include/generic/Application.h	/^#define get_growMode(__hs)         growMode((__hs)/
+get_hScaling	include/generic/Icon.h	/^#define get_hScaling(__hs)         hScaling((__hs)/
+get_height	include/generic/Application.h	/^#define get_height(__hs)         height((__hs),0,(/
+get_helpContext	include/generic/Application.h	/^#define get_helpContext(__hs)         helpContext(/
+get_hint	include/generic/Application.h	/^#define get_hint(__hs)         hint((__hs),0,(SV */
+get_hintBackColor	include/generic/Application.h	/^#define get_hintBackColor(__hs)         hintBackCo/
+get_hintColor	include/generic/Application.h	/^#define get_hintColor(__hs)         hintColor((__h/
+get_hintPause	include/generic/Application.h	/^#define get_hintPause(__hs)         hintPause((__h/
+get_hintVisible	include/generic/Application.h	/^#define get_hintVisible(__hs)         hintVisible(/
+get_icon	include/generic/Application.h	/^#define get_icon(__hs)         icon((__hs),0,(Hand/
+get_idepth	unix/apc_app.c	/^get_idepth( void)$/
+get_image	include/generic/AbstractMenu.h	/^#define get_image(__hs,__var1)         image((__hs/
+get_insertMode	include/generic/Application.h	/^#define get_insertMode(__hs)         insertMode((_/
+get_instance_quark	unix/apc_misc.c	/^get_instance_quark( const char *name)$/
+get_key	include/generic/AbstractMenu.h	/^#define get_key(__hs,__var1)         key((__hs),0,/
+get_left	include/generic/Application.h	/^#define get_left(__hs)         left((__hs),0,(int)/
+get_lineEnd	include/generic/Application.h	/^#define get_lineEnd(__hs)         lineEnd((__hs),0/
+get_lineJoin	include/generic/Application.h	/^#define get_lineJoin(__hs)         lineJoin((__hs)/
+get_linePattern	include/generic/Application.h	/^#define get_linePattern(__hs)         linePattern(/
+get_lineWidth	include/generic/Application.h	/^#define get_lineWidth(__hs)         lineWidth((__h/
+get_mask	include/generic/File.h	/^#define get_mask(__hs)         mask((__hs),0,(int)/
+get_maskColor	include/generic/Icon.h	/^#define get_maskColor(__hs)         maskColor((__h/
+get_menu	include/generic/Window.h	/^#define get_menu(__hs)         menu((__hs),0,(Hand/
+get_menuColorIndex	include/generic/Window.h	/^#define get_menuColorIndex(__hs,__var1)         me/
+get_menuItems	include/generic/Window.h	/^#define get_menuItems(__hs)         menuItems((__h/
+get_menu_window	unix/apc_menu.c	/^get_menu_window( Handle self, XWindow xw)$/
+get_modalHorizon	include/generic/Application.h	/^#define get_modalHorizon(__hs)         modalHorizo/
+get_modalResult	include/generic/Window.h	/^#define get_modalResult(__hs)         modalResult(/
+get_monochrome	include/generic/DeviceBitmap.h	/^#define get_monochrome(__hs)         monochrome((_/
+get_name	include/generic/AbstractMenu.h	/^#define get_name(__hs)         name((__hs),0,(SV */
+get_onTop	include/generic/Window.h	/^#define get_onTop(__hs)         onTop((__hs),0,(Bo/
+get_origin	include/generic/Application.h	/^#define get_origin(__hs)         origin((__hs),0,P/
+get_owner	include/generic/AbstractMenu.h	/^#define get_owner(__hs)         owner((__hs),0,(Ha/
+get_ownerBackColor	include/generic/Application.h	/^#define get_ownerBackColor(__hs)         ownerBack/
+get_ownerColor	include/generic/Application.h	/^#define get_ownerColor(__hs)         ownerColor((_/
+get_ownerFont	include/generic/Application.h	/^#define get_ownerFont(__hs)         ownerFont((__h/
+get_ownerHint	include/generic/Application.h	/^#define get_ownerHint(__hs)         ownerHint((__h/
+get_ownerIcon	include/generic/Window.h	/^#define get_ownerIcon(__hs)         ownerIcon((__h/
+get_ownerPalette	include/generic/Application.h	/^#define get_ownerPalette(__hs)         ownerPalett/
+get_ownerShowHint	include/generic/Application.h	/^#define get_ownerShowHint(__hs)         ownerShowH/
+get_packInfo	include/generic/Application.h	/^#define get_packInfo(__hs)         packInfo((__hs)/
+get_packPropagate	include/generic/Application.h	/^#define get_packPropagate(__hs)         packPropag/
+get_palette	include/generic/Application.h	/^#define get_palette(__hs)         palette((__hs),0/
+get_pixel	include/generic/Application.h	/^#define get_pixel(__hs)         pixel((__hs),0,(SV/
+get_pixel_depth	unix/apc_graphics.c	/^get_pixel_depth( int depth) $/
+get_placeInfo	include/generic/Application.h	/^#define get_placeInfo(__hs)         placeInfo((__h/
+get_pointerHotSpot	include/generic/Application.h	/^#define get_pointerHotSpot(__hs)         pointerHo/
+get_pointerIcon	include/generic/Application.h	/^#define get_pointerIcon(__hs)         pointerIcon(/
+get_pointerPos	include/generic/Application.h	/^#define get_pointerPos(__hs)         pointerPos((_/
+get_pointerType	include/generic/Application.h	/^#define get_pointerType(__hs)         pointerType(/
+get_pointerVisible	include/generic/Application.h	/^#define get_pointerVisible(__hs)         pointerVi/
+get_popup	include/generic/Application.h	/^#define get_popup(__hs)         popup((__hs),0,(Ha/
+get_popupColorIndex	include/generic/Application.h	/^#define get_popupColorIndex(__hs)         popupCol/
+get_popupItems	include/generic/Application.h	/^#define get_popupItems(__hs)         popupItems((_/
+get_preserveType	include/generic/Icon.h	/^#define get_preserveType(__hs)         preserveTyp/
+get_printer	include/generic/Printer.h	/^#define get_printer(__hs)         printer((__hs),0/
+get_rect	include/generic/Application.h	/^#define get_rect(__hs)         rect((__hs),0,Rect_/
+get_region	include/generic/Application.h	/^#define get_region(__hs)         region((__hs),0,(/
+get_resolution	include/generic/Application.h	/^#define get_resolution(__hs)         resolution((_/
+get_right	include/generic/Application.h	/^#define get_right(__hs)         right((__hs),0,(in/
+get_rop	include/generic/Application.h	/^#define get_rop(__hs)         rop((__hs),0,(int)0)/
+get_rop2	include/generic/Application.h	/^#define get_rop2(__hs)         rop2((__hs),0,(int)/
+get_scaleChildren	include/generic/Application.h	/^#define get_scaleChildren(__hs)         scaleChild/
+get_screen_binfo	os2/dev.c	/^get_screen_binfo( void)$/
+get_selectable	include/generic/Application.h	/^#define get_selectable(__hs)         selectable((_/
+get_selected	include/generic/AbstractMenu.h	/^#define get_selected(__hs)         selected((__hs)/
+get_selectedWidget	include/generic/Application.h	/^#define get_selectedWidget(__hs)         selectedW/
+get_selectingButtons	include/generic/Application.h	/^#define get_selectingButtons(__hs)         selecti/
+get_shape	include/generic/Application.h	/^#define get_shape(__hs)         shape((__hs),0,(Ha/
+get_showHint	include/generic/Application.h	/^#define get_showHint(__hs)         showHint((__hs)/
+get_size	include/generic/Application.h	/^#define get_size(__hs)         size((__hs),0,Point/
+get_sizeMax	include/generic/Application.h	/^#define get_sizeMax(__hs)         sizeMax((__hs),0/
+get_sizeMin	include/generic/Application.h	/^#define get_sizeMin(__hs)         sizeMin((__hs),0/
+get_splinePrecision	include/generic/Application.h	/^#define get_splinePrecision(__hs)         splinePr/
+get_stats	include/generic/Icon.h	/^#define get_stats(__hs)         stats((__hs),0,(do/
+get_syncPaint	include/generic/Application.h	/^#define get_syncPaint(__hs)         syncPaint((__h/
+get_tabOrder	include/generic/Application.h	/^#define get_tabOrder(__hs)         tabOrder((__hs)/
+get_tabStop	include/generic/Application.h	/^#define get_tabStop(__hs)         tabStop((__hs),0/
+get_taskListed	include/generic/Window.h	/^#define get_taskListed(__hs)         taskListed((_/
+get_text	include/generic/AbstractMenu.h	/^#define get_text(__hs,__var1)         text((__hs),/
+get_textOpaque	include/generic/Application.h	/^#define get_textOpaque(__hs)         textOpaque((_/
+get_textOutBaseline	include/generic/Application.h	/^#define get_textOutBaseline(__hs)         textOutB/
+get_text_width	unix/apc_menu.c	/^get_text_width( PCachedFont font, const char * tex/
+get_timeout	include/generic/Timer.h	/^#define get_timeout(__hs)         timeout((__hs),0/
+get_top	include/generic/Application.h	/^#define get_top(__hs)         top((__hs),0,(int)0)/
+get_translate	include/generic/Application.h	/^#define get_translate(__hs)         translate((__h/
+get_transparent	include/generic/Application.h	/^#define get_transparent(__hs)         transparent(/
+get_type	include/generic/Icon.h	/^#define get_type(__hs)         type((__hs),0,(int)/
+get_typename	unix/apc_clipboard.c	/^get_typename( long id, int index, Atom * type)$/
+get_vScaling	include/generic/Icon.h	/^#define get_vScaling(__hs)         vScaling((__hs)/
+get_view_ex	os2/apc.c	/^get_view_ex( Handle self, PViewProfile p)$/
+get_visible	include/generic/Application.h	/^#define get_visible(__hs)         visible((__hs),0/
+get_wantUnicodeInput	include/generic/Application.h	/^#define get_wantUnicodeInput(__hs)         wantUni/
+get_widgetClass	include/generic/Application.h	/^#define get_widgetClass(__hs)         widgetClass(/
+get_width	include/generic/Application.h	/^#define get_width(__hs)         width((__hs),0,(in/
+get_window	unix/apc_menu.c	/^get_window( Handle self, PMenuItemReg m)$/
+get_windowState	include/generic/Window.h	/^#define get_windowState(__hs)         windowState(/
+get_window_borders	os2/apc.c	/^get_window_borders( int borderStyle)$/
+get_ximage_bytes_per_line	unix/apc_img.c	/^#define get_ximage_bytes_per_line(xim)  ((xim)->by/
+get_ximage_data	unix/apc_img.c	/^#define get_ximage_data(xim)            ((xim)->da/
+gotta	os2/stock.c	/^   #define gotta( w, result){font-> width  = w;   /
+gpENTER	Drawable.c	/^#define gpENTER(fail)     if ( !inPaint) if ( !my-/
+gp_get_font	os2/stock.c	/^gp_get_font( HPS ps, PFont font, Point res)$/
+gp_get_text_box	unix/apc_graphics.c	/^gp_get_text_box( Handle self, const char * text, i/
+gp_get_text_overhangs	unix/apc_graphics.c	/^gp_get_text_overhangs( Handle self, const char *te/
+gp_get_text_width	unix/apc_graphics.c	/^gp_get_text_width( Handle self, const char *text, /
+gp_set_font_extra	os2/gp.c	/^gp_set_font_extra( Handle self, HPS ps, int fontId/
+gp_text_out_rotated	unix/apc_graphics.c	/^gp_text_out_rotated( Handle self, const char * tex/
+handle_key_event	unix/apc_event.c	/^handle_key_event( Handle self, XKeyEvent *ev, Even/
+hashes	pod/Prima/Printer.pod	/^Returns hash of font hashes ( see L<Prima::Drawabl/
+height	Prima/Header.pm	/^Stores in scalar, referenced by RESULT, the width /
+hierarchy	Prima/VB/Classes.pm	/^The hierarchy ( incomplete ) of the type objects c/
+hline	unix/apc_graphics.c	/^hline( FillSession * fs, int x1, int y, int x2)$/
+hwnd_check_limits	os2/misc.c	/^hwnd_check_limits( int x, int y, Bool uint)$/
+hwnd_enter_paint	os2/stock.c	/^hwnd_enter_paint( Handle self)$/
+hwnd_frame_top_level	os2/stock.c	/^hwnd_frame_top_level( Handle self)$/
+hwnd_leave_paint	os2/stock.c	/^hwnd_leave_paint( Handle self)$/
+hwnd_to_view	os2/apc.c	/^hwnd_to_view( HWND win)$/
+hwnd_top_level	os2/stock.c	/^hwnd_top_level( Handle self)$/
+ideal	utils/makedoc/Prima.cache.tex	/^only in its ideal ( but a quite often ) execution /
+if	Prima.pm	/^if ( @ARGV) {$/
+image_begin_query	os2/dev.c	/^image_begin_query( int primType, int * typeToConve/
+image_destroy_cache	os2/dev.c	/^image_destroy_cache( Handle self)$/
+image_query	os2/dev.c	/^image_query( Handle self, HPS ps)$/
+image_set_cache	os2/dev.c	/^image_set_cache( Handle from, Handle self)$/
+inactivate_timer	unix/apc_timer.c	/^inactivate_timer( PTimerSysData sys)$/
+init	pod/Prima/codecs.pod	/^   init( PImgCodecInfo * info, void * param)$/
+init_x11	unix/apc_app.c	/^init_x11( char * error_buf )$/
+input_disabled	unix/apc_event.c	/^input_disabled( PDrawableSysData XX, Bool ignore_h/
+insert	utils/makedoc/Prima.cache.tex	/^code. insert() has another syntax that allows simu/
+insert_to_page	examples/markup.pl	/^$tn->insert_to_page(2,'Markup::Outline',$/
+int	include/unix/guts.h	/^typedef void (*RETSIGTYPE)(int);$/
+int16_t	include/apricot.h	/^typedef I16  int16_t;$/
+int32_t	include/apricot.h	/^typedef I32  int32_t;$/
+int8_t	include/apricot.h	/^typedef I8 int8_t;$/
+interface	pod/Prima/Widget/pack.pod	/^This is a slight distortion of the original Tcl-Tk/
+is_apt	include/os2/os2guts.h	/^#define is_apt( option)            ((sys options &/
+is_cd	os2/misc.c	/^Bool is_cd( int num) {$/
+is_declipped	include/win32/win32guts.h	/^#define is_declipped( handle)      (              /
+is_declipped_child	include/win32/win32guts.h	/^#define is_declipped_child( handle) (             /
+is_opt	include/apricot.h	/^#define is_opt( option)            (PObject(self)-/
+item_count	unix/apc_menu.c	/^item_count( PMenuWindow w)$/
+items	Prima/IniFile.pm	/^  items( $section, 1 )$/
+key	img/img.o	/^/
+keyRealize	AbstractMenu.c	/^#define keyRealize( key)     if ((( key & 0xFF) >=/
+key_event	examples/keys.pl	/^ - key_event() functionality$/
+keys	utils/makedoc/Prima.cache.tex	/^when submitting to \\texttt{::items}. Character an/
+kill_hatches	unix/color.c	/^static Bool kill_hatches( Pixmap pixmap, int keyLe/
+lAdd	Drawable.c	/^#define lAdd(end, utfend) \\$/
+list_create	include/apricot.h	/^#define list_create( slf, sz, delta) paranoid_list/
+load	pod/Prima/codecs.pod	/^   load( PImgCodec instance, PImgLoadFileInstance /
+load_pointer_font	unix/apc_pointer.c	/^load_pointer_font( void)$/
+load_rc	Prima/Themes.pm	/^load_rc(1) if $load_rc_file || !defined $load_rc_f/
+local_wnd	os2/os2guts.c	/^local_wnd( HWND who, HWND client)$/
+locate_accel	os2/os2guts.c	/^locate_accel( PAbstractMenu menu, PMenuItemReg m, /
+lock	os2/apc.c	/^lock( Bool lock)$/
+log_write	unix/apc_misc.c	/^log_write( const char *format, ...)$/
+m	Prima/VB/cfgmaint.pl	/^   l  - list    w|p|m  ( w - [page])$/
+mStretchProc	unix/apc_img.c	/^   int targetwidth, Fixed step, Fixed count, int f/
+macro_asis	img/conv.c	/^#define macro_asis(SourceType,DestType)           /
+macro_asis_complex	img/conv.c	/^#define macro_asis_complex(SourceType,DestType)   /
+macro_asis_revcomplex	img/conv.c	/^#define macro_asis_revcomplex(SourceType,DestType)/
+macro_float_float__int_float	img/conv.c	/^#define macro_float_float__int_float(SourceType,De/
+macro_float_int	img/conv.c	/^#define macro_float_int(SourceType,DestType)      /
+macro_int_int	img/conv.c	/^#define macro_int_int(SourceType,DestType)        /
+malloc	include/apricot.h	/^#define malloc(sz) _test_malloc((sz),__LINE__,__FI/
+mbs_init_bits	unix/apc_img.c	/^static void mbs_init_bits(void)$/
+mbs_mono_in	unix/apc_img.c	/^mbs_mono_in( Byte * srcData, Byte * dstData, Bool /
+mbs_mono_out	unix/apc_img.c	/^mbs_mono_out( Byte * srcData, Byte * dstData, Bool/
+menu_enter_item	unix/apc_menu.c	/^menu_enter_item( PMenuSysData XX, PMenuWindow w, i/
+menu_item_offset	unix/apc_menu.c	/^menu_item_offset( PMenuSysData XX, PMenuWindow w, /
+menu_item_size	unix/apc_menu.c	/^menu_item_size( PMenuSysData XX, PMenuWindow w, in/
+menu_point2item	unix/apc_menu.c	/^menu_point2item( PMenuSysData XX, PMenuWindow w, i/
+menu_reconfigure	unix/apc_menu.c	/^menu_reconfigure( Handle self)$/
+menu_select_item	unix/apc_menu.c	/^menu_select_item( PMenuSysData XX, PMenuWindow w, /
+menu_touch	unix/apc_menu.c	/^menu_touch( Handle self, PMenuItemReg who, Bool ki/
+menu_window_delete_downlinks	unix/apc_menu.c	/^menu_window_delete_downlinks( PMenuSysData XX, PMe/
+menubar_repaint	unix/apc_menu.c	/^menubar_repaint( Handle self)$/
+message	Prima/VB/VB.pl	/^   Prima::MsgBox::message("Incompatible file forma/
+method	utils/makedoc/Prima.cache.tex	/^it will be called as a method ( i.e., in the objec/
+mirror_bits	unix/apc_img.c	/^mirror_bits( void)$/
+mouse_event	examples/macro.pl	/^Demonstration and test of mouse_event() function u/
+mp2	os2/apc.c	/^\/\/ Messages$/
+my_fd_set	win32/files.c	/^void __inline my_fd_set( HANDLE fd, fd_set* f) { F/
+my_fd_zero	win32/files.c	/^void __inline my_fd_zero( fd_set* f)           { F/
+net_supports_maximization	unix/apc_win.c	/^net_supports_maximization(void)$/
+new	Prima/Themes.pm	/^  Prima::Themes::Proxy-> new( $OBJECT)$/
+notification_types	pod/Prima/Object.pod	/^on prototyping events, by using notification_types/
+notifications	Prima/VB/VBLoader.pm	/^These notifications (events) are stored in .fm fil/
+notify	utils/makedoc/Prima.cache.tex	/^An event is a condition, caused by the system or t/
+object	pod/Prima/Object.pod	/^that a REFERER object ( the caller object by defau/
+open_load	pod/Prima/codecs.pod	/^=head2 open_load() and close_load()$/
+open_wm_sync_data	unix/apc_event.c	/^open_wm_sync_data( Handle self, WMSyncData * wmsd)/
+opt_assign	include/apricot.h	/^#define opt_assign( option, value) (PObject(self)-/
+opt_clear	include/apricot.h	/^#define opt_clear( option)         (PObject(self)-/
+opt_set	include/apricot.h	/^#define opt_set( option)           (PObject(self)-/
+out	img/img.c	/^#define out(x){ err = true;\\$/
+outc	img/codec_Xpm.c	/^#define outc(x)   strncpy( fi-> errbuf, x, 256)$/
+outcm	img/codec_Xpm.c	/^#define outcm(dd) snprintf( fi-> errbuf, 256, "No /
+outd	img/img.c	/^#define outd(x,d){ err = true;\\$/
+p	utils/makedoc/Prima.pdf	/^óXo1—Sí¾@0¨xšÆa’Î4h˜€£Ê…!”lLgÒK$¥À´}ë—_/
+palette	examples/palette.pl	/^In theory, if a Prima::Widget::palette() is initia/
+parameters	utils/makedoc/Prima.cache.tex	/^The property returns a value if no parameters ( ex/
+params	AbstractMenu.c	/^typedef Bool MenuProc ( Handle self, PMenuItemReg /
+pdelete	include/apricot.h	/^#define pdelete( key) hv_delete( profile, # key, s/
+perform_pending_paints	unix/apc_app.c	/^perform_pending_paints( void)$/
+pexist	include/apricot.h	/^#define pexist( key) hv_exists( profile, # key, st/
+pget_B	include/apricot.h	/^#define pget_B( key)  ( SvTRUE( pget_sv( key)))$/
+pget_H	include/apricot.h	/^#define pget_H( key)  gimme_the_mate( pget_sv( key/
+pget_c	include/apricot.h	/^#define pget_c( key)  ( pget_sv( key), SvPV( *temp/
+pget_f	include/apricot.h	/^#define pget_f( key)  ( pget_sv( key), SvNV( *temp/
+pget_i	include/apricot.h	/^#define pget_i( key)  ( pget_sv( key), SvIV( *temp/
+pget_sv	include/apricot.h	/^#define pget_sv( key) ((( temporary_prf_Sv = hv_fe/
+pipe	pod/Prima/File.pod	/^  pipe(READ, WRITE) or die "pipe():$!\\n"; $/
+plist_create	include/apricot.h	/^#define plist_create( sz, delta) paranoid_plist_cr/
+png_jmpbuf	img/codec_png.c	/^#  define png_jmpbuf(png_ptr) ((png_ptr)->jmpbuf)$/
+pointer_make_handle	os2/pointers.c	/^pointer_make_handle( Handle self, Handle icon, Poi/
+ppi_create	os2/printers.c	/^static void ppi_create( PRQINFO3 * dest, PRQINFO3 /
+ppi_destroy	os2/printers.c	/^static void ppi_destroy( PRQINFO3 * ppi)$/
+prima_XDestroyImage	unix/apc_img.c	/^prima_XDestroyImage( XImage * i)$/
+prima_alloc_utf8_to_wchar	unix/apc_misc.c	/^prima_alloc_utf8_to_wchar( const char * utf8, int /
+prima_allocate_color	unix/color.c	/^prima_allocate_color( Handle self, Color color, Br/
+prima_build_font_key	unix/apc_font.c	/^prima_build_font_key( PFontKey key, PFont f, Bool /
+prima_char2wchar	unix/apc_misc.c	/^prima_char2wchar( XChar2b * dest, char * src, int /
+prima_char_struct	unix/apc_font.c	/^prima_char_struct( XFontStruct * xs, void * c, Boo/
+prima_cleanup_drawable_after_painting	unix/apc_graphics.c	/^prima_cleanup_drawable_after_painting( Handle self/
+prima_cleanup_font_subsystem	unix/apc_font.c	/^prima_cleanup_font_subsystem( void)$/
+prima_color_add_ref	unix/color.c	/^prima_color_add_ref( Handle self, int index, int r/
+prima_color_find	unix/color.c	/^prima_color_find( Handle self, long color, int max/
+prima_color_new	unix/color.c	/^prima_color_new( XColor * xc)$/
+prima_color_subsystem_set_option	unix/color.c	/^prima_color_subsystem_set_option( char * option, c/
+prima_color_sync	unix/color.c	/^prima_color_sync( void)$/
+prima_copy_xybitmap	unix/apc_img.c	/^prima_copy_xybitmap( unsigned char *data, const un/
+prima_core_font_encoding	unix/apc_font.c	/^prima_core_font_encoding( char * encoding)$/
+prima_core_font_pick	unix/apc_font.c	/^prima_core_font_pick( Handle self, PFont source, P/
+prima_create_icon_pixmaps	unix/apc_img.c	/^prima_create_icon_pixmaps( Handle self, Pixmap *xo/
+prima_create_image_cache	unix/apc_img.c	/^prima_create_image_cache( PImage img, Handle drawa/
+prima_cursor_tick	unix/apc_misc.c	/^prima_cursor_tick( void)$/
+prima_debug	unix/apc_app.c	/^prima_debug( const char *format, ...)$/
+prima_done_color_subsystem	unix/color.c	/^prima_done_color_subsystem( void)$/
+prima_end_menu	unix/apc_menu.c	/^prima_end_menu(void)$/
+prima_find_frame_window	unix/apc_win.c	/^prima_find_frame_window( XWindow w)$/
+prima_find_known_font	unix/apc_font.c	/^prima_find_known_font( PFont font, Bool refill, Bo/
+prima_font_pp2font	unix/apc_font.c	/^prima_font_pp2font( char * ppFontNameSize, PFont f/
+prima_font_subsystem_set_option	unix/apc_font.c	/^prima_font_subsystem_set_option( char * option, ch/
+prima_free_rotated_entry	unix/apc_font.c	/^prima_free_rotated_entry( PCachedFont f)$/
+prima_free_ximage	unix/apc_img.c	/^prima_free_ximage( PrimaXImage *i) $/
+prima_gc_ximages	unix/apc_img.c	/^prima_gc_ximages( void )$/
+prima_get_frame_info	unix/apc_win.c	/^prima_get_frame_info( Handle self, PRect r)$/
+prima_get_gc	unix/apc_graphics.c	/^prima_get_gc( PDrawableSysData selfxx)$/
+prima_get_hatch	unix/color.c	/^prima_get_hatch( FillPattern * fp)$/
+prima_gp_get_clip_rect	unix/apc_graphics.c	/^prima_gp_get_clip_rect( Handle self, XRectangle *c/
+prima_handle_event	unix/apc_event.c	/^prima_handle_event( XEvent *ev, XEvent *next_event/
+prima_handle_menu_event	unix/apc_menu.c	/^prima_handle_menu_event( XEvent *ev, XWindow win, /
+prima_handle_menu_shortcuts	unix/apc_menu.c	/^prima_handle_menu_shortcuts( Handle self, XEvent */
+prima_handle_selection_event	unix/apc_clipboard.c	/^prima_handle_selection_event( XEvent *ev, XWindow /
+prima_hash_count	include/apricot.h	/^#define prima_hash_count(hash) (HvKEYS(( HV*) hash/
+prima_init_clipboard_subsystem	unix/apc_clipboard.c	/^prima_init_clipboard_subsystem(char * error_buf)$/
+prima_init_color_subsystem	unix/color.c	/^prima_init_color_subsystem(char * error_buf)$/
+prima_init_font_subsystem	unix/apc_font.c	/^prima_init_font_subsystem( char * error_buf)$/
+prima_init_try_height	unix/apc_font.c	/^prima_init_try_height( HeightGuessStack * p, int t/
+prima_lpal_get	unix/color.c	/^prima_lpal_get( Byte * palette, int index)$/
+prima_lpal_set	unix/color.c	/^prima_lpal_set( Byte * palette, int index, int ran/
+prima_make_brush	unix/apc_graphics.c	/^prima_make_brush( DrawableSysData * XX, int colorI/
+prima_map_color	unix/color.c	/^prima_map_color( Color clr, int * hint)$/
+prima_mirror_bytes	unix/apc_img.c	/^prima_mirror_bytes( unsigned char *data, int dataS/
+prima_msgdlg_event	unix/apc_misc.c	/^prima_msgdlg_event( XEvent * ev, struct MsgDlg * m/
+prima_no_cursor	unix/apc_misc.c	/^prima_no_cursor( Handle self)$/
+prima_no_input	unix/apc_event.c	/^prima_no_input( PDrawableSysData XX, Bool ignore_h/
+prima_null_pointer	unix/apc_pointer.c	/^prima_null_pointer( void)$/
+prima_one_loop_round	unix/apc_app.c	/^prima_one_loop_round( Bool wait, Bool careOfApplic/
+prima_palette_alloc	unix/color.c	/^prima_palette_alloc( Handle self)$/
+prima_palette_free	unix/color.c	/^prima_palette_free( Handle self, Bool priority)$/
+prima_palette_replace	unix/color.c	/^prima_palette_replace( Handle self, Bool fast)$/
+prima_prepare_drawable_for_painting	unix/apc_graphics.c	/^prima_prepare_drawable_for_painting( Handle self, /
+prima_prepare_ximage	unix/apc_img.c	/^prima_prepare_ximage( int width, int height, Bool /
+prima_put_ximage	unix/apc_img.c	/^prima_put_ximage( XDrawable win, GC gc, PrimaXImag/
+prima_query_image	unix/apc_img.c	/^prima_query_image( Handle self, XImage * i)$/
+prima_rebuild_watchers	unix/apc_misc.c	/^prima_rebuild_watchers( void)$/
+prima_rect_intersect	unix/apc_misc.c	/^prima_rect_intersect( XRectangle *t, const XRectan/
+prima_rect_union	unix/apc_misc.c	/^prima_rect_union( XRectangle *t, const XRectangle /
+prima_release_gc	unix/apc_graphics.c	/^prima_release_gc( PDrawableSysData selfxx)$/
+prima_rop_map	unix/apc_graphics.c	/^prima_rop_map( int rop)$/
+prima_send_cmSize	unix/apc_widget.c	/^prima_send_cmSize( Handle self, Point oldSize)$/
+prima_send_create_event	unix/apc_event.c	/^prima_send_create_event( XWindow win)$/
+prima_simple_message	unix/apc_misc.c	/^prima_simple_message( Handle self, int cmd, Bool i/
+prima_std_pixmap	unix/apc_img.c	/^prima_std_pixmap( Handle self, int type)$/
+prima_std_query_image	unix/apc_img.c	/^prima_std_query_image( Handle self, Pixmap px)$/
+prima_try_height	unix/apc_font.c	/^prima_try_height( HeightGuessStack * p, int height/
+prima_update_cursor	unix/apc_misc.c	/^prima_update_cursor( Handle self)$/
+prima_update_rotated_fonts	unix/apc_font.c	/^prima_update_rotated_fonts( PCachedFont f, const c/
+prima_utf8_to_wchar	unix/apc_misc.c	/^prima_utf8_to_wchar( const char * utf8, XChar2b * /
+prima_wchar2char	unix/apc_misc.c	/^prima_wchar2char( char * dest, XChar2b * src, int /
+prima_window_reset_menu	unix/apc_win.c	/^prima_window_reset_menu( Handle self, int newMenuH/
+prima_wm_net_state_read_maximization	unix/apc_win.c	/^prima_wm_net_state_read_maximization( XWindow wind/
+prima_wm_sync	unix/apc_event.c	/^prima_wm_sync( Handle self, int eventType)$/
+prima_xfont2abc	unix/apc_graphics.c	/^prima_xfont2abc( XFontStruct * fs, int firstChar, /
+prima_xft_done	unix/xft.c	/^prima_xft_done(void)$/
+prima_xft_font_encodings	unix/xft.c	/^prima_xft_font_encodings( PHash hash)$/
+prima_xft_font_pick	unix/xft.c	/^prima_xft_font_pick( Handle self, Font * source, F/
+prima_xft_fonts	unix/xft.c	/^prima_xft_fonts( PFont array, const char *facename/
+prima_xft_get_cache	unix/xft.c	/^prima_xft_get_cache( PFont font)$/
+prima_xft_get_font_abc	unix/xft.c	/^prima_xft_get_font_abc( Handle self, int firstChar/
+prima_xft_get_font_ranges	unix/xft.c	/^prima_xft_get_font_ranges( Handle self, int * coun/
+prima_xft_get_text_box	unix/xft.c	/^prima_xft_get_text_box( Handle self, const char * /
+prima_xft_get_text_width	unix/xft.c	/^prima_xft_get_text_width( PCachedFont self, const /
+prima_xft_init	unix/xft.c	/^prima_xft_init(void)$/
+prima_xft_map8	unix/xft.c	/^prima_xft_map8( const char * encoding)$/
+prima_xft_parse	unix/xft.c	/^prima_xft_parse( char * ppFontNameSize, Font * fon/
+prima_xft_set_font	unix/xft.c	/^prima_xft_set_font( Handle self, PFont font)$/
+prima_xft_text_out	unix/xft.c	/^prima_xft_text_out( Handle self, const char * text/
+prima_xft_update_region	unix/xft.c	/^prima_xft_update_region( Handle self)$/
+prima_ximage_event	unix/apc_img.c	/^prima_ximage_event( XEvent *eve) \/* to be called /
+prima_xw2h	unix/apc_event.c	/^prima_xw2h( XWindow win)$/
+prn_info_dc	os2/printers.c	/^static HDC prn_info_dc( Handle self)$/
+prn_query	os2/printers.c	/^prn_query( char * printer, PRQINFO3 * info)$/
+process_msg	os2/apc.c	/^process_msg( QMSG * msg)$/
+process_transparents	os2/apc.c	/^process_transparents( Handle self)$/
+process_wm_sync_data	unix/apc_event.c	/^process_wm_sync_data( Handle self, WMSyncData * wm/
+profile_check_in	pod/Prima/Object.pod	/^is one of the reasons why Component::profile_check/
+property	Prima/MsgBox.pm	/^a button, its C<::modalResult> property ( see L<Pr/
+pset_H	include/apricot.h	/^#define pset_H( key, value)  pset_sv_noinc( key, (/
+pset_b	include/apricot.h	/^#define pset_b( key, value, len)  pset_sv_noinc( k/
+pset_c	include/apricot.h	/^#define pset_c( key, value)  pset_sv_noinc( key, n/
+pset_f	include/apricot.h	/^#define pset_f( key, value)  pset_sv_noinc( key, n/
+pset_i	include/apricot.h	/^#define pset_i( key, value)  pset_sv_noinc( key, n/
+pset_sv	include/apricot.h	/^#define pset_sv( key, value) pset_sv_noinc( key, n/
+pset_sv_noinc	include/apricot.h	/^#define pset_sv_noinc( key, value) hv_store( profi/
+pure	pod/Prima/gp-problems.pod	/^Text background may be only drawn with pure ( non-/
+purge_invalid_watchers	unix/apc_app.c	/^purge_invalid_watchers( Handle self, void *dummy)$/
+put_pixmap	unix/apc_img.c	/^put_pixmap( Handle self, Handle pixmap, int dst_x,/
+putbmp	os2/dev.c	/^#define putbmp(x,y,bm) {                          /
+q	examples/amba.pl	/^$d =~ s\/\\n\/\/g;$/
+query_data	unix/apc_clipboard.c	/^query_data( Handle self, long id)$/
+query_datum	unix/apc_clipboard.c	/^query_datum( Handle self, long id, Atom query_targ/
+query_diff	unix/apc_font.c	/^query_diff( PFontInfo fi, PFont f, char * lcname, /
+qw	utils/tmlink.pl	/^my @includeDirs    = qw(.\/);$/
+range	pod/Prima/Drawable.pod	/^the default range ( 0 and 255 ) is assumed. UNICOD/
+rank_rgb_shifts	unix/apc_img.c	/^rank_rgb_shifts( void)$/
+read_property	unix/apc_clipboard.c	/^read_property( Atom property, Atom * type, int * f/
+realloc	include/apricot.h	/^#define realloc(ptr,sz) _test_realloc((ptr),(sz),_/
+ref	Prima/Header.pm	/^   @items = @{$items[0]} if scalar(@items) == 1 &&/
+region_create	os2/stock.c	/^region_create( Handle self, Handle mask)$/
+remap_color	os2/stock.c	/^remap_color( HPS ps, long clr, Bool toSystem)$/
+remove_timer	os2/timers.c	/^remove_timer( Handle timerObject, Handle self)$/
+repaint	pod/Prima/Widget.pod	/^  $x-> repaint()$/
+repost_msgs	os2/apc.c	/^static Bool repost_msgs( PostMsg * msg, Handle sel/
+reset_sockets	os2/files.c	/^reset_sockets( void)$/
+rgbcmp	Icon.c	/^         #define rgbcmp(x,y) ((rgbcorners[x].r == /
+save	pod/Prima/Image.pod	/^   $i-> save('a.gif') or die "Error saving:$@\\n";/
+screenable	os2/dev.c	/^screenable( Handle image)$/
+scroll	unix/apc_widget.c	/^scroll( Handle owner, Handle self, Point * delta)$/
+selection_filter	unix/apc_clipboard.c	/^selection_filter( Display * disp, XEvent * ev, Sel/
+send_cmMenu	unix/apc_menu.c	/^send_cmMenu( Handle self, PMenuItemReg m)$/
+send_pending_events	unix/apc_app.c	/^send_pending_events( void)$/
+set	pod/Prima/Drawable.pod	/^The properties of a font tied hash are also access/
+set_accel	include/generic/AbstractMenu.h	/^#define set_accel(__hs,__var1,__val)   accel((__hs/
+set_accelItems	include/generic/Application.h	/^#define set_accelItems(__hs,__val)   accelItems((_/
+set_accelTable	include/generic/Application.h	/^#define set_accelTable(__hs,__val)   accelTable((_/
+set_action	include/generic/AbstractMenu.h	/^#define set_action(__hs,__var1,__val)   action((__/
+set_autoClose	include/generic/Application.h	/^#define set_autoClose(__hs,__val)   autoClose((__h/
+set_autoEnableChildren	include/generic/Application.h	/^#define set_autoEnableChildren(__hs,__val)   autoE/
+set_autoMasking	include/generic/Icon.h	/^#define set_autoMasking(__hs,__val)   autoMasking(/
+set_autoPopup	include/generic/Popup.h	/^#define set_autoPopup(__hs,__val)   autoPopup((__h/
+set_backColor	include/generic/Application.h	/^#define set_backColor(__hs,__val)   backColor((__h/
+set_borderIcons	include/generic/Window.h	/^#define set_borderIcons(__hs,__val)   borderIcons(/
+set_borderStyle	include/generic/Window.h	/^#define set_borderStyle(__hs,__val)   borderStyle(/
+set_bottom	include/generic/Application.h	/^#define set_bottom(__hs,__val)   bottom((__hs),1,(/
+set_briefKeys	include/generic/Application.h	/^#define set_briefKeys(__hs,__val)   briefKeys((__h/
+set_buffered	include/generic/Application.h	/^#define set_buffered(__hs,__val)   buffered((__hs)/
+set_checked	include/generic/AbstractMenu.h	/^#define set_checked(__hs,__var1,__val)   checked((/
+set_clipOwner	include/generic/Application.h	/^#define set_clipOwner(__hs,__val)   clipOwner((__h/
+set_clipRect	include/generic/Application.h	/^#define set_clipRect(__hs,__val)   clipRect((__hs)/
+set_color	include/generic/Application.h	/^#define set_color(__hs,__val)   color((__hs),1,(__/
+set_colorIndex	include/generic/Application.h	/^#define set_colorIndex(__hs,__val)   colorIndex((_/
+set_color_class	unix/color.c	/^set_color_class( int class, char * option, char * /
+set_conversion	include/generic/Icon.h	/^#define set_conversion(__hs,__val)   conversion((_/
+set_current	include/generic/Application.h	/^#define set_current(__hs,__val)   current((__hs),1/
+set_currentWidget	include/generic/Application.h	/^#define set_currentWidget(__hs,__val)   currentWid/
+set_cursorPos	include/generic/Application.h	/^#define set_cursorPos(__hs,__val)   cursorPos((__h/
+set_cursorSize	include/generic/Application.h	/^#define set_cursorSize(__hs,__val)   cursorSize((_/
+set_cursorVisible	include/generic/Application.h	/^#define set_cursorVisible(__hs,__val)   cursorVisi/
+set_data	include/generic/AbstractMenu.h	/^#define set_data(__hs,__var1,__val)   data((__hs),/
+set_delegations	include/generic/AbstractMenu.h	/^#define set_delegations(__hs,__val)   delegations(/
+set_designScale	include/generic/Application.h	/^#define set_designScale(__hs,__val)   designScale(/
+set_enabled	include/generic/AbstractMenu.h	/^#define set_enabled(__hs,__var1,__val)   enabled((/
+set_eventFlag	include/generic/AbstractMenu.h	/^#define set_eventFlag(__hs,__val)   eventFlag((__h/
+set_file	include/generic/File.h	/^#define set_file(__hs,__val)   file((__hs),1,(__va/
+set_fillPattern	include/generic/Application.h	/^#define set_fillPattern(__hs,__val)   fillPattern(/
+set_fillWinding	include/generic/Application.h	/^#define set_fillWinding(__hs,__val)   fillWinding(/
+set_firstClick	include/generic/Application.h	/^#define set_firstClick(__hs,__val)   firstClick((_/
+set_focused	include/generic/Application.h	/^#define set_focused(__hs,__val)   focused((__hs),1/
+set_frameOrigin	include/generic/Window.h	/^#define set_frameOrigin(__hs,__val)   frameOrigin(/
+set_frameSize	include/generic/Window.h	/^#define set_frameSize(__hs,__val)   frameSize((__h/
+set_geomHeight	include/generic/Application.h	/^#define set_geomHeight(__hs,__val)   geomHeight((_/
+set_geomSize	include/generic/Application.h	/^#define set_geomSize(__hs,__val)   geomSize((__hs)/
+set_geomWidth	include/generic/Application.h	/^#define set_geomWidth(__hs,__val)   geomWidth((__h/
+set_geometry	include/generic/Application.h	/^#define set_geometry(__hs,__val)   geometry((__hs)/
+set_growMode	include/generic/Application.h	/^#define set_growMode(__hs,__val)   growMode((__hs)/
+set_hScaling	include/generic/Icon.h	/^#define set_hScaling(__hs,__val)   hScaling((__hs)/
+set_height	include/generic/Application.h	/^#define set_height(__hs,__val)   height((__hs),1,(/
+set_helpContext	include/generic/Application.h	/^#define set_helpContext(__hs,__val)   helpContext(/
+set_hint	include/generic/Application.h	/^#define set_hint(__hs,__val)   hint((__hs),1,(__va/
+set_hintBackColor	include/generic/Application.h	/^#define set_hintBackColor(__hs,__val)   hintBackCo/
+set_hintColor	include/generic/Application.h	/^#define set_hintColor(__hs,__val)   hintColor((__h/
+set_hintPause	include/generic/Application.h	/^#define set_hintPause(__hs,__val)   hintPause((__h/
+set_hintVisible	include/generic/Application.h	/^#define set_hintVisible(__hs,__val)   hintVisible(/
+set_icon	include/generic/Application.h	/^#define set_icon(__hs,__val)   icon((__hs),1,(__va/
+set_image	include/generic/AbstractMenu.h	/^#define set_image(__hs,__var1,__val)   image((__hs/
+set_insertMode	include/generic/Application.h	/^#define set_insertMode(__hs,__val)   insertMode((_/
+set_key	include/generic/AbstractMenu.h	/^#define set_key(__hs,__var1,__val)   key((__hs),1,/
+set_left	include/generic/Application.h	/^#define set_left(__hs,__val)   left((__hs),1,(__va/
+set_lineEnd	include/generic/Application.h	/^#define set_lineEnd(__hs,__val)   lineEnd((__hs),1/
+set_lineJoin	include/generic/Application.h	/^#define set_lineJoin(__hs,__val)   lineJoin((__hs)/
+set_linePattern	include/generic/Application.h	/^#define set_linePattern(__hs,__val)   linePattern(/
+set_lineWidth	include/generic/Application.h	/^#define set_lineWidth(__hs,__val)   lineWidth((__h/
+set_mask	include/generic/File.h	/^#define set_mask(__hs,__val)   mask((__hs),1,(__va/
+set_maskColor	include/generic/Icon.h	/^#define set_maskColor(__hs,__val)   maskColor((__h/
+set_menu	include/generic/Window.h	/^#define set_menu(__hs,__val)   menu((__hs),1,(__va/
+set_menuColorIndex	include/generic/Window.h	/^#define set_menuColorIndex(__hs,__var1,__val)   me/
+set_menuItems	include/generic/Window.h	/^#define set_menuItems(__hs,__val)   menuItems((__h/
+set_modalHorizon	include/generic/Application.h	/^#define set_modalHorizon(__hs,__val)   modalHorizo/
+set_modalResult	include/generic/Window.h	/^#define set_modalResult(__hs,__val)   modalResult(/
+set_monochrome	include/generic/DeviceBitmap.h	/^#define set_monochrome(__hs,__val)   monochrome((_/
+set_motif_hints	unix/apc_win.c	/^set_motif_hints( XWindow window, int border_style,/
+set_name	include/generic/AbstractMenu.h	/^#define set_name(__hs,__val)   name((__hs),1,(__va/
+set_net_hints	unix/apc_win.c	/^set_net_hints( XWindow window, int task_listed, in/
+set_onTop	include/generic/Window.h	/^#define set_onTop(__hs,__val)   onTop((__hs),1,(__/
+set_origin	include/generic/Application.h	/^#define set_origin(__hs,__val)   origin((__hs),1,(/
+set_owner	include/generic/AbstractMenu.h	/^#define set_owner(__hs,__val)   owner((__hs),1,(__/
+set_ownerBackColor	include/generic/Application.h	/^#define set_ownerBackColor(__hs,__val)   ownerBack/
+set_ownerColor	include/generic/Application.h	/^#define set_ownerColor(__hs,__val)   ownerColor((_/
+set_ownerFont	include/generic/Application.h	/^#define set_ownerFont(__hs,__val)   ownerFont((__h/
+set_ownerHint	include/generic/Application.h	/^#define set_ownerHint(__hs,__val)   ownerHint((__h/
+set_ownerIcon	include/generic/Window.h	/^#define set_ownerIcon(__hs,__val)   ownerIcon((__h/
+set_ownerPalette	include/generic/Application.h	/^#define set_ownerPalette(__hs,__val)   ownerPalett/
+set_ownerShowHint	include/generic/Application.h	/^#define set_ownerShowHint(__hs,__val)   ownerShowH/
+set_packInfo	include/generic/Application.h	/^#define set_packInfo(__hs,__val)   packInfo((__hs)/
+set_packPropagate	include/generic/Application.h	/^#define set_packPropagate(__hs,__val)   packPropag/
+set_palette	include/generic/Application.h	/^#define set_palette(__hs,__val)   palette((__hs),1/
+set_pixel	include/generic/Application.h	/^#define set_pixel(__hs,__val)   pixel((__hs),1,(__/
+set_placeInfo	include/generic/Application.h	/^#define set_placeInfo(__hs,__val)   placeInfo((__h/
+set_pointerHotSpot	include/generic/Application.h	/^#define set_pointerHotSpot(__hs,__val)   pointerHo/
+set_pointerIcon	include/generic/Application.h	/^#define set_pointerIcon(__hs,__val)   pointerIcon(/
+set_pointerPos	include/generic/Application.h	/^#define set_pointerPos(__hs,__val)   pointerPos((_/
+set_pointerType	include/generic/Application.h	/^#define set_pointerType(__hs,__val)   pointerType(/
+set_pointerVisible	include/generic/Application.h	/^#define set_pointerVisible(__hs,__val)   pointerVi/
+set_popup	include/generic/Application.h	/^#define set_popup(__hs,__val)   popup((__hs),1,(__/
+set_popupColorIndex	include/generic/Application.h	/^#define set_popupColorIndex(__hs,__val)   popupCol/
+set_popupItems	include/generic/Application.h	/^#define set_popupItems(__hs,__val)   popupItems((_/
+set_preserveType	include/generic/Icon.h	/^#define set_preserveType(__hs,__val)   preserveTyp/
+set_printer	include/generic/Printer.h	/^#define set_printer(__hs,__val)   printer((__hs),1/
+set_rect	include/generic/Application.h	/^#define set_rect(__hs,__val)   rect((__hs),1,(__va/
+set_region	include/generic/Application.h	/^#define set_region(__hs,__val)   region((__hs),1,(/
+set_resolution	include/generic/Application.h	/^#define set_resolution(__hs,__val)   resolution((_/
+set_right	include/generic/Application.h	/^#define set_right(__hs,__val)   right((__hs),1,(__/
+set_rop	include/generic/Application.h	/^#define set_rop(__hs,__val)   rop((__hs),1,(__val)/
+set_rop2	include/generic/Application.h	/^#define set_rop2(__hs,__val)   rop2((__hs),1,(__va/
+set_scaleChildren	include/generic/Application.h	/^#define set_scaleChildren(__hs,__val)   scaleChild/
+set_selectable	include/generic/Application.h	/^#define set_selectable(__hs,__val)   selectable((_/
+set_selected	include/generic/AbstractMenu.h	/^#define set_selected(__hs,__val)   selected((__hs)/
+set_selectedWidget	include/generic/Application.h	/^#define set_selectedWidget(__hs,__val)   selectedW/
+set_selectingButtons	include/generic/Application.h	/^#define set_selectingButtons(__hs,__val)   selecti/
+set_shape	include/generic/Application.h	/^#define set_shape(__hs,__val)   shape((__hs),1,(__/
+set_showHint	include/generic/Application.h	/^#define set_showHint(__hs,__val)   showHint((__hs)/
+set_size	include/generic/Application.h	/^#define set_size(__hs,__val)   size((__hs),1,(__va/
+set_sizeMax	include/generic/Application.h	/^#define set_sizeMax(__hs,__val)   sizeMax((__hs),1/
+set_sizeMin	include/generic/Application.h	/^#define set_sizeMin(__hs,__val)   sizeMin((__hs),1/
+set_splinePrecision	include/generic/Application.h	/^#define set_splinePrecision(__hs,__val)   splinePr/
+set_stats	include/generic/Icon.h	/^#define set_stats(__hs,__val)   stats((__hs),1,(__/
+set_syncPaint	include/generic/Application.h	/^#define set_syncPaint(__hs,__val)   syncPaint((__h/
+set_tabOrder	include/generic/Application.h	/^#define set_tabOrder(__hs,__val)   tabOrder((__hs)/
+set_tabStop	include/generic/Application.h	/^#define set_tabStop(__hs,__val)   tabStop((__hs),1/
+set_taskListed	include/generic/Window.h	/^#define set_taskListed(__hs,__val)   taskListed((_/
+set_text	include/generic/AbstractMenu.h	/^#define set_text(__hs,__var1,__val)   text((__hs),/
+set_textOpaque	include/generic/Application.h	/^#define set_textOpaque(__hs,__val)   textOpaque((_/
+set_textOutBaseline	include/generic/Application.h	/^#define set_textOutBaseline(__hs,__val)   textOutB/
+set_timeout	include/generic/Timer.h	/^#define set_timeout(__hs,__val)   timeout((__hs),1/
+set_top	include/generic/Application.h	/^#define set_top(__hs,__val)   top((__hs),1,(__val)/
+set_translate	include/generic/Application.h	/^#define set_translate(__hs,__val)   translate((__h/
+set_transparent	include/generic/Application.h	/^#define set_transparent(__hs,__val)   transparent(/
+set_type	include/generic/Icon.h	/^#define set_type(__hs,__val)   type((__hs),1,(__va/
+set_vScaling	include/generic/Icon.h	/^#define set_vScaling(__hs,__val)   vScaling((__hs)/
+set_view_ex	os2/apc.c	/^set_view_ex( Handle self, PViewProfile p)$/
+set_visible	include/generic/Application.h	/^#define set_visible(__hs,__val)   visible((__hs),1/
+set_wantUnicodeInput	include/generic/Application.h	/^#define set_wantUnicodeInput(__hs,__val)   wantUni/
+set_widgetClass	include/generic/Application.h	/^#define set_widgetClass(__hs,__val)   widgetClass(/
+set_width	include/generic/Application.h	/^#define set_width(__hs,__val)   width((__hs),1,(__/
+set_windowState	include/generic/Window.h	/^#define set_windowState(__hs,__val)   windowState(/
+shm_ignore_errors	unix/apc_img.c	/^shm_ignore_errors(Display *d, XErrorEvent *ev)$/
+sigh	os2/os2guts.c	/^sigh( int sig)$/
+single	pod/Prima/Widget.pod	/^It provides a single ( besides the widget itself )/
+size	pod/Prima/Widget.pod	/^implicit size action, then its size (and probably /
+sizeof	include/unix/guts.h	/^typedef unsigned char ClipboardXferKey[sizeof(XWin/
+socket_rehash	os2/files.c	/^socket_rehash( void)$/
+socket_select	os2/files.c	/^socket_select( void *dummy)$/
+sort	examples/sheet.pl	/^Note the header-driven actions: column sort ( vert/
+spec_fonts	os2/stock.c	/^spec_fonts( int count, PFONTMETRICS fm, int * retC/
+std_subclass	Prima/Markup.pm	/^std_subclass( $_, 'Buttons') for qw(Button Radio C/
+step	include/img_conv.h	/^typedef void StretchProc( void * srcData, void * d/
+store_char	unix/apc_menu.c	/^store_char( char * src, int * srcptr, char * dst, /
+strcasecmp	include/apricot.h	/^#define strcasecmp(a,b) stricmp((a),(b))$/
+stretch_calculate_seed	unix/apc_img.c	/^stretch_calculate_seed( int ssize, int tsize,$/
+stricmp	include/apricot.h	/^#define stricmp(a,b) strcasecmp((a),(b))$/
+strlwr	unix/apc_font.c	/^strlwr( char *d, const char *s)$/
+strncasecmp	include/apricot.h	/^#define strncasecmp(a,b,c) strnicmp((a),(b),(c))$/
+strnicmp	include/apricot.h	/^#define strnicmp(a,b,c) strncasecmp((a),(b),(c))$/
+subroutines	utils/makedoc/Prima.cache.tex	/^anonymous subroutines ( subs ) for the fast custom/
+syntetic_mouse_move	unix/apc_event.c	/^syntetic_mouse_move( void)$/
+template_imp_Bool_Handle	include/generic/Widget.tml	/^Bool template_imp_Bool_Handle( char* subName, Hand/
+template_imp_SVPtr_Handle	include/generic/AbstractMenu.tml	/^SV* template_imp_SVPtr_Handle( char* subName, Hand/
+template_imp_void_Handle	include/generic/Application.tml	/^void template_imp_void_Handle( char* subName, Hand/
+template_imp_void_Handle_HVPtr	include/generic/Object.tml	/^void template_imp_void_Handle_HVPtr( char* subName/
+template_imp_void_Handle_SVPtr	include/generic/Object.tml	/^void template_imp_void_Handle_SVPtr( char* subName/
+template_imp_void_Handle_SVPtr_SVPtr	include/generic/Object.tml	/^void template_imp_void_Handle_SVPtr_SVPtr( char* s/
+template_rdf_Bool_Handle	include/generic/Application.tml	/^Bool template_rdf_Bool_Handle( char* subName, Hand/
+template_rdf_Bool_Handle_Bool	include/generic/File.tml	/^Bool template_rdf_Bool_Handle_Bool( char* subName,/
+template_rdf_Bool_Handle_Handle	include/generic/Window.tml	/^Bool template_rdf_Bool_Handle_Handle( char* subNam/
+template_rdf_Bool_Handle_Handle_int_int_int_int_int_int_int_int_int	include/generic/Drawable.tml	/^Bool template_rdf_Bool_Handle_Handle_int_int_int_i/
+template_rdf_Bool_Handle_Rect	include/generic/Widget.tml	/^Bool template_rdf_Bool_Handle_Rect( char* subName,/
+template_rdf_Bool_Handle_SVPtr	include/generic/Drawable.tml	/^Bool template_rdf_Bool_Handle_SVPtr( char* subName/
+template_rdf_Bool_Handle_SVPtr_int_int	include/generic/Drawable.tml	/^Bool template_rdf_Bool_Handle_SVPtr_int_int( char*/
+template_rdf_Bool_Handle_intPtr	include/generic/AbstractMenu.tml	/^Bool template_rdf_Bool_Handle_intPtr( char* subNam/
+template_rdf_Bool_Handle_int_int_int_Bool	include/generic/Drawable.tml	/^Bool template_rdf_Bool_Handle_int_int_int_Bool( ch/
+template_rdf_Bool_Handle_int_int_int_int	include/generic/Drawable.tml	/^Bool template_rdf_Bool_Handle_int_int_int_int( cha/
+template_rdf_Bool_Handle_int_int_int_int_double_double	include/generic/Drawable.tml	/^Bool template_rdf_Bool_Handle_int_int_int_int_doub/
+template_rdf_FontPtr_intPtr_FontPtr_FontPtr_Bool	include/generic/Drawable.tml	/^Font* template_rdf_FontPtr_intPtr_FontPtr_FontPtr_/
+template_rdf_Font_Handle	include/generic/Application.tml	/^Font template_rdf_Font_Handle( char* subName, Hand/
+template_rdf_Font_intPtr	include/generic/Application.tml	/^Font template_rdf_Font_intPtr( char* subName, char/
+template_rdf_Handle_Handle	include/generic/Application.tml	/^Handle template_rdf_Handle_Handle( char* subName, /
+template_rdf_Handle_Handle_Bool	include/generic/Widget.tml	/^Handle template_rdf_Handle_Handle_Bool( char* subN/
+template_rdf_Handle_Handle_Point	include/generic/Application.tml	/^Handle template_rdf_Handle_Handle_Point( char* sub/
+template_rdf_Handle_Handle_SVPtr	include/generic/Application.tml	/^Handle template_rdf_Handle_Handle_SVPtr( char* sub/
+template_rdf_Handle_Handle_intPtr	include/generic/Component.tml	/^Handle template_rdf_Handle_Handle_intPtr( char* su/
+template_rdf_Handle_Handle_int_Bool	include/generic/Application.tml	/^Handle template_rdf_Handle_Handle_int_Bool( char* /
+template_rdf_Handle_Handle_int_int	include/generic/Widget.tml	/^Handle template_rdf_Handle_Handle_int_int( char* s/
+template_rdf_Handle_Handle_int_int_int_int	include/generic/Application.tml	/^Handle template_rdf_Handle_Handle_int_int_int_int(/
+template_rdf_Point_Handle	include/generic/Application.tml	/^Point template_rdf_Point_Handle( char* subName, Ha/
+template_rdf_Point_intPtr	include/generic/Application.tml	/^Point template_rdf_Point_intPtr( char* subName, ch/
+template_rdf_Point_intPtr_int	include/generic/Application.tml	/^Point template_rdf_Point_intPtr_int( char* subName/
+template_rdf_Rect_Handle	include/generic/Widget.tml	/^Rect template_rdf_Rect_Handle( char* subName, Hand/
+template_rdf_SVPtr_Handle	include/generic/Component.tml	/^SV* template_rdf_SVPtr_Handle( char* subName, Hand/
+template_rdf_SVPtr_Handle_SVPtr	include/generic/Drawable.tml	/^SV* template_rdf_SVPtr_Handle_SVPtr( char* subName/
+template_rdf_SVPtr_Handle_SVPtr_int_int_int	include/generic/Drawable.tml	/^SV* template_rdf_SVPtr_Handle_SVPtr_int_int_int( c/
+template_rdf_SVPtr_Handle_intPtr	include/generic/AbstractMenu.tml	/^SV* template_rdf_SVPtr_Handle_intPtr( char* subNam/
+template_rdf_SVPtr_Handle_intPtr_Bool	include/generic/Object.tml	/^SV* template_rdf_SVPtr_Handle_intPtr_Bool( char* s/
+template_rdf_SVPtr_Handle_intPtr_intPtr	include/generic/Application.tml	/^SV* template_rdf_SVPtr_Handle_intPtr_intPtr( char*/
+template_rdf_SVPtr_Handle_int_int_Bool	include/generic/Drawable.tml	/^SV* template_rdf_SVPtr_Handle_int_int_Bool( char* /
+template_rdf_SVPtr_SVPtr	include/generic/Image.tml	/^SV* template_rdf_SVPtr_SVPtr( char* subName, SV * /
+template_rdf_SVPtr_SVPtr_SVPtr_int	include/generic/Drawable.tml	/^SV* template_rdf_SVPtr_SVPtr_SVPtr_int( char* subN/
+template_rdf_SVPtr_intPtr	include/generic/Application.tml	/^SV* template_rdf_SVPtr_intPtr( char* subName, char/
+template_rdf_SVPtr_intPtr_intPtr	include/generic/Application.tml	/^SV* template_rdf_SVPtr_intPtr_intPtr( char* subNam/
+template_rdf_SVPtr_intPtr_intPtr_intPtr_intPtr_Handle_int	include/generic/Widget.tml	/^SV* template_rdf_SVPtr_intPtr_intPtr_intPtr_intPtr/
+template_rdf_int	include/generic/Utils.tml	/^int template_rdf_int( char* subName)$/
+template_rdf_intPtr	include/generic/Utils.tml	/^char* template_rdf_intPtr( char* subName)$/
+template_rdf_intPtr_Handle	include/generic/Printer.tml	/^char* template_rdf_intPtr_Handle( char* subName, H/
+template_rdf_int_Handle	include/generic/Drawable.tml	/^int template_rdf_int_Handle( char* subName, Handle/
+template_rdf_int_Handle_Handle	include/generic/Component.tml	/^int template_rdf_int_Handle_Handle( char* subName,/
+template_rdf_int_Handle_SVPtr_Bool	include/generic/Drawable.tml	/^int template_rdf_int_Handle_SVPtr_Bool( char* subN/
+template_rdf_int_Handle_int	include/generic/Drawable.tml	/^int template_rdf_int_Handle_int( char* subName, Ha/
+template_rdf_int_Handle_intPtr	include/generic/AbstractMenu.tml	/^int template_rdf_int_Handle_intPtr( char* subName,/
+template_rdf_int_Handle_intPtr_SVPtr_Handle_int	include/generic/Component.tml	/^int template_rdf_int_Handle_intPtr_SVPtr_Handle_in/
+template_rdf_int_Handle_int_int_int	include/generic/AbstractMenu.tml	/^int template_rdf_int_Handle_int_int_int( char* sub/
+template_rdf_int_double	include/generic/Utils.tml	/^int template_rdf_int_double( char* subName, double/
+template_rdf_int_intPtr	include/generic/Application.tml	/^int template_rdf_int_intPtr( char* subName, char */
+template_rdf_int_intPtr_int	include/generic/Application.tml	/^int template_rdf_int_intPtr_int( char* subName, ch/
+template_rdf_p_Bool_Handle_Bool_Bool	include/generic/AbstractMenu.tml	/^Bool template_rdf_p_Bool_Handle_Bool_Bool( char* s/
+template_rdf_p_Bool_Handle_Bool_intPtr_Bool	include/generic/AbstractMenu.tml	/^Bool template_rdf_p_Bool_Handle_Bool_intPtr_Bool( /
+template_rdf_p_Handle_Handle_Bool_Handle	include/generic/Application.tml	/^Handle template_rdf_p_Handle_Handle_Bool_Handle( c/
+template_rdf_p_Handle_Handle_Bool_intPtr_Handle	include/generic/AbstractMenu.tml	/^Handle template_rdf_p_Handle_Handle_Bool_intPtr_Ha/
+template_rdf_p_NPoint_Handle_Bool_NPoint	include/generic/Widget.tml	/^NPoint template_rdf_p_NPoint_Handle_Bool_NPoint( c/
+template_rdf_p_Point_Handle_Bool_Point	include/generic/Drawable.tml	/^Point template_rdf_p_Point_Handle_Bool_Point( char/
+template_rdf_p_Rect_Handle_Bool_Rect	include/generic/Drawable.tml	/^Rect template_rdf_p_Rect_Handle_Bool_Rect( char* s/
+template_rdf_p_SVPtr_Handle_Bool_SVPtr	include/generic/Component.tml	/^SV* template_rdf_p_SVPtr_Handle_Bool_SVPtr( char* /
+template_rdf_p_SVPtr_Handle_Bool_intPtr_SVPtr	include/generic/AbstractMenu.tml	/^SV* template_rdf_p_SVPtr_Handle_Bool_intPtr_SVPtr(/
+template_rdf_p_SVPtr_Handle_Bool_int_int_SVPtr	include/generic/Drawable.tml	/^SV* template_rdf_p_SVPtr_Handle_Bool_int_int_SVPtr/
+template_rdf_p_double_Handle_Bool_int_double	include/generic/Image.tml	/^double template_rdf_p_double_Handle_Bool_int_doubl/
+template_rdf_p_intPtr_Handle_Bool_intPtr	include/generic/Printer.tml	/^char* template_rdf_p_intPtr_Handle_Bool_intPtr( ch/
+template_rdf_p_int_Handle_Bool_int	include/generic/Application.tml	/^int template_rdf_p_int_Handle_Bool_int( char* subN/
+template_rdf_p_int_Handle_Bool_int_int	include/generic/Widget.tml	/^int template_rdf_p_int_Handle_Bool_int_int( char* /
+template_rdf_void_Handle	include/generic/Clipboard.tml	/^void template_rdf_void_Handle( char* subName, Hand/
+template_rdf_void_Handle_Bool_Bool	include/generic/Widget.tml	/^void template_rdf_void_Handle_Bool_Bool( char* sub/
+template_rdf_void_Handle_Bool_Handle	include/generic/Widget.tml	/^void template_rdf_void_Handle_Bool_Handle( char* s/
+template_rdf_void_Handle_Font	include/generic/Application.tml	/^void template_rdf_void_Handle_Font( char* subName,/
+template_rdf_void_Handle_HVPtr	include/generic/Object.tml	/^void template_rdf_void_Handle_HVPtr( char* subName/
+template_rdf_void_Handle_Handle	include/generic/Component.tml	/^void template_rdf_void_Handle_Handle( char* subNam/
+template_rdf_void_Handle_Handle_Bool	include/generic/Component.tml	/^void template_rdf_void_Handle_Handle_Bool( char* s/
+template_rdf_void_Handle_Handle_Handle	include/generic/Icon.tml	/^void template_rdf_void_Handle_Handle_Handle( char*/
+template_rdf_void_Handle_Rect	include/generic/Widget.tml	/^void template_rdf_void_Handle_Rect( char* subName,/
+template_rdf_void_Handle_SVPtr	include/generic/AbstractMenu.tml	/^void template_rdf_void_Handle_SVPtr( char* subName/
+template_rdf_void_Handle_SVPtr_SVPtr	include/generic/Component.tml	/^void template_rdf_void_Handle_SVPtr_SVPtr( char* s/
+template_rdf_void_Handle_SVPtr_intPtr_int	include/generic/AbstractMenu.tml	/^void template_rdf_void_Handle_SVPtr_intPtr_int( ch/
+template_rdf_void_Handle_double_double_double_double	include/generic/Image.tml	/^void template_rdf_void_Handle_double_double_double/
+template_rdf_void_Handle_int	include/generic/Component.tml	/^void template_rdf_void_Handle_int( char* subName, /
+template_rdf_void_Handle_intPtr	include/generic/AbstractMenu.tml	/^void template_rdf_void_Handle_intPtr( char* subNam/
+template_rdf_void_Handle_intPtr_Bool	include/generic/AbstractMenu.tml	/^void template_rdf_void_Handle_intPtr_Bool( char* s/
+template_rdf_void_Handle_intPtr_SVPtr	include/generic/AbstractMenu.tml	/^void template_rdf_void_Handle_intPtr_SVPtr( char* /
+template_rdf_void_Handle_int_int_int_int_int_Bool	include/generic/Widget.tml	/^void template_rdf_void_Handle_int_int_int_int_int_/
+template_rdf_void_Handle_int_int_int_int_int_Bool_Bool	include/generic/Widget.tml	/^void template_rdf_void_Handle_int_int_int_int_int_/
+template_rdf_void_Handle_int_int_int_int_int_int	include/generic/Popup.tml	/^void template_rdf_void_Handle_int_int_int_int_int_/
+template_rdf_void_int	include/generic/Utils.tml	/^void template_rdf_void_int( char* subName, int fla/
+template_rdf_void_intPtr	include/generic/Application.tml	/^void template_rdf_void_intPtr( char* subName, char/
+template_rdf_void_int_int	include/generic/Utils.tml	/^void template_rdf_void_int_int( char* subName, int/
+template_xs_Bool_Handle	include/generic/Application.tml	/^void template_xs_Bool_Handle( XS_STARTPARAMS, char/
+template_xs_Bool_Handle_Handle_int_int_int_int_int_int_int_int_int	include/generic/Drawable.tml	/^void template_xs_Bool_Handle_Handle_int_int_int_in/
+template_xs_Bool_Handle_Rect	include/generic/Widget.tml	/^void template_xs_Bool_Handle_Rect( XS_STARTPARAMS,/
+template_xs_Bool_Handle_SVPtr	include/generic/Drawable.tml	/^void template_xs_Bool_Handle_SVPtr( XS_STARTPARAMS/
+template_xs_Bool_Handle_SVPtr_int_int	include/generic/Drawable.tml	/^void template_xs_Bool_Handle_SVPtr_int_int( XS_STA/
+template_xs_Bool_Handle_intPtr	include/generic/AbstractMenu.tml	/^void template_xs_Bool_Handle_intPtr( XS_STARTPARAM/
+template_xs_Bool_Handle_int_int_int_int	include/generic/Drawable.tml	/^void template_xs_Bool_Handle_int_int_int_int( XS_S/
+template_xs_Bool_Handle_int_int_int_int_double_double	include/generic/Drawable.tml	/^void template_xs_Bool_Handle_int_int_int_int_doubl/
+template_xs_Font_Handle	include/generic/Application.tml	/^void template_xs_Font_Handle( XS_STARTPARAMS, char/
+template_xs_Handle_Handle	include/generic/Application.tml	/^void template_xs_Handle_Handle( XS_STARTPARAMS, ch/
+template_xs_Handle_Handle_Point	include/generic/Application.tml	/^void template_xs_Handle_Handle_Point( XS_STARTPARA/
+template_xs_Handle_Handle_SVPtr	include/generic/Application.tml	/^void template_xs_Handle_Handle_SVPtr( XS_STARTPARA/
+template_xs_Handle_Handle_intPtr	include/generic/Component.tml	/^void template_xs_Handle_Handle_intPtr( XS_STARTPAR/
+template_xs_Handle_Handle_int_int	include/generic/Widget.tml	/^void template_xs_Handle_Handle_int_int( XS_STARTPA/
+template_xs_Handle_Handle_int_int_int_int	include/generic/Application.tml	/^void template_xs_Handle_Handle_int_int_int_int( XS/
+template_xs_Point_Handle	include/generic/Application.tml	/^void template_xs_Point_Handle( XS_STARTPARAMS, cha/
+template_xs_Rect_Handle	include/generic/Widget.tml	/^void template_xs_Rect_Handle( XS_STARTPARAMS, char/
+template_xs_SVPtr_Handle	include/generic/AbstractMenu.tml	/^void template_xs_SVPtr_Handle( XS_STARTPARAMS, cha/
+template_xs_SVPtr_Handle_SVPtr	include/generic/Drawable.tml	/^void template_xs_SVPtr_Handle_SVPtr( XS_STARTPARAM/
+template_xs_SVPtr_Handle_intPtr	include/generic/AbstractMenu.tml	/^void template_xs_SVPtr_Handle_intPtr( XS_STARTPARA/
+template_xs_SVPtr_SVPtr	include/generic/Image.tml	/^void template_xs_SVPtr_SVPtr( XS_STARTPARAMS, char/
+template_xs_int	include/generic/Utils.tml	/^void template_xs_int( XS_STARTPARAMS, char* subNam/
+template_xs_intPtr	include/generic/Utils.tml	/^void template_xs_intPtr( XS_STARTPARAMS, char* sub/
+template_xs_intPtr_Handle	include/generic/Printer.tml	/^void template_xs_intPtr_Handle( XS_STARTPARAMS, ch/
+template_xs_int_Handle	include/generic/Drawable.tml	/^void template_xs_int_Handle( XS_STARTPARAMS, char*/
+template_xs_int_Handle_Handle	include/generic/Component.tml	/^void template_xs_int_Handle_Handle( XS_STARTPARAMS/
+template_xs_int_Handle_int	include/generic/Drawable.tml	/^void template_xs_int_Handle_int( XS_STARTPARAMS, c/
+template_xs_int_Handle_intPtr	include/generic/AbstractMenu.tml	/^void template_xs_int_Handle_intPtr( XS_STARTPARAMS/
+template_xs_int_Handle_int_int_int	include/generic/AbstractMenu.tml	/^void template_xs_int_Handle_int_int_int( XS_STARTP/
+template_xs_int_double	include/generic/Utils.tml	/^void template_xs_int_double( XS_STARTPARAMS, char*/
+template_xs_int_intPtr	include/generic/Utils.tml	/^void template_xs_int_intPtr( XS_STARTPARAMS, char*/
+template_xs_p_Bool_Handle_Bool_Bool	include/generic/AbstractMenu.tml	/^void template_xs_p_Bool_Handle_Bool_Bool( XS_START/
+template_xs_p_Bool_Handle_Bool_intPtr_Bool	include/generic/AbstractMenu.tml	/^void template_xs_p_Bool_Handle_Bool_intPtr_Bool( X/
+template_xs_p_Handle_Handle_Bool_Handle	include/generic/Application.tml	/^void template_xs_p_Handle_Handle_Bool_Handle( XS_S/
+template_xs_p_Handle_Handle_Bool_intPtr_Handle	include/generic/AbstractMenu.tml	/^void template_xs_p_Handle_Handle_Bool_intPtr_Handl/
+template_xs_p_NPoint_Handle_Bool_NPoint	include/generic/Widget.tml	/^void template_xs_p_NPoint_Handle_Bool_NPoint( XS_S/
+template_xs_p_Point_Handle_Bool_Point	include/generic/Application.tml	/^void template_xs_p_Point_Handle_Bool_Point( XS_STA/
+template_xs_p_Rect_Handle_Bool_Rect	include/generic/Drawable.tml	/^void template_xs_p_Rect_Handle_Bool_Rect( XS_START/
+template_xs_p_SVPtr_Handle_Bool_SVPtr	include/generic/Application.tml	/^void template_xs_p_SVPtr_Handle_Bool_SVPtr( XS_STA/
+template_xs_p_SVPtr_Handle_Bool_intPtr_SVPtr	include/generic/AbstractMenu.tml	/^void template_xs_p_SVPtr_Handle_Bool_intPtr_SVPtr(/
+template_xs_p_SVPtr_Handle_Bool_int_int_SVPtr	include/generic/Drawable.tml	/^void template_xs_p_SVPtr_Handle_Bool_int_int_SVPtr/
+template_xs_p_double_Handle_Bool_int_double	include/generic/Image.tml	/^void template_xs_p_double_Handle_Bool_int_double( /
+template_xs_p_intPtr_Handle_Bool_intPtr	include/generic/Printer.tml	/^void template_xs_p_intPtr_Handle_Bool_intPtr( XS_S/
+template_xs_p_int_Handle_Bool_int	include/generic/Application.tml	/^void template_xs_p_int_Handle_Bool_int( XS_STARTPA/
+template_xs_p_int_Handle_Bool_int_int	include/generic/Application.tml	/^void template_xs_p_int_Handle_Bool_int_int( XS_STA/
+template_xs_void_Handle	include/generic/AbstractMenu.tml	/^void template_xs_void_Handle( XS_STARTPARAMS, char/
+template_xs_void_Handle_Bool_Bool	include/generic/Application.tml	/^void template_xs_void_Handle_Bool_Bool( XS_STARTPA/
+template_xs_void_Handle_Bool_Handle	include/generic/Application.tml	/^void template_xs_void_Handle_Bool_Handle( XS_START/
+template_xs_void_Handle_Font	include/generic/Application.tml	/^void template_xs_void_Handle_Font( XS_STARTPARAMS,/
+template_xs_void_Handle_HVPtr	include/generic/AbstractMenu.tml	/^void template_xs_void_Handle_HVPtr( XS_STARTPARAMS/
+template_xs_void_Handle_Handle	include/generic/Application.tml	/^void template_xs_void_Handle_Handle( XS_STARTPARAM/
+template_xs_void_Handle_Handle_Bool	include/generic/Application.tml	/^void template_xs_void_Handle_Handle_Bool( XS_START/
+template_xs_void_Handle_Handle_Handle	include/generic/Icon.tml	/^void template_xs_void_Handle_Handle_Handle( XS_STA/
+template_xs_void_Handle_Rect	include/generic/Widget.tml	/^void template_xs_void_Handle_Rect( XS_STARTPARAMS,/
+template_xs_void_Handle_SVPtr	include/generic/AbstractMenu.tml	/^void template_xs_void_Handle_SVPtr( XS_STARTPARAMS/
+template_xs_void_Handle_SVPtr_SVPtr	include/generic/Component.tml	/^void template_xs_void_Handle_SVPtr_SVPtr( XS_START/
+template_xs_void_Handle_SVPtr_intPtr_int	include/generic/AbstractMenu.tml	/^void template_xs_void_Handle_SVPtr_intPtr_int( XS_/
+template_xs_void_Handle_double_double_double_double	include/generic/Image.tml	/^void template_xs_void_Handle_double_double_double_/
+template_xs_void_Handle_int	include/generic/Component.tml	/^void template_xs_void_Handle_int( XS_STARTPARAMS, /
+template_xs_void_Handle_intPtr	include/generic/AbstractMenu.tml	/^void template_xs_void_Handle_intPtr( XS_STARTPARAM/
+template_xs_void_Handle_intPtr_Bool	include/generic/AbstractMenu.tml	/^void template_xs_void_Handle_intPtr_Bool( XS_START/
+template_xs_void_Handle_intPtr_SVPtr	include/generic/AbstractMenu.tml	/^void template_xs_void_Handle_intPtr_SVPtr( XS_STAR/
+text_out	unix/apc_menu.c	/^text_out( PCachedFont font, const char * text, int/
+the	pod/Prima/Widget/place.pod	/^at the (x,y) location selected by the B<x>, B<y>,$/
+try_size	unix/xft.c	/^try_size( Handle self, Font f, double size)$/
+uint16_t	include/apricot.h	/^typedef u_int16_t       uint16_t;$/
+uint32_t	include/apricot.h	/^typedef u_int32_t       uint32_t;$/
+uint64_t	include/apricot.h	/^typedef u_int64_t       uint64_t;$/
+uint8_t	include/apricot.h	/^typedef u_int8_t        uint8_t;$/
+unix_rm_get_int	unix/apc_misc.c	/^unix_rm_get_int( Handle self, XrmQuark class_detai/
+unless	Prima.pm	/^unless ( UNIVERSAL::can('Prima', 'init')) {$/
+update_menu_window	unix/apc_menu.c	/^update_menu_window( PMenuSysData XX, PMenuWindow w/
+update_quarks_cache	unix/apc_misc.c	/^update_quarks_cache( Handle self)$/
+usage	utils/p-class.pl	/^usage() if !$want_all && !@want_class;$/
+utf8_hop	include/apricot.h	/^#define utf8_hop(s,off)     ((U8*)((s)+(off)))$/
+utf8_length	include/apricot.h	/^#define utf8_length(s,e)    ((U8*)(e)-(U8*)(s))$/
+valid_image_type	img/bc_extra.c	/^static struct valid_image_type {$/
+view_get_font	os2/stock.c	/^view_get_font ( Handle self, PFont font)$/
+while	Prima/IniFile.pm	/^   while ( my ($k,$v) = each %$sec) { ... }$/
+window_set_client_size	unix/apc_win.c	/^window_set_client_size( Handle self, int width, in/
+window_start_modal	os2/apc.c	/^window_start_modal( Handle self, Bool shared, Hand/
+window_subsystem_cleanup	os2/os2guts.c	/^window_subsystem_cleanup( void)$/
+window_subsystem_done	os2/os2guts.c	/^window_subsystem_done( void)$/
+window_subsystem_get_options	os2/os2guts.c	/^window_subsystem_get_options( int * argc, char ***/
+window_subsystem_init	os2/os2guts.c	/^window_subsystem_init( char * error_buf)$/
+window_subsystem_set_option	os2/os2guts.c	/^window_subsystem_set_option( char * option, char */
+wlpal_get	include/unix/guts.h	/^#define wlpal_get(widget,index)      prima_lpal_ge/
+wlpal_set	include/unix/guts.h	/^#define wlpal_set(widget,index,rank) prima_lpal_se/
+wm_event	unix/apc_event.c	/^wm_event( Handle self, XEvent *xev, PEvent ev)$/
+wm_sync_data_from_event	unix/apc_event.c	/^wm_sync_data_from_event( Handle self, WMSyncData */
+word	include/gbm.h	/^typedef unsigned short  word;$/
+wspush	os2/os2guts.c	/^          #define wspush(d)                       /
+x_error_handler	unix/apc_app.c	/^x_error_handler( Display *d, XErrorEvent *ev)$/
+x_io_error_handler	unix/apc_app.c	/^x_io_error_handler( Display *d)$/
+xcmp	os2/stock.c	/^#define xcmp( name, stlen, retval)  if (( len == s/
+xft_add_item	unix/xft.c	/^xft_add_item( unsigned long ** list, int * count, /
+xft_build_font_key	unix/xft.c	/^xft_build_font_key( PFontKey key, PFont f, Bool by/
+xft_text2ucs4	unix/xft.c	/^xft_text2ucs4( const unsigned char * text, int len/
+xlfd_parse_font	unix/apc_font.c	/^xlfd_parse_font( char * xlfd_name, PFontInfo info,/
+y	utils/makedoc/Prima.ps	/^(menu=>$_[0]->menu\\)}],)449 4521 y(]],)449 4621 y/

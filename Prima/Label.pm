@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Label.pm,v 1.24 2005/10/17 14:21:42 dk Exp $
+#  $Id: Label.pm,v 1.25 2005/12/05 21:48:12 dk Exp $
 package Prima::Label;
 use vars qw(@ISA);
 @ISA = qw(Prima::Widget);
@@ -301,8 +301,8 @@ sub check_auto_size
 	my %sets;
 
 	if ( $self-> {wordWrap}) {
+		$self-> reset_lines;
 		if ( $self-> {autoHeight}) {
-			$self-> reset_lines;
 			$self-> geomHeight( $self-> {textLines} * $self-> font-> height + 2);
 		}
 	} else {
@@ -321,6 +321,7 @@ sub check_auto_size
 		$sets{ geomHeight} = scalar(@lines) * $self-> font-> height  + 2 
 			if $self-> {autoHeight};
 		$self-> set( %sets);
+		$self-> reset_lines;
 	}
 }
 

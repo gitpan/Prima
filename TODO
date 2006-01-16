@@ -1,0 +1,2 @@
+- examples/iv.pl - reset_scrolls, try to get rid of sticky scrollbars
+- image loading, try with file descriptor in addition to the file name

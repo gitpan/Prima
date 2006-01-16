@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Classes.pm,v 1.77 2005/10/13 17:22:52 dk Exp $
+# $Id: Classes.pm,v 1.78 2005/10/26 09:36:40 dk Exp $
 use strict;
 package Prima::VB::Classes;
 
@@ -297,7 +297,7 @@ sub init
 	my $xname = $self-> name;
 	my $yname = $xname;
 	my $cnt = 0;
-	$yname = sprintf("%s.%d", $xname, $cnt++) while exists $names{$yname};
+	$yname = sprintf("%s%d", $xname, $cnt++) while exists $names{$yname};
 	$profile{profile}-> {name} = $yname;
 	$self-> init_profiler( \%profile);
 	ObjectInspector::renew_widgets();

@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Make.pm,v 1.13 2005/10/13 17:22:50 dk Exp $
+#  $Id: Make.pm,v 1.14 2005/12/14 11:38:03 dk Exp $
 
 use strict;
 use Config;
@@ -514,6 +514,22 @@ sub cc_command_line
 	return $ret;
 }
 
+sub quote
+{
+	my @q = @_;
+	if ( $Win32 || $OS2) {
+		return map { 
+			if ( m/[\s\"]/) {
+				s/\"/\"\"/gs;
+				$_ = "\"$_\"";
+			}
+			$_;
+		} @q;
+	} else {
+		return map { s/([\'\\])/\\$1/gs; $_  } @q;
+	}
+}
+
 sub ld_command_line
 {
 	my ( $dstf, $deffile) = (shift,shift);
@@ -524,7 +540,8 @@ sub ld_command_line
 		$ret .= '-L"' . join( ';', @LIBPATH) . '" c0d32.obj ';
 		$ret .= join( ' ', @_);
 	}  else {
-		$ret .= ' ' . join( ' ' , map { $Prima::Config::Config{ldlibpathflag}.$_} @LIBPATH);
+		$ret .= ' ' . join( ' ' , 
+			quote( map { $Prima::Config::Config{ldlibpathflag}.$_} @LIBPATH));
 		$ret .= ' ' . $Prima::Config::Config{ldoutflag} . $dstf;
 		$ret .= ' ' . join( ' ', @_);
 		$ret .= ' ' . join( ' ' , map { $Prima::Config::Config{ldlibflag}.$_} @LIBS);

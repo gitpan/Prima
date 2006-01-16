@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_misc.c,v 1.99 2004/10/05 17:27:37 dk Exp $
+ * $Id: apc_misc.c,v 1.100 2006/01/06 19:13:30 dk Exp $
  */
 
 /***********************************************************/
@@ -1486,6 +1486,19 @@ Bool   apc_prn_end_paint_info( Handle self) { return true; }
 Bool   apc_prn_new_page( Handle self) { return true; }
 Bool   apc_prn_abort_doc( Handle self) { return true; }
 ApiHandle   apc_prn_get_handle( Handle self) { return ( ApiHandle) 0; }
+Bool   apc_prn_set_option( Handle self, char * option, char * value) { return false; }
+
+Bool apc_prn_get_option( Handle self, char * option, char ** value) 
+{ 
+   *value = nil;
+   return false; 
+}
+
+Bool apc_prn_enum_options( Handle self, int * count, char *** options) 
+{ 
+    *count = 0;
+    return false; 
+}
 
 PrinterInfo * 
 apc_prn_enumerate( Handle self, int * count) 
