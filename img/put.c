@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: put.c,v 1.11 2003/07/30 10:22:15 dk Exp $
+ * $Id: put.c,v 1.13 2006/11/02 13:39:42 dk Exp $
  */
 
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
@@ -75,15 +75,6 @@ bitblt_not( Byte * src, Byte * dst, int count)
 }
 
 static void
-bitblt_notdstxor( Byte * src, Byte * dst, int count)
-{
-   while ( count--) {
-      *dst = ~(*dst) ^ (*(src++));
-      dst++;
-   }
-}
-
-static void
 bitblt_notdstand( Byte * src, Byte * dst, int count)
 {
    while ( count--) {
@@ -99,12 +90,6 @@ bitblt_notdstor( Byte * src, Byte * dst, int count)
       *dst = ~(*dst) | (*(src++));
       dst++;
    }
-}
-
-static void
-bitblt_notsrcxor( Byte * src, Byte * dst, int count)
-{
-   while ( count--) *(dst++) ^= ~(*(src++));
 }
 
 static void
@@ -382,7 +367,7 @@ NOSCALE:
    if ( PImage( dest)-> type == imbpp8) {
       /* equalize palette */
       Byte colorref[256], *s;
-      int i = PImage( src)-> dataSize;
+      int sz, i = PImage( src)-> dataSize;
       if ( !newObject) {
          src = CImage( src)-> dup( src);
          if ( !src) goto EXIT;
@@ -393,6 +378,9 @@ NOSCALE:
          PImage( dest)-> palette, PImage( dest)-> palSize,
          colorref);
       s = PImage( src)-> data;
+      /* identity transform for padded ( 1->xfff, see above ) pixels */
+      for ( sz = PImage( src)-> palSize; sz < 256; sz++) 
+         colorref[sz] = sz;
       while ( i--) {
          *s = colorref[ *s];
          s++;
@@ -439,17 +427,11 @@ NOSCALE:
       case ropNotPut:
          proc = bitblt_not;
          break;
-      case ropNotDestXor:
-         proc = bitblt_notdstxor;
-         break;
       case ropNotDestAnd:
          proc = bitblt_notdstand;
          break;
       case ropNotDestOr:
          proc = bitblt_notdstor;
-         break;
-      case ropNotSrcXor:
-         proc = bitblt_notsrcxor;
          break;
       case ropNotSrcAnd:
          proc = bitblt_notsrcand;

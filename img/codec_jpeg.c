@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * $Id: codec_jpeg.c,v 1.11 2003/08/26 13:53:07 dk Exp $
+ * $Id: codec_jpeg.c,v 1.12 2006/09/07 16:11:45 dk Exp $
  *
  */
 
@@ -106,13 +106,8 @@ open_load( PImgCodec instance, PImgLoadFileInstance fi)
    Byte buf[4];
 
    if ( fseek( fi-> f, 0, SEEK_SET) < 0) return false;
-   if ( fread( buf, 1, 4, fi-> f) != 4) return false;
-   if (
-         ( memcmp( "\xff\xd8\xff\xe0", buf, 4) != 0) &&
-         ( memcmp( "\xff\xd8\xff\xe1", buf, 4) != 0) &&
-         ( memcmp( "\xe0\xff\xd8\xff", buf, 4) != 0) &&
-         ( memcmp( "\xe1\xff\xd8\xff", buf, 4) != 0)
-      ) return false;   
+   if ( fread( buf, 1, 2, fi-> f) != 2) return false;
+   if ( memcmp( "\xff\xd8", buf, 2) != 0) return false;   
    if ( fseek( fi-> f, 0, SEEK_SET) < 0) return false;
    fi-> stop = true;
    fi-> frameCount = 1;

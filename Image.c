@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Image.c,v 1.116 2004/02/11 16:22:50 dk Exp $
+ * $Id: Image.c,v 1.118 2006/11/02 13:39:41 dk Exp $
  */
 
 #include "img.h"
@@ -1132,12 +1132,12 @@ Image_extract( Handle self, int x, int y, int width, int height)
 void
 Image_map( Handle self, Color color)
 {
-   Byte * d;
+   Byte * d, b[2];
    RGBColor c;   
    int   type = var-> type, height = var-> h, i, ls;
    int   rop[2]; 
    RGBColor r[2];
-   int b[2], bc = 0;
+   int bc = 0;
 
    if ( var-> data == nil) return;
 
@@ -1174,7 +1174,7 @@ Image_map( Handle self, Color color)
       switch ( rop[i]) {
       case ropNotPut:
           rop[i] = ropCopyPut; not = 1; break;
-      case ropNotSrcXor:
+      case ropNotSrcXor: /* same as ropNotDestXor and ropNotXor */
           rop[i] = ropXorPut; not = 1; break;    
       case ropNotSrcAnd:
           rop[i] = ropAndPut; not = 1; break;    
@@ -1186,6 +1186,7 @@ Image_map( Handle self, Color color)
          r[i]. r = ~ r[i]. r;
          r[i]. g = ~ r[i]. g;
          r[i]. b = ~ r[i]. b;
+	 b[i]    = ~ b[i];
       }
    }         
 
@@ -1232,18 +1233,14 @@ Image_map( Handle self, Color color)
                data-> r = ( ~data-> r) & r[z].r; data-> g = ( ~data-> g) & r[z].g; data-> b = ( ~data-> b) & r[z].b; break;
             case ropNotDestOr:  
                data-> r = ( ~data-> r) | r[z].r; data-> g = ( ~data-> g) | r[z].g; data-> b = ( ~data-> b) | r[z].b; break;
-            case ropNotDestXor: 
-               data-> r = ( ~data-> r) ^ r[z].r; data-> g = ( ~data-> g) ^ r[z].g; data-> b = ( ~data-> b) ^ r[z].b; break;
             case ropNotAnd:     
                data-> r = ~(data-> r & r[z].r); data-> g = ~(data-> g & r[z].g); data-> b = ~(data-> b & r[z].b); break;
             case ropNotOr:      
                data-> r = ~(data-> r | r[z].r); data-> g = ~(data-> g | r[z].g); data-> b = ~(data-> b | r[z].b); break;
-            case ropNotXor:     
-               data-> r = ~(data-> r ^ r[z].r); data-> g = ~(data-> g ^ r[z].g); data-> b = ~(data-> b ^ r[z].b); break;
             case ropNoOper:     
                break;   
             case ropInvert:     
-               data-> r = ~r[z]. r; data-> g = ~r[z]. g; data-> b = ~r[z]. b; break;
+               data-> r = ~data-> r; data-> g = ~data-> g; data-> b = ~data-> b; break;
             default:            
                data-> r = r[z]. r; data-> g = r[z]. g; data-> b = r[z]. b;
             }      
@@ -1265,18 +1262,14 @@ Image_map( Handle self, Color color)
                *data = (~(*data)) & b[z]; break;
             case ropNotDestOr:  
                *data = (~(*data)) | b[z]; break;
-            case ropNotDestXor: 
-               *data = (~(*data)) ^ b[z]; break;
             case ropNotAnd:     
                *data = ~(*data & b[z]); break;
             case ropNotOr:      
                *data = ~(*data | b[z]); break;
-            case ropNotXor:     
-               *data = ~(*data ^ b[z]); break;
             case ropNoOper:     
                break;   
             case ropInvert:     
-               *data = ~b[z]; break;
+               *data = ~(*data); break;
             default:            
                *data = b[z]; break;
             }      

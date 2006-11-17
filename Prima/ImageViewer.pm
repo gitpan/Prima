@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: ImageViewer.pm,v 1.21 2005/10/13 17:22:50 dk Exp $
+#  $Id: ImageViewer.pm,v 1.23 2006/10/08 19:48:18 dk Exp $
 #
 use strict;
 use Prima::ScrollWidget;
@@ -162,6 +162,27 @@ sub on_paint
 	);
 }
 
+sub on_keydown
+{
+	my ( $self, $code, $key, $mod) = @_;
+
+	return unless grep { $key == $_ } (
+		kb::Left, kb::Right, kb::Down, kb::Up
+	);
+
+	my $xstep = int($self-> width  / 5) || 1;
+	my $ystep = int($self-> height / 5) || 1;
+
+	my ( $dx, $dy) = $self-> deltas;
+
+	$dx += $xstep if $key == kb::Right;
+	$dx -= $xstep if $key == kb::Left;
+	$dy += $ystep if $key == kb::Down;
+	$dy -= $ystep if $key == kb::Up;
+
+	$self-> deltas( $dx, $dy);
+}
+
 sub set_alignment
 {
 	$_[0]-> {alignment} = $_[1];
@@ -243,7 +264,7 @@ sub set_zoom
 	my ( $self, $zoom) = @_;
 
 	$zoom = 100 if $zoom > 100;
-	$zoom = 1 if $zoom <= 0.01;
+	$zoom = 0.02 if $zoom < 0.02;
 
 	my $dv = int( 100 * ( $zoom - int( $zoom)) + 0.5);
 	$dv-- if ($dv % 2) and ( $dv % 5);

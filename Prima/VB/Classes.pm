@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Classes.pm,v 1.78 2005/10/26 09:36:40 dk Exp $
+# $Id: Classes.pm,v 1.79 2006/11/02 13:39:42 dk Exp $
 use strict;
 package Prima::VB::Classes;
 
@@ -2152,11 +2152,10 @@ sub packID { 'wc'; }
 package Prima::VB::Types::rop;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::radio);
-sub IDS    { qw(CopyPut XorPut AndPut OrPut NotPut NotBlack
-NotDestXor NotDestAnd NotDestOr NotSrcXor NotSrcAnd NotSrcOr
-NotXor NotAnd NotOr NotBlackXor NotBlackAnd NotBlackOr NoOper
-Blackness Whiteness Erase Invert Pattern XorPattern AndPattern
-OrPattern NotSrcOrPat SrcLeave DestLeave ); }
+sub IDS    { qw(CopyPut Blackness NotOr NotSrcAnd NotPut NotDestAnd Invert
+XorPut NotAnd AndPut NotXor NoOper NotSrcOr NotDestOr OrPut Whiteness NotSrcXor
+NotDestXor ); }
+
 sub packID { 'rop'; }
 
 package Prima::VB::Types::comboStyle;

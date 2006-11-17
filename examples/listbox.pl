@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: listbox.pl,v 1.11 2005/10/13 17:22:53 dk Exp $
+#  $Id: listbox.pl,v 1.12 2006/10/30 10:54:21 dk Exp $
 #
 #  Example of listbox extended usage
 #
@@ -57,7 +57,7 @@ sub create_menu
 			["Delete a~ll" => sub{$_[0]-> ListBox1-> delete_items(0..$_[0]-> ListBox1-> count )}],
 			[],
 			["~Print all" => "PrintAll"],
-			["Print ~selected" => sub{foreach ($_[0]-> ListBox1-> selectedItems){print "$_\n"};}],
+			["Print ~selected" => sub{foreach (@{$_[0]-> ListBox1-> selectedItems}){print "$_\n"};}],
 			["Print ~focused" => sub{ print $_[0]-> ListBox1-> focusedItem."\n";}],
 			[],
 			["Toggle ~extended selection"=> sub{$_[0]-> ListBox1-> extendedSelect(!$_[0]-> ListBox1-> extendedSelect)}],

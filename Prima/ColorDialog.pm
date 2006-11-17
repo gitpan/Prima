@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ColorDialog.pm,v 1.31 2005/10/13 17:22:50 dk Exp $
+#  $Id: ColorDialog.pm,v 1.32 2006/11/16 12:15:50 dk Exp $
 
 # contains:
 #    ColorDialog
@@ -766,7 +766,8 @@ sub InputLine_MouseDown
 }
 
 sub InputLine_Enter { $_[1]-> repaint; }
-sub InputLine_Leave { $_[1]-> repaint; }
+
+sub InputLine_Leave { $_[0]-> listVisible(0) }
 
 sub List_Create
 {

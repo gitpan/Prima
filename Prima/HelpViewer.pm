@@ -26,7 +26,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: HelpViewer.pm,v 1.36 2005/10/13 17:22:50 dk Exp $
+#  $Id: HelpViewer.pm,v 1.37 2006/01/20 12:44:00 dk Exp $
 
 use strict;
 use Prima;
@@ -851,6 +851,10 @@ sub print
 		$self-> {text}-> {fontPalette}-> [1]-> {name} = $printer_font-> {name};
 	}
 
+	# change resolution
+	my @old_res = $self-> {text}-> resolution;
+	$self-> {text}-> resolution( $p-> resolution);
+
 	my $ok = $self-> {text}-> print( $p, sub {
 		$self-> status("Printing page $pc. Press ESC to cancel");
 		$pc++;
@@ -858,6 +862,8 @@ sub print
 		return 0 if $self-> {printing} < 0;
 		1;
 	});
+	
+	$self-> {text}-> resolution( @old_res);
 	
 	if ( $ok) {
 		$p-> end_doc;

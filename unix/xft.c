@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: xft.c,v 1.19 2005/03/30 08:56:32 dk Exp $
+ * $Id: xft.c,v 1.20 2006/07/27 05:55:43 dk Exp $
  */
 
 /*********************************/
@@ -780,7 +780,7 @@ prima_xft_fonts( PFont array, const char *facename, const char * encoding, int *
    os = FcObjectSetBuild( FC_FAMILY, FC_CHARSET, FC_ASPECT, 
         FC_SLANT, FC_WEIGHT, FC_SIZE, FC_PIXEL_SIZE, FC_SPACING,
         FC_FOUNDRY, FC_SCALABLE, FC_DPI,
-        0);
+        (void*) 0);
    s = FcFontList( 0, pat, os);
    FcObjectSetDestroy( os);
    FcPatternDestroy( pat);

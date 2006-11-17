@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_graphics.c,v 1.118 2004/07/20 13:59:59 dk Exp $
+ * $Id: apc_graphics.c,v 1.120 2006/11/02 13:39:42 dk Exp $
  */
 
 /***********************************************************/
@@ -56,30 +56,17 @@ static int rop_map[] = {
    GXand	/* ropAndPut */,		/* dest &= src */
    GXor		/* ropOrPut */,			/* dest |= src */
    GXcopyInverted /* ropNotPut */,		/* dest = !src */
-   GXnoop	/* ropNotBlack */,		/* dest = (src <> 0) ? src */	/* XXX */
-   GXnoop	/* ropNotDestXor */,		/* dest = (!dest) ^ src */	/* XXX */
+   GXinvert	/* ropInvert */,		/* dest = !dest */
+   GXclear	/* ropBlackness */,		/* dest = 0 */
    GXandReverse	/* ropNotDestAnd */,		/* dest = (!dest) & src */
    GXorReverse	/* ropNotDestOr */,		/* dest = (!dest) | src */
-   GXequiv	/* ropNotSrcXor */,		/* dest ^= !src */
+   GXset	/* ropWhiteness */,		/* dest = 1 */
    GXandInverted /* ropNotSrcAnd */,		/* dest &= !src */
    GXorInverted	/* ropNotSrcOr */,		/* dest |= !src */
-   GXnoop	/* ropNotXor */,		/* dest = !(src ^ dest) */	/* XXX */
+   GXequiv	/* ropNotXor */,		/* dest ^= !src */
    GXnand	/* ropNotAnd */,		/* dest = !(src & dest) */
    GXnor	/* ropNotOr */,			/* dest = !(src | dest) */
-   GXnoop	/* ropNotBlackXor */,		/* dest ^= (src <> 0) ? src */	/* XXX */
-   GXnoop	/* ropNotBlackAnd */,		/* dest &= (src <> 0) ? src */	/* XXX */
-   GXnoop	/* ropNotBlackOr */,		/* dest |= (src <> 0) ? src */	/* XXX */
-   GXnoop	/* ropNoOper */,		/* dest = dest */
-   GXclear	/* ropBlackness */,		/* dest = 0 */
-   GXset	/* ropWhiteness */,		/* dest = white */
-   GXinvert	/* ropInvert */,		/* dest = !dest */
-   GXnoop	/* ropPattern */,		/* dest = pattern */		/* YYY */
-   GXnoop	/* ropXorPattern */,		/* dest ^= pattern */		/* YYY */
-   GXnoop	/* ropAndPattern */,		/* dest &= pattern */		/* YYY */
-   GXnoop	/* ropOrPattern */,		/* dest |= pattern */		/* YYY */
-   GXnoop	/* ropNotSrcOrPat */,		/* dest |= pattern | (!src) */	/* YYY */
-   GXnoop	/* ropSrcLeave */,		/* dest = (src != fore color) ? src : figa */	/* YYY */
-   GXnoop	/* ropDestLeave */,		/* dest = (src != back color) ? src : figa */	/* YYY */
+   GXnoop	/* ropNoOper */			/* dest = dest */
 };
 
 int
@@ -1168,6 +1155,8 @@ apc_gp_get_pixel( Handle self, int x, int y)
 
    if ( XT_IS_DBM(XX)) {
       pixmap = XT_IS_PIXMAP(XX) ? true : false;
+   } else if ( XT_IS_BITMAP(XX)) {
+      pixmap = 0;
    } else {
       pixmap = guts. idepth > 1;
    }   

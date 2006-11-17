@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_app.c,v 1.110 2005/09/27 16:16:36 dk Exp $
+ * $Id: apc_app.c,v 1.111 2006/10/09 14:34:00 dk Exp $
  */
 
 /***********************************************************/
@@ -373,6 +373,8 @@ init_x11( char * error_buf )
    gethostname( hostname, 256);
    hostname[255] = '\0';
    XStringListToTextProperty((char **)&hostname, 1, &guts. hostname);
+   
+   guts. net_wm_maximization = prima_wm_net_state_read_maximization( guts. root, NET_SUPPORTED);
 
    if ( do_sync) XSynchronize( DISP, true);
    return true;

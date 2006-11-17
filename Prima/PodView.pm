@@ -25,7 +25,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: PodView.pm,v 1.41 2006/01/12 14:19:48 dk Exp $
+#  $Id: PodView.pm,v 1.45 2006/10/11 21:41:10 dk Exp $
 
 use strict;
 use Prima;
@@ -148,8 +148,8 @@ sub profile_default
 			{ color     => COLOR_LINK_FOREGROUND,     # STYLE_LINK
 			fontStyle => fs::Underlined   },  
 		],
-		pageName => '',
-		topicView => 0,
+		pageName   => '',
+		topicView  => 0,
 	);
 	@$def{keys %prf} = values %prf;
 	return $def;
@@ -491,6 +491,7 @@ sub message
 	my ( $self, $message, $error) = @_;
 	my $x;
 	$self-> open_read;
+	$self-> {readState}-> {createIndex} = 0;
 	if ( $error) {
 		$x = $self-> {styles}-> [STYLE_HEAD_1]-> {color};
 		$self-> {styles}-> [STYLE_HEAD_1]-> {color} = cl::Red;
@@ -614,6 +615,8 @@ sub open_read
 
 		topicStack   => [[-1]],
 		ignoreFormat => 0,
+
+		createIndex  => 1,
 	};
 }
 
@@ -659,16 +662,20 @@ sub add_formatted
 					next unless $src;
 					$w = $src-> width unless $w;
 					$h = $src-> height unless $h;
+					my @resolution = $self-> resolution;
+					$w *= 72 / $resolution[0];
+					$h *= 72 / $resolution[1];
 					$src-> {stretch} = [$w, $h];
 					$self-> {readState}-> {pod_cutting} = $cut ? 0 : 1
 						if defined $cut;
 
 					my @imgop = (
-								tb::wrap(0),
-								tb::extend( $w, $h),
-								tb::code( \&_imgpaint, $src),
-								tb::moveto( $w, 0),
-								tb::wrap(1));
+						tb::wrap(0),
+						tb::extend( $w, $h, tb::X_DIMENSION_POINT),
+						tb::code( \&_imgpaint, $src),
+						tb::moveto( $w, 0, tb::X_DIMENSION_POINT),
+						tb::wrap(1)
+					);
 
 					if ( @{$self-> {model}}) {
 						push @{$self-> {model}-> [-1]}, @imgop;
@@ -688,11 +695,15 @@ sub add_formatted
 sub _imgpaint
 {
 	my ( $self, $canvas, $block, $state, $x, $y, $img) = @_;
-	$canvas-> stretch_image( $x, $y, @{$img-> {stretch}}, $img);
+	my ( $dx, $dy) = @{$img->{stretch}};
+	my @res = $self-> resolution;
+	$dx *= $res[0] / 72;
+	$dy *= $res[1] / 72;
+	$canvas-> stretch_image( $x, $y, $dx, $dy, $img);
 	if ( $self-> {selectionPaintMode}) {
 		my @save = ( fillPattern => $canvas-> fillPattern, rop => $canvas-> rop);
 		$canvas-> set( fillPattern => fp::Borland, rop => rop::AndPut);
-		$canvas-> bar( $x, $y, $x + $img-> {stretch}-> [0] - 1, $y + $img-> {stretch}-> [1] - 1);
+		$canvas-> bar( $x, $y, $x + $dx - 1, $y + $dy - 1);
 		$canvas-> set( @save);
 	}
 }
@@ -805,6 +816,8 @@ sub close_read
 	$self-> add( "\n", STYLE_TEXT, 0); # end
 	$self-> {contents}-> [0]-> references( $self-> {links});
 
+	goto NO_INDEX unless $self-> {readState}-> {createIndex};
+
 	my $secid = 0;
 	my $msecid = scalar(@{$self-> {topics}});
 
@@ -874,7 +887,7 @@ sub close_read
 	substr( $$t, $text_ends_at[0]) = '';
 	substr( $$t, 0, 0) = $ts;
 	# topics
-	my $t = $self-> {topics};
+	$t = $self-> {topics};
 	for ( @$t[0..$text_ends_at[2]-1]) {
 		$$_[T_MODEL_START] += $offsets[1];
 		$$_[T_MODEL_END]   += $offsets[1];
@@ -900,6 +913,7 @@ sub close_read
 	s/^(topic:\/\/)(\d+)$/$1 . ( $2 + $offsets[2])/e for @$l;
 	unshift @{$self->{links}}, splice( @{$self->{links}}, $text_ends_at[3]);
 
+NO_INDEX:
 	# finalize
 	undef $self-> {readState};
 	$self-> {lastLinkPointer} = -1;

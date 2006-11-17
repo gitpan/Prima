@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: codec_prigraph.c,v 1.14 2005/02/08 21:49:04 dk Exp $
+ * $Id: codec_prigraph.c,v 1.15 2006/09/07 16:11:45 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 
@@ -295,10 +295,7 @@ static ImageSignatures signatures[] =
    /* { itPSG, */
    /* { itGEM, */
    /* { itCVP, */
-   { itJPG, 4, "\xff\xd8\xff\xe0" },
-   { itJPG, 4, "\xff\xd8\xff\xe1" },
-   { itJPG, 4, "\xe0\xff\xd8\xff" },
-   { itJPG, 4, "\xe1\xff\xd8\xff" },
+   { itJPG, 2, "\xff\xd8" },
    { itPNG, 8, "\x89PNG\r\n\x1a\n"}
 };
 

@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Anton Berezin  <tobez@tobez.org>
 #
-#  $Id: Lists.pm,v 1.54 2005/10/15 14:02:30 dk Exp $
+#  $Id: Lists.pm,v 1.55 2006/11/16 12:02:50 dk Exp $
 package Prima::Lists;
 
 # contains:
@@ -797,7 +797,7 @@ sub reset
 		);
 		$self-> {lastItem} = $max > $last ? $last : $max;
 		$self-> {active_rows} = $self->{lastItem} - $self-> {topItem} + 1;
-		$self-> {uncover} = $size[1] - $self-> {active_rows} * $ih + 1
+		$self-> {uncover} = $size[1] - $self-> {active_rows} * $ih - 1
 			if $self->{active_rows} < $self-> {partial_rows};
 	}
 	$self-> {uncover} = undef if $size[0] <= 0 or $size[1] <= 0;

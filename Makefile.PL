@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Makefile.PL,v 1.181 2006/01/06 19:13:29 dk Exp $
+#  $Id: Makefile.PL,v 1.184 2006/11/16 16:08:41 dk Exp $
 #
 
 BEGIN {
@@ -739,11 +739,8 @@ sub setup_variables
 	} elsif ( $CC =~ /^(\S*\/)?cc\b/ ) {
 		$COMPILER = 'cc';
 	} else {
-		print "($CC is unknown, using gcc instead) ";
-		$COMPILER = 'gcc';
-		$CC = 'gcc' unless defined $USER_VARS{CC};
-		$USER_VARS{LD} = 'gcc' unless defined $USER_VARS{LD};
-		$USER_VARS{CFLAGS} = '' unless defined $USER_VARS{CFLAGS};
+		print "($CC is unknown, assuming COMPILER=cc) ";
+		$COMPILER = 'cc';
 	}
 	print "$cc_specs{ $COMPILER}->{ name}\n";
 
@@ -1288,7 +1285,7 @@ sub setup_paths
 			qd("/usr/X/include"), 
 			qd("/usr/openwin/include")
 		);
-		die "Prima needs X11 headers for compilation! Set X11BASE='/path/to/X' if you have a non-standard path to X. $extramsg\n" 
+		die "Prima needs X11 headers for compilation! Set X11BASE='/path/to/X' or INCPATH+='/path/to/X/include' if you have a non-standard path to X. $extramsg\n" 
 			unless defined $incpath;
 		if ( -d $incpath) {
 			print "X11 includes found in $incpath\n";
@@ -1303,7 +1300,7 @@ sub setup_paths
 			"/usr/X/lib",
 			"/usr/openwin/lib"
 		);
-		die "Prima needs X11 libraries for compilation! Set X11BASE='/path/to/X' if you have a non-standard path to X. $extramsg\n" 
+		die "Prima needs X11 libraries for compilation! Set X11BASE='/path/to/X' or LIBPATH+='/path/to/X/lib' if you have a non-standard path to X. $extramsg\n" 
 			unless defined $libpath;
 		if ( -d $libpath) {
 			print "X11 libraries found in $libpath\n";
@@ -1707,8 +1704,8 @@ XS(boot_pmts$n2) {
 D
 		close TMPSRC;
 
-		my @cc1 = grep !/^-W(all|error|\d)/i, cc_command_line( $c1, $o1, $dl1, 1);
-		my @cc2 = grep !/^-W(all|error|\d)/i, cc_command_line( $c2, $o2, $dl2, 1);
+		my @cc1 = grep !/^-W(all|error|\d)/i, cc_command_line( $c1, $o1, $dl1, 1, 1);
+		my @cc2 = grep !/^-W(all|error|\d)/i, cc_command_line( $c2, $o2, $dl2, 1, 1);
 		my @ld1 = ld_command_line( $dl1, $o1);
 		my @ld2 = ld_command_line( $dl2, $o2);
 		my $dlpl = "$^X -e '" . (join ' ', split("\n", <<DN)) . "'";
