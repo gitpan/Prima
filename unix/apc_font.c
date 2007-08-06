@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_font.c,v 1.91 2006/01/25 09:10:22 dk Exp $
+ * $Id: apc_font.c,v 1.93 2007/06/07 09:46:03 dk Exp $
  */
 
 /***********************************************************/
@@ -806,7 +806,7 @@ prima_font_pp2font( char * ppFontNameSize, PFont font)
    if (( dash == 14) && guts. locale[0] && (strcmp( ppFontNameSize + len - 4, "-*-*") == 0)) {
       memcpy( buf, ppFontNameSize, len - 3);
       buf[ len - 3] = 0;
-      strncat( buf, guts. locale, 512);
+      strncat( buf, guts. locale, 512 - strlen(buf) - 1);
       buf[511] = 0;
       ppFontNameSize = buf;
       len = strlen( ppFontNameSize);
@@ -1266,6 +1266,7 @@ AGAIN:
       f-> flags. externalLeading = true;
       f-> font.  externalLeading = abs( s-> max_bounds. ascent - s-> ascent) + 
                                    abs( s-> max_bounds. descent - s-> descent);
+      f-> font.  utf8_flags      = 0;				  
 
       /* detailing width */
       if ( f-> font. width == 0 || !f-> flags. width) {

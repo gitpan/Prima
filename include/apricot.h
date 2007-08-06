@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: apricot.h,v 1.176 2006/11/02 13:39:42 dk Exp $ */
+/* $Id: apricot.h,v 1.181 2007/08/03 19:23:48 dk Exp $ */
 
 #ifndef _APRICOT_H_
 #define _APRICOT_H_
@@ -249,6 +249,9 @@ extern "C" {
 #define INT2PTR(type,x) ((type)((UV)x))
 #endif
 
+#ifndef SvPV_nolen
+#define SvPV_nolen(_sv)  SvPV(_sv,na)
+#endif
 
 #define PERL_CALL_SV_DIE_BUG_AWARE 1
 
@@ -554,7 +557,7 @@ XS(prima_autoload_##package##_constant) \
    } \
  \
    if ( items != 1) croak( "invalid call to " #package "::constant"); \
-   name = SvPV( ST( 0), na); \
+   name = SvPV_nolen( ST( 0)); \
    SPAGAIN; \
    SP -= items; \
    r = (type *)hash_fetch( table, name, strlen( name)); \
@@ -1304,7 +1307,7 @@ SvBOOL( SV *sv)
 #define pget_sv( key) ((( temporary_prf_Sv = hv_fetch( profile, # key, strlen( # key), 0)) == nil) ? croak( "Panic: bad profile key (``%s'') requested in ``%s'', line %d\n", # key, __FILE__, __LINE__ ), &sv_undef : *temporary_prf_Sv)
 #define pget_i( key)  ( pget_sv( key), SvIV( *temporary_prf_Sv))
 #define pget_f( key)  ( pget_sv( key), SvNV( *temporary_prf_Sv))
-#define pget_c( key)  ( pget_sv( key), SvPV( *temporary_prf_Sv, na))
+#define pget_c( key)  ( pget_sv( key), SvPV_nolen( *temporary_prf_Sv))
 #define pget_H( key)  gimme_the_mate( pget_sv( key))
 #define pget_B( key)  ( SvTRUE( pget_sv( key)))
 
@@ -1481,10 +1484,8 @@ GUI(PM)
 GUI(Windows)
 #define guiXLib                 3
 GUI(XLib)
-#define guiOpenLook             4
-GUI(OpenLook)
-#define guiMotif                5
-GUI(Motif)
+#define guiGTK2                 4
+GUI(GTK2)
 END_TABLE(gui,UV)
 #undef GUI
 
@@ -1865,6 +1866,8 @@ apc_application_get_widget_from_point( Handle self, Point point);
 extern Handle
 apc_application_get_handle( Handle self, ApiHandle apiHandle);
 
+extern Rect
+apc_application_get_indents( Handle self);
 
 extern int
 apc_application_get_os_info( char *system, int slen,
@@ -2700,6 +2703,10 @@ FW(UltraBold)
 END_TABLE(fw,UV)
 #undef FW
 
+#define FONT_UTF8_NAME           0x001
+#define FONT_UTF8_FAMILY         0x002
+#define FONT_UTF8_ENCODING       0x004
+
 #define IM(const_name) CONSTANT(im,const_name)
 START_TABLE(im,UV)
 #define    imNone                0
@@ -2858,12 +2865,6 @@ apc_image_end_paint( Handle self);
 
 extern Bool
 apc_image_end_paint_info( Handle self);
-
-extern Bool
-apc_image_read( const char *filename, PList imgInfo, Bool readData);
-
-extern Bool
-apc_image_save( const char *filename, const char *format, PList imgInfo);
 
 extern Bool
 apc_image_update_change( Handle self);
@@ -3401,9 +3402,6 @@ extern char*
 apc_get_user_name( void);
 extern PList
 apc_getdir( const char *dirname);
-
-extern void*
-apc_dlopen(char *path, int mode);
 
 extern Bool
 apc_dl_export(char *path);

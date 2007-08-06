@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: socket.pl,v 1.8 2005/10/13 17:22:53 dk Exp $
+#  $Id: socket.pl,v 1.9 2007/05/17 21:41:13 dk Exp $
 #
 =pod 
 =item NAME
@@ -86,7 +86,11 @@ my $watcher = Prima::File-> create(
 			$data .= $d;
 			$e-> text( ( length $data) . " bytes loaded");
 		} else {
+			$data =~ s/^(.*)\x0D\x0A\x0D\x0A(.*)$/$2/s;
+			my $headers = $1;
+			$headers =~ s/\r//g;
 			parse( \$data);
+			$data = "$headers\n\n$data";
 			$e-> textRef( \$data);
 			close $fh;
 			$me-> file( undef);
@@ -94,7 +98,7 @@ my $watcher = Prima::File-> create(
 	},
 	onWrite => sub {
 		my ($me,$fh) = @_;
-		my $r = "GET $me->{remote_file}\r\n";
+		my $r = "GET $me->{remote_file} HTTP/1.1\r\nHost: $me->{remote_host}\r\nConnection: close\r\n\r\n";
 		syswrite $fh, $r, length($r);
 		$me-> mask( fe::Read); # want no write notifications
 	},
@@ -118,6 +122,7 @@ my $il = $w-> insert( InputLine =>
 	my $remote = $1;
 	my $remote_file = $2;
 	$remote_file = '/' unless length $remote_file;
+	$watcher-> {remote_host} = $remote;
 	$watcher-> {remote_file} = $remote_file;
 	
 	my $port = 80;

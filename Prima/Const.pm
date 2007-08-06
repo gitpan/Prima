@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@plab.ku.dk>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Const.pm,v 1.25 2006/11/02 13:39:41 dk Exp $
+#  $Id: Const.pm,v 1.26 2007/05/18 12:21:06 dk Exp $
 package Prima::Const;
 use Prima '';
 use Carp;
@@ -459,8 +459,7 @@ See L<Prima::Application/get_system_info>
 	gui::PM  
 	gui::Windows
 	gui::XLib 
-	gui::OpenLook
-	gui::Motif
+	gui::GTK2
 
 =head2 le::  - line end styles
 

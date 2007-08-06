@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_app.c,v 1.111 2006/10/09 14:34:00 dk Exp $
+ * $Id: apc_app.c,v 1.114 2007/08/06 07:51:20 dk Exp $
  */
 
 /***********************************************************/
@@ -209,7 +209,9 @@ init_x11( char * error_buf )
       "_NET_SUPPORTED",
       "_NET_WM_STATE_MAXIMIZED_HORIZ",
       "text/plain;charset=UTF-8",
-      "_NET_WM_STATE_STAYS_ON_TOP"
+      "_NET_WM_STATE_STAYS_ON_TOP",
+      "_NET_CURRENT_DESKTOP",
+      "_NET_WORKAREA"
    };
    char hostname_buf[256], *hostname = hostname_buf;
 
@@ -520,6 +522,9 @@ window_subsystem_cleanup( void)
    if ( !DISP) return;
    /*XXX*/
    prima_end_menu();
+#ifdef WITH_GTK
+   prima_gtk_done();
+#endif
 }
 
 static void
@@ -674,11 +679,19 @@ apc_application_end_paint_info( Handle self)
 int
 apc_application_get_gui_info( char * description, int len)
 {
+#ifdef WITH_GTK2
+   if ( description) {
+      strncpy( description, "X Window System + GTK2", len);
+      description[len-1] = 0;
+   }
+   return guiGTK2;
+#else
    if ( description) {
       strncpy( description, "X Window System", len);
       description[len-1] = 0;
    }
    return guiXLib;
+#endif
 }
 
 Handle
@@ -706,6 +719,64 @@ Handle
 apc_application_get_handle( Handle self, ApiHandle apiHandle)
 {
    return prima_xw2h(( XWindow) apiHandle);
+}
+
+static Bool
+wm_net_get_current_workarea( Rect * r)
+{
+   Bool ret = false;
+   unsigned long n;
+   uint32_t *desktop = NULL, *workarea = NULL, *w;
+
+   if ( guts. icccm_only) return false;
+
+   desktop = ( uint32_t *) prima_get_window_property( guts. root, 
+                NET_CURRENT_DESKTOP, XA_CARDINAL, 
+                NULL, NULL,
+                &n);
+   if ( desktop == NULL || n < 1) goto EXIT;
+   Mdebug("wm: current desktop = %d\n", *desktop);
+   
+   workarea = ( uint32_t *) prima_get_window_property( guts. root, 
+                NET_WORKAREA, XA_CARDINAL, 
+                NULL, NULL,
+                &n);
+   if ( desktop == NULL || n < 1 || n <= *desktop ) goto EXIT;
+
+   w = workarea + *desktop * 4; /* XYWH quartets */
+   r-> left   = w[0];
+   r-> top    = w[1];
+   r-> right  = w[2];
+   r-> bottom = w[3];
+   ret = true;
+   Mdebug("wm: current workarea = %d:%d:%d:%d\n", w[0], w[1], w[2], w[3]);
+
+EXIT:
+   free( workarea);
+   free( desktop);
+   return ret;
+}
+
+Rect
+apc_application_get_indents( Handle self)
+{
+   Point sz;
+   Rect  r;
+
+   bzero( &r, sizeof( r));
+   if ( do_icccm_only) return r;
+
+   sz = apc_application_get_size( self);
+   if ( wm_net_get_current_workarea( &r)) {
+      r. right  = sz. x - r.right   - r. left;
+      r. bottom = sz. y - r. bottom - r. top;
+      if ( r. left   < 0) r. left   = 0;
+      if ( r. top    < 0) r. top    = 0;
+      if ( r. right  < 0) r. right  = 0;
+      if ( r. bottom < 0) r. bottom = 0;
+   }
+
+   return r;
 }
 
 int

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: stock.c,v 1.18 2004/05/27 10:06:47 dk Exp $
+ * $Id: stock.c,v 1.19 2007/06/07 09:46:03 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include <limits.h>
@@ -828,6 +828,7 @@ font_fontmetrics2font( PFONTMETRICS m, PFont f, Bool readonly)
    f-> lastChar           = m-> sLastChar        ;
    f-> breakChar          = m-> sBreakChar       ;
    f-> defaultChar        = m-> sDefaultChar     ;
+   f-> utf8_flags         = 0                    ;
    strcpy( f-> encoding, font_cp2enc( m-> usCodePage));
 }
 

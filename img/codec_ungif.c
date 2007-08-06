@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: codec_ungif.c,v 1.14 2003/06/19 12:45:25 dk Exp $
+ * $Id: codec_ungif.c,v 1.15 2007/05/16 21:16:24 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 
@@ -549,7 +549,7 @@ save( PImgCodec instance, PImgSaveFileInstance fi)
       if ( pexist( screenColorResolution)) cr = pget_i( screenColorResolution);
       if ( pexist( screenBackGroundColor)) bg = pget_i( screenBackGroundColor);
       if ( pexist( screenPalette)) 
-         ps = apc_img_read_palette( r = rgbc, pget_sv( screenPalette));
+         ps = apc_img_read_palette( r = rgbc, pget_sv( screenPalette), true);
       c = make_colormap( r, ps);
       if ( !c) outcm( ps * 3);
       if ( w < 0) w = i-> w;

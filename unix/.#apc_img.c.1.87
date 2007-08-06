@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_img.c,v 1.89 2007/05/14 16:43:22 dk Exp $
+ * $Id: apc_img.c,v 1.87 2006/11/02 12:37:18 dk Exp $
  */
 /*
  * System dependent image routines (unix, x11)
@@ -119,7 +119,7 @@ prima_prepare_ximage( int width, int height, Bool bitmap)
    bzero( i, sizeof( PrimaXImage));
 
 #ifdef USE_MITSHM
-   if ( guts. shared_image_extension && !bitmap) {
+   if ( guts. local_connection && guts. shared_image_extension && !bitmap) {
       i-> image = XShmCreateImage( DISP, VISUAL, 
                                    bitmap ? 1 : guts.depth,
                                    bitmap ? XYBitmap : ZPixmap,
@@ -265,20 +265,14 @@ prima_ximage_event( XEvent *eve) /* to be called from apc_event's handle_event *
 }
 
 void
-prima_put_ximage( 
-	XDrawable win, GC gc, PrimaXImage *i, 
-	int src_x, int src_y, int dst_x, int dst_y, int width, int height
-) {
+prima_put_ximage( XDrawable win, GC gc, PrimaXImage *i, int src_x, int src_y, int dst_x, int dst_y, int width, int height)
+{
    if ( src_x < 0) {
-      width += src_x;
-      dst_x -= src_x;
-      src_x = 0;
-      if ( width <= 0) return;
+       dst_x -= src_x;
+       src_x = 0;
    }
 #ifdef USE_MITSHM
    if ( i-> shm) {
-      if ( src_y + height > i-> image-> height)
-         height = i-> image-> height - src_y;
       if ( i-> ref_cnt < 0)
          i-> ref_cnt = 0;
       i-> ref_cnt++;
@@ -1977,7 +1971,6 @@ do_stretch( Handle self, PrimaXImage *cache,
           prima_free_ximage( stretch);
           return nil;
       }   
-
       
       
       if ( dst_h < 0) {
@@ -2038,7 +2031,7 @@ apc_gp_stretch_image( Handle self, Handle image,
    ImageCache *cache = nil;
    int func, ofunc;
    XGCValues gcv;
-   int x, y, w, h;
+   int x, y, w, h, dx, dy;
    Bool mono, icon = false, tempResult = false;
    PrimaXImage * result;
 
@@ -2053,21 +2046,9 @@ apc_gp_stretch_image( Handle self, Handle image,
       src_w = -src_w;
       dst_w = -dst_w;
    }   
-   if ( abs(src_x) >= img-> w) return false;
-   if ( abs(src_y) >= img-> h) return false;
+   if ( src_x >= img-> w) return false;
+   if ( src_y >= img-> h) return false;
    if ( src_w == 0 || src_h == 0) return false;
-   if ( src_x < 0) {
-      dst_x -= src_x * dst_w / src_w;
-      dst_w += src_x * dst_w / src_w;
-      src_w += src_x;
-      src_x = 0;
-   }
-   if ( src_y < 0) {
-      dst_y -= src_y * dst_h / src_h;
-      dst_h += src_y * dst_h / src_h;
-      src_h += src_y;
-      src_y = 0;
-   }
    if ( src_x + src_w > img-> w) {
       dst_w = (img-> w - src_x) * dst_w / src_w;
       src_w = img-> w - src_x;
@@ -2209,7 +2190,25 @@ apc_gp_stretch_image( Handle self, Handle image,
       XSetBackground( DISP, XX-> gc, back);
       XX-> flags. brush_fore = XX-> flags. brush_back = 0;
    }
-   prima_put_ximage( XX-> gdrawable, XX-> gc, stretch, 0, 0, x, y, w, h);
+apc_application_begin_paint( application);
+   prima_put_ximage( X(application)-> gdrawable, X(application)-> gc, stretch, 0, 0, x, y, w, h);
+apc_application_end_paint( application);
+
+   dx = 0;
+   dy = 0;
+   if ( src_x < 0) {
+      dx = -src_x;
+      w += src_x;
+      x -= src_x;
+   }
+   if ( src_y < 0) {
+      dy = -src_y;
+      h += src_y;
+      y -= src_y;
+   } 
+
+   prima_put_ximage( XX-> gdrawable, XX-> gc, stretch, dx, dy, x, y, w, h);
+
    if ( func != ofunc)
       XSetFunction( DISP, XX-> gc, ofunc);
    destroy_ximage( stretch);

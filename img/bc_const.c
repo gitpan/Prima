@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: bc_const.c,v 1.12 2003/03/21 23:46:59 dk Exp $
+ * $Id: bc_const.c,v 1.13 2007/05/15 20:49:29 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 
@@ -371,6 +371,9 @@ REPEAT_CALC:
                big_pal[j]. r = (i / ( side * side)) << shift;
                big_pal[j]. g = ((i / side) % side ) << shift;
                big_pal[j]. b = (i % side) << shift;
+	       if ( big_pal[j]. r > 127) big_pal[j]. r += side - 1;
+	       if ( big_pal[j]. g > 127) big_pal[j]. g += side - 1;
+	       if ( big_pal[j]. b > 127) big_pal[j]. b += side - 1;
                j++;
             }
          cm_squeeze_palette( big_pal, j, palette, *max_pal_size);

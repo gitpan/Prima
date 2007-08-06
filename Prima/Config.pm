@@ -4,12 +4,12 @@ package Prima::Config;
 use vars qw(%Config %Config_inst);
 
 %Config_inst = (
-	incpaths              => [ '/usr/local/lib/perl5/site_perl/5.8.8/mach/Prima/CORE','/usr/local/lib/perl5/site_perl/5.8.8/mach/Prima/CORE/generic','/usr/local/lib/perl5/5.8.8/mach/CORE','/usr/local/include','/usr/X11R6/include','/usr/local/include/freetype2' ],
+	incpaths              => [ '/usr/local/lib/perl5/site_perl/5.8.8/mach/Prima/CORE','/usr/local/lib/perl5/site_perl/5.8.8/mach/Prima/CORE/generic','/usr/local/lib/perl5/5.8.8/mach/CORE','/usr/local/include','/usr/local/include/freetype2' ],
 	gencls                => '/usr/local/bin/gencls',
 	tmlink                => '/usr/local/bin/tmlink',
 	libname               => '/usr/local/lib/perl5/site_perl/5.8.8/mach/Prima.a',
 	dlname                => '/usr/local/lib/perl5/site_perl/5.8.8/mach/auto/Prima/Prima.so',
-	ldpaths               => ['/usr/lib','/usr/local/lib','/usr/local/lib','/usr/X11R6/lib'],
+	ldpaths               => ['/usr/lib','/usr/local/lib','/usr/local/lib','/lib'],
 );
 
 %Config = (
@@ -17,7 +17,7 @@ use vars qw(%Config %Config_inst);
 	quote                 => '\'',
 	platform              => 'unix',
 	compiler              => 'gcc',
-	incpaths              => [ '/usr/home/dk/src/Prima/include','/usr/home/dk/src/Prima/include/generic','/usr/local/lib/perl5/5.8.8/mach/CORE','/usr/local/include','/usr/X11R6/include','/usr/local/include/freetype2' ],
+	incpaths              => [ '/usr/home/dk/src/Prima/include','/usr/home/dk/src/Prima/include/generic','/usr/local/lib/perl5/5.8.8/mach/CORE','/usr/local/include','/usr/local/include/freetype2' ],
 	platform_path         => '/usr/home/dk/src/Prima/unix',
 	gencls                => '\'perl\' /usr/home/dk/src/Prima/utils/gencls.pl',
 	tmlink                => '\'perl\' /usr/home/dk/src/Prima/utils/tmlink.pl',
@@ -45,7 +45,7 @@ use vars qw(%Config %Config_inst);
 	ldoutflag             => '-o ',
 	ldlibflag             => '-l',
 	ldlibpathflag         => '-L',
-	ldpaths               => ['/usr/lib','/usr/local/lib','/usr/local/lib','/usr/X11R6/lib'],
+	ldpaths               => ['/usr/lib','/usr/local/lib','/usr/local/lib','/lib'],
 	ldlibs                => ['m','crypt','util','gcc','X11','Xext','freetype','fontconfig','Xrender','Xft','iconv','jpeg','png','tiff','ungif','Xpm'],
 	ldlibext              =>'',
 	inline                => 'inline',

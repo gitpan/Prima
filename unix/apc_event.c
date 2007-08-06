@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_event.c,v 1.96 2005/09/28 15:40:56 dk Exp $
+ * $Id: apc_event.c,v 1.98 2007/05/24 13:56:50 dk Exp $
  */
 
 /***********************************************************/
@@ -805,7 +805,7 @@ wm_event( Handle self, XEvent *xev, PEvent ev)
             if ( guts. message_boxes) {
                struct MsgDlg * md = guts. message_boxes;
                while ( md) {
-                  XMapRaised( DISP, md-> w);
+	          if ( md-> w) XMapRaised( DISP, md-> w);
                   md = md-> next;
                }
                return false;
@@ -1159,11 +1159,8 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
 	   && (( guts. mouse_wheel_up != 0 && bev-> button == guts. mouse_wheel_up)
 	       || ( guts. mouse_wheel_down != 0 && bev-> button == guts. mouse_wheel_down)))
       {
-	 secondary. cmd = cmMouseWheel;
-	 secondary. pos. where. x = e. pos. where. x;
-	 secondary. pos. where. y = e. pos. where. y;
-	 secondary. pos. mod = e. pos. mod;
-	 secondary. pos. button = bev-> button == guts. mouse_wheel_up ? WHEEL_DELTA : -WHEEL_DELTA;
+	 e. cmd = cmMouseWheel;
+	 e. pos. button = bev-> button == guts. mouse_wheel_up ? WHEEL_DELTA : -WHEEL_DELTA;
       } else if ( e. cmd == cmMouseUp &&
                   guts.last_button_event.type == ButtonPress &&
                   bev-> window == guts.last_button_event.window &&

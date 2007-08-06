@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: files.c,v 1.10 2004/01/21 22:53:10 dk Exp $
+ * $Id: files.c,v 1.11 2007/05/17 21:29:34 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 
@@ -252,7 +252,12 @@ apc_file_attach( Handle self)
       if ( getsockopt(( SOCKET) INVALID_SOCKET, SOL_SOCKET, SO_OPENTYPE, (char*)&_data, &_sz) != 0)
          guts. socket_version = -1; // no sockets available
       else
+#if PERL_PATCHLEVEL < 8
          guts. socket_version = ( _data == SO_SYNCHRONOUS_NONALERT) ? 1 : 2;
+#else
+         guts. socket_version = 1;
+#endif
+
 #endif
    }
 

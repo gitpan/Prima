@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: img_conv.h,v 1.23 2003/07/30 10:22:15 dk Exp $
+ * $Id: img_conv.h,v 1.25 2007/03/19 08:41:50 dk Exp $
  */
 
 #include "Image.h"
@@ -86,7 +86,6 @@ extern void bc_byte_op( Byte * source, Byte * dest, int count, U16 * tree, PRGBC
 extern void bc_byte_graybyte( register Byte * source, register Byte * dest, register int count, register PRGBColor palette);
 extern void bc_byte_rgb( register Byte * source, Byte * dest, register int count, register PRGBColor palette);
 extern void bc_graybyte_mono_ht( register Byte * source, register Byte * dest, register int count, int lineSeqNo);
-extern void bc_graybyte_mono_ed( Byte * source, Byte * dest, int count);
 extern void bc_graybyte_nibble_ht( register Byte * source, Byte * dest, register int count, int lineSeqNo);
 extern void bc_graybyte_nibble_ed( Byte * source, Byte * dest, int count, int * err_buf);
 extern void bc_graybyte_rgb( register Byte * source, Byte * dest, register int count);
@@ -277,7 +276,7 @@ extern void bc_rgb_bgri( Byte * source, Byte * dest, int count);
 typedef void SimpleConvProc( Byte * srcData, Byte * dstData, int count);
 typedef SimpleConvProc *PSimpleConvProc;
 
-extern void ibc_repad( Byte * source, Byte * dest, int srcLineSize, int dstLineSize, int srcDataSize, int dstDataSize, int srcBPP, int dstBPP, void * bit_conv_proc);
+extern void ibc_repad( Byte * source, Byte * dest, int srcLineSize, int dstLineSize, int srcDataSize, int dstDataSize, int srcBPP, int dstBPP, void * bit_conv_proc, Bool reverse);
 extern Bool img_put( Handle dest, Handle src, int dstX, int dstY, int srcX, int srcY, int dstW, int dstH, int srcW, int srcH, int rop);
 
 /* internal maps */

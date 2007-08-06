@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: img.h,v 1.7 2002/05/14 13:22:30 dk Exp $
+ * $Id: img.h,v 1.8 2007/05/16 21:16:32 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 
@@ -161,7 +161,7 @@ extern void  apc_img_codecs( PList result);
 extern HV *  apc_img_info2hash( PImgCodec c);
 
 extern void  apc_img_profile_add( HV * to, HV * from, HV * keys);
-extern int   apc_img_read_palette( PRGBColor palBuf, SV * palette);
+extern int   apc_img_read_palette( PRGBColor palBuf, SV * palette, Bool triplets);
 
 #ifdef __cplusplus
 }

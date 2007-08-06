@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Object.c,v 1.31 2003/06/18 14:29:35 dk Exp $
+ * $Id: Object.c,v 1.32 2007/05/23 17:50:57 dk Exp $
  */
 
 #include "apricot.h"
@@ -93,7 +93,7 @@ Object_create( char *className, HV * profile)
          OPEN_G_EVAL;
          Object_destroy( self);
          CLOSE_G_EVAL;
-         croak( SvPV( GvSV( errgv), na));
+         croak( SvPV_nolen( GvSV( errgv)));
       }
       CLOSE_G_EVAL;
       SPAGAIN;

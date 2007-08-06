@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Utils.c,v 1.11 2003/07/07 15:08:28 dk Exp $
+ * $Id: Utils.c,v 1.12 2007/05/23 17:50:57 dk Exp $
  */
 
 #include "apricot.h"
@@ -74,7 +74,7 @@ XS(Utils_getdir_FROMPERL) {
    if ( items >= 2) {
       croak( "invalid usage of Prima::Utils::getdir");
    }
-   dirname = SvPV( ST( 0), na);
+   dirname = SvPV_nolen( ST( 0));
    dirlist = apc_getdir( dirname);
    SPAGAIN;
    SP -= items;

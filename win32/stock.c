@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: stock.c,v 1.73 2005/03/30 08:56:32 dk Exp $
+ * $Id: stock.c,v 1.74 2007/06/07 09:46:04 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 /*
@@ -1187,6 +1187,7 @@ fep2( ENUMLOGFONTEXW FAR *e, NEWTEXTMETRICEXW FAR *t, int type, Fep2 * f)
       hash_store( f-> hash, name, strlen( name), fm); 
    }
    fm-> direction = fm-> resolution = 0;
+   fm-> utf8_flags = 0;
    strcpy( fm-> name, name);
    if ( f-> wide)
       wchar2char( fm-> family, e-> elfFullName, LF_FULLFACESIZE);

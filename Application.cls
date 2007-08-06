@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Application.cls,v 1.38 2004/05/04 19:15:15 dk Exp $
+# $Id: Application.cls,v 1.39 2007/08/03 19:23:48 dk Exp $
 
 object Prima::Application( Prima::Widget)
 {
@@ -87,6 +87,7 @@ object Prima::Application( Prima::Widget)
    method Handle get_focused_widget();
    method Handle get_widget_from_handle( SV * handle);
    method Handle get_hint_widget();
+   method Rect   get_indents() => apc_application_get_indents;
    static Font   get_message_font( char * dummy = "");
    method Handle get_modal_window( int modalFlag = mtExclusive, Bool topMost = true);
    method Point  get_scroll_rate();

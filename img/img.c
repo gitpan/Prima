@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * $Id: img.c,v 1.21 2004/03/28 13:41:09 dk Exp $
+ * $Id: img.c,v 1.22 2007/05/16 21:16:24 dk Exp $
  *
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
@@ -1094,7 +1094,7 @@ apc_img_codecs( PList ret)
 }
 
 int
-apc_img_read_palette( PRGBColor palBuf, SV * palette)
+apc_img_read_palette( PRGBColor palBuf, SV * palette, Bool triplets)
 {
    AV * av;
    int i, count;
@@ -1104,17 +1104,36 @@ apc_img_read_palette( PRGBColor palBuf, SV * palette)
       return 0;
    av = (AV *) SvRV( palette);
    count = av_len( av) + 1;
-   if ( count > 768) count = 768;
-   count -= count % 3;
 
-   for ( i = 0; i < count; i++)
-   {
-      SV **itemHolder = av_fetch( av, i, 0);
-      if ( itemHolder == nil) return 0;
-      buf[ i] = SvIV( *itemHolder);
+   if ( triplets) {
+      if ( count > 768) count = 768;
+      count -= count % 3;
+
+      for ( i = 0; i < count; i++)
+      {
+         SV **itemHolder = av_fetch( av, i, 0);
+         if ( itemHolder == nil) return 0;
+         buf[ i] = SvIV( *itemHolder);
+      }
+      memcpy( palBuf, buf, count);
+      return count/3;
+   } else {
+      int j;
+      if ( count > 256) count = 256;
+
+      for ( i = 0, j = 0; i < count; i++)
+      {
+	 Color c;
+         SV **itemHolder = av_fetch( av, i, 0);
+         if ( itemHolder == nil) return 0;
+         c = (Color)(SvIV( *itemHolder));
+	 buf[j++] = c & 0xFF;
+	 buf[j++] = (c >> 8) & 0xFF;
+	 buf[j++] = (c >> 16) & 0xFF;
+      }
+      memcpy( palBuf, buf, j);
+      return count;
    }
-   memcpy( palBuf, buf, count);
-   return count/3;
 }
 
 

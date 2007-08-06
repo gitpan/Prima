@@ -30,7 +30,7 @@
 #  Documentation by:
 #     Anton Berezin  <tobez@tobez.org>
 #
-#  $Id: ScrollBar.pm,v 1.19 2005/10/13 17:22:51 dk Exp $
+#  $Id: ScrollBar.pm,v 1.20 2007/05/24 13:57:28 dk Exp $
 
 package Prima::ScrollBar;
 use vars qw(@ISA @stdMetrics);
@@ -459,6 +459,12 @@ sub on_mousemove
 	}
 }
 
+sub on_mousewheel
+{
+	my ( $self, $mod, $x, $y, $z) = @_;
+	$self-> value( $self-> value - $self-> step * int( $z/120));
+	$self-> clear_event;
+}
 
 sub reset
 {

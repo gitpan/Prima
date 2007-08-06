@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Image.c,v 1.118 2006/11/02 13:39:41 dk Exp $
+ * $Id: Image.c,v 1.121 2007/05/23 17:50:57 dk Exp $
  */
 
 #include "img.h"
@@ -88,7 +88,7 @@ Image_init( Handle self, HV * profile)
    var->palSize = (1 << (var->type & imBPP)) & 0x1ff;
    if (!( var->type & imGrayScale) && 
        pexist( palette)) { /* palette might be killed by set_extended_data() */
-      int ps = apc_img_read_palette( var->palette, pget_sv( palette));
+      int ps = apc_img_read_palette( var->palette, pget_sv( palette), true);
       if ( ps) var-> palSize = ps;
    }
 
@@ -208,7 +208,7 @@ Image_stretch( Handle self, int width, int height)
 }
 
 static void
-Image_reset_sv( Handle self, int new_type, SV * palette)
+Image_reset_sv( Handle self, int new_type, SV * palette, Bool triplets)
 {
    int colors;
    RGBColor pal_buf[256], *pal_ptr;
@@ -216,7 +216,7 @@ Image_reset_sv( Handle self, int new_type, SV * palette)
       pal_ptr = nil;
       colors  = 0;
    } else if ( SvROK( palette) && ( SvTYPE( SvRV( palette)) == SVt_PVAV)) {
-      colors = apc_img_read_palette( pal_ptr = pal_buf, palette);
+      colors = apc_img_read_palette( pal_ptr = pal_buf, palette, triplets);
    } else {
       pal_ptr = nil;
       colors  = SvIV( palette); 
@@ -252,8 +252,22 @@ Image_set( Handle self, HV * profile)
       if ( !itype_supported( newType))
          warn("RTC0100: Invalid image type requested (%08x) in Image::set_type", newType);
       else 
-         if ( !opt_InPaint) 
-            Image_reset_sv( self, newType, pexist( palette) ? pget_sv( palette) : nilSV);
+         if ( !opt_InPaint) {
+	    SV * palette;
+	    Bool triplets;
+	    if ( pexist( palette)) {
+	       palette  = pget_sv(palette);
+	       triplets = true;
+	    } else if ( pexist( colormap)) {
+	       palette  = pget_sv(colormap);
+	       triplets = false;
+	    } else {
+	       palette = nilSV;
+	       triplets = false;
+	    }
+            Image_reset_sv( self, newType, palette, triplets);
+	 }
+      pdelete( colormap);
       pdelete( palette);
       pdelete( type);
    }
@@ -362,7 +376,7 @@ Image_data( Handle self, Bool set, SV * svdata)
 
 /*
   Routine sets image data almost as Image::set_data, but taking into
-  account 'lineSize' and 'type', fields. To be called from bunch routines,
+  account 'lineSize', 'type', and 'reverse' fields. To be called from bunch routines,
   line ::init or ::set. Returns true if relevant fields were found and
   data extracted and set, and false if user data should be set throught ::set_data.
   Image itself may undergo conversion during the routine; in that case 'palette'
@@ -375,7 +389,7 @@ Image_set_extended_data( Handle self, HV * profile)
    void *data, *proc;
    STRLEN dataSize;
    int lineSize = 0, newType = -1, fixType, oldType = -1;
-   Bool pexistType, pexistLine, supp;
+   Bool pexistType, pexistLine, pexistReverse, supp, reverse = false;
 
    if ( !pexist( data)) {
       if ( pexist( lineSize)) {
@@ -390,11 +404,13 @@ Image_set_extended_data( Handle self, HV * profile)
    /* parameters check */
    pexistType = pexist( type) && ( newType = pget_i( type)) != var-> type;
    pexistLine = pexist( lineSize) && ( lineSize = pget_i( lineSize)) != var-> lineSize;
+   pexistReverse = pexist( reverse) && ( reverse = pget_B( reverse));
 
    pdelete( lineSize);
    pdelete( type);
+   pdelete( reverse);
    
-   if ( !pexistLine && !pexistType) return false;
+   if ( !pexistLine && !pexistType && !pexistReverse) return false;
 
    if ( is_opt( optInDraw) || dataSize <= 0) 
       goto GOOD_RETURN;
@@ -406,7 +422,7 @@ Image_set_extended_data( Handle self, HV * profile)
          goto GOOD_RETURN;
       }   
       if ( !pexistType) { /* plain repadding */
-         ibc_repad(( Byte*) data, var-> data, lineSize, var-> lineSize, dataSize, var-> dataSize, 1, 1, nil);
+         ibc_repad(( Byte*) data, var-> data, lineSize, var-> lineSize, dataSize, var-> dataSize, 1, 1, nil, reverse);
          my-> update_change( self);
          goto GOOD_RETURN;
       }   
@@ -425,17 +441,30 @@ Image_set_extended_data( Handle self, HV * profile)
    } else if ( !itype_importable( newType, &fixType, &proc, nil)) {
       warn( "Image::set_data: invalid image type %08x", newType);
       goto GOOD_RETURN;
-   }   
+   }
       
    /* fixing image and maybe palette - for known type it's same code as in ::set, */
    /* but here's no sense calling it, just doing what we need. */
-   if ( fixType != var-> type || pexist( palette)) { 
-      Image_reset_sv( self, fixType, pget_sv( palette));
+   if ( fixType != var-> type || pexist( palette) || pexist( colormap)) {
+      SV * palette;
+      Bool triplets;
+      if ( pexist( palette)) {
+         palette = pget_sv( palette);
+	 triplets = true;
+      } else if ( pexist( colormap)) {
+         palette = pget_sv( colormap);
+	 triplets = false;
+      } else {
+         palette = nilSV;
+	 triplets = false;
+      }
+      Image_reset_sv( self, fixType, palette, triplets);
       pdelete( palette);
+      pdelete( colormap);
    }   
 
     /* copying user data */
-   if ( supp && lineSize == 0) 
+   if ( supp && lineSize == 0 && !reverse) 
        /* same code as in ::set_data */
       memcpy( var->data, data, dataSize > var->dataSize ? var->dataSize : dataSize);
    else {
@@ -444,8 +473,8 @@ Image_set_extended_data( Handle self, HV * profile)
          lineSize = (( var-> w * ( newType & imBPP) + 31) / 32) * 4;
       /* copying using repadding routine */
       ibc_repad(( Byte*) data, var-> data, lineSize, var-> lineSize, dataSize, var-> dataSize, 
-                 ( newType & imBPP) / 8, ( var-> type & imBPP) / 8, proc
-               );
+              ( newType & imBPP) / 8, ( var-> type & imBPP) / 8, proc, reverse
+      );
    }   
    my-> update_change( self);
    /* if want to keep original type, restoring */
@@ -471,10 +500,10 @@ XS( Image_load_FROMPERL)
       croak("Invalid usage of Prima::Image::load");
    
    self = gimme_the_mate( ST( 0));
-   fn   = ( char *) SvPV( ST( 1), na);
+   fn   = ( char *) SvPV_nolen( ST( 1));
    profile = parse_hv( ax, sp, items, mark, 2, "Image::load");
    if ( !pexist( className)) 
-      pset_c( className, self ? my-> className : ( char*) SvPV( ST( 0), na));
+      pset_c( className, self ? my-> className : ( char*) SvPV_nolen( ST( 0)));
    ret = apc_img_load( self, fn, profile, error);
    sv_free(( SV *) profile);
    SPAGAIN;
@@ -522,7 +551,7 @@ Image_load( SV * who, char *filename, HV * profile)
    Handle self = gimme_the_mate( who);
    char error[ 256];
    if ( !pexist( className)) 
-      pset_c( className, self ? my-> className : ( char*) SvPV( who, na));
+      pset_c( className, self ? my-> className : ( char*) SvPV_nolen( who));
    ret = apc_img_load( self, filename, profile, error);
    return ret;
 }
@@ -541,7 +570,7 @@ XS( Image_save_FROMPERL)
       croak("Invalid usage of Prima::Image::save");
    
    self = gimme_the_mate( ST( 0));
-   fn   = ( char *) SvPV( ST( 1), na);
+   fn   = ( char *) SvPV_nolen( ST( 1));
    profile = parse_hv( ax, sp, items, mark, 2, "Image::save");
    ret = apc_img_save( self, fn, profile, error);
    sv_free(( SV *) profile);
@@ -571,7 +600,7 @@ Image_save( SV * who, char *filename, HV * profile)
    Handle self = gimme_the_mate( who);
    char error[ 256];
    if ( !pexist( className)) 
-      pset_c( className, self ? my-> className : ( char*) SvPV( who, na));
+      pset_c( className, self ? my-> className : ( char*) SvPV_nolen( who));
    return apc_img_save( self, filename, profile, error);
 }
 
@@ -745,7 +774,8 @@ Image_palette( Handle self, Bool set, SV * palette)
       int ps;
       if ( var->type & imGrayScale) return nilSV;
       if ( !var->palette)           return nilSV;
-      ps = apc_img_read_palette( var->palette, palette);
+      ps = apc_img_read_palette( var->palette, palette, true);
+      
       if ( ps)
          var-> palSize = ps;
       else

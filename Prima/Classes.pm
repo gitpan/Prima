@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Classes.pm,v 1.95 2005/10/13 17:22:50 dk Exp $
+#  $Id: Classes.pm,v 1.97 2007/08/03 19:55:24 dk Exp $
 use Prima;
 use Prima::Const;
 
@@ -556,6 +556,7 @@ sub profile_default
 		height        => 0,
 		hScaling      => 1,
 		palette       => [0, 0, 0, 0xFF, 0xFF, 0xFF],
+		colormap      => undef,
 		preserveType  => 0,
 		rangeLo       => 0,
 		rangeHi       => 1,
@@ -568,6 +569,21 @@ sub profile_default
 	return $def;
 }
 
+sub profile_check_in
+{
+	my ( $self, $p, $default) = @_;
+
+	if ( exists $p-> {colormap} and not exists $p-> {palette}) {
+		$p-> {palette} = [ map {
+			( $_        & 0xFF),
+			(($_ >> 8)  & 0xFF),
+			(($_ >> 16) & 0xFF),
+		} @{$p-> {colormap}} ];
+		delete $p-> {colormap};
+	}
+	$self-> SUPER::profile_check_in( $p, $default);
+}
+
 sub rangeLo      { return shift-> stats( is::RangeLo , @_); }
 sub rangeHi      { return shift-> stats( is::RangeHi , @_); }
 sub sum          { return shift-> stats( is::Sum     , @_); }
@@ -576,6 +592,23 @@ sub mean         { return shift-> stats( is::Mean    , @_); }
 sub variance     { return shift-> stats( is::Variance, @_); }
 sub stdDev       { return shift-> stats( is::StdDev  , @_); }
 
+sub colormap
+{
+	if ( $#_) {
+		shift-> palette([ map {
+			( $_        & 0xFF),
+			(($_ >> 8)  & 0xFF),
+			(($_ >> 16) & 0xFF),
+		} @_ ]);
+	} else {
+		my $p = $_[0]-> palette;
+		my ($i,@r);
+		for ($i = 0; $i < @$p; $i += 3) {
+			push @r, $$p[$i] + ($$p[$i+1] << 8) + ($$p[$i+2] << 16);
+		}
+		return @r;
+	}
+}
 
 # class Icon
 package Prima::Icon;
@@ -1230,9 +1263,9 @@ sub maximize    { $_[0]-> windowState( ws::Maximized)}
 sub minimize    { $_[0]-> windowState( ws::Minimized)}
 sub restore     { $_[0]-> windowState( ws::Normal)}
 
-sub frameWidth           {($#_)?$_[0]-> set_frame_size($_[1], ($_[0]-> get_frame_size)[1]):return ($_[0]-> get_frame_size)[0];  }
-sub frameHeight          {($#_)?$_[0]-> set_frame_size(($_[0]-> get_frame_size)[0], $_[1]):return ($_[0]-> get_frame_size)[1];  }
-sub menuFont             {($#_)?$_[0]-> set_menu_font   ($_[1])  :return Prima::Font-> new($_[0], "get_menu_font", "set_menu_font")}
+sub frameWidth           {($#_)?$_[0]-> frameSize($_[1], ($_[0]-> frameSize)[1]):return ($_[0]-> frameSize)[0];  }
+sub frameHeight          {($#_)?$_[0]-> frameSize(($_[0]-> frameSize)[0], $_[1]):return ($_[0]-> frameSize)[1];  }
+sub menuFont             {($#_)?$_[0]-> menuFont   ($_[1])  :return Prima::Font-> new($_[0], "get_menu_font", "set_menu_font")}
 sub menuColor            { return shift-> menuColorIndex( ci::NormalText   , @_);}
 sub menuBackColor        { return shift-> menuColorIndex( ci::Normal       , @_);}
 sub menuDisabledBackColor{ return shift-> menuColorIndex( ci::Disabled     , @_);}

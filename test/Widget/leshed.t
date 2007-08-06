@@ -1,4 +1,4 @@
-# $Id: leshed.t,v 1.4 2005/10/13 17:22:54 dk Exp $
+# $Id: leshed.t,v 1.5 2007/06/07 11:26:53 dk Exp $
 # Leave, Enter, Show, Hide, Enable, Disable
 print "1..6 hide,show,disable,enable,enter,leave\n";
 
@@ -33,12 +33,18 @@ ok(($dong || &__wait) && ($ww-> enabled != 0));
 $dong = 0;
 
 $ww-> focused(1);
-ok(($dong || &__wait) && ($ww-> focused != 0));
-$dong = 0;
-
-$ww-> focused(0);
-ok(($dong || &__wait) && ($ww-> focused == 0));
-$dong = 0;
+if ( $ww-> focused) {
+	ok(($dong || &__wait));
+	$dong = 0;
+	
+	$ww-> focused(0);
+	ok(($dong || &__wait) && ($ww-> focused == 0));
+	$dong = 0;
+} else {
+	# WM refuses to refocus
+	skip;
+	skip;
+}
 
 $ww-> destroy;
 

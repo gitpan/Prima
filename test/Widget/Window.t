@@ -1,4 +1,4 @@
-# $Id: Window.t,v 1.5 2005/10/13 17:22:54 dk Exp $
+# $Id: Window.t,v 1.6 2007/06/07 11:26:53 dk Exp $
 print "1..15 activate,onActivate,deactivate,onDeactivate,maximize,onWindowState,".
 		"restore from maximized,minimize,restore from minimized,restore max->min->normal,".
 		"user modality,execute,show,hide,close\n";
@@ -53,11 +53,11 @@ ok( $xw-> windowState == ws::Normal);
 %id=();
 $dong = 0;
 $xw-> insert( Timer =>
-	timeout => 500,
+	timeout => 250,
 	onTick => sub {
 	$_[0]-> stop;
 	$w-> focus;
-	ok( !$w-> selected && $xw-> selected);
+	ok( !$w-> selected);
 	$xw-> ok;
 	$_[0]-> destroy;
 })-> start;

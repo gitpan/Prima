@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Types.cls,v 1.9 2002/05/14 13:22:18 dk Exp $
+# $Id: Types.cls,v 1.10 2007/06/07 09:46:03 dk Exp $
 
 global @Point {
    int x;
@@ -61,6 +61,7 @@ global %Font {
    int         lastChar          ;
    int         breakChar         ;
    int         defaultChar       ;
+   U8          utf8_flags        ;
 }
 
 global @FillPattern U8[8];

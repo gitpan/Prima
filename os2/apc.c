@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc.c,v 1.42 2004/12/14 11:13:09 dk Exp $
+ * $Id: apc.c,v 1.44 2007/08/06 07:51:20 dk Exp $
  */
 /* Created by:
          Dmitry Karasik <dk@plab.ku.dk>
@@ -217,6 +217,12 @@ apc_application_get_handle( Handle self, ApiHandle apiHandle)
    return hwnd_to_view(( HWND) apiHandle);
 }
 
+Rect
+apc_application_get_indents( Handle self)
+{
+   Rect r = {0,0,0,0};
+   return r;
+}
 
 int
 apc_application_get_os_info( char *system, int slen,

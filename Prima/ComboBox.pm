@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ComboBox.pm,v 1.36 2006/11/16 12:15:50 dk Exp $
+#  $Id: ComboBox.pm,v 1.38 2007/05/24 13:57:28 dk Exp $
 
 # combo styles
 package cs;
@@ -37,7 +37,7 @@ use strict;
 
 package Prima::ComboBox;
 
-use vars qw(@ISA %listProps %editProps %listDynas);
+use vars qw(@ISA %listProps %editProps %listDynas $capture_mode);
 use Prima qw( InputLine Lists Utils StdBitmap);
 @ISA = qw(Prima::Widget);
 
@@ -77,6 +77,7 @@ sub Prima::ComboBox::DummyList::$_ {}
 GENPROC
 }
 
+$capture_mode = (Prima::Application-> get_system_info-> {apc} == apc::Unix);
 
 sub profile_default
 {
@@ -106,7 +107,7 @@ sub profile_default
 		listProfile    => {},
 		buttonProfile  => {},
 		listDelegations   => [qw(Leave SelectItem MouseUp Click KeyDown)],
-		editDelegations   => [qw(FontChanged Create Setup KeyDown KeyUp Change Leave)],
+		editDelegations   => [qw(FontChanged Create Setup KeyDown KeyUp Change Leave MouseWheel)],
 		buttonDelegations => [qw(ColorChanged FontChanged MouseDown MouseClick 
 			MouseUp MouseMove Paint)],
 	}
@@ -167,7 +168,7 @@ sub init
 	$self-> {list} = $self-> insert( $profile{listClass} =>
 		name         => 'List',
 		origin       => [ 0, 0],
-		selectable   => 0,
+		selectable   => $capture_mode ? 0 : 1,
 		width        => $w,
 		height       => ( $self-> {style} == cs::Simple) ? ( $h - $eh) : $self-> {listHeight},
 		growMode     => gm::Client,
@@ -325,7 +326,7 @@ sub Button_Paint
 
 sub InputLine_Leave
 {
-	$_[0]-> listVisible( 0) if $_[0]-> {style} != cs::Simple;
+	$_[0]-> listVisible( 0) if $capture_mode and $_[0]-> {style} != cs::Simple;
 }
 
 sub InputLine_FontChanged
@@ -483,6 +484,18 @@ sub InputLine_Change
 	$list-> {interaction} = undef;
 }
 
+sub InputLine_MouseWheel
+{
+	my ( $self, $edit, $mod, $x, $y, $z) = @_;
+
+	my $f = $self-> {list}-> focusedItem;
+	$f += (($z > 0) ? -1 : 1);
+	return if $f < 0;
+	$self-> {list}-> focusedItem($f);
+	$self-> notify(q(Change));
+	$edit-> clear_event;
+}
+
 sub set_style
 {
 	my ( $self, $style) = @_;
@@ -545,8 +558,12 @@ sub set_list_visible
 	$list-> bring_to_front if $nlv;
 	$list-> visible( $nlv);
 	$self-> {button}-> repaint;
-	$list-> capture( $nlv ? 1 : 0);
-	$edit-> focus;
+	if ( $capture_mode) {
+		$list-> capture( $nlv ? 1 : 0);
+		$edit-> focus;
+	} else {
+		$nlv ? $list-> focus : $edit-> focus;
+	}
 }
 
 sub set_edit_height

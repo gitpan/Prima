@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: MsgBox.pm,v 1.20 2005/10/13 17:22:50 dk Exp $
+#  $Id: MsgBox.pm,v 1.21 2007/05/18 12:21:06 dk Exp $
 package Prima::MsgBox;
 
 use strict;
@@ -58,8 +58,7 @@ sub insert_buttons
 	my $fresh;
 	my $freshFirst;
 
-	my $dir = Prima::Utils::get_gui;
-	$dir = ( $dir == gui::Motif) ? 1 : 0;
+	my $dir = 0; # set to 1 for reverse direction of buttons
 	@bConsts = reverse @bConsts unless $dir;
 	@bTexts  = reverse @bTexts  unless $dir;
 

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_misc.c,v 1.100 2006/01/06 19:13:30 dk Exp $
+ * $Id: apc_misc.c,v 1.102 2007/05/18 12:24:32 dk Exp $
  */
 
 /***********************************************************/
@@ -1249,6 +1249,13 @@ apc_system_action( const char *s)
              snprintf( buf, sizeof(buf), "%d %d %d %d", r.left, r.bottom, r.right, r.top) < sizeof(buf))
             return duplicate_string( buf);
          return duplicate_string("");
+      } else if ( strncmp( s, "gtk2.OpenFile.", 14) == 0) {
+#ifdef WITH_GTK2
+	 s += 14;
+	 return prima_gtk_openfile(( char*) s);
+#else
+         return nil;
+#endif
       }
       break;
    case 's':
@@ -1289,7 +1296,7 @@ apc_system_action( const char *s)
       }
       break;
    }
-   warn("Unknow sysaction:%s", s);
+   warn("Unknown sysaction:%s", s);
    return nil;
 }
 

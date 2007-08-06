@@ -1,4 +1,4 @@
-=for rcs $Id: Image.pod,v 1.13 2004/12/15 16:11:03 dk Exp $
+=for rcs $Id: Image.pod,v 1.15 2007/05/16 21:16:39 dk Exp $
 
 =head1 NAME
 
@@ -203,7 +203,9 @@ for an 24-bit image,
   $image-> set( type => im::bpp8, palette => 32);
 
 call would calculate colors in the image, compress them to a palette of
-32 cells and converts to a 8-bit format.
+32 cells and converts to a 8-bit format. 
+
+Instead of C<palette> property, C<colormap> can also be used.
 
 =head2 Data access 
 
@@ -227,6 +229,23 @@ write-only flag 'lineSize':
   print $image-> data, "\n";
 
   output: RGB-RGB-
+
+Internally, Prima contains images in memory so that the first scanline is
+the farthest away from the memory start; this is consistent with general
+Y-axis orientation in Prima drawable terminology, but might be inconvenient
+when importing data organized otherwise. Another write-only boolean flag C<reverse>
+can be set to 1 so data then are treated as if the first scanline of the image
+is the closest to the start of data:
+  
+  $image-> set( width => 1, height=> 2, type => im::RGB);
+  $image-> set(
+     data => 'RGB-123-',
+     reverse => 1,
+  );
+  print $image-> data, "\n";
+
+  output: RGB-123-
+
 
 Although it is possible to perform all kinds of calculations and modification
 with the pixels, returned by C<::data>, it is not advisable unless the speed
@@ -276,6 +295,15 @@ C<rop::CopyPut>, usually fail.
 
 =over
 
+=item colormap @PALETTE
+
+A color palette, used for representing 1, 4, and 8-bit bitmaps, when an image
+object is to be visualized. @PALETTE contains individual colors component
+triplets, in RGB format. For example, black-and-white monochrome image may
+contain colormap as C<0,0xffffff>.
+
+See also C<palette>.
+
 =item conversion TYPE
 
 Selects type of dithering algorithm, when down-sampling 
@@ -309,11 +337,11 @@ converted to a 1-bit image, the following results occur:
 
 =item data SCALAR
 
-Provides access to the bitmap data. On get-call, returns
-all bitmap pixels, aligned to 4-byte boundary. On set-call,
-stores the provided data with same alignment. The alignment
-can be altered by submitting 'lineSize' write-only flag
-to set call. ( see L<Data access> ).
+Provides access to the bitmap data. On get-call, returns all bitmap pixels,
+aligned to 4-byte boundary. On set-call, stores the provided data with same
+alignment. The alignment can be altered by submitting 'lineSize' write-only
+flag to set call; the ordering of scan lines can be altered by setting
+'reverse' write-only flag ( see L<Data access> ).
 
 =item height INTEGER
 
@@ -335,8 +363,12 @@ Mean value is C<::sum> of pixel values, divided by number of pixels.
 
 =item palette [ @PALETTE ] 
 
-A color palette, used for representing 1, 4, and 8-bit bitmaps,
-when an image object is to be visualized.
+A color palette, used for representing 1, 4, and 8-bit bitmaps, when an image
+object is to be visualized. @PALETTE contains individual color component
+triplets, in BGR format. For example, black-and-white monochrome image may
+contain palette as C<[0,0,0,255,255,255]>.
+
+See also C<colormap>.
 
 =item pixel ( X_OFFSET, Y_OFFSET ) PIXEL
 

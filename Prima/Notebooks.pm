@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Notebooks.pm,v 1.30 2005/10/13 17:22:50 dk Exp $
+#  $Id: Notebooks.pm,v 1.31 2007/05/24 13:57:28 dk Exp $
 use strict;
 use Prima::Const;
 use Prima::Classes;
@@ -192,6 +192,13 @@ sub on_mousedown
 	} else {
 		$self-> tabIndex( $found);
 	}
+}
+
+sub on_mousewheel
+{
+	my ( $self, $mod, $x, $y, $z) = @_;
+	$self-> tabIndex( $self-> tabIndex + (( $z < 0) ? -1 : 1));
+	$self-> clear_event;
 }
 
 sub on_mouseup
@@ -1122,10 +1129,10 @@ sub on_paint
 	}
 }
 
-sub on_mousedown
+sub event_in_page_flipper
 {
-	my ( $self, $btn, $mod, $x, $y) = @_;
-	$self-> clear_event;
+	my ( $self, $x, $y) = @_;
+
 	return if $self-> {style} != tns::Standard;
 	
 	my @size = $self-> size;
@@ -1134,7 +1141,23 @@ sub on_mousedown
 	$y -= $size[1] - DefBorderX - $th - DefBookmarkX + 4;
 	return if $x < 0 || $x > DefBookmarkX || $y < 0 || $y > DefBookmarkX;
 
+	return ( $x, $y);
+}
+
+sub on_mousedown
+{
+	my ( $self, $btn, $mod, $x, $y) = @_;
+	$self-> clear_event;
+	return unless ( $x, $y) = $self-> event_in_page_flipper( $x, $y);
 	$self-> pageIndex( $self-> pageIndex + (( -$x + DefBookmarkX < $y) ? 1 : -1));
+}
+
+sub on_mousewheel
+{
+	my ( $self, $mod, $x, $y, $z) = @_;
+	$self-> clear_event;
+	return unless ( $x, $y) = $self-> event_in_page_flipper( $x, $y);
+	$self-> pageIndex( $self-> pageIndex + (( $z < 0) ? -1 : 1));
 }
 
 sub on_mouseclick

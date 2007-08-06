@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ColorDialog.pm,v 1.32 2006/11/16 12:15:50 dk Exp $
+#  $Id: ColorDialog.pm,v 1.36 2007/05/24 13:57:28 dk Exp $
 
 # contains:
 #    ColorDialog
@@ -662,6 +662,7 @@ sub set_value
 		$self-> Roller_Repaint;
 	}
 	$self-> {setTransaction} = $st;
+	$self-> notify(q(Change));
 }
 
 sub value        {($#_)?$_[0]-> set_value        ($_[1]):return $_[0]-> {value};}
@@ -767,7 +768,33 @@ sub InputLine_MouseDown
 
 sub InputLine_Enter { $_[1]-> repaint; }
 
-sub InputLine_Leave { $_[0]-> listVisible(0) }
+sub InputLine_Leave { $_[0]-> listVisible(0) if $Prima::ComboBox::capture_mode }
+
+sub InputLine_MouseWheel
+{
+	my ( $self, $widget, $mod, $x, $y, $z) = @_;
+
+	my $v = $self-> value;
+	$z = $z / 120 * 16;
+	my ( $r, $g, $b) = ( $v >> 16, ($v >> 8) & 0xff, $v & 0xff);
+	if ( $mod & km::Shift) {
+		$r += $z;
+	} elsif ( $mod & km::Ctrl) {
+		$g += $z;
+	} elsif ( $mod & km::Alt) {
+		$b += $z;
+	} else {
+		$r += $z;
+		$g += $z;
+		$b += $z;
+	}
+	for ( $r, $g, $b) {
+		$_ = 0 if $_ < 0;
+		$_ = 255 if $_ > 255;
+	}
+	$self-> value( $r * 65536 + $g * 256 + $b);
+	$widget-> clear_event;
+}
 
 sub List_Create
 {
@@ -1040,6 +1067,11 @@ of C<Prima::Widget> color properties, and depends on combination of keys:
 	Ctrl+Alt+Shift   disabledBackColor
 
 Default action reflects the property to be changes in the dialog title
+
+=item Change
+
+The notification is called when the L<value> property is changed, either 
+interactively or as a result of direct call.
 
 =item EndDragColor $PROPERTY, $WIDGET
 

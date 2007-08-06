@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: tmlink.pl,v 1.8 2005/10/13 17:22:55 dk Exp $
+#  $Id: tmlink.pl,v 1.9 2007/05/23 17:48:21 dk Exp $
 #
 # TMLINK
 #
@@ -128,5 +128,7 @@ HEAD
 for ( sort keys %funcs) {
 	print $f $funcs{$_};
 }
+print $f "\n";
+
 close FILE if defined $incFile;
 

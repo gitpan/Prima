@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: menu.pl,v 1.15 2005/10/13 17:22:53 dk Exp $
+#  $Id: menu.pl,v 1.16 2007/03/19 14:02:07 dk Exp $
 #
 
 =pod 
@@ -69,8 +69,8 @@ use vars qw(@ISA);
 sub create_menu
 {
 	my $img = Prima::Image-> create;
-	$0 =~ /^(.*)\\|\/[^\\\/]+$/;
-	$img-> load( "$1/Hand.gif");
+	$0 =~ /^(.*)(\\|\/)[^\\\/]+$/;
+	$img-> load(( $1 || '.') . '/Hand.gif');
 	return [
 		[ "~File" => [
 			[ "Anonymous" => "Ctrl+D" => '^d' => sub { print "sub!\n";}],   # anonymous sub

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc.c,v 1.119 2006/10/09 12:08:04 dk Exp $
+ * $Id: apc.c,v 1.122 2007/08/03 19:55:43 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -301,6 +301,46 @@ Handle
 apc_application_get_handle( Handle self, ApiHandle apiHandle)
 {
    return hwnd_to_view(( HWND) apiHandle);
+}
+
+Rect
+apc_application_get_indents( Handle self)
+{
+	Point size;
+	UINT rc;
+	Rect ret = {0,0,0,0};
+	APPBARDATA d;
+	
+	size = apc_application_get_size( self);
+
+	memset( &d, 0, sizeof(d));
+	d. cbSize = sizeof(d);
+	rc = SHAppBarMessage( ABM_GETSTATE, &d);
+	if (( rc & ABS_AUTOHIDE) == 0) {
+		memset( &d, 0, sizeof(d));
+		d. cbSize = sizeof(d);
+		rc = SHAppBarMessage( ABM_GETTASKBARPOS, &d);
+		switch ( d. uEdge) {
+		case ABE_TOP:
+			ret. top = d. rc. bottom;
+			if ( ret. top < 0) ret. top = 0;
+			break;
+		case ABE_BOTTOM:
+			ret. bottom = size. y - d. rc. top;
+			if ( ret. bottom < 0) ret. bottom = 0;
+			break;
+		case ABE_RIGHT:
+			ret. right = size. x - d. rc. left;
+			if ( ret. right < 0) ret. right = 0;
+			break;
+		case ABE_LEFT:
+			ret. left = d. rc. right;
+			if ( ret. left < 0) ret. left = 0;
+			break;
+		}
+	}
+	
+	return ret;
 }
 
 Point
@@ -821,6 +861,7 @@ apc_window_create( Handle self, Handle owner, Bool syncPaint, int borderIcons,
   ViewProfile vprf;
   int oStage = var stage;
   WindowData ws;
+  HICON icon = nilHandle;
   WINDOWPLACEMENT wp = {sizeof(WINDOWPLACEMENT)};
   DWORD style = WS_CLIPCHILDREN | WS_OVERLAPPED
      | (( borderIcons &  biSystemMenu) ? WS_SYSMENU     : 0)
@@ -861,6 +902,7 @@ apc_window_create( Handle self, Handle owner, Bool syncPaint, int borderIcons,
      ws = sys s. window;
      if ( !GetWindowPlacement( HANDLE, &wp)) apiErr;
      usePos = useSize = 1; // prevent using shell-position flags for recreate
+     icon = ( HICON) SendMessage( HANDLE, WM_GETICON, ICON_BIG, 0);
      reset = true;
   }
   HWND_lock( true);
@@ -896,6 +938,7 @@ apc_window_create( Handle self, Handle owner, Bool syncPaint, int borderIcons,
         GetWindowRect( HANDLE, &wp. rcNormalPosition);
      if ( !SetWindowPlacement( HANDLE, &wp)) apiErr;
      var stage = oStage;
+     if ( icon) SendMessage( HANDLE, WM_SETICON, ICON_BIG, ( LPARAM) icon);
   }
   else {
 //   WINDOWPLACEMENT wp = {sizeof( WINDOWPLACEMENT)};
