@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: DeviceBitmap.c,v 1.14 2003/12/30 23:39:18 dk Exp $
+ * $Id: DeviceBitmap.c,v 1.15 2007/08/09 13:03:06 dk Exp $
  */
 
 #include "apricot.h"
@@ -43,6 +43,7 @@ extern "C" {
 void
 DeviceBitmap_init( Handle self, HV * profile)
 {
+   dPROFILE;
    inherited init( self, profile);
    var-> w = pget_i( width);
    var-> h = pget_i( height);

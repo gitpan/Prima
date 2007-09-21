@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Icon.c,v 1.37 2003/06/05 18:47:00 dk Exp $
+ * $Id: Icon.c,v 1.38 2007/08/09 13:03:06 dk Exp $
  */
 
 #include "apricot.h"
@@ -261,6 +261,7 @@ colorFound:;
 void
 Icon_init( Handle self, HV * profile)
 {
+   dPROFILE;
    inherited init( self, profile);
    my-> set_maskColor( self, pget_i( maskColor));
    my-> set_autoMasking( self, pget_i( autoMasking));

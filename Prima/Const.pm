@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@plab.ku.dk>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Const.pm,v 1.26 2007/05/18 12:21:06 dk Exp $
+#  $Id: Const.pm,v 1.27 2007/09/13 15:12:24 dk Exp $
 package Prima::Const;
 use Prima '';
 use Carp;
@@ -647,7 +647,7 @@ See also L<Prima::Object/Flow>.
 
 	nt::PrivateFirst
 	nt::CustomFirst
-	
+
 =item Direction constants 
 
 	nt::FluxReverse

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Menu.c,v 1.16 2002/10/31 22:34:21 dk Exp $
+ * $Id: Menu.c,v 1.17 2007/08/09 13:03:06 dk Exp $
  */
 
 #include "apricot.h"
@@ -44,6 +44,7 @@ extern "C" {
 void
 Menu_update_sys_handle( Handle self, HV * profile)
 {
+   dPROFILE;
    Handle xOwner = pexist( owner) ? pget_H( owner) : var-> owner;
    var-> system = true;
    if ( var-> owner && ( xOwner != var-> owner))
@@ -70,6 +71,7 @@ Menu_selected( Handle self, Bool set, Bool selected)
 Bool
 Menu_validate_owner( Handle self, Handle * owner, HV * profile)
 {
+   dPROFILE;
    *owner = pget_H( owner);
    if ( !kind_of( *owner, CWindow)) return false;
    return inherited validate_owner( self, owner, profile);

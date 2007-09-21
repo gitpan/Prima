@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
-/* $Id: codec_png.c,v 1.9 2004/11/25 15:11:56 dk Exp $ */
+/* $Id: codec_png.c,v 1.13 2007/09/13 14:53:08 dk Exp $ */
 
 #ifdef HAVE_CONFIG_H
 #include <generic/config.h>
@@ -32,6 +32,7 @@
 #define Z_PREFIX 
 #include <png.h>
 #undef Byte
+#undef FAR
 
 #ifndef PNG_GAMMA_THRESHOLD
 #define PNG_GAMMA_THRESHOLD 0.05
@@ -44,9 +45,16 @@
 #  define png_jmpbuf(png_ptr) ((png_ptr)->jmpbuf)
 #endif
 
+
 #include "img.h"
 #include "img_conv.h"
 #include "Icon.h"
+
+#ifdef BROKEN_PERL_PLATFORM
+#undef      setjmp
+#undef      longjmp
+#define     setjmp _setjmp
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -154,10 +162,7 @@ static ImgCodecInfo codec_info = {
    features,    /* features  */
    "",     /* module */
    "",     /* package */
-   true,   /* canLoad */
-   false,  /* canLoadMultiple  */
-   true,   /* canSave */
-   false,  /* canSaveMultiple */
+   IMG_LOAD_FROM_FILE | IMG_LOAD_FROM_STREAM | IMG_SAVE_TO_FILE | IMG_SAVE_TO_STREAM,
    pngbpp, /* save types */
    loadOutput
 };
@@ -257,26 +262,42 @@ typedef struct _LoadRec {
    Byte * line;
 } LoadRec;
 
-static 
+static void
 #ifdef PNGAPI 
 PNGAPI
 #endif
-void
 warning_fn( png_structp png_ptr, png_const_charp msg) 
 { 
    /* warn( msg); */
 }
 
-static 
+static void
 #ifdef PNGAPI 
 PNGAPI
 #endif
-void
 error_fn( png_structp png_ptr, png_const_charp msg) 
 {
    char * buf = ( char *) png_get_error_ptr( png_ptr); 
    if ( buf) strncpy( buf, msg, 256);
    longjmp( png_ptr-> jmpbuf, 1);
+}
+
+static void
+img_png_read (png_structp png_ptr, png_bytep data, png_size_t size)
+{
+   req_read( (( PImgLoadFileInstance) png_ptr-> io_ptr)-> req, size, data);
+}
+
+static void
+img_png_write (png_structp png_ptr, png_bytep data, png_size_t size)
+{
+   req_write( (( PImgLoadFileInstance) png_ptr-> io_ptr)-> req, size, data);
+}
+
+static void
+img_png_flush (png_structp png_ptr)
+{
+   req_flush( (( PImgLoadFileInstance) png_ptr-> io_ptr)-> req);
 }
 
 static void * 
@@ -285,9 +306,15 @@ open_load( PImgCodec instance, PImgLoadFileInstance fi)
    LoadRec * l;
    unsigned char buf[8];
 
-   if ( fseek( fi-> f, 0, SEEK_SET) < 0) return false;
-   if ( fread( buf, 1, 8, fi-> f) != 8) return false;
-   if ( png_sig_cmp( buf, 0, 8) != 0) return false;
+   if ( req_seek( fi-> req, 0, SEEK_SET) < 0) return false;
+   if ( req_read( fi-> req, 8, buf) < 0) {
+      req_seek( fi-> req, 0, SEEK_SET);
+      return false;
+   }
+   if ( png_sig_cmp( buf, 0, 8) != 0) {
+      req_seek( fi-> req, 0, SEEK_SET);
+      return false;
+   }
 
    fi-> stop = true;
    fi-> frameCount = 1;
@@ -318,7 +345,10 @@ open_load( PImgCodec instance, PImgLoadFileInstance fi)
       return false;
    }
 
-   png_init_io( l-> png_ptr, fi-> f);
+   if ( !fi-> req_is_stdio)
+      png_set_read_fn( l-> png_ptr, fi, img_png_read);
+   else
+      png_init_io( l-> png_ptr, fi-> req-> handle);
    png_set_sig_bytes( l-> png_ptr, 8);
    return l;
 }
@@ -326,6 +356,7 @@ open_load( PImgCodec instance, PImgLoadFileInstance fi)
 static Bool   
 load( PImgCodec instance, PImgLoadFileInstance fi)
 {
+   dPROFILE;
    LoadRec * l = ( LoadRec *) fi-> instance;
    png_uint_32 width, height;
    int obd, bit_depth, color_type, interlace_type, bpp, number_passes, pass, filter;
@@ -560,6 +591,8 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
    /* reading bits */
    CImage( fi-> object)-> create_empty( fi-> object, width, height, bpp);
 
+   EVENT_HEADER_READY(fi);
+
    /* create buffer for 8 to 4 bpp conversion */
    if ( obd == 2) 
       if ( !( l-> b8_4 = malloc( width))) outcm( width);
@@ -600,12 +633,13 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
       Byte * data = PImage( fi-> object)-> data;
       Byte * a_data = nil;
       
+      EVENT_SCANLINES_RESET(fi);
       data += ( height - 1) * PImage( fi-> object)-> lineSize;
       if ( alpha_image) {
          a_data = PImage( alpha_image)-> data;
          a_data += ( height - 1) * PImage( alpha_image)-> lineSize;
       }
-      for (y = 0; y < height; y++) { 
+      for (y = 0; y < height; y++) {
          if ( alpha_image) {
             int i;
             Byte * dst = data, * src = l-> line, *a = a_data;
@@ -632,6 +666,8 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
          }
          data -= PImage( fi-> object)-> lineSize;
          if ( alpha_image) a_data -= PImage( alpha_image)-> lineSize;
+
+         EVENT_TOPDOWN_SCANLINES_READY(fi,1);
       }
    }
 
@@ -840,8 +876,10 @@ open_save( PImgCodec instance, PImgSaveFileInstance fi)
       free( l);
       return false;
    }
-
-   png_init_io( l-> png_ptr, fi-> f);
+   if ( !fi-> req_is_stdio)
+      png_set_write_fn( l-> png_ptr, fi, img_png_write, img_png_flush);
+   else
+      png_init_io( l-> png_ptr, fi-> req-> handle);
 
    return l;
 }
@@ -849,6 +887,7 @@ open_save( PImgCodec instance, PImgSaveFileInstance fi)
 static Bool   
 save( PImgCodec instance, PImgSaveFileInstance fi)
 {
+   dPROFILE;
    PIcon i = ( PIcon) fi-> object;
    SaveRec * l = ( SaveRec *) fi-> instance;
    HV * profile = fi-> objectExtras;

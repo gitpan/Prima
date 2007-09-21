@@ -23,19 +23,19 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Tester.pl,v 1.19 2005/10/13 17:22:54 dk Exp $
+#  $Id: Tester.pl,v 1.21 2007/09/19 19:29:37 dk Exp $
 #
 package main;
 use vars qw( @ISA $noX11 $w $dong);
 use strict;
 # startup
 use Prima::Config;
+use Prima::noX11;
+use Prima;
+
 # testing if is running over a dumb terminal
-eval "use Prima;";
-if ( $@) {
-	die $@ unless $@ =~ /can't open display/i;
-	$noX11 = 1;
-}
+$noX11 = 1 if defined Prima::XOpenDisplay();
+
 # should be ok now
 my $verbose = 0;
 my $tie     = 1;
@@ -314,6 +314,7 @@ sub run
 	rundir('.');
 	print("Atomic tests passed:$passed, skipped:$skipped, failed:$failed\n") if $verbose;
 	print("Total tests passed:$epassed, skipped:$eskipped, failed:$efailed\n");
+	print("All tests successful\n") unless $efailed; # fake Test::Harness output for CPAN::reporter
 }
 
 

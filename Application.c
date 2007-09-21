@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Application.c,v 1.75 2007/06/07 09:46:03 dk Exp $
+ * $Id: Application.c,v 1.76 2007/08/09 13:03:06 dk Exp $
  */
 
 #include "apricot.h"
@@ -48,6 +48,7 @@ static void Application_HintTimer_handle_event( Handle, PEvent);
 void
 Application_init( Handle self, HV * profile)
 {
+   dPROFILE;
    int hintPause = pget_i( hintPause);
    Color hintColor = pget_i( hintColor), hintBackColor = pget_i( hintBackColor);
    SV * hintFont = pget_sv( hintFont);

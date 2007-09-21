@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: primguts.c,v 1.106 2007/05/23 17:50:57 dk Exp $
+ * $Id: primguts.c,v 1.107 2007/08/16 08:42:05 dk Exp $
  */
 /* Guts library, main file */
 
@@ -1186,7 +1186,6 @@ kill_objects( void * item, int keyLen, Handle * self, void * dummy)
 }
 
 Bool appDead = false;
-SV** temporary_prf_Sv;
 
 Bool dolbug;
 Bool waitBeforeQuit;

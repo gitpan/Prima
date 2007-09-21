@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Clipboard.c,v 1.42 2004/10/05 16:57:22 dk Exp $
+ * $Id: Clipboard.c,v 1.43 2007/08/09 13:03:06 dk Exp $
  */
 
 #include "apricot.h"
@@ -105,6 +105,7 @@ Clipboard_done( Handle self)
 Bool
 Clipboard_validate_owner( Handle self, Handle * owner, HV * profile)
 {
+   dPROFILE;
    if ( pget_H( owner) != application || application == nilHandle) return false;
    *owner = application;
    return true;

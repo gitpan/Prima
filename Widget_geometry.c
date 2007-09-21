@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Widget_geometry.c,v 1.5 2005/04/30 21:50:07 dk Exp $
+ * $Id: Widget_geometry.c,v 1.6 2007/08/09 13:03:06 dk Exp $
  */
 
 #include "apricot.h"
@@ -838,6 +838,7 @@ Widget_packInfo( Handle self, Bool set, SV * packInfo)
       
       return newRV_noinc(( SV *) profile);
    } else {
+      dPROFILE;
       HV * profile;
       Bool reset_zorder = false, set_in = false;
       Handle in = nilHandle;
@@ -1207,6 +1208,7 @@ Widget_placeInfo( Handle self, Bool set, SV * placeInfo)
       
       return newRV_noinc(( SV *) profile);
    } else {
+      dPROFILE;
       HV * profile;
       Handle in = nilHandle;
       Bool set_in = false;

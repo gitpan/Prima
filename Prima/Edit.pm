@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Edit.pm,v 1.49 2005/10/13 17:22:50 dk Exp $
+#  $Id: Edit.pm,v 1.50 2007/09/13 15:12:24 dk Exp $
 #
 # edit block types
 package bt;
@@ -2769,9 +2769,9 @@ __DATA__
 =head1 NAME
 
 Prima::Edit - standard text editing widget
-	
+
 =head1 SYNOPSIS
-	
+
 	use Prima::Edit;
 	my $e = Prima::Edit-> create(
 		text         => 'Hello $world',

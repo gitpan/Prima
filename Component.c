@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Component.c,v 1.61 2007/05/23 17:50:57 dk Exp $
+ * $Id: Component.c,v 1.63 2007/09/13 13:41:35 dk Exp $
  */
 
 #include "apricot.h"
@@ -47,6 +47,7 @@ typedef ActionProc *PActionProc;
 void
 Component_init( Handle self, HV * profile)
 {
+   dPROFILE;
    SV * res;
    HV * hv;
    HE * he;
@@ -573,6 +574,7 @@ Component_update_sys_handle( Handle self, HV * profile)
 Bool
 Component_validate_owner( Handle self, Handle * owner, HV * profile)
 {
+   dPROFILE;
    *owner = pget_H( owner);
 
    if ( *owner != nilHandle) {
@@ -1101,7 +1103,6 @@ Component_delegations( Handle self, Bool set, SV * delegations)
       char *name;
 
       if ( var-> stage > csNormal) return nilSV;
-      if ( !var-> owner) return nilSV;
       if ( !SvROK( delegations) || SvTYPE( SvRV( delegations)) != SVt_PVAV) return nilSV;
 
       referer = var-> owner;
@@ -1120,6 +1121,9 @@ Component_delegations( Handle self, Bool set, SV * delegations)
             SV * subref;
             char buf[ 1024];
             char * event = SvPV_nolen( *holder);
+
+	    if ( referer == nilHandle)
+	       croak("Event delegations for objects without owners must be provided with explicit referer");
             snprintf( buf, 1023, "%s_%s", name, event);
             sub = query_method( referer, buf, 0);
             if ( sub == nil) continue;

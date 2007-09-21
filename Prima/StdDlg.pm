@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: StdDlg.pm,v 1.27 2005/10/13 17:22:51 dk Exp $
+#  $Id: StdDlg.pm,v 1.28 2007/09/13 15:12:25 dk Exp $
 
 
 
@@ -212,7 +212,7 @@ no need to C<use> the corresponding module explicitly.
 =head1 SYNOPSIS
 
 	use Prima::StdDlg;
-	
+
 	Prima::FileDialog-> create-> execute;
 	Prima::FontDialog-> create-> execute;
 

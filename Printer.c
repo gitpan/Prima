@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Printer.c,v 1.25 2007/05/23 17:50:57 dk Exp $
+ * $Id: Printer.c,v 1.26 2007/08/09 13:03:06 dk Exp $
  */
 
 #include "apricot.h"
@@ -43,6 +43,7 @@ extern "C" {
 void
 Printer_init( Handle self, HV * profile)
 {
+   dPROFILE;
    char * prn;
    inherited init( self, profile);
    if ( !apc_prn_create( self))
@@ -63,6 +64,7 @@ Printer_done( Handle self)
 Bool
 Printer_validate_owner( Handle self, Handle * owner, HV * profile)
 {
+   dPROFILE;
    if ( pget_H( owner) != application || application == nilHandle) return false;
    *owner = application;
    return true;

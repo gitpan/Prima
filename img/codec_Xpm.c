@@ -25,7 +25,7 @@
  
  Created by Dmitry Karasik <dk@plab.ku.dk> 
 
- $Id: codec_Xpm.c,v 1.7 2004/12/13 15:54:17 dk Exp $
+ $Id: codec_Xpm.c,v 1.10 2007/09/12 12:18:47 dk Exp $
 
  */
 
@@ -35,6 +35,9 @@
 #define Font            XFont
 #define Window          XWindow
 #undef FUNC
+#ifdef _MSC_VER
+#define Bool I32
+#endif
 #include <X11/xpm.h>
 #undef Font
 #undef Drawable
@@ -84,10 +87,7 @@ static ImgCodecInfo codec_info = {
    nil,    /* features  */
    "",     /* module */
    "",     /* package */
-   true,   /* canLoad */
-   false,  /* canLoadMultiple  */
-   true,   /* canSave */
-   false,  /* canSaveMultiple */
+   IMG_LOAD_FROM_FILE | IMG_SAVE_TO_FILE,
    xpmbpp, /* save types */
    loadOutput
 };
@@ -421,6 +421,7 @@ prepare_xpm_color( void * value, int keyLen, Color * color_ptr, CalcData * cd)
 static Bool   
 save( PImgCodec instance, PImgSaveFileInstance fi)
 {
+   dPROFILE;
    XpmInfo  info;
    XpmImage image;
    HV * profile = fi-> objectExtras;

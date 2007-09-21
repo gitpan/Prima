@@ -25,7 +25,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: PodView.pm,v 1.45 2006/10/11 21:41:10 dk Exp $
+#  $Id: PodView.pm,v 1.46 2007/09/13 15:12:25 dk Exp $
 
 use strict;
 use Prima;
@@ -1693,13 +1693,13 @@ The 'podview' commands are:
 Example:
 
 	=for podview <cut>
-	
+
 	=for text just text-formatter info
-	
+
 		....
 		text-only info
 		...
-	
+
 	=for podview </cut>
 
 The E<lt>cut<gt> clause skips all POD input until cancelled.
@@ -1717,16 +1717,16 @@ L<cut> behavior if ( and only if ) the image load operation was unsuccessful.
 This make possible simultaneous use of 'podview' and 'text' :
 
 	=for podview <img src="graphic.gif" cut=1 >
-	
+
 	=begin text
-	
+
 	y     .
 	|  .
 	|.
 	+----- x
-	
+
 	=end text
-	
+
 	=for podview </cut>
 
 In the example above 'graphic.gif' will be shown if it can be found and loaded,

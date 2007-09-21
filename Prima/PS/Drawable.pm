@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Drawable.pm,v 1.36 2005/10/13 17:22:52 dk Exp $
+#  $Id: Drawable.pm,v 1.37 2007/09/13 15:12:25 dk Exp $
 #
 use strict;
 use Prima;
@@ -1619,7 +1619,11 @@ and vice versa calculations
 
 - ::region is not realized ( yet?)
 
+=back
+
 =head2 Specific properties
+
+=over
 
 =item ::copies
 

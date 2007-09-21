@@ -24,11 +24,16 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Makefile.PL,v 1.189 2007/05/25 11:27:06 dk Exp $
+#  $Id: Makefile.PL,v 1.205 2007/09/21 07:35:49 dk Exp $
 #
 
 BEGIN {
 	unshift @INC, '.';
+};
+
+my $END; 
+END {
+	print $END if defined $END;
 };
 
 require 5.00502;
@@ -80,6 +85,8 @@ use vars @ovvars = qw(
 	$WITH_ICONV
 	$CODEC_PRIGRAPH
 	$WITH_GTK2
+	$AUTOMATED_RUN
+	$CYGWIN_X11
 );
 
 use vars @path_expand_ovvars = qw(
@@ -143,6 +150,7 @@ use vars qw(
 	$install_manuals
 	$packlist
 	%cache_find_files
+	$binary_prereq
 );
 
 my $extramsg = "(see also makefile.log for details)";
@@ -572,6 +580,9 @@ sub suck_symbols
 
 sub setup_variables
 {
+	setvar( 'CYGWIN_X11', 0);
+	$Win32 = 0 if $CYGWIN_X11;
+
 	my $platform;
 	$NeedX11 = 0;
 	if ( $Win32) {              
@@ -930,6 +941,7 @@ sub setup_variables
 	setvar( 'DISTNAME', "Prima-$ver1.$ver2");
 	setvar( 'WANTNOCODECS', 0);
 	setvar( 'WANTNOGIFS', 0);
+	setvar( 'AUTOMATED_RUN', 0);
 	setvar( 'CODEC_PRIGRAPH', 1);
 	@executables = qw(
 		Prima/VB/VB.pl
@@ -938,9 +950,10 @@ sub setup_variables
 	my $unix = (!$Win32 && !$OS2);
 	setvar('WITH_ICONV', $unix);
 	setvar('WITH_XFT', $unix);
-	setvar('WITH_GTK2', 0);
+	setvar('WITH_GTK2', $unix);
 	$install_manuals = $cygwin || (!$Win32 && !$OS2);
 	$install_manuals = 0 if !length( $INSTALL_MAN1) || !length($INSTALL_MAN3);
+	$binary_prereq = '';
 
 	@Prima_exports = qw(
 boot_Prima build_dynamic_vmt build_static_vmt call_perl call_perl_indirect
@@ -949,7 +962,7 @@ ctx_remap_def cv_call_perl debug_write duplicate_string eval gimme_the_mate
 gimme_the_vmt kind_of kill_zombies notify_perl Object_create Object_destroy parse_hv
 plist_create plist_destroy prima_mallocz pop_hv_for_REDEFINED protect_object
 push_hv push_hv_for_REDEFINED query_method sv_call_perl sv_query_method
-unprotect_object temporary_prf_Sv
+unprotect_object
 );
 	push @Prima_exports, grep { /^(apc|list|prima)/ } suck_symbols('include/apricot.h');
 	push @Prima_exports, suck_symbols('include/img.h');
@@ -1297,18 +1310,27 @@ sub setup_misc
 		}
 	}
 	
+	my @codec_libpath = qd( $Config{installsitearch});
 	for ( @codecs) {
 		my @inc;
+		my $foundlib;
 		m/codec_(.*)\.c$/i;
-		my ( $fn, $lib) = ( $_, $1);
+		my ( $fn, $lib, $codec) = ( $_, $1, $1);
 		next unless open F, $fn;
 		while(<F>) {
 			push @inc, $_ if m/^\s*#include\s*\</;
 		}
 		close F;
 		$lib.='.lib' if ( $Win32 && !$cygwin) || $OS2;
-		if ( !$stop_codecs && ( $libs{$lib} || defined find_lib( $lib, join('', @inc), ''))) {
-			if ( $lib eq 'prigraph') {
+		if ( !$stop_codecs && ( 
+			$libs{$lib} || 
+			defined ( $foundlib = find_lib( $lib, join('', @inc), '', @codec_libpath))
+		)) {
+			if ( defined $foundlib and length $foundlib) {
+				push @LIBPATH, $foundlib;
+				@codec_libpath = ();
+			}
+			if ( $lib =~ /^prigraph/) {
 				if ( $CODEC_PRIGRAPH) {
 					print <<PRIGRAPH_WARNING unless defined $USER_VARS{CODEC_PRIGRAPH};
           
@@ -1324,7 +1346,7 @@ PRIGRAPH_WARNING
 					next;
 				}
 			}
-			push( @ACTIVE_CODECS, $1);
+			push( @ACTIVE_CODECS, $codec);
 			push( @LIBS, $lib) unless $libs{$lib};
 			print "Using image library '$lib'\n";
 		} else {
@@ -1333,48 +1355,35 @@ PRIGRAPH_WARNING
 	}
 
 	unless ( @ACTIVE_CODECS || $WANTNOCODECS) {
-		if ( $Win32 || $OS2) {
-			open F, "> Makefile";
-			my $dep = $Win32 ? 'win32' : 'os2';
-			print F <<DUMB_MAKE;
-# This makefile is created deliberately empty in case 
-# Makefile.PL was run from under CPAN shell, which scans
-# Makefile for uresolved dependencies
-# 
-# PREREQ_PM => { Prima::prigraph::$dep=>q[0] }
-#
-all:
-\t$^X Makefile.PL
-\tmake
-
-test: all
-DUMB_MAKE
-			close F;
-		}
-		die <<NOCODECS;
+		$binary_prereq = 'win32' if $Win32;
+		$binary_prereq = 'os2'   if $OS2; 
+		$END .= <<NOCODECS;
 
 ** No image codecs found. Use
 
 perl Makefile.PL WANTNOCODECS=1
 
-to ignore this error. Note that in this configuration Prima
+to suppress this warning. Note that in this configuration Prima
 will not be able to work with graphic files. Please follow
 the instructions in README file.
 
 If you are under CPAN shell and are asked to follow Prima::prigraph 
-dependencies, do so and re-run 'install Prima' afterwards.
+dependencies, do so.
 
 NOCODECS
 	}
 
-	unless ( $WANTNOCODECS or $WANTNOGIFS or grep { m/^(prigraph|ungif)/ } @ACTIVE_CODECS) {
-		die <<UNGIF_WARNING;
+	unless ( 
+		not(@ACTIVE_CODECS) or $WANTNOCODECS or 
+		$WANTNOGIFS or grep { m/^(prigraph|ungif)/ } @ACTIVE_CODECS
+	) {
+		$END .= <<UNGIF_WARNING;
           
 ** Warning: no libungif / libprigraph found. Use
 
 perl Makefile.PL WANTNOGIFS=1
 
-to ignore this error. Note that in this configuration Prima
+to suppress this warning. Note that in this configuration Prima
 will not be able to work with GIF files. Please follow
 the instructions in README file.
 
@@ -1741,7 +1750,7 @@ use vars qw(%Config %Config_inst);
 	incpaths              => [ $ippi ],
 	gencls                => '$iscr${ifs}gencls$SCRIPT_EXT',
 	tmlink                => '$iscr${ifs}tmlink$SCRIPT_EXT',
-	libname               => '$isa${ifs}Prima$LIB_EXT',
+	libname               => '$isa${ifs}auto${ifs}Prima${ifs}Prima$LIB_EXT',
 	dlname                => '$isa${ifs}$pt',
 	ldpaths               => [$libpathi],
 );
@@ -1862,7 +1871,7 @@ if ( $#ARGV >= 0 && $ARGV[ 0] =~ /^\-\-cp(bin)?$/) {
 			unlink $dst;
 			open SRCPL, "<$src" or die "Cannot open $src: $!";
 			open DSTPL, ">$dst" or die "Cannot create $dst: $!";
-			chmod 0555, $dst unless ($Win32 && !$cygwin) || $OS2;
+			chmod 0755, $dst unless ($Win32 && !$cygwin) || $OS2;
 			if ( $Win32 && !$cygwin) {
 				print DSTPL <<EOF;
 \@rem = '--*-Perl-*--
@@ -2091,8 +2100,9 @@ compiler/linker options:
     X11BASE           - path where X11 includes and libraries are installed
     WITH_XFT          - compile with/without Xft (default 1), X only
     WITH_ICONV        - compile with/without iconv (default 1), X only
-    WITH_GTK2         - compile with/without GTK2 (default 0), X only
+    WITH_GTK2         - compile with/without GTK2 (default 1), X only
     CODEC_PRIGRAPH    - compile with/without prigraph (default 1), win32/os2 only
+    CYGWIN_X11        - X11 build in cygwin environment
 
 HELP
 	exit;
@@ -2174,17 +2184,31 @@ EOF
 	create_codecs_c;
 	#exit;
 
-	my $make = <<EOF;
+	my $make = <<HEADER;
 # Makefile for Prima project under $Config{archname}
 #
 # THIS IS GENERATED FILE.
 #
 # Do not edit -- all changes will be lost.
 # Edit Makefile.PL instead.
+HEADER
 
-all: prima
+	$make .= <<PREREQ if $binary_prereq;
+#	
+# PREREQ_PM => { Prima::prigraph::$binary_prereq=>q[0] }
+#
+PREREQ
 
-EOF
+	$make .= <<RERUN if $binary_prereq and not $AUTOMATED_RUN;
+prima_prereq:
+\t\@echo Rebuilding Makefile...
+\t\@$^X Makefile.PL --rm Makefile
+\t\@$^X Makefile.PL $ARGV_STR AUTOMATED_RUN=1
+\t\@$MAKE
+
+RERUN
+
+	$make .= "all: prima\n\n";
 
 	$make .= join( "\n", @headers) . "\n";
 
@@ -2245,6 +2269,7 @@ CPBIN=$^X Makefile.PL --cpbin
 MD=$^X Makefile.PL --md
 RM=$^X Makefile.PL --rm
 RMDIR=$^X Makefile.PL --rmdir
+CHMOD=$^X -e $SHQUOTE chmod 0755, \@ARGV $SHQUOTE
 
 dirs:
 \t\@echo Creating directories...
@@ -2277,7 +2302,7 @@ $PrimaTarget: @allojects $extralibs
 
 test: all
 \t\@echo Testing Prima v$DEFINES{PRIMA_VERSION}.$DEFINES{PRIMA_SUBVERSION}
-\t\@$^X -I. -w test/Tester.pl
+\t\@$^X -I. -w test.pl
 
 ppd:
 \t\@$^X -e "print qq{<SOFTPKG NAME=\\"Prima\\" VERSION=\\"$DEFINES{PRIMA_VERSION},$DEFINES{PRIMA_SUBVERSION},0,0\\">\\n}. qq{\\t<TITLE>Prima</TITLE>\\n}. qq{\\t<ABSTRACT>Perl GUI toolkit</ABSTRACT>\\n}. qq{\\t<AUTHOR>Dmitry Karasik</AUTHOR>\\n}. qq{\\t<IMPLEMENTATION>\\n}. qq{\\t\\t<OS NAME=\\"$^O\\" />\\n}. qq{\\t\\t<ARCHITECTURE NAME=\\"$Config{myarchname}\\" />\\n}. qq{\\t\\t<CODEBASE HREF=\\"http://www.prima.eu.org/download/Prima-$DEFINES{PRIMA_VERSION}.$DEFINES{PRIMA_SUBVERSION}.tar.gz\\" />\\n}. qq{\\t</IMPLEMENTATION>\\n}. qq{</SOFTPKG>\\n}" > Prima.ppd
@@ -2293,10 +2318,12 @@ EOF
 
 	my %cp;
 	my %cpbin;
+	my @chmodx; # cygwin's File::Copy sucks, doesn't save permissions
 	$cp{$PrimaTarget} = $INSTALL_DL;
 	$cp{$PrimaLib}    = $INSTALL_DL;
 	$cp{"Prima.pm"}   = $INSTALLSITEARCH;
 	$cp{'.packlist'}  = $INSTALL_DL;
+	push @chmodx, "$INSTALL_DL/$OS2DLLF$DL_EXT";
 	push @allman, 'Prima.pm', manname( 'Prima.pm', 3, '');
 
 	my $cwd = cwd();
@@ -2359,6 +2386,7 @@ EOF
 		$cpbin{$src} = qd( "$dst/" . basename( $src, '.pl')) . $SCRIPT_EXT;
 	}
 	dump_cmd( sub { "$_[0] $cpbin{$_[0]}"}, 'CPBIN', keys %cpbin);
+	dump_cmd( sub { $_[0] }, 'CHMOD', @chmodx);
 	
 	print MAKE "\n\t\@echo Updating config...\n";
 	print MAKE "\t$^X Makefile.PL --updateconfig $INSTALLSITEARCH/Prima/Config.pm";

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: AccelTable.c,v 1.18 2004/03/13 20:59:21 dk Exp $
+ * $Id: AccelTable.c,v 1.19 2007/08/09 13:03:06 dk Exp $
  */
 
 #include "apricot.h"
@@ -43,6 +43,7 @@ extern "C" {
 void
 AccelTable_init( Handle self, HV * profile)
 {
+   dPROFILE;
    inherited init( self, profile);
    var-> system = false;
    my-> set_items( self, pget_sv( items));

@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: EditDialog.pm,v 1.13 2005/10/13 17:22:50 dk Exp $
+#  $Id: EditDialog.pm,v 1.14 2007/09/13 15:12:24 dk Exp $
 
 #  contains:
 #      FindDialog
@@ -286,7 +286,7 @@ to find and replace options selection.
 =head1 SYNOPSIS
 
 	use Prima::StdDlg;
-	
+
 	my $dlg = Prima::FindDialog-> create( findStyle => 0);
 	my $res = $dlg-> execute;
 	if ( $res == mb::Ok) {

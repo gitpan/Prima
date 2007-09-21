@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Make.pm,v 1.14 2005/12/14 11:38:03 dk Exp $
+#  $Id: Make.pm,v 1.15 2007/09/13 15:12:25 dk Exp $
 
 use strict;
 use Config;
@@ -681,12 +681,11 @@ See L<init> for details.
    install:
    \t$^X Makefile.PL --cp $ld $INSTALL_DL a.pm $INSTALL_LIB
    \t$^X Makefile.PL --cpbin a.pl $INSTALL_BIN
-      
+
    MAKE
    close F;
 
-
-=head2 API
+=head1 API
 
 =head2 Methods
 

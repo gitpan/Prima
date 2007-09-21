@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Buttons.pm,v 1.41 2005/10/13 17:22:50 dk Exp $
+#  $Id: Buttons.pm,v 1.42 2007/09/13 15:12:24 dk Exp $
 
 # contains:
 #   Button
@@ -1240,13 +1240,13 @@ Note: C<*> - marked classes are abstract.
 =head1 USAGE
 
 	use Prima::Buttons;
-	
+
 	my $button = $widget-> insert( 'Prima::Button', 
 		text => 'Push button',
 		onClick => sub { print "hey!\n" },
 	);
 	$button-> flat(1);
-	
+
 	my $group = $widget-> insert( 'Prima::GroupBox', 
 		onRadioClick => sub { print $_[1]-> text, "\n"; }
 	);

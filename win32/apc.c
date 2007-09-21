@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc.c,v 1.122 2007/08/03 19:55:43 dk Exp $
+ * $Id: apc.c,v 1.123 2007/08/10 18:46:54 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -535,8 +535,10 @@ apc_application_yield()
 {
    MSG msg;
    while ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE))
-      if ( !process_msg( &msg))
+      if ( !process_msg( &msg)) {
          PostThreadMessage( guts. mainThreadId, appDead ? WM_QUIT : WM_TERMINATE, 0, 0);
+	 break;
+      }
    return true;
 }
 

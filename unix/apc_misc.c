@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_misc.c,v 1.102 2007/05/18 12:24:32 dk Exp $
+ * $Id: apc_misc.c,v 1.103 2007/08/21 16:44:10 dk Exp $
  */
 
 /***********************************************************/
@@ -1293,6 +1293,17 @@ apc_system_action( const char *s)
           for ( i = 0; i < len; i++) if ( text[i]==255) text[i] = 0;
           XDrawString16( DISP, win, X(self)-> gc, x, y, ( XChar2b *) text, len / 2);
           return nil;
+      }
+      break;
+   case 'X':
+      if ( strcmp( s, "XOpenDisplay") == 0) {
+         char err_buf[512];
+         if ( DISP)
+             return duplicate_string( "X display already opened");
+         window_subsystem_set_option( "yes-x11", NULL);
+	 if ( !window_subsystem_init( err_buf))
+             return duplicate_string( err_buf);
+	 return NULL;
       }
       break;
    }

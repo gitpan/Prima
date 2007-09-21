@@ -1,4 +1,4 @@
-=for rcs $Id: X11.pod,v 1.9 2005/09/27 16:16:36 dk Exp $
+=for rcs $Id: X11.pod,v 1.11 2007/09/13 15:12:25 dk Exp $
 
 =head1 NAME
 
@@ -68,13 +68,20 @@ for the same purpose but more convenient to use as
 construct. Second, there is a technique to continue execution even if connection
 to a X server failed:
 
-   eval 'use Prima;';
-   unless ( $@) {
-      print "X11 enabled\n";
+   use Prima::noX11;
+   use Prima;
+
+   my $error = Prima::XOpenDisplay();
+   if ( defined $error) {
+        print "not connected to display: $error\n";
    } else {
-      die $@ unless $@ =~ /can't open display/i;
-      print "X11 disabled\n";
+   	print "connected to display\n";
    }
+
+The L<Prima::noX11> module exports a single function C<XOpenDisplay> into
+C<Prima> namespace, to connect to the X display explicitly. The display to be
+connected to is C<$ENV{DISPLAY}>, unless started otherwise on command line ( with
+--display option) or with parameter to the C<XOpenDisplay> function.
 
 This technique may be useful to programs that use Prima imaging functionality
 and may or may not use windowing capabilites.
@@ -150,7 +157,7 @@ by
    Prima.Submenudelay: 10
 
 or
-   
+
    Prima.submenudelay: 10
 
 syntax. Despite that these calls are different, in a way that one reaches for
@@ -579,7 +586,7 @@ If 'mouse down' and 'mouse up' events are follow in MSEC, 'mouse click'
 event is synthesized.
 
 Default value: 200
-      
+
 =item Doubleclicktimeframe.doubleclicktimeframe MSEC
 
 If 'mouse click' and 'mouse down' events are follow in MSEC, 'mouse double click'
@@ -619,7 +626,7 @@ Default value: 50
 =head2 Miscellaneous
 
 =over
-   
+
 =item Visual.visual: VISUAL_ID
 
 Selects display visual by VISUAL_ID, which is usually has a form of C<0x??>.

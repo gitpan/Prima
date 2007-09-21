@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Popup.c,v 1.19 2003/06/05 18:47:00 dk Exp $
+ * $Id: Popup.c,v 1.20 2007/08/09 13:03:06 dk Exp $
  */
 
 #include "apricot.h"
@@ -44,6 +44,7 @@ extern "C" {
 void
 Popup_init( Handle self, HV * profile)
 {
+   dPROFILE;
    inherited init( self, profile);
    opt_assign( optAutoPopup, pget_B( autoPopup));
    CORE_INIT_TRANSIENT(Popup);
@@ -52,6 +53,7 @@ Popup_init( Handle self, HV * profile)
 void
 Popup_update_sys_handle( Handle self, HV * profile)
 {
+   dPROFILE;
    Handle xOwner = pexist( owner) ? pget_H( owner) : var-> owner;
    if ( var-> owner && ( xOwner != var-> owner))
       ((( PWidget) var-> owner)-> self)-> set_popup( var-> owner, nilHandle);

@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: ImageDialog.pm,v 1.15 2005/10/13 17:22:50 dk Exp $
+#  $Id: ImageDialog.pm,v 1.17 2007/09/13 14:52:53 dk Exp $
 #
 
 package Prima::ImageDialog;
@@ -39,11 +39,13 @@ use Prima::FileDialog;
 sub filtered_codecs
 {
 	my $codecs = defined($_[0]) ? $_[0] : Prima::Image-> codecs;
-	return map { 
-		my $n = uc join( ';', @{$_-> {fileExtensions}});
+	return map {
+		my $n = uc $_-> {fileExtensions}->[0];
 		my $x = join( ';', map {"*.$_"} @{$_-> {fileExtensions}});
-		[ "$_->{fileType} ($n)" => $x ]} 
-	@$codecs;
+		[ "$n - $_->{fileType}" => $x ] 
+	} sort {
+		$a-> {fileExtensions}->[0] cmp $b-> {fileExtensions}->[0] 
+	} @$codecs;
 }
 
 sub filtered_codecs2all
@@ -55,6 +57,17 @@ sub filtered_codecs2all
 package Prima::ImageOpenDialog;
 use vars qw( @ISA);
 @ISA = qw( Prima::OpenDialog);
+
+{
+my %RNT = (
+	%{Prima::Dialog-> notification_types()},
+	HeaderReady   => nt::Default,
+	DataReady     => nt::Default,
+);
+
+sub notification_types { return \%RNT; }
+}
+
 
 sub profile_default {
 	my $codecs = [ grep { $_-> {canLoad} } @{Prima::Image-> codecs}];
@@ -223,13 +236,35 @@ sub FrameSelector_Change
 	$fs-> {block} = 0;
 }
 
+sub PreviewImage_HeaderReady
+{ 
+	my ( $self, $image) = @_;
+	$self-> notify(q(HeaderReady), $image);
+}
+
+sub PreviewImage_DataReady
+{ 
+	my ( $self, $image, $x, $y, $w, $h) = @_;
+	$self-> notify(q(DataReady), $x, $y, $w, $h);
+}
+
 sub load
 {
 	my ( $self, %profile) = @_;
 	return undef unless defined $self-> execute;
 	$profile{loadExtras} = 1 unless exists $profile{loadExtras};
 	$profile{index} = $self-> {frameIndex};
-	my @r = Prima::Image-> load( $self-> fileName, %profile);
+	my %im_profile;
+
+	if ( $self-> get_notify_sub('HeaderReady') || $self-> get_notify_sub('DataReady')) {
+		$im_profile{name}           = 'PreviewImage';
+		$im_profile{delegations}    = [ $self, qw(HeaderReady DataReady)];
+	}
+	my $img = Prima::Image-> new( %im_profile);
+	my $pv  = $profile{progressViewer};
+	$pv-> watch_load_progress($img) if $pv;
+	my @r = $img-> load( $self-> fileName, %profile);
+	$pv-> unwatch_load_progress if $pv;
 	unless ( defined $r[-1]) {
 		Prima::MsgBox::message("Error loading " . $self-> fileName . ":$@");
 		pop @r;
@@ -288,7 +323,10 @@ sub init
 	
 	$self-> {codecFilters} = [];
 	$self-> {allCodecs} = Prima::Image-> codecs;
-	$self-> {codecs} = [ grep { $_-> {canSave}} @{$self-> {allCodecs}}];
+	$self-> {codecs} = [ 
+		sort { $a-> {fileExtensions}->[0] cmp $b-> {fileExtensions}->[0] } 
+		grep { $_-> {canSave}} @{$self-> {allCodecs}}
+		];
 	my $codec = $self-> {codecs}-> [$self-> filterIndex];
 	
 	$self-> image( $profile{image});
@@ -478,13 +516,13 @@ loading and saving.
 
 =head1 Prima::ImageOpenDialog
 
-Provides a preview feature, allowing the user to view the image file
-before loading, and the selection of a frame index for the multi-framed
-image files. Instead of C<execute> call, the L<load> method is used
-to invoke the dialog and returns the loaded image as a C<Prima::Image> object.
-The loaded object by default contains C<{extras}> hash variable set, which contains 
-extra information returned by the loader. See L<Prima::image-load> for
-more information.
+Provides a preview feature, allowing the user to view the image file before
+loading, and the selection of a frame index for the multi-framed image files.
+Instead of C<execute> call, the L<load> method is used to invoke the dialog and
+returns the loaded image as a C<Prima::Image> object.  The loaded object by
+default contains C<{extras}> hash variable set, which contains extra
+information returned by the loader. See L<Prima::image-load> for more
+information.
 
 =head2 SYNOPSIS
 
@@ -512,13 +550,36 @@ Default value: 1
 
 =item load %PROFILE
 
-Executes the dialog, and, if successful, loads the image file and frame 
+Executes the dialog, and, if successful, loads the image file and frame
 selected by the user. Returns the loaded image as a C<Prima::Image> object.
-PROFILE is a hash, passed to C<Prima::Image::load> method. In particular,
-it can be used to disable the default loading of extra information in
-C<{extras}> variable, or to specify a non-default loading option.
-For example, C<{extras}-E<gt>{className} = 'Prima::Icon'> would return the loaded
-image as an icon object. See L<Prima::image-load> for more.
+PROFILE is a hash, passed to C<Prima::Image::load> method. In particular, it
+can be used to disable the default loading of extra information in C<{extras}>
+variable, or to specify a non-default loading option.  For example,
+C<{extras}-E<gt>{className} = 'Prima::Icon'> would return the loaded image as
+an icon object. See L<Prima::image-load> for more.
+
+C<load> can report progressive image loading to the caller, and/or to an
+instance of C<Prima::ImageViewer>, if desired. If either (or both)
+C<onHeaderReady> and C<onDataReady> notifications are specified, these are
+called from the respective event handlers of the image being loaded ( see
+L<Prima::image-load/"Loading with progress indicator"> for details).  If
+profile key C<progressViewer> is supplied, its value is treated as a
+C<Prima::ImageViewer> instance, and it is used to display image loading
+progress. See L<Prima::ImageViewer/watch_load_progress>.
+
+=back
+
+=head2 Events
+
+=over
+
+=item HeaderReady IMAGE
+
+See L<Prima::Image/HeaderReady>.
+
+=item DataReady IMAGE, X, Y, WIDTH, HEIGHT
+
+See L<Prima::Image/DataReady>.
 
 =back
 
@@ -576,6 +637,6 @@ Dmitry Karasik, E<lt>dmitry@karasik.eu.orgE<gt>.
 =head1 SEE ALSO
 
 L<Prima>, L<Prima::Window>, L<Prima::codecs>, L<Prima::image-load>,
-L<Prima::Image>, L<Prima::FileDialog>, F<examples/iv.pl>.
+L<Prima::Image>, L<Prima::FileDialog>, L<Prima::ImageViewer>, F<examples/iv.pl>.
 
 =cut

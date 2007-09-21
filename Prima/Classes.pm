@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Classes.pm,v 1.97 2007/08/03 19:55:24 dk Exp $
+#  $Id: Classes.pm,v 1.98 2007/09/13 14:52:53 dk Exp $
 use Prima;
 use Prima::Const;
 
@@ -546,6 +546,16 @@ sub draw_text
 package Prima::Image;
 use vars qw( @ISA);
 @ISA = qw(Prima::Drawable);
+
+{
+my %RNT = (
+	%{Prima::Drawable-> notification_types()},
+	HeaderReady => nt::Default,
+	DataReady   => nt::Default,
+);
+
+sub notification_types { return \%RNT; }
+}
 
 sub profile_default
 {

@@ -1,10 +1,12 @@
-=for rcs $Id: codecs.pod,v 1.8 2002/10/16 21:24:23 dk Exp $
+=for rcs $Id: codecs.pod,v 1.9 2007/09/13 15:12:25 dk Exp $
 
 =head1 NAME
 
 Prima::codecs - How to write a codec for Prima image subsystem
 
 =head1 DESCRIPTION
+
+How to write a codec for Prima image subsystem
 
 =head1 Start simple
 
@@ -51,7 +53,7 @@ is black.
         PImage( fi-> object)-> dataSize);
 
       _libduff_close_file( _l);
-         
+
       return true;
    }
 
@@ -208,7 +210,7 @@ Here comes full code:
 
 
       _libduff_close_file( _l);
-         
+
       return true;
    }
 
@@ -409,7 +411,6 @@ default ( and always valid ) value pairs.
 Example below defines speed_vs_memory integer value, that 
 should be 0, 1 or 2.
 
-        
    static HV *
    load_defaults( PImgCodec c)
    {
@@ -504,7 +505,7 @@ defines extra hot spot coordinates, x and y.
       PImage i = ( PImage) fi-> object;
       Byte * l;
       ...
-      
+
       fprintf( fi-> f, "#define %s_width %d\n", name, i-> w);
       fprintf( fi-> f, "#define %s_height %d\n", name, i-> h);
       if ( pexist( hotSpotX))

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Timer.c,v 1.22 2003/06/05 18:47:00 dk Exp $
+ * $Id: Timer.c,v 1.23 2007/08/09 13:03:06 dk Exp $
  */
 
 #include "apricot.h"
@@ -52,6 +52,7 @@ Timer_init( Handle self, HV * profile)
 void
 Timer_update_sys_handle( Handle self, HV * profile)
 {
+   dPROFILE;
    Handle xOwner = pexist( owner) ? pget_H( owner) : var-> owner;
    if (!( pexist( owner))) return;
    if ( !apc_timer_create( self, xOwner, pexist( timeout)
@@ -94,6 +95,7 @@ Timer_done( Handle self)
 Bool
 Timer_validate_owner( Handle self, Handle * owner, HV * profile)
 {
+   dPROFILE;
    *owner = pget_H( owner);
    if ( !kind_of( *owner, CWidget)) return false;
    return inherited validate_owner( self, owner, profile);

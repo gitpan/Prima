@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: AbstractMenu.c,v 1.58 2007/05/23 17:50:56 dk Exp $
+ * $Id: AbstractMenu.c,v 1.59 2007/08/09 13:03:06 dk Exp $
  */
 
 #include "apricot.h"
@@ -386,6 +386,7 @@ AbstractMenu_new_menu( Handle self, SV * sv, int level)
 void
 AbstractMenu_init( Handle self, HV * profile)
 {
+   dPROFILE;
    inherited init( self, profile);
    var-> anchored = kind_of( self, CMenu);
    my-> update_sys_handle( self, profile);
@@ -407,6 +408,7 @@ AbstractMenu_done( Handle self)
 Bool
 AbstractMenu_validate_owner( Handle self, Handle * owner, HV * profile)
 {
+   dPROFILE;
    *owner = pget_H( owner);
    if ( !kind_of( *owner, CWidget)) return false;
    return inherited validate_owner( self, owner, profile);
@@ -422,6 +424,7 @@ AbstractMenu_cleanup( Handle self)
 void
 AbstractMenu_set( Handle self, HV * profile)
 {
+   dPROFILE;
    Bool select = false;
    if ( pexist( owner)) {
       select = pexist( selected) ? pget_B( selected) : my-> get_selected( self);

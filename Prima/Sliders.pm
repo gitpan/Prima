@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Sliders.pm,v 1.38 2007/05/24 13:57:28 dk Exp $
+#  $Id: Sliders.pm,v 1.39 2007/09/13 15:12:25 dk Exp $
 
 # contains:
 #   SpinButton
@@ -1785,11 +1785,11 @@ This property unites the following set of class hierarchies:
 	Prima::AbstractSpinButton
 		Prima::SpinButton
 		Prima::AltSpinButton
-		
+
 	Prima::SpinEdit
-	
+
 	Prima::Gauge
-	
+
 	Prima::AbstractSlider
 		Prima::Slider
 		Prima::CircularSlider

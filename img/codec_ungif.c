@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: codec_ungif.c,v 1.15 2007/05/16 21:16:24 dk Exp $
+ * $Id: codec_ungif.c,v 1.18 2007/09/12 12:18:47 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 
@@ -72,10 +72,8 @@ static ImgCodecInfo codec_info = {
    gifver,    /* features  */
    "Prima::Image::gif",     /* module */
    "Prima::Image::gif",     /* package */
-   true,   /* canLoad */
-   true,   /* canLoadMultiple  */
-   true,   /* canSave */
-   true,   /* canSaveMultiple */
+   IMG_LOAD_FROM_FILE | IMG_LOAD_MULTIFRAME | IMG_LOAD_FROM_STREAM | 
+   IMG_SAVE_TO_FILE | IMG_SAVE_MULTIFRAME | IMG_SAVE_TO_STREAM,
    gifbpp, /* save types */
    loadOutput
 };
@@ -84,12 +82,6 @@ static void *
 init( ImgCodecInfo ** info, void * param)
 {
    char vd[1024];
-#ifdef __CYGWIN__
-   /* This is the last remedy. Because otherwise it compiles, it runs,
-      it crashes. The trouble is probably deep inside libungif, which
-      is also probably because of its long buggy history */
-   return nil;
-#endif
    *info = &codec_info;
    sscanf( GIF_LIB_VERSION, "%s %d.%d", vd, &((*info)-> versionMaj), &((*info)-> versionMin));
    if ((*info)-> versionMaj > 4) EGifSetGifVersion( "89a");
@@ -198,7 +190,13 @@ format_error( int errorID, char * errbuf, int line)
            msg = "file opened not for writing"; break;
    }
    if ( msg) snprintf( errbuf, 256, "%s", msg);
-}   
+}
+
+static int
+my_gif_read( GifFileType * gif, GifByteType * buf, int size)
+{
+   return req_read( ( PImgIORequest) (gif-> UserData), size, buf);
+}
 
 static void * 
 open_load( PImgCodec instance, PImgLoadFileInstance fi)
@@ -209,19 +207,22 @@ open_load( PImgCodec instance, PImgLoadFileInstance fi)
    if ( !l) return nil;
    memset( l, 0, sizeof( LoadRec));
    
-   if ( !( l-> gft = DGifOpenFileName( fi-> fileName))) {
-      free( l);
-      return nil;
-   }   
+   if ( fi-> req_is_stdio) {
+      if ( !( l-> gft = DGifOpenFileHandle( fileno(( FILE*) fi-> req-> handle)))) {
+         free( l);
+         return nil;
+      }
+   } else {
+      if ( !( l-> gft = DGifOpen( fi-> req, my_gif_read))) {
+         free( l);
+         return nil;
+      }
+   }
    fi-> stop = true;
 
    l-> content = newHV();
    l-> passed  = -1;
    l-> transparent = -1;
-
-   /* safe to kill */
-   fclose( fi-> f);
-   fi-> f = NULL;
 
    if ( fi-> loadExtras) {
       pset_i( screenWidth,           l-> gft-> SWidth);
@@ -244,6 +245,7 @@ typedef struct _GIFGraphControlExt {
 static void
 load_extension( PImgLoadFileInstance fi, int code, Byte * data, Bool privateExtensions)
 {
+   dPROFILE;
    LoadRec * l = ( LoadRec *) fi-> instance;
    HV * profile = l-> content;
    
@@ -482,17 +484,24 @@ save_defaults( PImgCodec c)
    return profile;
 }
 
+static int
+my_gif_write( GifFileType * gif, const GifByteType * buf, int size)
+{
+   return req_write( (( PImgIORequest) (gif-> UserData)), size, ( void*) buf);
+}
 
 static void * 
 open_save( PImgCodec instance, PImgSaveFileInstance fi)
 {
    GifFileType * g;
-   if ( !( g = EGifOpenFileName( fi-> fileName, 0)))
-      return nil;
-
-   /* safe to kill */
-   fclose( fi-> f);
-   fi-> f = NULL;
+   
+   if ( fi-> req_is_stdio) {
+      if ( !( g = EGifOpenFileHandle( fileno(( FILE*) fi-> req-> handle))))
+         return nil;
+   } else {
+      if ( !( g = EGifOpen( fi-> req, my_gif_write)))
+         return nil;
+   }
 
    return g;
 }
@@ -533,6 +542,7 @@ make_colormap( PRGBColor r, int sz)
 static Bool   
 save( PImgCodec instance, PImgSaveFileInstance fi)
 {
+   dPROFILE;
    GifFileType * g = ( GifFileType *) fi-> instance; 
    PImage i = ( PImage) fi-> object;
    HV * profile = fi-> objectExtras;

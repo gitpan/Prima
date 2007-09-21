@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: codec_X11.c,v 1.11 2003/07/06 14:58:41 dk Exp $
+ * $Id: codec_X11.c,v 1.16 2007/09/12 12:59:22 dk Exp $
  */
 
 #include "img.h"
@@ -42,9 +42,17 @@
 #undef FUNC
 #include "Image.h"
 
-#ifndef __CYGWIN__
+#define MIRROR(a,b)
+#ifdef __CYGWIN__
+#else
+#ifdef _MSC_VER
+#undef vsnprintf
+#else
+#undef MIRROR
 extern void
 prima_mirror_bytes( unsigned char *data, int dataSize);
+#define MIRROR(a,b) prima_mirror_bytes(a,b)
+#endif
 #endif
 
 #ifdef __cplusplus
@@ -70,10 +78,7 @@ static ImgCodecInfo codec_info = {
    nil,    /* features  */
    "",     /* module */
    "",     /* package */
-   true,   /* canLoad */
-   false,  /* canLoadMultiple  */
-   true,   /* canSave */
-   false,  /* canSaveMultiple */
+   IMG_LOAD_FROM_FILE | IMG_SAVE_TO_FILE | IMG_SAVE_TO_STREAM,
    xbmbpp, /* save types */
    loadOutput
 };
@@ -152,9 +157,7 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
       src += ls;
       dst -= i-> lineSize;
    }   
-#ifndef __CYGWIN__   
-   prima_mirror_bytes( i-> data, i-> dataSize);
-#endif
+   MIRROR( i-> data, i-> dataSize);
    return true;
 }   
 
@@ -181,9 +184,22 @@ open_save( PImgCodec instance, PImgSaveFileInstance fi)
    return (void*)1;
 }
 
+static void
+myprintf( PImgIORequest req, const char *format, ...)
+{
+	int len;
+	char buf[2048];
+        va_list args;
+        va_start( args, format);
+        len = vsnprintf( buf, 2048, format, args);
+        va_end( args);
+	req_write( req, len, buf);
+}
+
 static Bool   
 save( PImgCodec instance, PImgSaveFileInstance fi)
 {
+   dPROFILE;
    PImage i = ( PImage) fi-> object;
    Byte * l;
    int h = i-> h, col = -1;
@@ -197,6 +213,7 @@ save( PImgCodec instance, PImgSaveFileInstance fi)
    if ( !l) return false;
 
    /* extracting name */
+   if ( xc == NULL) xc = "xbm";
    name = xc;
    while ( *xc) {
       if ( *xc == '/') 
@@ -214,14 +231,16 @@ save( PImgCodec instance, PImgSaveFileInstance fi)
       }   
       xc++;
    }  
+
+   name[1024] = 0;
    
-   fprintf( fi-> f, "#define %s_width %d\n", name, i-> w);
-   fprintf( fi-> f, "#define %s_height %d\n", name, i-> h);
+   myprintf( fi-> req, "#define %s_width %d\n", name, i-> w);
+   myprintf( fi-> req, "#define %s_height %d\n", name, i-> h);
    if ( pexist( hotSpotX))
-      fprintf( fi-> f, "#define %s_x_hot %d\n", name, (int)pget_i( hotSpotX));
+      myprintf( fi-> req, "#define %s_x_hot %d\n", name, (int)pget_i( hotSpotX));
    if ( pexist( hotSpotY))
-      fprintf( fi-> f, "#define %s_y_hot %d\n", name, (int)pget_i( hotSpotY));
-   fprintf( fi-> f, "static char %s_bits[] = {\n  ", name);
+      myprintf( fi-> req, "#define %s_y_hot %d\n", name, (int)pget_i( hotSpotY));
+   myprintf( fi-> req, "static char %s_bits[] = {\n  ", name);
 
   
    while ( h--) {
@@ -229,26 +248,24 @@ save( PImgCodec instance, PImgSaveFileInstance fi)
       int w = ls;
       
       memcpy( s1, s, ls);
-#ifndef __CYGWIN__   
-      prima_mirror_bytes( s1, ls);
-#endif      
+      MIRROR( s1, ls);
       
       while ( w--) {
          if ( first) {
            first = 0;
          } else {
-           fprintf( fi-> f, ", ");
+           myprintf( fi-> req, ", ");
          }  
          if ( col++ == 11) {
             col = 0;
-            fprintf( fi-> f, "\n  ");
+            myprintf( fi-> req, "\n  ");
          }   
-         fprintf( fi-> f, "0x%02x", (Byte)~(*(s1++)));
+         myprintf( fi-> req, "0x%02x", (Byte)~(*(s1++)));
       }   
       s -= i-> lineSize;
    }  
 
-   fprintf( fi-> f, "};\n");
+   myprintf( fi-> req, "};\n");
    
    free( l);
    free( name);

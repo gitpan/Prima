@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: VBLoader.pm,v 1.26 2005/10/13 17:22:52 dk Exp $
+# $Id: VBLoader.pm,v 1.27 2007/09/13 15:12:25 dk Exp $
 package Prima::VB::VBLoader;
 use strict;
 use Prima::Utils;
@@ -329,7 +329,7 @@ after the creation, the widget hierarchy can be accessed in the standard way:
 In case a form is to be included not from a fm file but from other data source,
 L<AUTOFORM_REALIZE> call can be used to transform perl array into set of
 widgets:
-		
+
 	$form = AUTOFORM_REALIZE( [ Form1 => {
 		class   => 'Prima::Window',
 		parent  => 1,

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_img.c,v 1.89 2007/05/14 16:43:22 dk Exp $
+ * $Id: apc_img.c,v 1.90 2007/09/20 10:02:27 dk Exp $
  */
 /*
  * System dependent image routines (unix, x11)
@@ -1549,6 +1549,9 @@ prima_query_image( Handle self, XImage * i)
 
    if (( img-> type & imBPP) != target_depth) 
       CImage( self)-> create_empty( self, img-> w, img-> h, target_depth);
+   
+   X(self)-> size. x = img-> w;
+   X(self)-> size. y = img-> h;
 
    if ( target_depth == 1) {
       prima_copy_xybitmap( img-> data, (Byte*)i-> data, img-> w, img-> h, img-> lineSize, i-> bytes_per_line);

@@ -34,7 +34,7 @@
  * of this code, and for a DISCLAIMER OF ALL WARRANTIES.
  * ---------------------------------------------------------------------
  *
- * $Id: Drawable.c,v 1.97 2005/03/30 19:33:43 dk Exp $
+ * $Id: Drawable.c,v 1.98 2007/08/09 13:03:06 dk Exp $
  */
 
 #include "apricot.h"
@@ -59,6 +59,7 @@ extern "C" {
 void
 Drawable_init( Handle self, HV * profile)
 {
+   dPROFILE;
    inherited init( self, profile);
    apc_gp_init( self);
    var-> w = var-> h = 0;
@@ -167,6 +168,7 @@ Drawable_end_paint_info( Handle self)
 void 
 Drawable_set( Handle self, HV * profile)
 {
+   dPROFILE;
    if ( pexist( font))
    {
       SvHV_Font( pget_sv( font), &Font_buffer, "Drawable::set");

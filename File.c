@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: File.c,v 1.23 2005/09/29 08:03:58 dk Exp $
+ * $Id: File.c,v 1.24 2007/08/09 13:03:06 dk Exp $
  */
 
 #include "apricot.h"
@@ -52,6 +52,7 @@ static void File_reset_notifications( Handle self);
 void
 File_init( Handle self, HV * profile)
 {
+   dPROFILE;
    var-> fd = -1;
    inherited-> init( self, profile);
    my-> set_mask( self, pget_i( mask));

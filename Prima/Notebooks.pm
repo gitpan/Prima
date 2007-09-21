@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Notebooks.pm,v 1.31 2007/05/24 13:57:28 dk Exp $
+#  $Id: Notebooks.pm,v 1.32 2007/09/13 15:12:25 dk Exp $
 use strict;
 use Prima::Const;
 use Prima::Classes;
@@ -1736,7 +1736,7 @@ displayed inside the larger polygon:
 
 
    POLYGON1
-   
+
         [2,3]        [4,5]
           o..........o
          .            .

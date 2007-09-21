@@ -25,8 +25,20 @@
 #
 #  Created by Dmitry Karasik  <dmitry@karasik.eu.org>
 #
-# $Id: noX11.pm,v 1.2 2003/11/10 17:04:47 dk Exp $
+# $Id: noX11.pm,v 1.5 2007/08/25 15:30:55 dk Exp $
 #
 # Initializes Prima in no-X11 environment
 
-push @ARGV, '--no-x11' unless $^O =~ /(win32|cygwin|os2)/;
+package Prima;
+
+push @preload, argv => '--no-x11' unless $^O =~ /(win32|cygwin|os2)/;
+
+sub XOpenDisplay
+{
+	return undef if $^O =~ /(win32|cygwin|os2)/i;
+
+	Prima::options( 'display', $_[0]) if @_;
+	return Prima::Application::sys_action( 'Prima::Application', 'XOpenDisplay');
+}
+
+1;

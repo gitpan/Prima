@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Docks.pm,v 1.9 2005/10/13 17:22:50 dk Exp $
+#  $Id: Docks.pm,v 1.10 2007/09/13 15:12:24 dk Exp $
 #
 # contains:
 #	AbstractDocker::Interface
@@ -1864,7 +1864,7 @@ The full hierarchy is as follows:
 	Prima::InternalDockerShuttle 
 		Prima::LinearDockerShuttle 
 		Prima::SingleLinearWidgetDocker 
-		
+
 	Prima::ExternalDockerShuttle
 
 All docker widget classes are derived from C<Prima::AbstractDocker::Interface>.
@@ -1908,7 +1908,7 @@ a direct or an indirect parent. In this case, however, the maintenance
 of the link must be implemented separately, for example:
 
 	$self-> dockup( $upper_dock_not_parent );
-	
+
 	$upper_dock_not_parent-> add_notification( 'Destroy', sub {
 		return unless $_[0] == $self-> dockup;
 		undef $self-> {dockup_event_id};
@@ -2093,7 +2093,7 @@ sets, direct and indirect, or, C<vertical> property independent and
 dependent. 
 
 The first set contains explicitly named constants: 
-	
+
 	grow::Left       grow::ForwardLeft       grow::BackLeft
 	grow::Down       grow::ForwardDown       grow::BackDown
 	grow::Right      grow::ForwardRight      grow::BackRight

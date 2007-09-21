@@ -1,4 +1,4 @@
-=for rcs $Id: Clipboard.pod,v 1.8 2004/12/15 16:11:03 dk Exp $
+=for rcs $Id: Clipboard.pod,v 1.9 2007/09/13 15:12:25 dk Exp $
 
 =head1 NAME
 
@@ -66,7 +66,6 @@ the following:
 
    # copy
    $c-> text( $string);
-   
 
 This simplistic code hides other aspects of Prima::Clipboard class.
 
@@ -109,7 +108,7 @@ said:
       if ( $formats{'Image'}) {
          $image = $c-> fetch('Image');
       }
-    
+
       $c-> close;
    }
 

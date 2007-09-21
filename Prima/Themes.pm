@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dmitry@karasik.eu.org>
 #
-#  $Id: Themes.pm,v 1.6 2005/10/13 17:22:51 dk Exp $
+#  $Id: Themes.pm,v 1.7 2007/09/13 15:12:25 dk Exp $
 
 use strict;
 use Prima;
@@ -257,7 +257,7 @@ For interactive theme selection use F<examples/theme.pl> sample program.
 	use Prima::Themes; load('color');
 	# list registered themes
 	print Prima::Themes::list;
-	
+
 	# install a theme
 	Prima::Themes::install('cyan');
 	# list installed themes

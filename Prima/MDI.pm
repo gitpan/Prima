@@ -24,7 +24,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: MDI.pm,v 1.27 2005/10/13 17:22:50 dk Exp $
+#  $Id: MDI.pm,v 1.28 2007/09/13 15:12:24 dk Exp $
 package Prima::MDI;
 
 # contains:
@@ -1361,7 +1361,7 @@ window class ( see L<Prima::DockManager>.
 =head1 SYNOPSIS
 
 	use Prima::MDI;
-	
+
 	my $owner = Prima::MDIWindowOwner-> create();
 	my $mdi   = $owner-> insert( 'Prima::MDI');
 	$mdi-> client-> insert( 'Prima::Button' => centered => 1 );

@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Fonts.pm,v 1.10 2005/10/13 17:22:52 dk Exp $
+#  $Id: Fonts.pm,v 1.11 2007/09/13 15:12:25 dk Exp $
 #
 package Prima::PS::Fonts;
 
@@ -373,7 +373,7 @@ patched correspondingly.
 Example:
 
 	$Prima::PS::Fonts::files{Standard Symbols} = $Prima::PS::Fonts::files{Symbol};
-	
+
 	$Prima::PS::Fonts::files{'Device-specific symbols, set 1'} = 'my/devspec/data.1';
 	$Prima::PS::Fonts::files{'Device-specific symbols, set 2'} = 'my/devspec/data.2';
 	$Prima::PS::Fonts::enum_families{DevSpec} = 'Device-specific symbols, set 1';

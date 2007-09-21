@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ColorDialog.pm,v 1.36 2007/05/24 13:57:28 dk Exp $
+#  $Id: ColorDialog.pm,v 1.37 2007/09/13 15:12:24 dk Exp $
 
 # contains:
 #    ColorDialog
@@ -968,7 +968,7 @@ Prima::ColorDialog - standard color selection facilities
 =head1 SYNOPSIS
 
 	use Prima qw(StdDlg Application);
-	
+
 	my $p = Prima::ColorDialog-> create(
 		quality => 1,
 	);
@@ -1058,7 +1058,7 @@ Returns C<Prima::Image> object.
 Called when the user starts dragginh a color from the color wheel by with left
 mouse button and combination of Alt, Ctrl, and Shift keys. $PROPERTY is one
 of C<Prima::Widget> color properties, and depends on combination of keys:
-	
+
 	Alt              backColor
 	Ctrl             color
 	Alt+Shift        hiliteBackColor

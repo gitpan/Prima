@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_app.c,v 1.114 2007/08/06 07:51:20 dk Exp $
+ * $Id: apc_app.c,v 1.115 2007/08/21 16:44:10 dk Exp $
  */
 
 /***********************************************************/
@@ -468,6 +468,9 @@ window_subsystem_set_option( char * option, char * value)
    if ( strcmp( option, "no-x11") == 0) {
       if ( value) warn("`--no-x11' option has no parameters");
       do_x11 = false;
+      return true;
+   } else if ( strcmp( option, "yes-x11") == 0) {
+      do_x11 = true;
       return true;
    } else if ( strcmp( option, "display") == 0) {
       free( do_display);

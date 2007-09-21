@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: misc.c,v 1.30 2003/10/31 10:48:25 dk Exp $
+ * $Id: misc.c,v 1.31 2007/08/25 16:43:19 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -617,11 +617,7 @@ utf8_to_wchar( const char * utf8, WCHAR * u16, int length)
    STRLEN charlen;
    while ( length--) {
       register UV u = ( utf8_to_uvchr(( U8*) utf8, &charlen));
-      if ( u < 0x10000) {
-         *((( U8*) u16)++) = u & 0xff;
-         *((( U8*) u16)++) = u >> 8;
-      } else 
-         *(u16++) = 0xffff;
+      *(u16++) = ( u < 0x10000) ? u : 0xffff;
       utf8 += charlen;
    }
 }

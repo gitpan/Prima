@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: codec_prigraph.c,v 1.15 2006/09/07 16:11:45 dk Exp $
+ * $Id: codec_prigraph.c,v 1.19 2007/09/12 19:18:02 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 
@@ -59,6 +59,29 @@ extern "C" {
 #define itJPG  16
 #define itPNG  17
 #define itMAX  17
+
+static const char * gbm_ids[itMAX+1] = {
+	"Bitmap",
+	"GIF",
+	"PCX",
+	"TIFF",
+	"Targa",
+	"ILBM",
+	"YUV12C",
+	"Greymap",
+	"Pixmap",
+	"KIPS",
+	"IAX",
+	"XBitmap",
+	"Sprite",
+	"PSEG",
+	"GemRas",
+	"Portrait",
+	"JPEG",
+	"PNG"
+};
+
+static int gbm_ft_map[itMAX+1];
 
 static int    t_all[] = { 
    imbpp1,  imbpp1  | imGrayScale,
@@ -111,60 +134,73 @@ static ImgCodecInfo codec_info = {
    nil,    // features 
    "",     // module
    "",     // package
-   true,   // canLoad
-   false,  // canLoadMultiple 
-   true,   // canSave
-   false,  // canSaveMultiple
+   IMG_LOAD_FROM_FILE | IMG_LOAD_FROM_STREAM | IMG_SAVE_TO_FILE | IMG_SAVE_TO_STREAM,
    nil,    // save types
 };
 
 static int refCnt = 0;
 
+#define MAX_FAKE_FD  32
+static PImgIORequest fdmap[MAX_FAKE_FD+1];
+
 static int  
 std_open(const char *fn, int mode)
 {
-   return open(fn,mode);
+     int i;
+
+     /* Normal use from within GBM is discouraged, only our code
+	can call gbm io */
+     if ( mode >= 0) return -1;
+
+     for ( i = 0; i <= MAX_FAKE_FD; i++) {
+	if ( fdmap[i] == NULL) {
+	   fdmap[i] = ( PImgIORequest) fn;
+	   return i;
+	}
+     }
+     return -1;
 }
 
 static int  
 std_create(const char *fn, int mode)
 {
-   return open(fn, O_CREAT|O_TRUNC|mode, S_IREAD|S_IWRITE);
+     return std_open( fn, mode);
 }
 
 static void 
 std_close (int fd)
 {
-   close(fd);
+     fdmap[ fd ] = NULL;
 }
 
 static long 
 std_lseek(int fd, long pos, int whence)
 {
-   return lseek(fd,pos,whence);
+     if ( req_seek( fdmap[fd], pos, whence) < 0)
+	  return -1;
+     return req_tell( fdmap[fd]);
 }
 static int  
 std_read(int fd, void *buf, int len)
 {
-   return read( fd, buf, len);
+   return req_read( fdmap[fd], len, buf);
 }
 
 static int  
 std_write(int fd, const void *buf, int len)
 {
-   return write( fd, buf, len);
+   return req_write( fdmap[fd], len, (void*) buf);
 }
-
 
 static void * 
 init( ImgCodecInfo ** info, void * param)
 {
    GBMFT gft;
    char * c, ** array;
-   int count = 0, len;
+   int count = 0, len, i;
    
    if ( refCnt++ == 0) {
-      gbm_init();
+      bzero( fdmap, sizeof(fdmap));
       gbm_io_setup( std_open, std_create, std_close, std_lseek, std_read, std_write);
       codec_info. versionMaj = gbm_version() / 100;
       codec_info. versionMin = gbm_version() % 100;
@@ -176,7 +212,14 @@ init( ImgCodecInfo ** info, void * param)
    if ( !*info) {
       if ( --refCnt == 0) gbm_deinit(); 
       return false;
-   }   
+   } 
+
+   for ( i = 0; i <= itMAX; i++) {
+      if ( strcmp( gft. short_name, gbm_ids[i]) == 0) {
+	 gbm_ft_map[(int)param] = i;
+	 break;
+      }
+   } 
    
    memcpy( *info, &codec_info, sizeof( ImgCodecInfo));
    (*info)-> fileType = gft. long_name;
@@ -209,9 +252,9 @@ init( ImgCodecInfo ** info, void * param)
    }   
    *(++array) = nil;
 
-   switch ((int)param) {
+   switch ( gbm_ft_map[(int)param] ) {
       case itGIF:
-         (*info)-> canLoadMultiple = true;
+         (*info)-> IOFlags |= IMG_LOAD_MULTIFRAME;
          (*info)-> saveTypes = t_no24;
          (*info)-> primaModule  = "Prima::Image::GBM";
          (*info)-> primaPackage = "Prima::Image::GBM::gif";
@@ -245,7 +288,7 @@ init( ImgCodecInfo ** info, void * param)
          break;
       case itCVP:   
       case itIAX:
-         (*info)-> canSave = false;
+         (*info)-> IOFlags &= ~(IMG_SAVE_TO_FILE|IMG_SAVE_TO_STREAM);
          break;
       case itTGA:
          (*info)-> saveTypes = t_targa;
@@ -253,6 +296,21 @@ init( ImgCodecInfo ** info, void * param)
       default:
          (*info)-> saveTypes = t_all;
    }      
+
+   switch ( gbm_ft_map[(int)param] ) {
+   case itTGA:
+   case itIAX:
+   case itXBM:
+   case itSPR:
+   case itPSG:
+   case itGEM:
+   case itCVP:
+   /* XXX These actually _can_ load from stream, but gbm cannot autodetect which sub-codec
+      to use when there is no file extension.  */
+   case itKPS:
+   /* KPS loads from 2 files, .KPS and .PAL, so no stream by definition */
+         (*info)-> IOFlags &= ~IMG_LOAD_FROM_STREAM;
+   }
 
    return (void*)1;
 }   
@@ -302,14 +360,16 @@ static ImageSignatures signatures[] =
 #define N_SIGS ( sizeof( signatures) / sizeof( signatures[ 0]))
 
 static Bool
-type_ok( FILE * fd, int ft)
+type_ok( PImgIORequest req, int ft)
 {
    char buf[ 8];
    int i;
-   fseek( fd, 0, SEEK_SET);
    memset( buf, 0, 8);
-   fread( buf, 8, 1, fd);
+   if ( req_seek( req, 0, SEEK_SET) < 0) return false;
+   if ( req_read( req, 8, buf) < 8) return false;
+   if ( req_seek( req, 0, SEEK_SET) < 0) return false;
    for ( i = 0; i < N_SIGS; i++) {
+      if ( signatures[ i]. type == ft)
       if (( signatures[ i]. type == ft) &&
           ( memcmp( buf, signatures[ i]. sig, signatures[ i]. size) == 0))
          return true;
@@ -322,6 +382,7 @@ typedef struct _GBMRec {
    char   * params; 
    char   * statParams;
    int      ft;
+   int      ft_gbm;
    int      fd;
 } GBMRec;   
 
@@ -329,14 +390,14 @@ static void *
 open_load( PImgCodec instance, PImgLoadFileInstance fi)
 {
    GBMRec * g;
-  
-   if ( !type_ok( fi-> f, (int)(instance-> initParam))) {
+
+   if ( !type_ok( fi-> req, gbm_ft_map[(int)(instance-> initParam)])) {
       int ft;
-      if ( gbm_guess_filetype( fi-> fileName, &ft) != 0)
+      if ( fi-> fileName && gbm_guess_filetype( fi-> fileName, &ft) != 0)
          return nil;
       if ( ft != (int)(instance-> initParam)) 
          return nil;
-   }   
+   }  
 
    fi-> stop = true;
 
@@ -346,7 +407,8 @@ open_load( PImgCodec instance, PImgLoadFileInstance fi)
    memset( g, 0, sizeof( GBMRec) + 0x100);
    g-> params  = ( char  *)((( Byte *) g) + sizeof( GBMRec));
    g-> statParams = g-> params;
-   g-> ft = (int) (instance-> initParam);
+   g-> ft_gbm = (int) (instance-> initParam);
+   g-> ft     = gbm_ft_map[ g-> ft_gbm ];
    if ( g-> ft == itBMP) {
       strcat( g-> params, "inv ");
       g-> params += 4;
@@ -357,15 +419,11 @@ open_load( PImgCodec instance, PImgLoadFileInstance fi)
    else
       fi-> frameCount = 1;
 
-   if (( g-> fd = gbm_io_open( fi-> fileName, O_RDONLY | O_BINARY)) < 0) {
+   if (( g-> fd = gbm_io_open(( const char*) fi-> req, -1)) < 0) {
       free( g);
       return nil;      
    }  
 
-   // safe to kill
-   fclose( fi-> f);
-   fi-> f = NULL;
-   
    return g;
 }
 
@@ -378,7 +436,9 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
 
    snprintf( g-> params, 250, "index=%d", fi-> frame);
    
-   if (( rc = gbm_read_header( fi-> fileName, g-> fd, g-> ft, &g-> gbm, g-> statParams)) != 0) {
+   if (( rc = gbm_read_header( 
+	fi-> fileName ? fi-> fileName : "", 
+	g-> fd, g-> ft_gbm, &g-> gbm, g-> statParams)) != 0) {
       strncpy( fi-> errbuf, gbm_err( rc), 256);
       return false;
    }
@@ -392,7 +452,7 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
    CImage( fi-> object)-> create_empty( fi-> object, 1, 1, g-> gbm. bpp);
    
    if ( g-> gbm.bpp <= 8) {
-      if (( rc = gbm_read_palette( g-> fd, g-> ft, &g-> gbm, 
+      if (( rc = gbm_read_palette( g-> fd, g-> ft_gbm, &g-> gbm, 
              ( GBMRGB *) i-> palette)) != 0) {
          strncpy( fi-> errbuf, gbm_err( rc), 256);
          return false;
@@ -430,7 +490,7 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
       }
    }
 
-   if (( rc = gbm_read_data( g-> fd, g-> ft, &g-> gbm, PImage( fi-> object)-> data)) != 0) {
+   if (( rc = gbm_read_data( g-> fd, g-> ft_gbm, &g-> gbm, PImage( fi-> object)-> data)) != 0) {
       strncpy( fi-> errbuf, gbm_err( rc), 256);
       return false;
    }  
@@ -506,27 +566,25 @@ open_save( PImgCodec instance, PImgSaveFileInstance fi)
    memset( g, 0, sizeof( GBMRec) + 0x400);
    g-> params  = ( char  *)((( Byte *) g) + sizeof( GBMRec));
    g-> statParams = g-> params;
-   g-> ft = (int) (instance-> initParam);
+   g-> ft_gbm = (int) (instance-> initParam);
+   g-> ft     = gbm_ft_map[ g-> ft_gbm ];
    if ( g-> ft == itBMP) {
       strcat( g-> params, "inv ");
       g-> params += 4;
    }   
 
-   if (( g-> fd = gbm_io_create( fi-> fileName, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY)) < 0) {
+   if (( g-> fd = gbm_io_create(( const char*) fi-> req, -1)) < 0) {
       free( g);
       return nil;      
    }  
 
-   // safe to kill
-   fclose( fi-> f);
-   fi-> f = NULL;
-   
    return g;
 }
 
 static Bool   
 save( PImgCodec instance, PImgSaveFileInstance fi)
 {
+   dPROFILE;
    GBMRec * g = ( GBMRec *) fi-> instance; 
    GBM_ERR rc;
    PImage i = ( PImage) fi-> object;
@@ -600,7 +658,10 @@ save( PImgCodec instance, PImgSaveFileInstance fi)
    memset( pal, 0, sizeof( pal));
    cm_reverse_palette( i-> palette, pal, i-> palSize);
 
-   if (( rc = gbm_write( fi-> fileName, g-> fd, g-> ft, &g-> gbm, ( GBMRGB *) pal, i-> data, g-> statParams)) != 0) {
+   if (( rc = gbm_write( 
+      fi-> fileName ? fi-> fileName : "gbm", 
+      g-> fd, g-> ft_gbm, &g-> gbm, ( GBMRGB *) pal, i-> data, g-> statParams)) != 0
+   ) {
       strncpy( fi-> errbuf, gbm_err( rc), 256);
       return false;
    }    
@@ -619,7 +680,7 @@ close_save( PImgCodec instance, PImgSaveFileInstance fi)
 void 
 apc_img_codec_prigraph( void )
 {
-   int i;
+   int i, nft;
    struct ImgCodecVMT vmt;
    memcpy( &vmt, &CNullImgCodecVMT, sizeof( CNullImgCodecVMT));
    vmt. init       = init;      
@@ -631,9 +692,13 @@ apc_img_codec_prigraph( void )
    vmt. open_save  = open_save;
    vmt. save       = save; 
    vmt. close_save = close_save; 
-   
-   for ( i = 0; i <= itMAX; i++)
+
+   gbm_init();
+   gbm_query_n_filetypes(&nft);
+   for ( i = 0; i < nft; i++) {
+      if ( i == itKPS) continue; /* KPS cannot load from single file, requires .PAL */
       apc_img_register( &vmt, (void*)i);
+   }
 }  
 
 

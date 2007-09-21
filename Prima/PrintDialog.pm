@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: PrintDialog.pm,v 1.11 2005/10/13 17:22:51 dk Exp $
+#  $Id: PrintDialog.pm,v 1.12 2007/09/13 15:12:25 dk Exp $
 
 use strict;
 use Carp;
@@ -189,7 +189,7 @@ selection process.
 =head1 SYNOPSIS
 
 	use Prima::PrintDialog;
-	
+
 	$dlg = Prima::PrintSetupDialog-> create;
 	if ( $dlg-> execute) {
 		my $p = $::application-> get_printer;

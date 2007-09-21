@@ -1,4 +1,4 @@
-=for rcs $Id: Image.pod,v 1.15 2007/05/16 21:16:39 dk Exp $
+=for rcs $Id: Image.pod,v 1.20 2007/09/13 15:12:25 dk Exp $
 
 =head1 NAME
 
@@ -20,7 +20,7 @@ Prima::Image - Bitmap routines
    $i-> color( cl::White);
    $i-> ellipse( 5, 5, 10, 10);
    $i-> end_paint; 
-   
+
    # mangle
    $i-> size( 64, 64);
 
@@ -217,8 +217,11 @@ up to a 'line size' margin ( 4-byte boundary ), which is calculated as
 
   $lineSize = int(( $image->width * ( $image-> type & im::BPP) + 31) / 32) * 4; 
 
-This is a default line size, but C<::data> can be accompanied with a
-write-only flag 'lineSize':
+or returned from the read-only property C<::lineSize>.
+
+This is the line size for the data as lined up internally in memory, however
+C<::data> should not necessarily should be aligned like this, and can be
+accompanied with a write-only flag 'lineSize' if data is aligned differently:
 
   $image-> set( width => 1, height=> 2);
   $image-> type( im::RGB);
@@ -236,7 +239,7 @@ Y-axis orientation in Prima drawable terminology, but might be inconvenient
 when importing data organized otherwise. Another write-only boolean flag C<reverse>
 can be set to 1 so data then are treated as if the first scanline of the image
 is the closest to the start of data:
-  
+
   $image-> set( width => 1, height=> 2, type => im::RGB);
   $image-> set(
      data => 'RGB-123-',
@@ -355,6 +358,14 @@ the pixel values are either scaled or truncated.
 If 1, the bitmap data will be scaled when image changes its
 horizontal extent. If 0, the data will be stripped or padded 
 with zeros.
+
+=item lineSize INTEGER
+
+A read-only property, returning the length of an image row in bytes, as
+represented internally in memory. Data returned by C<::data> property are
+aligned with C<::lineSize> bytes per row, and setting C<::data> expects data
+aligned with this value, unless C<lineSize> is set together with C<data> to
+indicate another alignment. See L<Data access> for more.
 
 =item mean
 
@@ -618,9 +629,9 @@ Returns the bit depth of the pixel format. Same as C<::type & im::BPP>.
 
 Returns a system handle for an image object.
 
-=item load FILENAME [ %PARAMETERS ]
+=item load (FILENAME or FILEGLOB) [ %PARAMETERS ]
 
-Loads image file FILENAME into an object, and returns the success flag.
+Loads image from file FILENAME or stream FILEGLOB into an object, and returns the success flag.
 The semantics of C<load()> is extensive, and can be influenced by 
 PARAMETERS hash. C<load()> can be called either in a context of an existing object,
 then a boolean success flag is returned, or in a class context, then a newly
@@ -637,6 +648,8 @@ and
    die "$@" unless $x;
 
 See L<Prima::image-load> for details.
+
+NB! When loading from streams on win32, mind C<binmode>.
 
 =item map COLOR
 
@@ -666,14 +679,41 @@ gray non-8 bit pixel values, by the code:
 
    $image-> resample( $image-> rangeLo, $image-> rangeHi, 0, 255);
 
-=item save FILENAME, [ %PARAMETERS ]
+=item save (FILENAME or FILEGLOB), [ %PARAMETERS ]
 
-Stores image data into image file FILENAME, and returns the success flag.
+Stores image data into image file FILENAME or stream FILEGLOB, and returns the success flag.
 The semantics of C<save()> is extensive, and can be influenced by 
 PARAMETERS hash. If error occurs, C<$@> variable
 contains error description string.
 
+Note that when saving to a stream, C<codecID> must be explicitly given in C<%PARAMETERS>.
+
 See L<Prima::image-load> for details.
+
+NB! When saving to streams on win32, mind C<binmode>.
+
+=back
+
+=head2 Prima::Image events
+
+C<Prima::Image>-specific events occur only from inside L<load> call, to report
+image loading progress. Not all codecs (currently JPEG,PNG,TIFF only) are able
+to report the progress to the caller. See L<Prima::image-load/"Loading with
+progress indicator"> for details, L<Prima::ImageViewer/watch_load_progress> and 
+L<Prima::ImageDialog/load> for suggested use.
+
+=over
+
+=item HeaderReady
+
+Called whenever image header is read, and image dimensions and pixel type
+is changed accordingly to accomodate image data.
+
+=item DataReady X, Y, WIDTH, HEIGHT
+
+Called whenever image data that cover area designated by X,Y,WIDTH,HEIGHT 
+is acquired. Use C<load> option C<eventDelay> to limit the rate of C<DataReady>
+event.
 
 =back
 

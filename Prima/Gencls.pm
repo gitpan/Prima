@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Vadim Belman   <voland@plab.ku.dk>
 #
-#  $Id: Gencls.pm,v 1.18 2007/05/23 17:50:57 dk Exp $
+#  $Id: Gencls.pm,v 1.19 2007/08/09 13:03:07 dk Exp $
 #
 # max error is APC058
 
@@ -2172,6 +2172,7 @@ SD
 			print HEADER "\tHV * $incHV = ( HV*)\n\t".
 				"(( SvROK( hashRef) && ( SvTYPE( SvRV( hashRef)) == SVt_PVHV)) ? SvRV( hashRef)\n\t\t".
 				": ( croak( \"Illegal hash reference passed to %s\", err), nil));\n";
+			print HEADER "\tSV ** $incSV;\n\n\t(void)$incSV;\n\n";
 			for ( my $j = 0; $j < scalar @{$structs{$_}[0]}; $j++)
 			{
 				my $lType = @{ $structs{$_}[ TYPES]}[$j];
