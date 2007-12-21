@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Classes.pm,v 1.79 2006/11/02 13:39:42 dk Exp $
+# $Id: Classes.pm,v 1.91 2007/11/14 20:12:27 dk Exp $
 use strict;
 package Prima::VB::Classes;
 
@@ -43,6 +43,7 @@ use Prima::Classes;
 
 
 package Prima::VB::Object;
+use strict;
 
 
 my %hooks = ();
@@ -181,6 +182,7 @@ sub act_profile
 }
 
 package Prima::VB::Component;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::Widget Prima::VB::Object);
 
@@ -312,8 +314,8 @@ sub get_profile_default
 sub common_paint
 {
 	my ( $self, $canvas) = @_;
+	my @sz = $canvas-> size;
 	if ( $self-> {marked}) {
-		my @sz = $canvas-> size;
 		$canvas-> color( cl::Black);
 		$canvas-> rectangle( 1, 1, $sz[0] - 2, $sz[1] - 2);
 		$canvas-> rop( rop::XorPut);
@@ -328,6 +330,19 @@ sub common_paint
 		$canvas-> bar( 0,$hh-2,2,$hh+2);
 		$canvas-> bar( $sz[0]-5,$hh-2,$sz[0]-1,$hh+2);
 		$canvas-> rop( rop::CopyPut);
+	} elsif ( $self-> {locked}) {
+		my $x = $VB::form->{guidelineX} - $self-> left;
+		my $y = $VB::form->{guidelineY} - $self-> bottom;
+		$canvas-> fillPattern([0,0,0,0,4,0,0,0]);
+		$canvas-> backColor( cl::Clear);
+		$canvas-> color( cl::Set);
+		$canvas-> rop( rop::XorPut);
+		$canvas-> bar( 0, 0, @sz);
+		$canvas-> rop( rop::CopyPut);
+		$canvas-> color( cl::Blue);
+		$canvas-> linePattern( lp::Dash);
+		$canvas-> line( $x, 0, $x, $sz[1]);
+		$canvas-> line( 0, $y, $sz[0], $y);
 	}
 }
 
@@ -428,7 +443,7 @@ sub maintain_children_origin
 	for ( $VB::form-> widgets) {
 		next unless $_-> prf('owner') eq $name;
 		my @o = $_-> origin;
-		$_-> origin( $o[0] + $x, $o[1] + $y) unless $_-> marked;
+		$_-> origin( $o[0] + $x, $o[1] + $y);
 		$_-> maintain_children_origin( @o);
 	}
 }
@@ -456,7 +471,26 @@ sub on_mousedown
 
 		if ( $mod & km::Shift) {
 			$self-> marked( $self-> marked ? 0 : 1);
+			ObjectInspector::update_markings();
 			$self-> focus;
+			return;
+		}
+
+		if ( $mod & km::Ctrl) {
+			$self-> {locked} = not $self-> {locked};
+			$self-> marked(0) if $self-> {locked};
+			$self-> repaint;
+			return;
+		}
+
+		my $part = $self-> xy2part( $x, $y);
+		if ( $self-> {locked} and not $self-> marked) {
+			# propagate for marquee selection
+			$VB::form-> on_mousedown( 
+				$btn, $mod, 
+				$x + $self-> left,
+				$y + $self-> bottom
+			) if $self != $VB::form;
 			return;
 		}
 		
@@ -470,10 +504,9 @@ sub on_mousedown
 
 		$self-> iterate_children( sub { $_[0]-> bring_to_front; $_[0]-> update_view; }); 
 
-		my $part = $self-> xy2part( $x, $y);
 		my @mw;
 		@mw = $VB::form-> marked_widgets if $part eq q(client) && $self-> marked;
-		$self-> marked( 1, 1) unless @mw;    
+		$self-> marked( 1, 1) unless @mw;
 		$self-> clear_event;
 		$self-> capture(1, $self-> owner);
 		$self-> {spotX} = $x;
@@ -598,76 +631,88 @@ sub on_mousemove
 		my @xorg = $self-> client_to_screen( $x - $self-> {spotX}, $y - $self-> {spotY});
 		$self-> {prevRect} = [ @xorg, $sz[0] + $xorg[0], $sz[1] + $xorg[1]];
 		$self-> xorrect( @{$self-> {prevRect}}, 1);
-	} else {
-		if ( $self-> {sizeable}) {
-			if ( $self-> {sizeAction}) {
-				my @org = $_[0]-> rect;
-				my @new = @org;
-				my @min = $self-> sizeMin;
-				my @og = $self-> origin;
-				my ( $xa, $ya) = @{$self-> {dirData}};
+	} elsif ( $self-> {sizeable}) {
+		if ( $self-> {sizeAction}) {
+			my @org = $_[0]-> rect;
+			my @new = @org;
+			my @min = $self-> sizeMin;
+			my @og = $self-> origin;
+			my ( $xa, $ya) = @{$self-> {dirData}};
 
-				if ( $VB::main-> {ini}-> {SnapToGrid}) {
-					$x -= ( $x - $self-> {spotX} + $og[0]) % 4;
-					$y -= ( $y - $self-> {spotY} + $og[1]) % 4;
-				}
-
-				if ( $VB::main-> {ini}-> {SnapToGuidelines}) {
-					my @sz = $self-> size;
-					my $xline = $VB::form-> {guidelineX} - $og[0];
-					my $yline = $VB::form-> {guidelineY} - $og[1];
-					if ( $xa != 0) {
-						$x = $xline + $self-> {spotX} 
-							if abs( $xline - $x + $self-> {spotX}) < 8;
-						$x = $xline + $self-> {spotX} - $sz[0] 
-							if abs( $xline - $x + $self-> {spotX} - $sz[0]) < 8;
-					}
-					if ( $ya != 0) {
-						$y = $yline + $self-> {spotY} 
-							if abs( $yline - $y + $self-> {spotY}) < 8;
-						$y = $yline + $self-> {spotY} - $sz[1] 
-							if abs( $yline - $y + $self-> {spotY} - $sz[1]) < 8;
-					}
-				}
-
-				if ( $xa < 0) {
-					$new[0] = $org[0] + $x - $self-> {spotX};
-					$new[0] = $org[2] - $min[0] if $new[0] > $org[2] - $min[0];
-				} elsif ( $xa > 0) {
-					$new[2] = $org[2] + $x - $self-> {spotX};
-					if ( $new[2] < $org[0] + $min[0]) {
-						$new[2] = $org[0] + $min[0];
-					}
-				}
-
-				if ( $ya < 0) {
-					$new[1] = $org[1] + $y - $self-> {spotY};
-					$new[1] = $org[3] - $min[1] if $new[1] > $org[3] - $min[1];
-				} elsif ( $ya > 0) {
-					$new[3] = $org[3] + $y - $self-> {spotY};
-					if ( $new[3] < $org[1] + $min[1]) {
-						$new[3] = $org[1] + $min[1];
-					}
-				}
-
-				if ( 
-					$org[1] != $new[1] || $org[0] != $new[0] || 
-					$org[2] != $new[2] || $org[3] != $new[3]
-				) {
-					$self-> xorrect( @{$self-> {prevRect}});
-					$self-> {prevRect} = [$self-> owner-> client_to_screen( @new)];
-					$self-> xorrect( @{$self-> {prevRect}}, 1);
-				}
-				return;
-			} else {
-				return if !$self-> enabled;
-				my $part = $self-> xy2part( $x, $y);
-				$self-> pointer( $part =~ /^Size/ ? &{$cr::{$part}} : cr::Arrow);
+			if ( $VB::main-> {ini}-> {SnapToGrid}) {
+				$x -= ( $x - $self-> {spotX} + $og[0]) % 4;
+				$y -= ( $y - $self-> {spotY} + $og[1]) % 4;
 			}
+
+			if ( $VB::main-> {ini}-> {SnapToGuidelines}) {
+				my @sz = $self-> size;
+				my $xline = $VB::form-> {guidelineX} - $og[0];
+				my $yline = $VB::form-> {guidelineY} - $og[1];
+				if ( $xa != 0) {
+					$x = $xline + $self-> {spotX} 
+						if abs( $xline - $x + $self-> {spotX}) < 8;
+					$x = $xline + $self-> {spotX} - $sz[0] 
+						if abs( $xline - $x + $self-> {spotX} - $sz[0]) < 8;
+				}
+				if ( $ya != 0) {
+					$y = $yline + $self-> {spotY} 
+						if abs( $yline - $y + $self-> {spotY}) < 8;
+					$y = $yline + $self-> {spotY} - $sz[1] 
+						if abs( $yline - $y + $self-> {spotY} - $sz[1]) < 8;
+				}
+			}
+
+			if ( $xa < 0) {
+				$new[0] = $org[0] + $x - $self-> {spotX};
+				$new[0] = $org[2] - $min[0] if $new[0] > $org[2] - $min[0];
+			} elsif ( $xa > 0) {
+				$new[2] = $org[2] + $x - $self-> {spotX};
+				if ( $new[2] < $org[0] + $min[0]) {
+					$new[2] = $org[0] + $min[0];
+				}
+			}
+
+			if ( $ya < 0) {
+				$new[1] = $org[1] + $y - $self-> {spotY};
+				$new[1] = $org[3] - $min[1] if $new[1] > $org[3] - $min[1];
+			} elsif ( $ya > 0) {
+				$new[3] = $org[3] + $y - $self-> {spotY};
+				if ( $new[3] < $org[1] + $min[1]) {
+					$new[3] = $org[1] + $min[1];
+				}
+			}
+
+			if ( 
+				$org[1] != $new[1] || $org[0] != $new[0] || 
+				$org[2] != $new[2] || $org[3] != $new[3]
+			) {
+				$self-> xorrect( @{$self-> {prevRect}});
+				$self-> {prevRect} = [$self-> owner-> client_to_screen( @new)];
+				$self-> xorrect( @{$self-> {prevRect}}, 1);
+			}
+			return;
+		} else {
+			return if !$self-> enabled;
+			my $part = $self-> xy2part( $x, $y);
+			$self-> pointer( $part =~ /^Size/ ? &{$cr::{$part}} : cr::Arrow);
+		}
+	} 
+	
+	if ( $self-> {locked} and not $self-> marked) {
+		# propagate guideline selection
+		$x += $self-> left;
+		$y += $self-> bottom;
+		if ( abs( $VB::form-> {guidelineX} - $x) < 3) {
+			$self-> pointer(( abs( $VB::form-> {guidelineY} - $y) < 3) ? 
+				cr::Move : 
+				cr::SizeWE);
+		} elsif ( abs( $VB::form-> {guidelineY} - $y) < 3) {
+			$self-> pointer( cr::SizeNS);
+		} else {
+			$self-> pointer( cr::Arrow);
 		}
 	}
 }
-
 
 sub on_mouseup
 {
@@ -685,16 +730,24 @@ sub on_mouseup
 					@{$self-> {prevRect}}[0,1]
 				)
 			);
-			$self-> maintain_children_origin( @o);
 			if ( defined $self-> {extraRects}) {
+				# get all children, and do _not_ move them together with us
+				my @allchildren = ($self-> name);
+				my %allwidgets;
+				push @{$allwidgets{$_->prf('owner')}}, $_->name for $VB::form-> widgets;
+				for ( my $i = 0; $i < @allchildren; $i++) {
+					push @allchildren, @{$allwidgets{$allchildren[$i]}}
+						if $allwidgets{$allchildren[$i]};
+				}
+				my %allchildren = map { $_ => 1 } @allchildren;
+
 				my @org = $self-> owner-> client_to_screen( @{$self-> {sav}});
 				$org[0] = $self-> {prevRect}-> [0] - $org[0];
 				$org[1] = $self-> {prevRect}-> [1] - $org[1];
 				for my $wij ( @{$self-> {extraWidgets}}) {
-					next if $wij == $self;
+					next if $allchildren{$wij-> name};
 					my @o = $wij-> origin;
 					$wij-> origin( $o[0] + $org[0], $o[1] + $org[1]);
-					$wij-> maintain_children_origin( @o);
 				}
 			}
 			$VB::form-> text( $VB::form-> {saveHdr});
@@ -706,7 +759,6 @@ sub on_mouseup
 			@r = $self-> owner-> screen_to_client(@r);
 			my @o = $self-> origin;
 			$self-> rect( @r);
-			$self-> maintain_children_origin( @o);
 			$self-> pointer( cr::Default);
 			$self-> capture(0);
 			$self-> {sizeAction} = 0;
@@ -789,13 +841,10 @@ sub marked
 
 sub sizeable
 {
-	if ( $#_) {
+	return $_[0]-> {sizeable} unless $#_;
 	return if $_[1] == $_[0]-> {sizeable};
 	$_[0]-> {sizeable} = $_[1];
 	$_[0]-> pointer( cr::Default) unless $_[1];
-	} else {
-	return $_[0]-> {sizeable};
-	}
 }
 
 sub mainEvent
@@ -809,7 +858,7 @@ sub prf_name
 	my $old = $_[0]-> name;
 	$_[0]-> name($_[1]);
 	$_[0]-> name_changed( $old, $_[1]);
-	$_[0]-> hint($_[1]) if $VB::form && $_[0] != $VB::form;
+	$_[0]-> update_hint if $VB::form && $_[0] != $VB::form;
 
 	return unless $VB::inspector;
 	my $s = $VB::inspector-> Selector;
@@ -887,7 +936,22 @@ sub on_destroy
 	$VB::main-> update_markings();
 }
 
+sub update_hint
+{
+	my $self = $_[0];
+	my @d = $self-> get_o_delta();
+	my @o = $self-> origin;
+	$o[0] += $d[0];
+	$o[1] += $d[1];
+	$self-> hint(
+		$self-> name . ' ['.
+		join(',', @o) . '-' .
+		join(',', $self-> size) .
+	']');
+}
+
 package Prima::VB::Drawable;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Component);
 
@@ -915,6 +979,7 @@ sub prf_types
 }
 
 package Prima::VB::Widget;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Drawable);
 
@@ -937,6 +1002,8 @@ sub prf_adjust_default
 		selectedWidget
 		capture
 		hintVisible
+		widgets
+		buffered
 
 		left
 		right
@@ -977,37 +1044,39 @@ sub prf_types
 {
 	my $pt = $_[ 0]-> SUPER::prf_types;
 	my %de = (
-		menu          => ['accelTable', 'popup',],
-		menuItems     => ['accelItems', 'popupItems'],
-		color         => ['dark3DColor', 'light3DColor', 'disabledBackColor',
-			'disabledColor', 'hiliteBackColor', 'hiliteColor', 'popupColor',
-			'popupBackColor','popupHiliteColor','popupHiliteBackColor',
-			'popupDisabledColor','popupDisabledBackColor',
-			'popupLight3DColor','popupDark3DColor',
-		],
+		menu          => [qw(accelTable popup)],
+		menuItems     => [qw(accelItems popupItems)],
+		color         => [qw(dark3DColor light3DColor disabledBackColor
+			disabledColor hiliteBackColor hiliteColor popupColor
+			popupBackColor popupHiliteColor popupHiliteBackColor
+			popupDisabledColor popupDisabledBackColor
+			popupLight3DColor popupDark3DColor
+		)],
 		font          => ['popupFont'],
-		bool          => ['autoEnableChildren', 'briefKeys','buffered','capture','clipOwner',
-			'centered','current','cursorVisible','enabled','firstClick','focused',
-			'hintVisible','ownerColor','ownerBackColor','ownerFont','ownerHint',
-			'ownerShowHint','ownerPalette','scaleChildren',
-			'selectable','selected','showHint','syncPaint','tabStop','transparent',
-			'visible','x_centered','y_centered','originDontCare','sizeDontCare',
-		],
-		iv            => ['bottom','height','left','right','top','width'],
+		bool          => [qw(autoEnableChildren briefKeys buffered capture clipOwner
+			centered current cursorVisible enabled firstClick focused
+			hintVisible ownerColor ownerBackColor ownerFont ownerHint
+			ownerShowHint ownerPalette scaleChildren
+			selectable selected showHint syncPaint tabStop transparent
+			visible x_centered y_centered originDontCare sizeDontCare
+			packPropagate
+		)],
+		iv            => [qw(bottom height left right top width)],
 		tabOrder      => ['tabOrder'],
 		rect          => ['rect'],
 		point         => ['cursorPos'],
 		origin        => ['origin'],
-		upoint        => ['cursorSize', 'designScale', 'size', 'sizeMin', 
-			'sizeMax', 'pointerHotSpot'],
-		widget        => ['currentWidget', 'selectedWidget'],
+		upoint        => [qw(cursorSize designScale size sizeMin sizeMax pointerHotSpot)],
+		widget        => [qw(currentWidget selectedWidget)],
 		pointer       => ['pointer',],
 		growMode      => ['growMode'],
+		geometry      => ['geometry'],
 		string        => ['helpContext'],
 		text          => ['text', 'hint'],
 		selectingButtons=> ['selectingButtons'],
 		widgetClass   => ['widgetClass'],
 		image         => ['shape'],
+		packInfo      => ['packInfo'],
 	);
 	$_[0]-> prf_types_add( $pt, \%de);
 	return $pt;
@@ -1078,6 +1147,7 @@ sub rerect
 		$self-> prf_size( [ $self-> size]);
 	}
 	$self-> {syncRecting} = undef;
+	$self-> update_hint;
 }
 
 sub recolor
@@ -1094,10 +1164,12 @@ sub recolor
 sub on_move
 {
 	my ( $self, $ox, $oy, $x, $y) = @_;
-	return if $self-> {syncRecting};
-	$self-> {syncRecting} = $self;
-	$self-> prf_set( origin => [$x, $y]);
-	$self-> {syncRecting} = undef;
+	unless ( $self-> {syncRecting}) {
+		$self-> {syncRecting} = $self;
+		$self-> prf_set( origin => [$x, $y]);
+		$self-> {syncRecting} = undef;
+	}
+	$self-> maintain_children_origin( $ox, $oy) if $self != $VB::form;
 }
 
 sub on_size
@@ -1106,6 +1178,7 @@ sub on_size
 	return if $self-> {syncRecting};
 	$self-> {syncRecting} = $self;
 	$self-> prf_set( size => [$x, $y]);
+	$self-> update_children_geometry( $ox, $oy, $x, $y);
 	$self-> {syncRecting} = undef;
 }
 
@@ -1142,7 +1215,38 @@ sub on_paint
 	$self-> common_paint( $canvas);
 }
 
+sub update_children_geometry
+{
+	my ($self, $ox, $oy, $x, $y) = @_;
+	return unless $VB::form;
+	my $name = $self-> prf('name');
+	my @w    = grep { $_-> prf('owner') eq $name } $VB::form-> widgets;
+	my @o    = ( $self == $VB::form) ? ( 0, 0) : $self-> origin;
+	for ( @w) {
+		if ( $_-> prf('geometry') == gt::GrowMode) {
+			my @size  = $_-> get_virtual_size;
+			my @pos   = $_-> origin;
+			$pos[$_] -= $o[$_] for 0,1;
+			my @osize = @size;
+			my @opos  = @pos;
+			my @d     = ( $x - $ox, $y - $oy);
+			my $gm    = $_-> prf('growMode');
+			$pos[0]  += $d[0] if $gm & gm::GrowLoX;
+			$pos[1]  += $d[1] if $gm & gm::GrowLoY;
+			$size[0] += $d[0] if $gm & gm::GrowHiX;
+			$size[1] += $d[1] if $gm & gm::GrowHiY;
+			$pos[0]   = ( $x - $size[0]) / 2 if $gm & gm::XCenter;
+			$pos[1]   = ( $y - $size[1]) / 2 if $gm & gm::YCenter;
+			unless ( grep { $pos[$_] != $opos[$_] and $size[$_] != $osize[$_] } 0,1) {
+				$pos[$_] += $o[$_] for 0,1;
+				$_-> rect( @pos, $pos[0] + $size[0], $pos[1] + $size[1]);
+			}
+		}
+	}
+}
+
 package Prima::VB::Control;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Widget);
 
@@ -1178,6 +1282,7 @@ sub prf_adjust_default
 }
 
 package Prima::VB::Window;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Control);
 
@@ -1241,6 +1346,7 @@ use Prima::Label;
 use Prima::Outlines;
 
 package Prima::VB::Types::generic;
+use strict;
 
 sub new
 {
@@ -1329,6 +1435,7 @@ sub preload_modules
 }
 
 package Prima::VB::Types::textee;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::generic);
 
@@ -1344,6 +1451,7 @@ sub get
 }
 
 package Prima::VB::Types::string;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::textee);
 
@@ -1362,6 +1470,7 @@ sub open
 }
 
 package Prima::VB::Types::char;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::string);
 
@@ -1374,6 +1483,7 @@ sub open
 
 
 package Prima::VB::Types::name;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::string);
 
@@ -1421,6 +1531,7 @@ sub valid
 
 
 package Prima::VB::Types::text;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::textee);
 
@@ -1502,6 +1613,7 @@ sub open
 }
 
 package Prima::VB::Types::fallback;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::text);
 
@@ -1526,6 +1638,7 @@ sub get
 }
 
 package Prima::VB::Types::iv;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::string);
 
@@ -1535,7 +1648,6 @@ sub open
 	my $h = $self-> {container}-> height;
 	$self-> {A} = $self-> {container}-> insert( SpinEdit =>
 		origin => [ 5, $h - 36],
-		width  => 120,
 		min    => -16383,
 		max    => 16383,
 		onChange => sub {
@@ -1551,6 +1663,7 @@ sub write
 }
 
 package Prima::VB::Types::uiv;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::iv);
 
@@ -1562,6 +1675,7 @@ sub open
 }
 
 package Prima::VB::Types::bool;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::generic);
 
@@ -1571,7 +1685,6 @@ sub open
 	my $h = $self-> {container}-> height;
 	$self-> {A} = $self-> {container}-> insert( CheckBox =>
 		origin => [ 5, $h - 36],
-		width  => 120,
 		text   => $self-> {id},
 		onClick  => sub {
 			$self-> change;
@@ -1595,6 +1708,7 @@ sub write
 }
 
 package Prima::VB::Types::tabOrder;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::iv);
 
@@ -1622,6 +1736,7 @@ sub change
 }
 
 package Prima::VB::Types::Handle;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::generic);
 
@@ -1652,6 +1767,7 @@ sub set
 			(map { $_ => 1} sort @{$VB::inspector-> Selector-> items}) : 
 			();
 		delete $items{ $self-> {widget}-> name};
+		delete @items{ map { $_-> name } $VB::form-> marked_widgets};
 		$self-> {A}-> items( [ keys %items]);
 		$data = $VB::form-> name unless length $data;
 	}
@@ -1665,6 +1781,7 @@ sub get
 }
 
 package Prima::VB::Types::color;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::generic);
 
@@ -1790,6 +1907,7 @@ sub write
 }
 
 package Prima::VB::Types::point;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::generic);
 
@@ -1799,7 +1917,6 @@ sub open
 	my $h = $self-> {container}-> height;
 	$self-> {A} = $self-> {container}-> insert( SpinEdit =>
 		origin   => [ 5, $h - 72],
-		width    => 120,
 		min      => -16383,
 		max      => 16383,
 		onChange => sub {
@@ -1816,7 +1933,6 @@ sub open
 
 	$self-> {B} = $self-> {container}-> insert( SpinEdit =>
 		origin   => [ 5, $self-> {A}-> bottom - $self-> {container}-> font-> height - 39],
-		width    => 120,
 		min      => -16383,
 		max      => 16383,
 		onChange => sub {
@@ -1857,6 +1973,7 @@ sub write
 }
 
 package Prima::VB::Types::upoint;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::point);
 
@@ -1869,6 +1986,7 @@ sub open
 }
 
 package Prima::VB::Types::origin;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::point);
 
@@ -1892,6 +2010,7 @@ sub get
 }
 
 package Prima::VB::Types::rect;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::point);
 
@@ -1902,7 +2021,6 @@ sub open
 
 	$self-> {C} = $self-> {container}-> insert( SpinEdit =>
 		origin   => [ 5, $self-> {B}-> bottom - $self-> {container}-> font-> height - 39],
-		width    => 120,
 		min      => -16383,
 		max      => 16383,
 		onChange => sub {
@@ -1919,7 +2037,6 @@ sub open
 
 	$self-> {D} = $self-> {container}-> insert( SpinEdit =>
 		origin   => [ 5, $self-> {C}-> bottom - $self-> {container}-> font-> height - 39],
-		width    => 120,
 		min      => -16383,
 		max      => 16383,
 		onChange => sub {
@@ -1963,6 +2080,7 @@ sub write
 }
 
 package Prima::VB::Types::urect;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::rect);
 
@@ -1974,6 +2092,7 @@ sub open
 }
 
 package Prima::VB::Types::cluster;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::generic);
 
@@ -2000,17 +2119,41 @@ sub IDS    {}
 sub packID {}
 sub on_change {}
 
-
-package Prima::VB::Types::radio;
+package Prima::VB::Types::strings;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::cluster);
 
-sub open
+sub open   { shift-> open_indirect }
+
+sub set
 {
-	my $self = $_[0];
-	$self-> open_indirect();
+	my ( $self, $data) = @_;
+	my $i = 0;
+	$self-> {A}-> focusedItem(-1), return unless defined $data;
+	for ( $self-> IDS) {
+		if ( $_ eq $data) {
+			$self-> {A}-> focusedItem($i);
+			last;
+		}
+		$i++;
+	}
 }
 
+sub get
+{
+	my $self = $_[0];
+	my @IDS = $self-> IDS;
+	my $ix  = $self-> {A}-> focusedItem;
+	return $IDS[($ix < 0) ? 0 : $ix];
+}
+
+package Prima::VB::Types::radio;
+use strict;
+use vars qw(@ISA);
+@ISA = qw(Prima::VB::Types::cluster);
+
+sub open   { shift-> open_indirect }
 sub IDS    {}
 sub packID {}
 
@@ -2052,6 +2195,7 @@ sub write
 }
 
 package Prima::VB::Types::checkbox;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::cluster);
 
@@ -2107,42 +2251,49 @@ sub write
 
 
 package Prima::VB::Types::borderStyle;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::radio);
 sub IDS    { qw(None Sizeable Single Dialog); }
 sub packID { 'bs'; }
 
 package Prima::VB::Types::align;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::radio);
 sub IDS    { qw(Left Center Right); }
 sub packID { 'ta'; }
 
 package Prima::VB::Types::valign;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::radio);
 sub IDS    { qw(Top Middle Bottom); }
 sub packID { 'ta'; }
 
 package Prima::VB::Types::windowState;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::radio);
 sub IDS    { qw(Normal Minimized Maximized); }
 sub packID { 'ws'; }
 
 package Prima::VB::Types::borderIcons;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::checkbox);
 sub IDS    { qw(SystemMenu Minimize Maximize TitleBar); }
 sub packID { 'bi'; }
 
 package Prima::VB::Types::selectingButtons;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::checkbox);
 sub IDS    { qw(Left Middle Right); }
 sub packID { 'mb'; }
 
 package Prima::VB::Types::widgetClass;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::radio);
 sub IDS    { qw(Button CheckBox Combo Dialog Edit InputLine Label ListBox Menu
@@ -2150,6 +2301,7 @@ sub IDS    { qw(Button CheckBox Combo Dialog Edit InputLine Label ListBox Menu
 sub packID { 'wc'; }
 
 package Prima::VB::Types::rop;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::radio);
 sub IDS    { qw(CopyPut Blackness NotOr NotSrcAnd NotPut NotDestAnd Invert
@@ -2159,6 +2311,7 @@ NotDestXor ); }
 sub packID { 'rop'; }
 
 package Prima::VB::Types::comboStyle;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::radio);
 sub IDS    { qw(Simple DropDown DropDownList); }
@@ -2166,6 +2319,7 @@ sub packID { 'cs'; }
 sub preload_modules { return 'Prima::ComboBox' };
 
 package Prima::VB::Types::gaugeRelief;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::radio);
 sub IDS    { qw(Sink Border Raise); }
@@ -2173,6 +2327,7 @@ sub packID { 'gr'; }
 sub preload_modules { return 'Prima::Sliders' };
 
 package Prima::VB::Types::sliderScheme;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::radio);
 sub IDS    { qw(Gauge Axis Thermometer StdMinMax); }
@@ -2180,6 +2335,7 @@ sub packID { 'ss'; }
 sub preload_modules { return 'Prima::Sliders' };
 
 package Prima::VB::Types::tickAlign;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::radio);
 sub IDS    { qw(Normal Alternative Dual); }
@@ -2187,6 +2343,7 @@ sub packID { 'tka'; }
 sub preload_modules { return 'Prima::Sliders' };
 
 package Prima::VB::Types::growMode;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::checkbox);
 sub IDS    { qw( GrowLoX GrowLoY GrowHiX GrowHiY XCenter YCenter DontCare); }
@@ -2220,8 +2377,16 @@ sub open
 	}
 }
 
+package Prima::VB::Types::geometry;
+use strict;
+use vars qw(@ISA);
+@ISA = qw(Prima::VB::Types::radio);
+sub IDS    { qw(GrowMode Pack Place) }
+
+sub packID { 'gt'; }
 
 package Prima::VB::Types::font;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::generic);
 
@@ -2468,6 +2633,7 @@ sub write
 }
 
 package Prima::VB::Types::icon;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::generic);
 
@@ -2647,6 +2813,7 @@ sub write
 
 
 package Prima::VB::Types::image;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::icon);
 
@@ -2657,6 +2824,7 @@ sub imgClass
 
 
 package Prima::VB::Types::items;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::text);
 
@@ -2683,6 +2851,7 @@ sub write
 }
 
 package Prima::VB::Types::multiItems;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::items);
 
@@ -2722,6 +2891,7 @@ sub write
 
 
 package Prima::VB::Types::event;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::text);
 
@@ -2749,11 +2919,264 @@ sub write
 }
 
 package Prima::VB::Types::FMAction;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::event);
 
 
+package PackPropListViewer;
+use strict;
+use vars qw(@ISA);
+@ISA = qw(PropListViewer);
+
+sub on_click
+{
+	my $self = $_[0];
+	my $index = $self-> focusedItem;
+	my $master = $self-> {master};
+	my $id = $self-> {'id'}-> [$index];
+	$self-> SUPER::on_click;
+	if ( $self-> {check}-> [$index]) {
+		$master-> {data}-> {$id} = $master-> {prop_defaults}-> {$id};
+		$self-> {master}-> item_changed;
+	} else {
+		$self-> {master}-> item_deleted;
+	}
+}
+
+package Prima::VB::Types::pack_fill;
+use strict;
+use vars qw(@ISA);
+@ISA = qw(Prima::VB::Types::strings);
+sub IDS  { qw(none x y both) }
+
+package Prima::VB::Types::pack_anchor;
+use strict;
+use vars qw(@ISA);
+@ISA = qw(Prima::VB::Types::strings);
+sub IDS  { qw(nw n ne w center e sw s e) }
+
+package Prima::VB::Types::pack_side;
+use strict;
+use vars qw(@ISA);
+@ISA = qw(Prima::VB::Types::strings);
+sub IDS  { qw(top bottom left right) }
+
+package Prima::VB::Types::packInfo;
+use strict;
+use vars qw(@ISA %packProps %packDefaults);
+@ISA = qw(Prima::VB::Types::generic);
+
+%packProps = (
+	after     => 'Handle',
+	before    => 'Handle',
+	anchor    => 'pack_anchor',
+	expand    => 'bool',
+	fill      => 'pack_fill',
+	pad       => 'point',
+	ipad      => 'point',
+	side      => 'pack_side',
+);
+
+%packDefaults = (
+	after     => undef,
+	before    => undef,
+	anchor    => 'center',
+	expand    => 0,
+	fill      => 'none',
+	pad       => [0,0],
+	ipad      => [0,0],
+	side      => 'top',
+);
+
+sub name { $_[0]-> {widget}-> name} # proxy call for Handle
+
+sub open
+{
+	my $self = $_[0];
+	my $h = $self-> {container}-> height;
+	my $w = $self-> {container}-> width;
+	my $fh = $self-> {container}-> font-> height;
+
+	my $divx = $h / 2;
+	$self-> {A} = $self-> {container}-> insert( PackPropListViewer =>
+		origin => [ 0, $divx + 6],
+		size   => [ $w, $h - $divx - 6],
+		growMode => gm::Ceiling,
+		onSelectItem => sub {
+			$self-> close_item;
+			$self-> open_item;
+		},
+	);
+	$self-> {A}-> {master} = $self;
+	$self-> {prop_defaults} = \%packDefaults;
+
+	$self-> {Div1} = $self-> {container}-> insert( Divider =>
+		vertical => 0,
+		origin => [ 0, $divx],
+		size   => [ $w, 6],
+		min    => 20,
+		max    => 20,
+		name   => 'Div',
+		growMode => gm::Ceiling,
+		onChange => sub {
+			my $bottom = $_[0]-> bottom;
+			$self-> {panel}-> height( $bottom);
+			$self-> {A}-> set(
+				top    => $self-> {container}-> height,
+				bottom => $bottom + 6,
+			);
+		}
+	);
+
+	$self-> {panel} = $self-> {container}-> insert( Notebook =>
+		origin    => [ 0, 0],
+		size      => [ $w, $divx],
+		growMode  => gm::Client,
+		name      => 'Panel',
+		pageCount => 1,
+	);
+	$self-> {panel}-> {pages} = {};
+	$self-> {data} = {};
+}
+
+sub close_item
+{
+	my ( $self ) = @_;
+	return unless defined $self-> {opened};
+	$self-> {opened} = undef;
+}
+
+sub open_item
+{
+	my ( $self) = @_;
+	return if defined $self-> {opened};
+	my $list = $self-> {A};
+	my $f = $list-> focusedItem;
+
+	if ( $f < 0) {
+		$self-> {panel}-> pageIndex(0);
+		return;
+	}
+	my $id   = $list-> {id}-> [$f];
+	my $type = $VB::main-> get_typerec( $packProps{ $id});
+	my $p = $self-> {panel};
+	my $pageset;
+	if ( exists $p-> {pages}-> {$type}) {
+		$self-> {opened} = $self-> {typeCache}-> {$type};
+		$pageset = $p-> {pages}-> {$type};
+		$self-> {opened}-> renew( $id, $self);
+	} else {
+		$p-> pageCount( $p-> pageCount + 1);
+		$p-> pageIndex( $p-> pageCount - 1);
+		$p-> {pages}-> {$type} = $p-> pageIndex;
+		$self-> {opened} = $type-> new( $p, $id, $self);
+		$self-> {opened}-> {changeProc} = 
+			\&Prima::VB::Types::packInfo::item_changed_from_notebook;
+		$self-> {typeCache}-> {$type} = $self-> {opened};
+	}
+	my $data = exists $self->{data}-> {$id} ? $self->{data}-> {$id} : $packDefaults{$id};
+	$self-> {sync} = 1;
+	$self-> {opened}-> set( $data);
+	$self-> {sync} = undef;
+	$p-> pageIndex( $pageset) if defined $pageset;
+}
+
+sub item_changed_from_notebook
+{
+	item_changed( $_[0]-> {widget});
+}
+
+sub item_deleted
+{
+	my $self = $_[0];
+	return unless $self;
+	return unless $self-> {opened};
+	return if $self-> {sync};
+	$self-> {sync} = 1;
+	my $id = $self-> {A}-> {id}-> [$self-> {A}-> focusedItem];
+	$self-> {opened}-> set( $packDefaults{$id});
+	my $list = $self-> {A};
+	my $ix = $list-> {index}-> {$self-> {opened}-> {id}};
+	if ( $list-> {check}-> [$ix]) {
+		$list-> {check}-> [$ix] = 0;
+		$list-> redraw_items( $ix);
+	}
+	$self-> change;
+	$self-> {sync} = 0;
+}
+
+sub item_changed
+{
+	my $self = $_[0];
+	return unless $self;
+	return unless $self-> {opened};
+	return if $self-> {sync};
+	return unless $self-> {opened}-> valid;
+	return unless $self-> {opened}-> can( 'get');
+
+	$self-> {sync} = 1;
+	my $list = $self-> {A};
+	my $data = $self-> {opened}-> get;
+	my @redraw;
+	if ( $self-> {opened}-> {id} eq 'after') {
+		delete $self-> {data}-> {before};
+		push @redraw, $list-> {index}-> {before};
+		$list-> {check}-> [ $redraw[-1] ] = 0;
+	} elsif ( $self-> {opened}-> {id} eq 'before') {
+		delete $self-> {data}-> {after};
+		push @redraw, $list-> {index}-> {after};
+		$list-> {check}-> [ $redraw[-1] ] = 0;
+	}
+
+	$self-> {data}-> { $self-> {opened}-> {id} } = $data;
+	my $ix = $list-> {index}-> {$self-> {opened}-> {id}};
+	unless ( $list-> {check}-> [$ix]) {
+		$list-> {check}-> [$ix] = 1;
+		push @redraw, $ix;
+	}
+	$list-> redraw_items( @redraw) if @redraw;
+	$self-> change;
+	$self-> {sync} = undef;
+}
+
+sub set
+{
+	my ( $self, $data) = @_;
+	$self-> {sync} = 1;
+	$self-> {data} = $data ? {%$data} : {};
+
+	my $l = $self-> {A};
+	my @id = sort keys %packProps;
+	my @chk = ();
+	my %ix  = ();
+	my $num = 0;
+	for ( @id) {
+		push( @chk, exists $self->{data}->{$_} ? 1 : 0);
+		$ix{$_} = $num++;
+	}
+	$l-> reset_items( \@id, \@chk, \%ix);
+
+	if ( $self-> {opened}) {
+		my $id   = $self-> {opened}-> {id};
+		my $data = exists $self->{data}-> {$id} ? $self->{data}-> {$id} : $packDefaults{$id};
+		$self-> {sync} = 1;
+		$self-> {opened}-> set( $data);
+		$self-> {sync} = undef;
+	}
+
+	$self-> {sync} = 0;
+}
+
+sub get
+{
+	my $self = $_[0];
+	my %d = %{ $self-> {data}};
+	return \%d;
+}
+
 package MyOutline;
+use strict;
 
 sub on_keydown
 {
@@ -2832,6 +3255,7 @@ sub on_dragitem
 }
 
 package MenuOutline;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::Outline MyOutline);
 
@@ -2855,6 +3279,7 @@ sub makeseparator
 }
 
 package MPropListViewer;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(PropListViewer);
 
@@ -2875,8 +3300,8 @@ sub on_click
 	}
 }
 
-
 package Prima::VB::Types::menuItems;
+use strict;
 use vars qw(@ISA %menuProps %menuDefaults);
 @ISA = qw(Prima::VB::Types::generic);
 
@@ -3037,7 +3462,6 @@ sub close_item
 	return unless defined $self-> {opened};
 	$self-> {opened} = undef;
 }
-
 
 sub open_item
 {
@@ -3201,8 +3625,6 @@ sub set
 	};
 	$traverse-> ( $_, $setData) for @$data;
 	undef $traverse;
-#print "set:";
-#print Dumper( $setData);
 	$self-> {B}-> items( $setData);
 	$self-> {sync} = 0;
 }
@@ -3269,8 +3691,6 @@ sub get
 	};
 	$traverse-> ( $_, $retData) for @{$self-> {B}-> items};
 	undef $traverse;
-#print "get:";
-#print Dumper( $retData);
 	return $retData;
 }
 
@@ -3325,6 +3745,7 @@ sub write
 
 
 package Prima::VB::Types::menuname;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::name);
 
@@ -3352,6 +3773,7 @@ sub valid
 }
 
 package Prima::VB::Types::key;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::generic);
 
@@ -3388,6 +3810,7 @@ sub write
 
 
 package ItemsOutline;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::StringOutline MyOutline);
 
@@ -3397,6 +3820,7 @@ sub new_item
 }
 
 package Prima::VB::Types::treeItems;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::VB::Types::generic);
 

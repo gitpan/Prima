@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Prima.pm,v 1.83 2007/09/21 08:06:47 dk Exp $
+#  $Id: Prima.pm,v 1.85 2007/12/21 15:46:27 dk Exp $
 
 package Prima;
 
@@ -34,7 +34,7 @@ require DynaLoader;
 use vars qw($VERSION @ISA $__import @preload);
 @ISA = qw(DynaLoader);
 sub dl_load_flags { 0x00 }
-$VERSION = '1.23';
+$VERSION = '1.24';
 bootstrap Prima $VERSION;
 unless ( UNIVERSAL::can('Prima', 'init')) {
 	$::application = 0;
@@ -443,8 +443,6 @@ L<Prima::internals> - Internal architecture
 L<Prima::codecs>    - Step-by-step image codec creation
 
 L<gencls>           - C<gencls>, a class compiler tool.
-
-L<Prima::Make> - module for automated Makefile creation 
 
 =item Miscellaneous
 

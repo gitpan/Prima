@@ -22,7 +22,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: VB.pl,v 1.84 2005/10/13 17:22:52 dk Exp $
+# $Id: VB.pl,v 1.90 2007/11/14 13:37:29 dk Exp $
 use strict;
 use Prima qw(StdDlg Notebooks MsgBox ComboBox FontDialog ColorDialog IniFile Utils);
 use Prima::VB::VBLoader;
@@ -50,6 +50,7 @@ die "$@" if $@;
 use Prima::Application name => 'Form template builder';
 
 package VB;
+use strict;
 use vars qw($inspector
 	$main
 	$editor
@@ -143,6 +144,7 @@ sub accelItems
 }
 
 package OPropListViewer;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(PropListViewer);
 
@@ -151,14 +153,16 @@ sub on_click
 	my $self = $_[0];
 	my $index = $self-> focusedItem;
 	my $current = $VB::inspector-> {current};
-	return if $index < 0 or !$current;
+	return if $index < 0;
 	my $id = $self-> {'id'}-> [$index];
 	return if $id eq 'name' || $id eq 'owner';
 	$self-> SUPER::on_click;
-	if ( $self-> {check}-> [$index]) {
-		$current-> prf_set( $id => $current-> {default}-> {$id});
-	} else {
-		$current-> prf_delete( $id);
+	for ( $current, grep { $current != $_ } $VB::form-> marked_widgets) {
+		if ( $self-> {check}-> [$index]) {
+			$_-> prf_set( $id => $_-> {default}-> {$id});
+		} else {
+			$_-> prf_delete( $id);
+		}
 	}
 }
 
@@ -172,6 +176,7 @@ sub on_selectitem
 
 
 package ObjectInspector;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::Window);
 
@@ -196,8 +201,7 @@ sub init
 	my $self = shift;
 	my %profile = $self-> SUPER::init(@_);
 
-	my @rx = split( ' ', $VB::main-> {ini}-> {ObjectInspectorRect});
-	$self-> rect( @rx) if scalar grep { $_ != -1 } @rx;
+	$VB::main-> init_position( $self, 'ObjectInspectorRect');
 
 	my @sz = $self-> size;
 
@@ -358,6 +362,12 @@ sub item_changed
 				$list-> {check}-> [$ix] = 1;
 				$list-> redraw_items( $ix);
 			}
+
+			my @w = $VB::form-> marked_widgets;
+			for my $w ( @w) {
+				next if $w == $self-> {current};
+				$w-> prf_set($self-> {opened}-> {id} => $data);
+			}
 			$self-> {sync} = undef;
 		}
 	}
@@ -428,7 +438,6 @@ sub open_item
 	$self-> {lastOpenedId} = undef;
 }
 
-
 sub enter_widget
 {
 	return unless $VB::inspector;
@@ -486,6 +495,55 @@ sub enter_widget
 	}
 }
 
+sub update_markings
+{
+	return unless $VB::inspector;
+	my @w = $VB::form-> marked_widgets;
+	return enter_widget( $VB::form) if 0 == @w;
+	return enter_widget( $w[0])     if 1 == @w;
+	
+	my $self = $VB::inspector;
+	$self-> close_item;
+	my $n1 = $self-> {current} = shift @w;
+	my %el = %{$n1-> {events}};
+	my %pl = %{$n1-> {default}};
+	delete @pl{ keys %el };
+	delete @pl{ qw(name) }; # won't set these properties
+	for my $w ( @w) {
+		delete @el{ grep { not exists $w->{events}->{$_} }  keys %el};
+		delete @pl{ grep { not exists $w->{default}->{$_} } keys %pl};
+	}
+
+	my $oid = $self-> {lastOpenedId};
+
+	my @ef = sort keys %el;
+	my $ep = $self-> {elist};
+	my $num = 0;
+	my @check = ();
+	my %ix = ();
+	for my $e ( @ef) {
+		push( @check, ( grep { $_-> {profile}->{$e} } $n1, @w ) ? 1 : 0);
+		$ix{$e} = $num++;
+	}
+	$ep-> reset_items( [@ef], [@check], {%ix});
+	$ep-> focusedItem( $ix{$oid}) if defined $oid and defined $ix{$oid};
+
+	my $lp = $self-> {plist};
+	@ef = sort keys %pl;
+	%ix = ();
+	@check = ();
+	$num = 0;
+	for my $e ( @ef) {
+		push( @check, ( grep { $_-> {profile}->{$e} } $n1, @w ) ? 1 : 0);
+		$ix{$e} = $num++;
+	}
+	$lp-> reset_items( [@ef], [@check], {%ix});
+	$lp-> focusedItem( $ix{$oid}) if defined $oid and defined $ix{$oid};
+
+	$self-> Selector-> text( join(',', map { $_-> name } $n1, @w));
+	$self-> open_item;
+}
+
 sub renew_widgets
 {
 	return unless $VB::inspector;
@@ -540,6 +598,7 @@ sub help_lookup
 
 
 package Form;
+use strict;
 use vars qw(@ISA);
 @ISA = qw( Prima::Window Prima::VB::Window);
 
@@ -664,30 +723,16 @@ sub on_paint
 
 sub on_move
 {
-	my ( $self, $ox, $oy, $x, $y) = @_;
-	return if $self-> {syncRecting};
-	$self-> {syncRecting} = $self;
-	$self-> prf_set(
-		origin => [$x, $y],
-		originDontCare => 0,
-	);
-	$self-> {syncRecting} = undef;
-	$self-> {profile}-> {left} = $x;
-	$self-> {profile}-> {bottom} = $y;
+	my $self = shift;
+	$self-> SUPER::on_move(@_);
+	$self-> prf_set( originDontCare => 0);
 }
 
 sub on_size
 {
-	my ( $self, $ox, $oy, $x, $y) = @_;
-	return if $self-> {syncRecting};
-	$self-> {syncRecting} = $self;
-	$self-> prf_set(
-		size => [$x, $y],
-		sizeDontCare => 0,
-	);
-	$self-> {syncRecting} = undef;
-	$self-> {profile}-> {width} = $x;
-	$self-> {profile}-> {height} = $y;
+	my $self = shift;
+	$self-> SUPER::on_size(@_);
+	$self-> prf_set( sizeDontCare => 0);
 }
 
 sub on_close
@@ -799,6 +844,7 @@ sub on_mousemove
 	if ( $self-> {transaction} == 2) {
 		$self-> {guidelineX} = $x;
 		$self-> text( $x);
+		$_-> repaint for grep { $_-> {locked} } $self-> widgets;
 		$self-> repaint;
 		return;
 	}
@@ -806,6 +852,7 @@ sub on_mousemove
 	if ( $self-> {transaction} == 3) {
 		$self-> {guidelineY} = $y;
 		$self-> text( $y);
+		$_-> repaint for grep { $_-> {locked} } $self-> widgets;
 		$self-> repaint;
 		return;
 	}
@@ -814,12 +861,11 @@ sub on_mousemove
 		$self-> {guidelineY} = $y;
 		$self-> {guidelineX} = $x;
 		$self-> text( "$x:$y");
+		$_-> repaint for grep { $_-> {locked} } $self-> widgets;
 		$self-> repaint;
 		return;
 	}
-
 }
-
 
 sub on_mouseup
 {
@@ -838,8 +884,10 @@ sub on_mouseup
 		for ( $self-> widgets) {
 			my @x = $_-> rect;
 			next if $x[0] < $r[0] || $x[1] < $r[1] || $x[2] > $r[2] || $x[3] > $r[3];
+			next if $_-> {locked};
 			$_-> marked(1);
 		}
+		ObjectInspector::update_markings();
 		return;
 	}
 
@@ -1038,12 +1086,14 @@ sub fm_duplicate
 		push ( @r, $j);
 		$j-> marked(1,0);
 	}
+	ObjectInspector::update_markings();
 }
 
 sub fm_selectall
 {
 	return unless $VB::form;
 	$_-> marked(1) for $VB::form-> widgets;
+	ObjectInspector::update_markings();
 }
 
 sub fm_delete
@@ -1103,6 +1153,7 @@ sub fm_paste
 	ObjectInspector::renew_widgets;
 	$_-> notify(q(Load)) for @seq;
 	$_-> marked( 1, 0) for @seq;
+	ObjectInspector::update_markings();
 }
 
 
@@ -1188,6 +1239,18 @@ data =>
 	$d-> destroy;
 }
 
+sub fm_toggle_lock
+{
+	my $self = $VB::form;
+	return unless $self;
+
+	my @w      = $self-> marked_widgets;
+	my $unlock = not grep { $_-> {locked} } @w;
+	$_-> {locked} = $unlock for @w;
+	$self-> marked(0,1) if $unlock;
+	$_-> repaint for @w;
+}
+
 sub prf_icon
 {
 	$_[0]-> icon( $_[1]);
@@ -1201,6 +1264,7 @@ sub prf_menuItems
 }
 
 package MainPanel;
+use strict;
 use vars qw(@ISA *do_layer);
 @ISA = qw(Prima::Window);
 
@@ -1244,6 +1308,7 @@ sub profile_default
 				]],
 				['~Change class...' => sub { Form::fm_reclass();}],
 				['Creation ~order' => sub { Form::fm_creationorder(); } ],
+				['To~ggle lock' => 'Ctrl+G' => '^G' => sub { Form::fm_toggle_lock(); }],
 			]],
 			['~View' => [
 			['~Object Inspector' => 'F11' => 'F11' => sub { $_[0]-> bring_inspector; }],
@@ -1428,8 +1493,7 @@ sub init
 	my $i = $self-> {ini} = $self-> {iniFile}-> section( 'View' );
 	$self-> menu-> dsnap-> checked( $i-> {SnapToGrid});
 	$self-> menu-> gsnap-> checked( $i-> {SnapToGuidelines});
-	my @rx = split( ' ', $i-> {MainPanelRect});
-	$self-> rect( @rx) if scalar grep { $_ != -1 } @rx;
+	$self-> init_position( $self, 'MainPanelRect');
 	return %profile;
 }
 
@@ -2350,7 +2414,24 @@ sub bring_color_dialog
 	$VB::color_dialog-> select;
 }
 
+sub init_position
+{
+	my ( $self, $window, $name) = @_;
+
+	my @sz = $::application-> size;
+	my @rx = split( ' ', $self-> {ini}-> {$name});
+	return unless grep { $_ != -1 } @rx;
+
+	$rx[0] = 0 if $rx[0] < 0 or $rx[0] > $sz[0] + 100;
+	$rx[1] = 0 if $rx[1] < 0 or $rx[1] > $sz[1] + 100;
+	$rx[2] = $sz[0] if $rx[2] > $sz[0];
+	$rx[3] = $sz[1] if $rx[3] > $sz[1];
+
+	$window-> rect( @rx);
+}
+
 package VisualBuilder;
+use strict;
 
 $::application-> icon( Prima::Image-> load( Prima::Utils::find_image( 'VB::VB.gif'), index => 6));
 $::application-> accelItems( VB::accelItems);
@@ -2535,6 +2616,15 @@ before its parent. However, the explicit order might be helpful
 in a case, when, for example, C<tabOrder> property is left to its default
 value, so it is assigned according to the order of widget creation.
 
+=item Toggle lock
+
+Changes the lock status for selected widgets. The lock, if set, prevents
+a widget from being selected by mouse, to avoid occasional positional changes.
+This is useful when a widget is used as owner for many sub-widgets.
+
+Ctrl+mouse click locks and unlocks a widget.
+
+
 =back
 
 =over
@@ -2635,7 +2725,9 @@ can be more than one selected widget at a time, or none at all.
 To explicitly select a widget in addition to the already selected
 ones, hold the C<shift> key while clicking on a widget. This combination
 also deselects the widget. To select all widgets on the form window,
-call L<Select all> command from the menu.
+call L<Select all> command from the menu. To prevent widgets from being
+occasionally selected, lock them with "Edit/Toggle lock" command or 
+Ctrl+mouse click.
 
 =item Moving
 

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: VBControls.pm,v 1.12 2005/10/13 17:22:52 dk Exp $
+# $Id: VBControls.pm,v 1.14 2007/11/14 11:41:34 dk Exp $
 package Prima::VB::VBControls;
 
 use strict;
@@ -31,6 +31,7 @@ use Prima::Classes;
 use Prima::Lists;
 
 package Divider;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::Widget);
 
@@ -170,6 +171,7 @@ sub max
 }
 
 package PropListViewer;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::ListViewer);
 
@@ -247,6 +249,7 @@ sub on_click
 
 
 package Editor;
+use strict;
 use vars qw(@ISA);
 @ISA = qw(Prima::Edit);
 
@@ -301,6 +304,7 @@ sub on_change
 }
 
 package CodeEditor;
+use strict;
 use vars qw(@ISA @editors);
 @ISA = qw(Prima::Window);
 
@@ -538,9 +542,7 @@ sub init
 	my $self = shift;
 	my %profile = $self-> SUPER::init(@_);
 
-
-	my @rx = split( ' ', $VB::main-> {ini}-> {CodeEditorRect});
-	$self-> rect( @rx) if scalar grep { $_ != -1 } @rx;
+	$VB::main-> init_position( $self, 'CodeEditorRect');
 
 	my $i = $VB::main-> {iniFile}-> section('Editor');
 

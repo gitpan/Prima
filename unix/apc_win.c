@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_win.c,v 1.88 2007/08/06 07:51:20 dk Exp $
+ * $Id: apc_win.c,v 1.89 2007/10/01 11:47:16 dk Exp $
  */
 
 /***********************************************************/
@@ -1296,6 +1296,8 @@ window_start_modal( Handle self, Bool shared, Handle insert_before)
 {
    DEFXX;
    Handle selectee;
+   if ( guts. grab_widget)
+      apc_widget_set_capture( guts. grab_widget, 0, 0);
    if (( XX-> preexec_focus = apc_widget_get_focused()))
       protect_object( XX-> preexec_focus);
    CWindow( self)-> exec_enter_proc( self, shared, insert_before);

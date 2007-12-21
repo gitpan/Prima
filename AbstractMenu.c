@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: AbstractMenu.c,v 1.59 2007/08/09 13:03:06 dk Exp $
+ * $Id: AbstractMenu.c,v 1.60 2007/11/11 12:48:07 dk Exp $
  */
 
 #include "apricot.h"
@@ -514,8 +514,12 @@ new_av(  PMenuItemReg m, int level)
 	    SV * sv = newSVpv( m-> variable, 0);
             if ( m-> flags. utf8_perlSub) SvUTF8_on( sv);
             av_push( loc, sv);
-	 } else
-            av_push( loc, newSVsv( nilSV));
+	 } else {
+	    int len;
+	    char buffer[20];
+	    len = sprintf( buffer, "#%d", m-> id);
+            av_push( loc, newSVpv( buffer, ( STRLEN) len));
+	 }
       }
       av_push( glo, newRV_noinc(( SV *) loc));
       m = m-> next;

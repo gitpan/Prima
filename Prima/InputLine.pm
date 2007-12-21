@@ -26,7 +26,7 @@
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #  Modifications by Anton Berezin <tobez@tobez.org>
 #
-#  $Id: InputLine.pm,v 1.30 2005/10/13 17:22:50 dk Exp $
+#  $Id: InputLine.pm,v 1.32 2007/12/21 15:29:47 dk Exp $
 
 package Prima::InputLine;
 use vars qw(@ISA);
@@ -57,6 +57,14 @@ sub profile_default
 		maxLen         => 256,  # length $def{ text},
 		passwordChar   => '*',
 		pointerType    => cr::Text,
+		popupItems     => [
+			[ cut        => 'Cu~t'        => 'cut'       ],
+			[ copy       => '~Copy'       => 'copy'      ],
+			[ paste      => '~Paste'      => 'paste'     ],
+			[ delete     => '~Delete'     => 'delete'    ],
+			[],
+			[select_all  => 'Select ~All' => 'select_all'],
+		],
 		readOnly       => 0,
 		selection      => [0, 0],
 		selStart       => 0,
@@ -412,6 +420,10 @@ sub on_keydown
 		$self-> copy if $start != $end;
 		$self-> clear_event;
 		return;
+	} elsif ($c eq "\cA") {
+		$self-> select_all;
+		$self-> clear_event;
+		return;
 	} elsif ($c eq "\cV") {
 		$self-> paste;
 		$self-> clear_event;
@@ -455,6 +467,25 @@ sub on_keydown
 		$self-> clear_event;
 		return;
 	}
+}
+
+sub on_popup
+{
+	my $self = $_[0];
+	my $p    = $self-> popup;
+
+	my $sel = $self-> {selStart} != $self-> {selEnd};
+
+	my $c    = $::application-> Clipboard;
+	$c-> open;
+	my $clip = $c-> format_exists('Text');
+	$c-> close;
+
+	$p-> enabled( 'copy',         $sel && not($self-> {writeOnly}));
+	$p-> enabled( 'cut',          $sel && not($self-> {writeOnly}));
+	$p-> enabled( 'delete',       $sel);
+	$p-> enabled( 'paste',        $clip);
+	$p-> enabled( 'select_all',   length($self-> {wholeLine}));
 }
 
 sub check_auto_size
@@ -552,6 +583,8 @@ sub on_mousedown
 		$self-> text( $cap);
 		$self-> charOffset( $start + length( $s));
 		$self-> clear_event;
+		return;
+	} elsif ( $btn == mb::Right) {
 		return;
 	}
 	

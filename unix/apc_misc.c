@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_misc.c,v 1.103 2007/08/21 16:44:10 dk Exp $
+ * $Id: apc_misc.c,v 1.104 2007/10/01 11:47:16 dk Exp $
  */
 
 /***********************************************************/
@@ -895,6 +895,9 @@ apc_show_message( const char * message, Bool utf8)
       warn( "%s", message);
       return true;
    }   
+      
+   if ( guts. grab_widget)
+      apc_widget_set_capture( guts. grab_widget, 0, 0);
   
    appSz = apc_application_get_size( nilHandle);
    /* acquiring message font and wrapping message text */

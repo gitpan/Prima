@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: VBLoader.pm,v 1.27 2007/09/13 15:12:25 dk Exp $
+# $Id: VBLoader.pm,v 1.28 2007/11/14 11:41:34 dk Exp $
 package Prima::VB::VBLoader;
 use strict;
 use Prima::Utils;
@@ -240,6 +240,7 @@ sub AUTOFORM_CREATE
 }
 
 package Prima; 
+use strict;
 
 sub VBLoad
 {

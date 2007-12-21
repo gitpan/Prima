@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: gtk.c,v 1.2 2007/05/18 14:07:15 dk Exp $
+ * $Id: gtk.c,v 1.5 2007/11/08 08:18:57 dk Exp $
  */
 
 /*********************************/
@@ -35,6 +35,8 @@
 #include "unix/guts.h"
 
 #ifdef WITH_GTK2
+
+#undef dirty
 
 #include <gtk/gtk.h>
 
@@ -121,7 +123,6 @@ gtk_openfile( Bool open)
 		gtk_file_chooser_set_select_multiple( GTK_FILE_CHOOSER (gtk_dialog), gtk_select_multiple);
 	gtk_file_chooser_set_do_overwrite_confirmation( GTK_FILE_CHOOSER (gtk_dialog), gtk_overwrite_prompt);
 	gtk_file_chooser_set_show_hidden( GTK_FILE_CHOOSER (gtk_dialog), gtk_show_hidden_files);
-	gtk_file_chooser_set_show_hidden( GTK_FILE_CHOOSER (gtk_dialog), true);
 	if ( gtk_current_folder_ptr)
 		gtk_file_chooser_set_current_folder( GTK_FILE_CHOOSER (gtk_dialog), gtk_current_folder_ptr);
 
@@ -260,7 +261,7 @@ prima_gtk_openfile( char * params)
 	if ( strncmp( params, "directory", 9) == 0) {
 		params += 9;
 		if ( *params == '=') {
-			*params++;
+			params++;
 			if ( *params == 0) {
 				gtk_current_folder_ptr = NULL;
 			} else {

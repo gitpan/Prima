@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: ps_setup.pl,v 1.6 2005/10/13 17:22:53 dk Exp $
+# $Id: ps_setup.pl,v 1.7 2007/11/08 12:07:31 dk Exp $
 =pod 
 =item NAME
 
@@ -61,8 +61,9 @@ for ( keys %p) {
 #	print "$_:$p{$_} => $x->{data}->{devParms}->{$_}\n";
 }
 
-$x-> begin_doc;
-$x-> text_out( "hello!", 100, 100);
-$x-> end_doc;
+# uncomment this to print document with the applied changes
+#$x-> begin_doc;
+#$x-> text_out( "hello!", 100, 100);
+#$x-> end_doc;
 
 1;

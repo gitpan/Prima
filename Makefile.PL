@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Makefile.PL,v 1.205 2007/09/21 07:35:49 dk Exp $
+#  $Id: Makefile.PL,v 1.209 2007/11/09 14:19:45 dk Exp $
 #
 
 BEGIN {
@@ -151,6 +151,7 @@ use vars qw(
 	$packlist
 	%cache_find_files
 	$binary_prereq
+	$win32_use_dlltool
 );
 
 my $extramsg = "(see also makefile.log for details)";
@@ -226,7 +227,7 @@ sub cc_command_line
 	push @cc, "${ CDEFFLAG}HAVE_CONFIG_H=1";
 #	push @cc, "${CDEFFLAG}PRIGRAPH" if $usePrigraph;
 	push @cc, ( $compile_only ? "$COUTOFLAG$objf" : "$COUTEXEFLAG$exef");
-	push @cc, "$COUTOFLAG$objf" if $Win32 && ! $compile_only;
+	push @cc, "$COUTOFLAG$objf" if $COMPILER =~ /^(msvc|bcc32)$/ && !$compile_only;
 	push @cc, map { "$CLIBPATHFLAG$_"} @LIBPATH unless $compile_only || ( $COMPILER eq 'msvc');
 	push @cc, $srcf;
 	return @cc if $compile_only;
@@ -254,7 +255,10 @@ sub ld_command_line
 		push @ld, "$LDOUTFLAG$dstf", @_;
 		push @ld, map { "$LDLIBFLAG$_"} @LIBS;
 		push @ld, "os2\\Prima.def" if $OS2;
-		push @ld, "/def:win32\\Prima.def" if $Win32 && !$cygwin;
+		if ( $Win32) {
+			push @ld, "/def:win32\\Prima.def" if $COMPILER eq 'msvc';
+			push @ld, "win32/Prima.def" if $COMPILER eq 'gcc';
+		}
 	}
 	return @ld;
 }
@@ -417,10 +421,9 @@ sub have_define
 	chdir $TMPDIR;
 	my $tmpsrc = qd( tempfile( "pmts%04d.c"));
 	my $tmpo = $tmpsrc;
-	if ( $Win32 && !$cygwin) {
+	if ( $COMPILER eq 'msvc') {
 		$tmpo =~ s/\.c$/\.obj/;
-	}
-	else {
+	} else {
 		$tmpo =~ s/\.c$/\.o/;
 	}
 	open TMPSRC, ">$tmpsrc" or die "Creation of temporary file $tmpsrc failed $extramsg";
@@ -733,6 +736,14 @@ sub setup_variables
 
 	setvar( 'CC', $Config{ cc});
 	print "Determining compiler type... ";
+
+	# setting preliminary $COMPILER so have_define() can run
+	if ( $Win32) {
+		$COMPILER = ( $CC =~ /cl(\.exe)?$/i ) ? 'msvc' : $CC;
+	} else {
+		$COMPILER = $CC;
+	}
+
 	if ( defined $USER_VARS{ COMPILER}) {
 		$COMPILER = $USER_VARS{ COMPILER};
 		die "Compiler type $COMPILER is unknown" unless defined $cc_specs{ $COMPILER};
@@ -765,6 +776,7 @@ sub setup_variables
 		$COMPILER = 'cc';
 	}
 	print "$cc_specs{ $COMPILER}->{ name}\n";
+	$win32_use_dlltool = $Win32 && ( $COMPILER eq 'gcc') && !$cygwin;
 
 	# 5.8.0 hack
 	$Config{PATCHLEVEL} = $Config{PERL_PATCHLEVEL} if !defined $Config{PATCHLEVEL} || !length $Config{PATCHLEVEL};
@@ -772,7 +784,7 @@ sub setup_variables
 	# Checking some Config.pm - were empty for ActiveState 626
 	$Config{PATCHLEVEL} = $Config{patchlevel} if !defined $Config{PATCHLEVEL} || !length $Config{PATCHLEVEL};
 	$Config{SUBVERSION} = $Config{subversion} if !defined $Config{SUBVERSION} || !length $Config{SUBVERSION};
-	$Config{ld} = (($Win32 && !$cygwin) ? 'link' : 'ld'), print("** warning: malformed Config.pm\n")
+	$Config{ld} = (($COMPILER eq 'msvc') ? 'link' : 'ld'), print("** warning: malformed Config.pm\n")
 		unless length $Config{ld};
 
 	my $ccflags   = $Config{ ccflags};
@@ -841,9 +853,12 @@ sub setup_variables
 	setvar( 'LIBS', ());
 	my @flibs;
 	
-	if ( $cygwin) {
+	if ( $Win32 && $COMPILER eq 'gcc') {
 		$Config{libperl} =~ s/^lib(.*)\.a$/$1/i;
 		push @libs, qw(gdi32 mpr winspool comdlg32); # add more when appropriate
+	}
+	if ( $CYGWIN_X11) {
+		$Config{libperl} =~ s/^lib(.*)\.a$/$1/i;
 	}
 
 # here starts lot of execs...
@@ -1034,7 +1049,8 @@ sub setup_paths
 			push @LIBS, "Xext";
 		}
 	}
-	else {
+	
+	if ( !$NeedX11 || $CYGWIN_X11) {
 		my $libpath = find_lib( $Config{ libperl}, '', "", qd( "$Config{ archlib}/CORE"));
 		die "Cannot find perl library $extramsg\n" unless defined $libpath;
 		print "Perl library found in ", ( $libpath || "default LIBPATH"), "\n";
@@ -1321,7 +1337,7 @@ sub setup_misc
 			push @inc, $_ if m/^\s*#include\s*\</;
 		}
 		close F;
-		$lib.='.lib' if ( $Win32 && !$cygwin) || $OS2;
+		$lib.='.lib' if ( $COMPILER eq 'msvc') || $OS2;
 		if ( !$stop_codecs && ( 
 			$libs{$lib} || 
 			defined ( $foundlib = find_lib( $lib, join('', @inc), '', @codec_libpath))
@@ -1722,22 +1738,30 @@ sub create_config_pm
 	} else {
 		push @libs, $perllib;
 	}
-	unless ( $PLATFORM eq 'unix') {
+	unless ( $PLATFORM eq 'unix' or $COMPILER eq 'gcc') {
 		push @libpath, "$_cwd/auto/Prima";
 		push @libs, 'Prima' . $cc_specs{$COMPILER}->{ldlibext};
 	}
 	my $libpath = qqd(join( ',', map {"'$_'"} @libpath));
-	unless ( $PLATFORM eq 'unix') {
+	unless ( $PLATFORM eq 'unix' or $COMPILER eq 'gcc') {
 		$libpath[-1] = "$INSTALLSITEARCH/auto/Prima";
 	}
 	my $libpathi = qqd(join( ',', map {"'$_'"} @libpath));
-	my $libs    = qqd(join( ',', map {"'$_'"} @libs));
+	my $ldlibs  = qqd(join( ',', map {"'$_'"} @libs));
 	my $perl    = qqd($^X);
 	my $pl = qqd( $PrimaLib);
 	my $pt = qqd( $PrimaTarget);
 	my $iscr = qqd($INSTALLSCRIPT);
 	my $isa  = qqd($INSTALLSITEARCH);
 
+	my $define = join(' ', map { "-D$_" } @cdefs);
+	my $inc    = join(' ', map { "-I$_" } @ip);
+	my $libs   = '';
+	if ( $cygwin) {
+		$libs = "-L$INSTALL_DL -lPrima";
+	} elsif ( $Win32 || $OS2) {
+		$libs = "$INSTALLSITEARCH/auto/Prima/${LIB_PREFIX}Prima$LIB_EXT";
+	}
 
 	open F, "> Prima/Config.pm" or die "cannot open Prima/Config.pm:$!\n";
 	print F <<CONFIG;
@@ -1753,6 +1777,10 @@ use vars qw(%Config %Config_inst);
 	libname               => '$isa${ifs}auto${ifs}Prima${ifs}Prima$LIB_EXT',
 	dlname                => '$isa${ifs}$pt',
 	ldpaths               => [$libpathi],
+
+	libs                  => '$libs',
+	define                => '$define',
+	inc                   => '$inc',
 );
 
 %Config = (
@@ -1779,6 +1807,7 @@ use vars qw(%Config %Config_inst);
 	libext                => '$LIB_EXT',
 	libprefix             => '$LIB_PREFIX',
 	libname               => '$cwd${ifs}$pl',
+	libs                  => '$cwd${ifs}$pl',
 	dlname                => '$cwd${ifs}$pt',
 	dlext                 => '$DL_EXT',
 	ld                    => '$LD',
@@ -1789,11 +1818,15 @@ use vars qw(%Config %Config_inst);
 	ldlibflag             => '$LDLIBFLAG',
 	ldlibpathflag         => '$LDLIBPATHFLAG',
 	ldpaths               => [$libpath],
-	ldlibs                => [$libs],
+	ldlibs                => [$ldlibs],
 	ldlibext              =>'$cc_specs{$COMPILER}->{ldlibext}',
 	inline                => '$DEFINES{__INLINE__}',
 	perl                  => '$perl',
 	dl_load_flags         => $DL_LOAD_FLAGS,
+
+	libs                  => '$libs',
+	define                => '$define',
+	inc                   => '$inc',
 );
 
 1;
@@ -2260,6 +2293,8 @@ $extralibs:
 OS2D
 	}
 
+	my $libtarget = $win32_use_dlltool ? $PrimaLib : '';
+
 	print MAKE <<EOF;
 $thunks_tinc: Makefile @alltmldeps
 \t$^X utils/tmlink.pl -Iinclude/generic -o$thunks_tinc @alltml
@@ -2295,7 +2330,7 @@ dist: tardist
 \t\$(RM) $DISTNAME.tar.gz
 \t\@gzip -9 $DISTNAME.tar
 
-prima: dirs $PrimaTarget
+prima: dirs $PrimaTarget $libtarget
 
 $PrimaTarget: @allojects $extralibs
 \t${ \eval{ return join ' ', ld_command_line( $PrimaTarget, @allojects)}}
@@ -2315,6 +2350,12 @@ Makefile: Makefile.PL @Makefile_deps
 \t\@false
 
 EOF
+
+	print MAKE <<DLLTOOL if $win32_use_dlltool;
+$PrimaLib: $PrimaTarget
+\t\@dlltool -l $PrimaLib -d win32/Prima.def -D PRIMA.DLL $PrimaTarget
+
+DLLTOOL
 
 	my %cp;
 	my %cpbin;
@@ -2379,13 +2420,13 @@ EOF
 	}
 
 	print MAKE "\ninstall: all\n";
-	dump_cmd( sub { "$_[0] $cp{$_[0]}"}, 'CP', keys %cp);
+	dump_cmd( sub { "$_[0] $cp{$_[0]}"}, 'CP', sort keys %cp);
 	while ( scalar @allbins) {
 		my ( $src, $dst) = ( shift @allbins, shift @allbins);
 		$cp{qd( basename( $src, '.pl') . $SCRIPT_EXT)} = $dst;
 		$cpbin{$src} = qd( "$dst/" . basename( $src, '.pl')) . $SCRIPT_EXT;
 	}
-	dump_cmd( sub { "$_[0] $cpbin{$_[0]}"}, 'CPBIN', keys %cpbin);
+	dump_cmd( sub { "$_[0] $cpbin{$_[0]}"}, 'CPBIN', sort keys %cpbin);
 	dump_cmd( sub { $_[0] }, 'CHMOD', @chmodx);
 	
 	print MAKE "\n\t\@echo Updating config...\n";

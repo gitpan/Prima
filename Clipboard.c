@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Clipboard.c,v 1.43 2007/08/09 13:03:06 dk Exp $
+ * $Id: Clipboard.c,v 1.44 2007/10/11 11:34:25 dk Exp $
  */
 
 #include "apricot.h"
@@ -179,7 +179,7 @@ Clipboard_deregister_format( Handle self, char * format)
    fr-> server( self, fr, cefDone, nilSV);
    free( fr-> id);
    formatCount--;
-   memcpy( fr, fr + 1, sizeof( ClipboardFormatReg) * ( formatCount - ( fr - list)));
+   memmove( fr, fr + 1, sizeof( ClipboardFormatReg) * ( formatCount - ( fr - list)));
    if ( formatCount > 0) {
       if (( fr = allocn( ClipboardFormatReg, formatCount)))
          memcpy( fr, list, sizeof( ClipboardFormatReg) * formatCount);

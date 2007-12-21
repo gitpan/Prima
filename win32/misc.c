@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: misc.c,v 1.31 2007/08/25 16:43:19 dk Exp $
+ * $Id: misc.c,v 1.32 2007/10/05 07:39:15 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -79,7 +79,7 @@ apc_beep_tone( int freq, int duration)
          Sleep( duration);
          return true;
       }   
-#ifndef __CYGWIN__
+#ifndef __GNUC__
       // Nastiest hack ever - Beep() doesn't work under W9X.
       __asm {
         in      al,0x61                  ;Stop sound, if any

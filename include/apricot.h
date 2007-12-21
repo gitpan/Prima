@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: apricot.h,v 1.183 2007/09/13 14:53:16 dk Exp $ */
+/* $Id: apricot.h,v 1.184 2007/10/05 08:01:15 dk Exp $ */
 
 #ifndef _APRICOT_H_
 #define _APRICOT_H_
@@ -57,6 +57,8 @@
 #elif defined( __BORLANDC__)
    #define BROKEN_PERL_PLATFORM  1
    #define BROKEN_COMPILER       1
+#elif defined(WIN32)
+   #define BROKEN_PERL_PLATFORM  1
 #endif
 
 #ifdef WORD

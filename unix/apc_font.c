@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_font.c,v 1.93 2007/06/07 09:46:03 dk Exp $
+ * $Id: apc_font.c,v 1.96 2007/10/26 14:55:34 dk Exp $
  */
 
 /***********************************************************/
@@ -57,7 +57,7 @@ static Bool   do_no_scaled_fonts = false;
 static void detail_font_info( PFontInfo f, PFont font, Bool addToCache, Bool bySize);
 
 static void
-strlwr( char *d, const char *s)
+str_lwr( char *d, const char *s)
 {
    while ( *s) {
       *d++ = tolower( *s++);
@@ -97,7 +97,7 @@ font_query_name( XFontStruct * s, PFontInfo f)
          XCHECKPOINT;
          if ( c) {
             f-> flags. encoding = true;
-            strlwr( f-> font. encoding, c);
+            str_lwr( f-> font. encoding, c);
             XFree( c);
          } 
       }
@@ -110,7 +110,7 @@ font_query_name( XFontStruct * s, PFontInfo f)
             XCHECKPOINT;
             if ( c) {
                strcat( f-> font. encoding, "-");
-               strlwr( f-> font. encoding + strlen( f-> font. encoding), c);
+               str_lwr( f-> font. encoding + strlen( f-> font. encoding), c);
                XFree( c);
             } 
          }
@@ -130,7 +130,7 @@ font_query_name( XFontStruct * s, PFontInfo f)
       if ( c) {
          f-> flags. family = true;
          strncpy( f-> font. family, c, 255);  f-> font. family[255] = '\0';
-         strlwr( f-> font. family, f-> font. family);
+         str_lwr( f-> font. family, f-> font. family);
          XFree( c);
       }
    } 
@@ -143,7 +143,7 @@ font_query_name( XFontStruct * s, PFontInfo f)
       if ( c) {
          f-> flags. name = true;
          strncpy( f-> font. name, c, 255);  f-> font. name[255] = '\0';
-         strlwr( f-> font. name, f-> font. name);
+         str_lwr( f-> font. name, f-> font. name);
          XFree( c);
       } 
    }
@@ -192,15 +192,15 @@ font_query_name( XFontStruct * s, PFontInfo f)
             strcpy( f-> font. name, c);
          }
       }
-      strlwr( f-> font. family, f-> font. family);
-      strlwr( f-> font. name, f-> font. name);
+      str_lwr( f-> font. family, f-> font. family);
+      str_lwr( f-> font. name, f-> font. name);
       f-> flags. name = true;
       f-> flags. family = true;
    } else if ( ! f-> flags. family ) {
-      strlwr( f-> font. family, f-> font. name);
+      str_lwr( f-> font. family, f-> font. name);
       f-> flags. name = true;
    } else if ( ! f-> flags. name ) {
-      strlwr( f-> font. name, f-> font. family);
+      str_lwr( f-> font. name, f-> font. family);
       f-> flags. name = true;
    }
 }   
@@ -598,7 +598,7 @@ prima_init_font_subsystem( char * error_buf)
       guts. locale[31] = 0;
       len = strlen( guts. locale);
       if ( !hash_fetch( encodings, guts. locale, len)) {
-         strlwr( guts. locale, guts. locale);
+         str_lwr( guts. locale, guts. locale);
          if ( !hash_fetch( encodings, guts. locale, len) && 
               (
                 ( strncmp( guts. locale, "iso-", 4) == 0)||
@@ -965,7 +965,7 @@ dump_font( PFont f)
    fprintf( stderr, "width: %d\n", f-> width);
    fprintf( stderr, "style: %d\n", f-> style);
    fprintf( stderr, "pitch: %d\n", f-> pitch);
-   fprintf( stderr, "direction: %d\n", f-> direction);
+   fprintf( stderr, "direction: %g\n", f-> direction);
    fprintf( stderr, "name: %s\n", f-> name);
    fprintf( stderr, "family: %s\n", f-> family);
    fprintf( stderr, "size: %d\n", f-> size);
@@ -1509,7 +1509,7 @@ prima_core_font_pick( Handle self, PFont source, PFont dest)
 
    if ( !by_size) prima_init_try_height( &hgs, dest-> height, dest-> height);
 
-   strlwr( lcname, dest-> name);
+   str_lwr( lcname, dest-> name);
 AGAIN:   
    index = lastIndex = -1;
    lastDiff = minDiff = INT_MAX;
@@ -1782,7 +1782,7 @@ apc_gp_set_font( Handle self, PFont font)
    kf = prima_find_known_font( font, false, false);
    if ( !kf || !kf-> id) {
       dump_font( font);
-      if ( DISP) warn( "UAF_007: internal error (kf:%08x)", PTR2UV(kf)); /* the font was not cached, can't be */
+      if ( DISP) warn( "UAF_007: internal error (kf:%08lx)", PTR2UV(kf)); /* the font was not cached, can't be */
       return false;
    }
 
@@ -1827,7 +1827,7 @@ apc_menu_set_font( Handle self, PFont font)
       kf = prima_find_known_font( font, false, false);
       if ( !kf || !kf-> id) {
          dump_font( font);
-         warn( "UAF_010: internal error (kf:%08x)", PTR2UV(kf)); /* the font was not cached, can't be */
+         warn( "UAF_010: internal error (kf:%08lx)", PTR2UV(kf)); /* the font was not cached, can't be */
          return false;
       }
    }
@@ -1853,16 +1853,31 @@ apc_menu_set_font( Handle self, PFont font)
 }
 
 Bool
-prima_update_rotated_fonts( PCachedFont f, const char * text, int len, Bool wide, int direction, PRotatedFont * result)
+prima_update_rotated_fonts( PCachedFont f, const char * text, int len, Bool wide, double direction, PRotatedFont * result,
+   Bool * ok_to_not_rotate)
 {
    PRotatedFont * pr = &f-> rotated;
    PRotatedFont r = nil;
    int i;
    
-   while ( direction < 0) direction += 3600;
-   direction %= 3600;
-   if ( direction == 0)
+   while ( direction < 0)     direction += 360.0;
+   while ( direction > 360.0) direction -= 360.0;
+
+   /* granulate direction */
+   {
+      double g;
+      int x = f-> fs-> max_bounds. width;
+      int y = f-> fs-> max_bounds. ascent + f-> fs-> max_bounds. descent;
+      if ( x < y) x = y;
+      g = fabs(0.785398 - atan2(x+1,x)) * 90.0 / 3.14159265358;
+      if ( g > 0) direction = floor(direction / g) * g;
+   }
+
+   if ( direction == 0.0) {
+      if ( ok_to_not_rotate) *ok_to_not_rotate = true;
       return false;
+   }
+   if ( ok_to_not_rotate) *ok_to_not_rotate = false;
 
    /* finding record for given direction */
    while (*pr) {
@@ -1908,7 +1923,7 @@ prima_update_rotated_fonts( PCachedFont f, const char * text, int len, Bool wide
          }
          bzero( r-> map, r-> length * sizeof( void*));
       }    
-      rad = direction * 3.14159 / 1800.0;
+      rad = direction * 3.14159265358 / 180.0;
       r-> sin. l = ( sin1 = sin( -rad)) * UINT16_PRECISION;
       r-> cos. l = ( cos1 = cos( -rad)) * UINT16_PRECISION;
       r-> sin2.l = ( sin2 = sin(  rad)) * UINT16_PRECISION;
