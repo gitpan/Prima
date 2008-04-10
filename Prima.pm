@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Prima.pm,v 1.85 2007/12/21 15:46:27 dk Exp $
+#  $Id: Prima.pm,v 1.86 2008/04/10 18:28:20 dk Exp $
 
 package Prima;
 
@@ -34,7 +34,7 @@ require DynaLoader;
 use vars qw($VERSION @ISA $__import @preload);
 @ISA = qw(DynaLoader);
 sub dl_load_flags { 0x00 }
-$VERSION = '1.24';
+$VERSION = '1.25';
 bootstrap Prima $VERSION;
 unless ( UNIVERSAL::can('Prima', 'init')) {
 	$::application = 0;

@@ -22,7 +22,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: VB.pl,v 1.90 2007/11/14 13:37:29 dk Exp $
+# $Id: VB.pl,v 1.91 2008/04/04 10:27:21 dk Exp $
 use strict;
 use Prima qw(StdDlg Notebooks MsgBox ComboBox FontDialog ColorDialog IniFile Utils);
 use Prima::VB::VBLoader;
@@ -839,6 +839,11 @@ sub on_mousemove
 		$self-> {dim} = [ $x, $y];
 		$self-> veil;
 		return;
+	}
+
+	if ( $VB::main-> {ini}-> {SnapToGrid}) {
+		$x -= $x % 4;
+		$y -= $y % 4;
 	}
 
 	if ( $self-> {transaction} == 2) {

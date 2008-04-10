@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Makefile.PL,v 1.209 2007/11/09 14:19:45 dk Exp $
+#  $Id: Makefile.PL,v 1.212 2008/04/05 21:05:23 dk Exp $
 #
 
 BEGIN {
@@ -48,7 +48,7 @@ use Cwd;
 use DynaLoader;
 use Prima::Gencls;
 use ExtUtils::Packlist;
-use vars qw( %make_trans @ovvars @path_expand_ovvars $dir_sep $path_sep );
+use vars qw( %make_trans @ovvars @path_expand_ovvars $dir_sep $path_sep @no_compat );
 use vars @ovvars = qw(
 	$CC $CFLAGS $CCFLAGS $CCCDLFLAGS $CDLFLAGS $C_FLAGS $CDEBUGFLAGS $CDLFLAGS $COUTOFLAG $COUTEXEFLAG $CINCPATHFLAG
 	$CDEFFLAG $COMPONLYFLAG $CLIBPATHFLAG $CLINKPREFIX
@@ -57,13 +57,15 @@ use vars @ovvars = qw(
 	$OBJ_EXT $LIB_EXT $LIB_PREFIX $EXE_EXT $DL_EXT $SCRIPT_EXT
 	@INCPATH
 	@LIBPATH
-	@LIBS
+	$LIBS
+	$INC
 	$PLATFORM
 	$COMPILER
 	$PREFIX
 	$X11BASE
 	$INSTALLSCRIPT
 	$INSTALLSITEARCH
+	$INSTALL_BASE
 	$INSTALL_LIB
 	$INSTALL_DL
 	$INSTALL_EXAMPLES
@@ -92,12 +94,14 @@ use vars @ovvars = qw(
 use vars @path_expand_ovvars = qw(
 	@INCPATH
 	@LIBPATH
-	@LIBS
+	$INC
+	$LIBS
 	$COMPILER
 	$PREFIX
 	$X11BASE
 	$INSTALLSCRIPT
 	$INSTALLSITEARCH
+	$INSTALL_BASE
 	$INSTALL_LIB
 	$INSTALL_DL
 	$INSTALL_EXAMPLES
@@ -107,6 +111,17 @@ use vars @path_expand_ovvars = qw(
 	$MAKE
 	$RM
 	$DEFFILE
+);
+
+@no_compat = qw(
+	 SITELIBEXP     INSTALLDIRS
+         PERLPREFIX     SITEPREFIX      VENDORPREFIX
+         INST_ARCHLIB                   INSTALLARCHLIB  INSTALLVENDORARCH
+         INST_LIB       INSTALLPRIVLIB  INSTALLSITELIB      INSTALLVENDORLIB
+         INST_BIN       INSTALLBIN      INSTALLSITEBIN      INSTALLVENDORBIN
+         INST_SCRIPT                    INSTALLSITESCRIPT   INSTALLVENDORSCRIPT
+         INST_MAN1DIR   INSTALLMAN1DIR  INSTALLSITEMAN1DIR  INSTALLVENDORMAN1DIR
+         INST_MAN3DIR   INSTALLMAN3DIR  INSTALLSITEMAN3DIR  INSTALLVENDORMAN3DIR
 );
 
 use vars qw(
@@ -119,6 +134,7 @@ use vars qw(
 	$usePrigraph
 	$useGC
 	%cc_specs
+	@LIBS
 	%DEFINES
 	%PASSIVE_CODECS
 	@ACTIVE_CODECS
@@ -549,7 +565,7 @@ sub setvar
 	}
 	elsif ( $overrideable{ $varname} eq '@') {
 		if ( defined $USER_VARS{ $varname}) {
-			eval "\@$varname = \$USER_VARS{ \$varname}";
+			eval "\@$varname = \@{\$USER_VARS{ \$varname}}";
 		}
 		else {
 			eval "\@$varname = \@_";
@@ -833,15 +849,28 @@ sub setup_variables
 	setvar( 'SCRIPT_EXT',
 				(( $Win32 && !$cygwin) ? '.bat' : ( $OS2 ? '.cmd' : '')));
 	setvar( 'DL_EXT', "." . $Config{ dlext});
+	setvar( 'INC', ''); # compat mode INC
 	setvar( 'INCPATH', (
 		"include",
 		qd( "include/generic"),
 		$Config{installarchlib} . qd( "/CORE"),
+		( map { s/-I//; $_ } split ' ', $INC)
 	));
 	my @libpaths = quoted_split( $Config{ libpth});
 	push( @libpaths, '/usr/local/lib') if $platform eq 'unix';  # or perl makefile.pl LIBPATH+=/usr/local/lib
 	setvar( 'LIBPATH', @libpaths);
 	my @libs = map { s/^$LDLIBFLAG//; $_} quoted_split($Config{ libs});
+	# compat mode LIBS
+	setvar( 'LIBS', '');
+	for ( split ' ', $LIBS) {
+		if ( /^-l(.*)/) {
+			push @libs, $1;
+		} elsif ( /^-L(.*)/) {
+			push @LIBPATH, $1;
+		} else {
+			$LDFLAGS .= " $_";
+		}
+	}
 	#    push ( @libs, 'pmprintf') if $OS2 && defined $ENV{PRIMA_PMPRINTF};
 	#    push ( @libs, ( $Win32 || $OS2) ? 'prigraph.lib' : 'prigraph') if $usePrigraph;
 	if ( $useGC) {
@@ -850,7 +879,6 @@ sub setup_variables
 	if ( $COMPILER eq 'gcc') {
 		push @libs, 'gcc';
 	}
-	setvar( 'LIBS', ());
 	my @flibs;
 	
 	if ( $Win32 && $COMPILER eq 'gcc') {
@@ -871,7 +899,7 @@ sub setup_variables
 		}
 	}
 
-	setvar( 'LIBS', @flibs);
+	@LIBS = @flibs;
 	%DEFINES = (
 		PERL_PATCHLEVEL => $Config{ PATCHLEVEL},
 		PERL_SUBVERSION => $Config{ SUBVERSION},
@@ -910,6 +938,7 @@ sub setup_variables
 		$i++;
 	}
 	my $prefix = qd(($i ? join( '/', @a[0..$i-1]) : ''));
+	$USER_VARS{PREFIX} ||= $USER_VARS{INSTALL_BASE} if exists $USER_VARS{INSTALL_BASE};
 	setvar( 'PREFIX',           $prefix);
 	setvar( 'INSTALLSCRIPT',    $PREFIX . qd( '/' . join( '/', @a[$i .. $#a])));
 	setvar( 'INSTALLSITEARCH',  $PREFIX . qd( '/' . join( '/', @b[$i .. $#b])));
@@ -1262,6 +1291,9 @@ EOF
 		}
 
 		if ( $WITH_GTK2) {
+			my @saveinc = @INCPATH;
+			my @savelib = @LIBS;
+
 			my $inc = `pkg-config --cflags-only-I gtk+-2.0`;
 			chomp $inc;
 			my %inc = map { $_ => 1 } @INCPATH;
@@ -1272,7 +1304,19 @@ EOF
 			my %lib = map { $_ => 1 } @LIBS;
 			push @LIBS, $_ for grep { not exists $lib{$_}} $lib =~ /-l(\S+)/g;
 
-			$DEFINES{WITH_GTK2} = 1;
+			# now, try to compile with GTK. I've got lots of CPAN build failures
+			# because GTK wasn't willing to compile or god knows what.
+			print "Checking if can compile and link with gtk2... ";
+			my $ok = compile( "#include <gtk/gtk.h>\nint main() { return 0; }\n");
+			if ( $ok) {
+				$DEFINES{WITH_GTK2} = 1;
+				print "yes\n";
+			} else {
+				$WITH_GTK2 = 0;
+				@LIBS     = @savelib;
+				@INCPATH  = @saveinc;
+				print "no\n";
+			}
 		}
 	}
 	
@@ -1533,10 +1577,15 @@ sub process_commandline
 {
 	%overrideable = map { /^(.)(.*)$/; $2 => $1} @ovvars; # Script variables which may be overridden.
 	my %expand = map { /^.(.*)$/; $1 => 1 } @path_expand_ovvars;
+	my %no_compat = map { $_ => 1 } @no_compat;
 	$ARGV_STR = join( " ", map { "\"$_\""} @ARGV);
 	foreach my $arg ( @ARGV) {
 		if ( $arg =~ /^\s*(\w+)\s*(\+?)\=(.*)$/) {
 			my ( $varname, $setmode, $varval) = ( $1, $2 || '', $3);
+			if ( $no_compat{ $varname}) {
+				print "Variable $varname is not supported. Expect wrong behavior\n";
+				next;
+			}
 			die "Unknown variable $varname" unless $overrideable{ $varname};
 			$varval =~ s/~/$ENV{HOME}/g if $expand{ $varname};
 			if ( $overrideable{ $varname} eq '$') {
@@ -1555,7 +1604,7 @@ sub process_commandline
 				if ( $setmode eq '+') {
 					push @{ $USER_VARS_ADDONS{ $varname}}, @values;
 				} else {
-					$USER_VARS{ $varname} = @values;
+					$USER_VARS{ $varname} = \@values;
 				}
 				die $@ if $@;
 			}

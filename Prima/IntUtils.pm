@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: IntUtils.pm,v 1.27 2005/10/13 17:22:50 dk Exp $
+#  $Id: IntUtils.pm,v 1.28 2008/04/09 19:06:17 dk Exp $
 package Prima::IntUtils;
 
 use strict;
@@ -318,6 +318,21 @@ sub autoVScroll
 sub borderWidth     {($#_)?($_[0]-> set_border_width( $_[1])):return $_[0]-> {borderWidth}}
 sub hScroll         {($#_)?$_[0]-> set_h_scroll       ($_[1]):return $_[0]-> {hScroll}}
 sub vScroll         {($#_)?$_[0]-> set_v_scroll       ($_[1]):return $_[0]-> {vScroll}}
+
+sub draw_border
+{
+	my ( $self, $canvas, $backColor, @size) = @_;
+
+	@size = $self-> size unless @size;
+	$self-> rect_bevel(
+		$canvas,
+		0, 0,
+		$size[0]-1, $size[1]-1,
+		width => $self-> {borderWidth},
+		panel => 1,
+		fill  => $backColor,
+	);
+}
 
 1;
 

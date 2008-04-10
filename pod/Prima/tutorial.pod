@@ -1,4 +1,4 @@
-=for rcs $Id: tutorial.pod,v 1.6 2007/09/13 15:12:25 dk Exp $
+=for rcs $Id: tutorial.pod,v 1.7 2008/04/10 05:29:13 dk Exp $
 
 =head1 NAME
 
@@ -333,6 +333,8 @@ method of the menu owner ( in this example, the window ) to be called. This can
 be useful when constructing a generic class with menu actions that can be
 overridden:
 
+	use Prima qw(Application);
+	
 	package MyWindow;
 	use vars qw(@ISA);
 	@ISA = qw(Prima::MainWindow);
@@ -350,6 +352,8 @@ overridden:
 			]],
 		],
 	);
+
+	run Prima;
 
 All actions are called with the menu item identifier passed in as a string parameter.
 

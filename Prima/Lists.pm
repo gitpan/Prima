@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Anton Berezin  <tobez@tobez.org>
 #
-#  $Id: Lists.pm,v 1.56 2007/05/26 20:24:31 dk Exp $
+#  $Id: Lists.pm,v 1.57 2008/04/09 20:14:27 dk Exp $
 package Prima::Lists;
 
 # contains:
@@ -205,8 +205,8 @@ sub on_paint
 		$self-> color( $self-> disabledColor);
 		$self-> backColor( $self-> disabledBackColor);
 	}
-	my ( $bw, $ih, $iw, $dg, @a) = (
-		$self-> {borderWidth}, $self-> { itemHeight}, 
+	my ( $ih, $iw, $dg, @a) = (
+		$self-> { itemHeight}, 
 		$self-> {itemWidth}, $self-> {drawGrid},
 		$self-> get_active_area( 1, @size)
 	);
@@ -215,11 +215,7 @@ sub on_paint
 	my $j;
 	my $locWidth = $a[2] - $a[0] + 1;
 	my @invalidRect = $canvas-> clipRect;
-	$canvas-> rect3d( 
-		0, 0, $size[0]-1, $size[1]-1, $bw, 
-		$self-> dark3DColor, $self-> light3DColor
-	);
-	
+	$self-> draw_border( $canvas, undef, @size);
 
 	if ( $self-> {multiColumn}) {
 		my $xstart  = $a[0];

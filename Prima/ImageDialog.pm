@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: ImageDialog.pm,v 1.17 2007/09/13 14:52:53 dk Exp $
+#  $Id: ImageDialog.pm,v 1.18 2008/04/05 18:59:39 dk Exp $
 #
 
 package Prima::ImageDialog;
@@ -100,6 +100,7 @@ sub init
 		growMode   => gm::GrowLoX | gm::GrowLoY,
 		hScroll    => 0,
 		vScroll    => 0,
+		zoomPrecision => 1000,
 	);
 	$pk-> size(($self-> Cancel-> width) x 2); # force square dimension
 

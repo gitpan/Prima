@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: xft.c,v 1.26 2007/10/26 18:47:42 dk Exp $
+ * $Id: xft.c,v 1.27 2008/04/05 10:57:48 dk Exp $
  */
 
 /*********************************/
@@ -122,7 +122,7 @@ static PHash mismatch     = nil; /* fonts not present in xft base */
 static char  fontspecific[] = "fontspecific";
 static CharSetInfo * locale = nil;
 
-#ifdef HAVE_X11_EXTENSIONS_XRENDER_H
+#ifdef NEED_X11_EXTENSIONS_XRENDER_H
 /* piece of Xrender guts */
 typedef struct _XExtDisplayInfo {
     struct _XExtDisplayInfo *next;      
@@ -149,7 +149,7 @@ prima_xft_init(void)
    int j;
 #endif  
 
-#ifdef HAVE_X11_EXTENSIONS_XRENDER_H
+#ifdef NEED_X11_EXTENSIONS_XRENDER_H
    { /* snatch error code from xrender guts */
       XExtDisplayInfo *info = XRenderFindDisplay( DISP);
       if ( info && info-> codes)

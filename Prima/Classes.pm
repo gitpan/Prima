@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Classes.pm,v 1.98 2007/09/13 14:52:53 dk Exp $
+#  $Id: Classes.pm,v 1.102 2008/04/10 06:49:43 dk Exp $
 use Prima;
 use Prima::Const;
 
@@ -1165,6 +1165,38 @@ sub packForget { $_[0]-> geometry( gt::Default) if $_[0]-> geometry == gt::Pack 
 sub placeForget { $_[0]-> geometry( gt::Default) if $_[0]-> geometry == gt::Place }
 sub packSlaves { shift-> get_pack_slaves()}
 sub placeSlaves { shift-> get_place_slaves()}
+
+sub rect_bevel
+{
+	my ( $self, $canvas, $x, $y, $x1, $y1, %opt) = @_;
+
+	my $width = $opt{width} || 0;
+	my @c3d   = ( $opt{concave} || $opt{panel}) ?
+		( $self-> dark3DColor, $self-> light3DColor) :
+		( $self-> light3DColor, $self-> dark3DColor);
+	my $fill  = $opt{fill};
+
+	return $canvas-> rect3d( $x, $y, $x1, $y1, $width, @c3d, $fill)
+		if $width < 2;
+	my $back  = defined($fill) ? $fill : $self-> backColor;
+
+	# 0 - upper left under 2 -- inner square
+	# 1 - lower right over 3
+	# 2 - upper left         -- outer square
+	# 3 - lower right
+	if ( $opt{concave}) {
+		push @c3d, 0x404040, $back;
+	} elsif ( $opt{panel}) {
+		@c3d = ( 0x404040, $self-> disabledBackColor, $c3d[0], $c3d[1]);
+	} else {
+		push @c3d, $back, 0x404040;
+	}
+
+	my $hw = int( $width / 2);
+	$canvas-> rect3d( $x, $y, $x1, $y1, $hw, @c3d[2,3], $fill);
+	$canvas-> rect3d( $x + $hw, $y + $hw, $x1 - $hw, $y1 - $hw, $width - $hw, @c3d[0,1]);
+}
+
 
 # class Window
 package Prima::Window;

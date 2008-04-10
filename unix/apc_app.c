@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_app.c,v 1.115 2007/08/21 16:44:10 dk Exp $
+ * $Id: apc_app.c,v 1.118 2008/04/10 08:05:24 dk Exp $
  */
 
 /***********************************************************/
@@ -81,11 +81,13 @@ x_error_handler( Display *d, XErrorEvent *ev)
       return 0;
    }
 
+#ifdef NEED_X11_EXTENSIONS_XRENDER_H
    if ( ev-> request_code == guts. xft_xrender_major_opcode &&
         ev-> request_code > 127 && 
         ev-> error_code == BadLength)
       /* Xrender large polygon request failed */ 
       guts. xft_disable_large_fonts = 1;
+#endif
 
    XGetErrorText( d, ev-> error_code, buf, BUFSIZ);
    XGetErrorDatabaseText( d, name, "XError", "X Error", mesg, BUFSIZ);
@@ -160,18 +162,15 @@ static Bool
 init_x11( char * error_buf )
 {
    /*XXX*/ /* Namely, support for -display host:0.0 etc. */
-   XrmQuark common_quarks_list[26];  /*XXX change number of elements if necessary */
+   XrmQuark common_quarks_list[20];  /*XXX change number of elements if necessary */
    XrmQuarkList ql = common_quarks_list;
    XGCValues gcv;
    char *common_quarks =
       "String."
-      "Background.background."
       "Blinkinvisibletime.blinkinvisibletime."
       "Blinkvisibletime.blinkvisibletime."
       "Clicktimeframe.clicktimeframe."
       "Doubleclicktimeframe.doubleclicktimeframe."
-      "Font.font."
-      "Foreground.foreground."
       "Wheeldown.wheeldown."
       "Wheelup.wheelup."
       "Submenudelay.submenudelay."
@@ -211,7 +210,8 @@ init_x11( char * error_buf )
       "text/plain;charset=UTF-8",
       "_NET_WM_STATE_STAYS_ON_TOP",
       "_NET_CURRENT_DESKTOP",
-      "_NET_WORKAREA"
+      "_NET_WORKAREA",
+      "_NET_WM_STATE_ABOVE"
    };
    char hostname_buf[256], *hostname = hostname_buf;
 
@@ -272,8 +272,6 @@ init_x11( char * error_buf )
    guts.db = get_database();
    XrmStringToQuarkList( common_quarks, common_quarks_list);
    guts.qString = *ql++;
-   guts.qBackground = *ql++;
-   guts.qbackground = *ql++;
    guts.qBlinkinvisibletime = *ql++;
    guts.qblinkinvisibletime = *ql++;
    guts.qBlinkvisibletime = *ql++;
@@ -282,10 +280,6 @@ init_x11( char * error_buf )
    guts.qclicktimeframe = *ql++;
    guts.qDoubleclicktimeframe = *ql++;
    guts.qdoubleclicktimeframe = *ql++;
-   guts.qFont = *ql++;
-   guts.qfont = *ql++;
-   guts.qForeground = *ql++;
-   guts.qforeground = *ql++;
    guts.qWheeldown = *ql++;
    guts.qwheeldown = *ql++;
    guts.qWheelup = *ql++;
@@ -729,18 +723,18 @@ wm_net_get_current_workarea( Rect * r)
 {
    Bool ret = false;
    unsigned long n;
-   uint32_t *desktop = NULL, *workarea = NULL, *w;
+   unsigned long *desktop = NULL, *workarea = NULL, *w;
 
    if ( guts. icccm_only) return false;
 
-   desktop = ( uint32_t *) prima_get_window_property( guts. root, 
+   desktop = ( unsigned long *) prima_get_window_property( guts. root, 
                 NET_CURRENT_DESKTOP, XA_CARDINAL, 
                 NULL, NULL,
                 &n);
    if ( desktop == NULL || n < 1) goto EXIT;
    Mdebug("wm: current desktop = %d\n", *desktop);
    
-   workarea = ( uint32_t *) prima_get_window_property( guts. root, 
+   workarea = ( unsigned long *) prima_get_window_property( guts. root, 
                 NET_WORKAREA, XA_CARDINAL, 
                 NULL, NULL,
                 &n);

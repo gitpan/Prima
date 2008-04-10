@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: gtk.c,v 1.5 2007/11/08 08:18:57 dk Exp $
+ * $Id: gtk.c,v 1.6 2008/04/04 12:52:21 dk Exp $
  */
 
 /*********************************/
@@ -70,6 +70,7 @@ prima_gtk_init(void)
 	r = gtk_init_check( &argc, NULL);
 
 	if ( r == gtk_true()) {
+		XSetErrorHandler( guts. main_error_handler);
 		gtk_initialized = 1;
 		return true;
 	} else {

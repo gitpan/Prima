@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: codec_X11.c,v 1.16 2007/09/12 12:59:22 dk Exp $
+ * $Id: codec_X11.c,v 1.17 2008/04/08 08:29:53 dk Exp $
  */
 
 #include "img.h"
@@ -230,9 +230,7 @@ save( PImgCodec instance, PImgSaveFileInstance fi)
          break;
       }   
       xc++;
-   }  
-
-   name[1024] = 0;
+   } 
    
    myprintf( fi-> req, "#define %s_width %d\n", name, i-> w);
    myprintf( fi-> req, "#define %s_height %d\n", name, i-> h);

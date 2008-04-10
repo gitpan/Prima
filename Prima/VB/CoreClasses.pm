@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: CoreClasses.pm,v 1.43 2007/11/14 11:41:33 dk Exp $
+# $Id: CoreClasses.pm,v 1.44 2008/04/09 13:17:44 dk Exp $
 package Prima::VB::CoreClasses;
 use strict;
 
@@ -270,9 +270,9 @@ sub prf_types
 	my $pt = $_[ 0]-> SUPER::prf_types;
 	my %de = (
 		bool    => [qw(flat vertical default checkable checked autoRepeat autoHeight autoWidth)],
-		uiv     => [qw(glyphs borderWidth defaultGlyph hiliteGlyph disabledGlyph pressedGlyph holdGlyph)],
-		uiv     => ['imageScale',],
-		modalResult  => ['modalResult',],
+		uiv     => [qw(glyphs borderWidth defaultGlyph hiliteGlyph disabledGlyph pressedGlyph 
+			holdGlyph imageScale )],
+		modalResult  => ['modalResult'],
 		icon    => ['image',],
 	);
 	$_[0]-> prf_types_add( $pt, \%de);

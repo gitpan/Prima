@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: img.h,v 1.10 2007/09/13 14:53:16 dk Exp $
+ * $Id: img.h,v 1.11 2008/04/09 07:12:34 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 
@@ -39,8 +39,8 @@ extern "C" {
 #endif
 
 typedef struct _ImgIORequest {
-  unsigned long (*read)       ( void * handle, unsigned long busize, char * buffer);
-  unsigned long (*write)      ( void * handle, unsigned long busize, char * buffer);
+  unsigned long (*read)       ( void * handle, unsigned long busize, void * buffer);
+  unsigned long (*write)      ( void * handle, unsigned long busize, void * buffer);
   unsigned long (*seek)       ( void * handle, unsigned long offset, int whence);
   unsigned long (*tell)       ( void * handle);
   int           (*flush)      ( void * handle);

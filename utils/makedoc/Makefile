@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2004/02/12 15:02:43 dk Exp $
+# $Id: Makefile,v 1.3 2007/12/21 16:29:39 dk Exp $
 all: Prima.dvi Prima.pdf
 
 Prima.dvi: Prima.tex
@@ -6,7 +6,7 @@ Prima.dvi: Prima.tex
 	latex Prima.tex
 
 Prima.ps: Prima.dvi
-	dvips -o Prima.ps Prima.dvi
+	dvips -Ppdf -o Prima.ps Prima.dvi
 
 Prima.pdf: Prima.ps
 	ps2pdf -dAutoFilterColorImages=false -dColorImageFilter=/FlateEncode -dAutoFilterGrayImages=false -dGrayImageFilter=/FlateEncode Prima.ps

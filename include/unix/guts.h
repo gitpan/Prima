@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: guts.h,v 1.145 2007/10/25 11:24:29 dk Exp $ */
+/* $Id: guts.h,v 1.148 2008/04/10 08:05:24 dk Exp $ */
 
 #ifndef _UNIX_GUTS_H_
 #define _UNIX_GUTS_H_
@@ -56,6 +56,9 @@
 #include <fontconfig/fontconfig.h>
 #  if XFT_MAJOR > 1 && FC_MAJOR > 1
 #     define USE_XFT
+#  endif
+#  if XFT_VERSION < 20112
+#     define NEED_X11_EXTENSIONS_XRENDER_H
 #  endif
 #endif
 #undef Font
@@ -401,7 +404,8 @@ typedef struct {
 #define AI_NET_WM_STATE_STAYS_ON_TOP     30
 #define AI_NET_CURRENT_DESKTOP           31
 #define AI_NET_WORKAREA                  32
-#define AI_count                         33
+#define AI_NET_WM_STATE_ABOVE            33
+#define AI_count                         34
 
 #define FXA_RESOLUTION_X guts. atoms[ AI_FXA_RESOLUTION_X]
 #define FXA_RESOLUTION_Y guts. atoms[ AI_FXA_RESOLUTION_Y]
@@ -439,6 +443,7 @@ typedef struct {
 #define NET_WM_STATE_STAYS_ON_TOP guts. atoms[ AI_NET_WM_STATE_STAYS_ON_TOP]
 #define NET_CURRENT_DESKTOP guts. atoms[ AI_NET_CURRENT_DESKTOP]
 #define NET_WORKAREA guts. atoms[ AI_NET_WORKAREA]
+#define NET_WM_STATE_ABOVE guts. atoms[ AI_NET_WM_STATE_ABOVE]
 
 #define DEBUG_FONTS 0x01
 #define DEBUG_CLIP  0x02
@@ -503,8 +508,6 @@ typedef struct _UnixGuts
    int                          no_scaled_fonts;
    /* Resource management */
    XrmDatabase                  db;
-   XrmQuark                     qBackground;
-   XrmQuark                     qbackground;
    XrmQuark                     qBlinkinvisibletime;
    XrmQuark                     qblinkinvisibletime;
    XrmQuark                     qBlinkvisibletime;
@@ -513,10 +516,6 @@ typedef struct _UnixGuts
    XrmQuark                     qclicktimeframe;
    XrmQuark                     qDoubleclicktimeframe;
    XrmQuark                     qdoubleclicktimeframe;
-   XrmQuark                     qFont;
-   XrmQuark                     qfont;
-   XrmQuark                     qForeground;
-   XrmQuark                     qforeground;
    XrmQuark                     qString;
    XrmQuark                     qWheeldown;
    XrmQuark                     qwheeldown;
@@ -630,7 +629,6 @@ typedef struct _UnixGuts
    Bool                         icccm_only;
    Bool                         net_wm_maximization;
    int                          net_wm_maximize_HORZ_vs_HORIZ;
-   int                          X_bug_32_bit_property_is_long;
 } UnixGuts;
 
 extern UnixGuts guts;

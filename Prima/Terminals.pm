@@ -25,7 +25,7 @@
 #
 #  Created by Vadim Belman <voland@plab.ku.dk>
 #
-#  $Id: Terminals.pm,v 1.16 2005/10/13 17:22:51 dk Exp $
+#  $Id: Terminals.pm,v 1.17 2008/04/09 20:14:27 dk Exp $
 
 use strict;
 use Prima::Const;
@@ -925,15 +925,8 @@ sub UpdateTimer_Tick {
 
 #\subsection{on\_paint}
 sub on_paint {
-	my ( $self, $drawDst) = @_;
-
-	return if $self != $drawDst;
-
-	#$self->color( cl::Green);
-	#$self->bar( $self->clipRect);
-
-	$self-> rect3d( 0, 0, $self-> right - 1, $self-> top - 1, $self-> { borderWidth},
-		cl::Dark3DColor, cl::Light3DColor);
+	my ( $self, $canvas) = @_;
+	$self-> draw_border( $canvas, $self-> backColor, $self-> size );
 }
 
 #\subsection{on\_postmessage}

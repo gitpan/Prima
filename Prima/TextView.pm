@@ -26,7 +26,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: TextView.pm,v 1.24 2006/01/20 12:43:37 dk Exp $
+#  $Id: TextView.pm,v 1.25 2008/04/09 20:14:27 dk Exp $
 
 use strict;
 use Prima;
@@ -803,14 +803,12 @@ sub on_paint
 		$self-> color( $self-> disabledColor);
 		$self-> backColor( $self-> disabledBackColor);
 	}
-	my ( $bw, $t, $offset, @aa) = (
-	$self-> {borderWidth}, 
+	my ( $t, $offset, @aa) = (
 	$self-> { topLine}, $self-> { offset},
 	$self-> get_active_area(1,@size));
 
 	my @clipRect = $canvas-> clipRect;
-	$canvas-> rect3d( 0, 0, $size[0]-1, $size[1]-1, $bw, 
-		$self-> dark3DColor, $self-> light3DColor, $self-> backColor);
+	$self-> draw_border( $canvas, $self-> backColor, @size);
 
 	my $bx = $self-> {blocks};
 	my $lim = scalar @$bx;

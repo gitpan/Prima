@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ScrollWidget.pm,v 1.20 2006/10/08 15:10:45 dk Exp $
+#  $Id: ScrollWidget.pm,v 1.21 2008/04/09 20:14:27 dk Exp $
 use strict;
 use Prima::Const;
 use Prima::Classes;
@@ -374,10 +374,7 @@ sub update_geom_size
 sub on_paint
 {
 	my ( $self, $canvas) = @_;
-	my @size = $self-> size;
-	$canvas-> rect3d( 0, 0, $size[0]-1, $size[1]-1, 
-		$self-> borderWidth, $self-> dark3DColor, $self-> light3DColor,
-		$self-> backColor);
+	$self-> draw_border( $canvas, $self-> backColor, $self-> size );
 }
 
 sub on_size

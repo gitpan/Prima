@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Image.c,v 1.126 2007/09/13 14:52:45 dk Exp $
+ * $Id: Image.c,v 1.129 2008/04/09 07:12:33 dk Exp $
  */
 
 #include "img.h"
@@ -225,9 +225,9 @@ Image_stretch( Handle self, int width, int height)
    }
    lineSize = (( abs( width) * ( var->type & imBPP) + 31) / 32) * 4;
    newData = allocb( lineSize * abs( height));
-   memset( newData, 0, lineSize * abs( height));
    if ( newData == nil) 
          croak("Image::stretch: cannot allocate %d bytes", lineSize * abs( height));
+   memset( newData, 0, lineSize * abs( height));
    if ( var-> data)
       ic_stretch( var-> type, var-> data, var-> w, var-> h, 
                   newData, width, height, 
@@ -556,7 +556,7 @@ GOOD_RETURN:
 }
 
 static unsigned long 
-img_perlio_read( void * f, unsigned long bufsize, char * buffer)
+img_perlio_read( void * f, unsigned long bufsize, void * buffer)
 {
 #ifdef PerlIO
     return PerlIO_read(( FileStream) f, buffer, bufsize);
@@ -566,7 +566,7 @@ img_perlio_read( void * f, unsigned long bufsize, char * buffer)
 }
 
 static unsigned long 
-img_perlio_write( void * f, unsigned long bufsize, char * buffer)
+img_perlio_write( void * f, unsigned long bufsize, void * buffer)
 {
 #ifdef PerlIO
     return PerlIO_write( ( FileStream) f, buffer, bufsize);
@@ -1371,6 +1371,7 @@ Image_map( Handle self, Color color)
          rop[i] = ropCopyPut;
          break;
       case ropNoOper:
+         r[i]. r = r[i]. g = r[i]. b = 0;
          break;   
       default: {   
          Color c = i ? my-> get_backColor( self) : my-> get_color( self);
@@ -1380,8 +1381,7 @@ Image_map( Handle self, Color color)
       }} 
                
       if (( type & imBPP) <= 8) {
-         b[0] = cm_nearest_color( r[0], var-> palSize, var-> palette);
-         b[1] = cm_nearest_color( r[1], var-> palSize, var-> palette);
+         b[i] = cm_nearest_color( r[i], var-> palSize, var-> palette);
       }
       
       switch ( rop[i]) {
@@ -1402,7 +1402,6 @@ Image_map( Handle self, Color color)
 	 b[i]    = ~ b[i];
       }
    }         
-
 
    c. r = ( color >> 16) & 0xff;
    c. g = ( color >> 8) & 0xff;

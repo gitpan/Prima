@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Outlines.pm,v 1.46 2005/10/13 17:22:50 dk Exp $
+#  $Id: Outlines.pm,v 1.48 2008/04/09 20:14:27 dk Exp $
 
 # contains:
 #   OutlineViewer
@@ -271,8 +271,8 @@ sub on_paint
 	my @clr    = $self-> enabled ?
 	( $self-> color, $self-> backColor) :
 	( $self-> disabledColor, $self-> disabledBackColor);
-	my ( $bw, $ih, $iw, $indent, $foc, @a) = (
-		$self-> { borderWidth}, $self-> { itemHeight}, $self-> { maxWidth},
+	my ( $ih, $iw, $indent, $foc, @a) = (
+		$self-> { itemHeight}, $self-> { maxWidth},
 		$self-> {indent}, $self-> {focusedItem}, $self-> get_active_area( 1, @size));
 	my $i;
 	my $j;
@@ -288,10 +288,7 @@ sub on_paint
 		$canvas-> color( $clr[1]);
 		$canvas-> bar( 0, 0, @size);
 	} else {
-		$canvas-> rect3d( 
-			0, 0, $size[0]-1, $size[1]-1, $bw, 
-			$self-> dark3DColor, $self-> light3DColor, $clr[1]
-		);
+		$self-> draw_border( $canvas, $clr[1], @size);
 		$canvas-> clipRect( @a);
 	}
 
@@ -948,7 +945,7 @@ sub reset_tree
 		my ( $current, $parent, $index, $position, $level, $visibility) = @_;
 		my $iw = $fullc ? undef : $current-> [WIDTH];
 		unless ( defined $iw) {
-			$notifier-> ( @notifyParms, $current, \$iw);
+			$notifier-> ( @notifyParms, $current, $level, \$iw);
 			$current-> [WIDTH] = $iw;
 		}
 		my $iwc = $iw + ( 2.5 + $level) * $indent;
@@ -1392,7 +1389,7 @@ sub on_drawitem
 
 sub on_measureitem
 {
-#	my ( $self, $node, $result) = @_;
+#	my ( $self, $node, $level, $result) = @_;
 }
 
 sub on_stringify
@@ -1619,7 +1616,7 @@ sub draw_items
 
 sub on_measureitem
 {
-	my ( $self, $node, $result) = @_;
+	my ( $self, $node, $level, $result) = @_;
 	$$result = $self-> get_text_width( $node-> [0]);
 }
 
@@ -1654,7 +1651,7 @@ sub draw_items
 
 sub on_measureitem
 {
-	my ( $self, $node, $result) = @_;
+	my ( $self, $node, $level, $result) = @_;
 	$$result = $self-> get_text_width( $node-> [0]-> [0]);
 }
 
@@ -1821,7 +1818,7 @@ sub on_fontchanged
 
 sub on_measureitem
 {
-	my ( $self, $node, $result) = @_;
+	my ( $self, $node, $level, $result) = @_;
 	my $tw = $self-> get_text_width( $node-> [0]-> [0]) + $self-> {indent} / 4;
 
 	unless ( length $node-> [0]-> [1]) { #i.e. root
@@ -2447,11 +2444,11 @@ CANVAS. X1, Y1, X2, Y2 coordinated define the exterior rectangle
 of the item in widget coordinates. SELECTED and FOCUSED boolean flags are set to
 1 if the item is selected or focused, respectively; 0 otherwise.
 
-=item MeasureItem NODE, REF
+=item MeasureItem NODE, LEVEL, REF
 
-Puts width of NODE item in pixels into REF
-scalar reference. This notification must be called 
-from within C<begin_paint_info/end_paint_info> block.
+Puts width of NODE item in pixels into REF scalar reference. LEVEL is the node 
+depth as returned by C<get_item> for the reference. This notification
+must be called from within C<begin_paint_info/end_paint_info> block.
 
 =item SelectItem [[INDEX, ITEM, SELECTED], [INDEX, ITEM, SELECTED], ...]
 

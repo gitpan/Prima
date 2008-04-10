@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Classes.pm,v 1.91 2007/11/14 20:12:27 dk Exp $
+# $Id: Classes.pm,v 1.93 2008/04/09 20:13:04 dk Exp $
 use strict;
 package Prima::VB::Classes;
 
@@ -608,10 +608,15 @@ sub on_mousemove
 			$y = $o[1] + $self-> {spotY} if $dm == 1;
 			$x = $o[0] + $self-> {spotX} if $dm == 2;
 		}
-		$self-> xorrect( @{$self-> {prevRect}});
 		my @sz = $self-> size;
 		my @og = $self-> origin;
 		if ( $VB::main-> {ini}-> {SnapToGrid}) {
+			return if
+				!$self-> {dragImpedance} &&
+				abs( $x - $self-> {spotX}) < 4 &&
+				abs( $y - $self-> {spotY}) < 4
+				;
+			$self-> {dragImpedance} = 1;
 			$x -= ( $x - $self-> {spotX} + $og[0]) % 4;
 			$y -= ( $y - $self-> {spotY} + $og[1]) % 4;
 		}
@@ -628,6 +633,7 @@ sub on_mousemove
 			$y = $yline + $self-> {spotY} - $sz[1] 
 				if abs( $yline - $y + $self-> {spotY} - $sz[1]) < 8;
 		}
+		$self-> xorrect( @{$self-> {prevRect}});
 		my @xorg = $self-> client_to_screen( $x - $self-> {spotX}, $y - $self-> {spotY});
 		$self-> {prevRect} = [ @xorg, $sz[0] + $xorg[0], $sz[1] + $xorg[1]];
 		$self-> xorrect( @{$self-> {prevRect}}, 1);
@@ -640,6 +646,12 @@ sub on_mousemove
 			my ( $xa, $ya) = @{$self-> {dirData}};
 
 			if ( $VB::main-> {ini}-> {SnapToGrid}) {
+				return if 
+					!$self-> {dragImpedance} &&
+					abs( $x - $self-> {spotX}) < 4 &&
+					abs( $y - $self-> {spotY}) < 4
+					;
+				$self-> {dragImpedance} = 1;
 				$x -= ( $x - $self-> {spotX} + $og[0]) % 4;
 				$y -= ( $y - $self-> {spotY} + $og[1]) % 4;
 			}
@@ -1260,7 +1272,6 @@ sub prf_adjust_default
 		cursorPos
 		cursorSize
 		cursorVisible
-		designScale
 		pointer
 		pointerType
 		pointerHotSpot

@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Setup.pm,v 1.10 2005/10/13 17:22:52 dk Exp $
+#  $Id: Setup.pm,v 1.12 2008/04/09 20:10:14 dk Exp $
 #
 #  Setup dialog management
 
@@ -104,7 +104,7 @@ sub sdlg_exec
 		eval "use Prima::VB::VBLoader"; die "$@\n" if $@;
 		eval "use Prima::MsgBox"; die "$@\n" if $@;
 		$self-> {setupDlg} = Prima::VBLoad( 'Prima::PS::setup.fm', 
-		'Form1'     => { visible => 0, centered => 1},
+		'Form1'     => { visible => 0, centered => 1, designScale => [ 7, 16 ]},
 		'PaperSize' => { items => [ sort keys %pageSizes ], },
 		'OK'        => {
 			onClick => sub { 
