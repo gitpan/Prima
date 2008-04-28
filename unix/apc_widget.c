@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_widget.c,v 1.96 2006/01/07 19:54:48 dk Exp $
+ * $Id: apc_widget.c,v 1.97 2008/04/24 15:15:11 dk Exp $
  */
 
 /***********************************************************/
@@ -390,6 +390,9 @@ apc_widget_begin_paint( Handle self, Bool inside_on_paint)
       X(owner)-> gdrawable = dc;
       CWidget( owner)-> end_paint( owner);
    }
+
+   XX-> flags. force_flush = !inside_on_paint;
+
    return true;
 }
 
@@ -471,6 +474,8 @@ apc_widget_default_font( PFont f)
 Bool
 apc_widget_end_paint( Handle self)
 {
+   DEFXX;
+   XX-> flags. force_flush = 0;
    prima_cleanup_drawable_after_painting( self);
    prima_update_cursor( self);
    return true;

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: primguts.c,v 1.107 2007/08/16 08:42:05 dk Exp $
+ * $Id: primguts.c,v 1.109 2008/04/28 09:58:27 dk Exp $
  */
 /* Guts library, main file */
 
@@ -334,7 +334,7 @@ create_mate( SV *perlObject)
    else
    {
       /* another scheme, uses hash slot */
-      hv_store( (HV*)SvRV( perlObject), "__CMATE__", 9, newSViv( PTR2IV(object)), 0);
+      (void) hv_store( (HV*)SvRV( perlObject), "__CMATE__", 9, newSViv( PTR2IV(object)), 0);
    }
 
    /* extra check */
@@ -1048,7 +1048,7 @@ parse_hv( I32 ax, SV **sp, I32 items, SV **mark, int expected, const char *metho
       he = hv_store_ent( hv, ST( i), newSVsv( ST( i+1)), 0);
       av_push( order, newSVsv( ST( i)));
    }
-   hv_store( hv, "__ORDER__", 9, newRV_noinc((SV *)order), 0);
+   (void) hv_store( hv, "__ORDER__", 9, newRV_noinc((SV *)order), 0);
    return hv;
 }
 
@@ -1170,10 +1170,10 @@ pop_hv_for_REDEFINED( SV **sp, int returned, HV *hv, int expected)
       SV *k = POPs;
       if (!( SvPOK( k) && ( !SvROK( k))))
          croak( "GUTS013: Illegal value for a profile key passed");
-      hv_store_ent( hv, k, newSVsv( v), 0);
+      (void) hv_store_ent( hv, k, newSVsv( v), 0);
       av_push( order, newSVsv( k));
    }
-   hv_store( hv, "__ORDER__", 9, newRV_noinc((SV *)order), 0);
+   (void) hv_store( hv, "__ORDER__", 9, newRV_noinc((SV *)order), 0);
    return expected;
 }
 
@@ -1183,6 +1183,14 @@ kill_objects( void * item, int keyLen, Handle * self, void * dummy)
 {
    Object_destroy( *self);
    return false;
+}
+
+void
+perl_error(void)
+{
+    char * error = apc_last_error();
+    if ( error == NULL) error = "unknown system error";
+    sv_setpv( GvSV( errgv), error);
 }
 
 Bool appDead = false;
@@ -1479,13 +1487,13 @@ create_object( const char *objClass, const char *types, ...)
       switch (*types)
       {
           case 'i':
-            hv_store( profile, s, strlen( s), newSViv(va_arg(params, int)), 0);
+            (void) hv_store( profile, s, strlen( s), newSViv(va_arg(params, int)), 0);
             break;
          case 's':
-            hv_store( profile, s, strlen( s), newSVpv(va_arg(params, char *),0), 0);
+            (void) hv_store( profile, s, strlen( s), newSVpv(va_arg(params, char *),0), 0);
             break;
          case 'n':
-            hv_store( profile, s, strlen( s), newSVnv(va_arg(params, double)), 0);
+            (void) hv_store( profile, s, strlen( s), newSVnv(va_arg(params, double)), 0);
             break;
          default:
             croak( "GUTS014: create_object: illegal parameter type");
@@ -1747,7 +1755,7 @@ hash_delete( PHash h, const void *key, int keyLen, Bool kill)
    if ( !he) return nil;
    val = HeVAL( he);
    HeVAL( he) = &sv_undef;
-   hv_delete_ent( h, ksv, G_DISCARD, 0);
+   (void) hv_delete_ent( h, ksv, G_DISCARD, 0);
    if ( kill) {
       free( val);
       return nil;
@@ -1762,7 +1770,7 @@ hash_store( PHash h, const void *key, int keyLen, void *val)
    ksv_check;
    if ( he) {
       HeVAL( he) = &sv_undef;
-      hv_delete_ent( h, ksv, G_DISCARD, 0);
+      (void) hv_delete_ent( h, ksv, G_DISCARD, 0);
    }
    he = hv_store_ent( h, ksv, &sv_undef, 0);
    HeVAL( he) = ( SV *) val;

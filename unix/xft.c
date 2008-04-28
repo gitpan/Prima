@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: xft.c,v 1.27 2008/04/05 10:57:48 dk Exp $
+ * $Id: xft.c,v 1.28 2008/04/24 15:15:11 dk Exp $
  */
 
 /*********************************/
@@ -1308,6 +1308,7 @@ prima_xft_text_out( Handle self, const char * text, int x, int y, int len, Bool 
       if ( lw != 1) 
          apc_gp_set_line_width( self, lw);
    }  
+   XFLUSH;
 
    return true;
 }

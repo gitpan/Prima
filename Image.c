@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Image.c,v 1.129 2008/04/09 07:12:33 dk Exp $
+ * $Id: Image.c,v 1.133 2008/04/28 09:58:27 dk Exp $
  */
 
 #include "img.h"
@@ -77,7 +77,7 @@ Image_init( Handle self, HV * profile)
       if ( !itype_importable( var-> type, &var-> type, nil, nil)) {
          warn( "Image::init: cannot set type %08x", var-> type);
          var-> type = imBW;
-      }   
+      } 
    var->lineSize = (( var->w * ( var->type & imBPP) + 31) / 32) * 4;
    var->dataSize = ( var->lineSize) * var->h;
    if ( var-> dataSize > 0) {
@@ -89,7 +89,6 @@ Image_init( Handle self, HV * profile)
       }
    } else 
       var-> data = nil;
-   free( var->palette);
    var->palette = allocn( RGBColor, 256);
    if ( var-> palette == nil) {
       free( var-> data);
@@ -324,8 +323,6 @@ Image_done( Handle self)
 {
    apc_image_destroy( self);
    my->make_empty( self);
-   var->data = nil;
-   var->palette = nil;
    inherited done( self);
 }
 
@@ -341,6 +338,7 @@ Image_make_empty( Handle self)
    var->lineSize = 0;
    var->dataSize = 0;
    var->data     = nil;
+   var->palette  = nil;
    my->update_change( self);
 }
 
@@ -555,28 +553,28 @@ GOOD_RETURN:
    return true;
 }
 
-static unsigned long 
-img_perlio_read( void * f, unsigned long bufsize, void * buffer)
+static size_t
+img_perlio_read( void * f, size_t bufsize, void * buffer)
 {
 #ifdef PerlIO
     return PerlIO_read(( FileStream) f, buffer, bufsize);
 #else
-    return fread( buffer, bufsize, 1, ( FileStream) f);
+    return fread( buffer, 1, bufsize, ( FileStream) f);
 #endif
 }
 
-static unsigned long 
-img_perlio_write( void * f, unsigned long bufsize, void * buffer)
+static size_t
+img_perlio_write( void * f, size_t bufsize, void * buffer)
 {
 #ifdef PerlIO
     return PerlIO_write( ( FileStream) f, buffer, bufsize);
 #else
-    return fwrite( buffer, bufsize, 1, ( FileStream) f);
+    return fwrite( buffer, 1, bufsize, ( FileStream) f);
 #endif
 }
 
-static unsigned long 
-img_perlio_seek( void * f, unsigned long offset, int whence)
+static int
+img_perlio_seek( void * f, long offset, int whence)
 {
 #ifdef PerlIO
     return PerlIO_seek( ( FileStream) f, offset, whence);
@@ -585,7 +583,7 @@ img_perlio_seek( void * f, unsigned long offset, int whence)
 #endif
 }
 
-static unsigned long 
+static long 
 img_perlio_tell( void * f)
 {
 #ifdef PerlIO
@@ -813,8 +811,10 @@ Image_begin_paint( Handle self)
    Bool ok;
    if ( !inherited begin_paint( self))
       return false;
-   if ( !( ok = apc_image_begin_paint( self)))
+   if ( !( ok = apc_image_begin_paint( self))) {
       inherited end_paint( self);
+      perl_error();
+   }
    return ok;
 }
 
@@ -825,8 +825,10 @@ Image_begin_paint_info( Handle self)
    if ( is_opt( optInDraw))     return true;
    if ( !inherited begin_paint_info( self))
       return false;
-   if ( !( ok = apc_image_begin_paint_info( self)))
+   if ( !( ok = apc_image_begin_paint_info( self))) {
       inherited end_paint_info( self);
+      perl_error();
+   }
    return ok;
 }
 
@@ -998,9 +1000,10 @@ Image_create_empty( Handle self, int width, int height, int type)
    if ( var->dataSize > 0)
    {
       var->data = allocb( var->dataSize);
-      if ( var-> data == nil) { 
+      if ( var-> data == nil) {
+         int sz = var-> dataSize;
          my-> make_empty( self);
-         croak("Image::create_empty: cannot allocate %d bytes", var-> dataSize);
+         croak("Image::create_empty: cannot allocate %d bytes", sz);
       }
       memset( var->data, 0, var->dataSize);
    } else
@@ -1266,7 +1269,7 @@ Image_dup( Handle self)
    if ( hv_exists(( HV*)SvRV( var-> mate), "extras", 6)) {
       SV ** sv = hv_fetch(( HV*)SvRV( var-> mate), "extras", 6, 0);
       if ( sv && SvOK( *sv) && SvROK( *sv) && SvTYPE( SvRV( *sv)) == SVt_PVHV)
-         hv_store(( HV*)SvRV( i-> mate), "extras", 6, newSVsv( *sv), 0);
+         (void) hv_store(( HV*)SvRV( i-> mate), "extras", 6, newSVsv( *sv), 0);
    }
    
    --SvREFCNT( SvRV( i-> mate));

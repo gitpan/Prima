@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dev.c,v 1.48 2006/01/06 19:13:30 dk Exp $
+ * $Id: dev.c,v 1.49 2008/04/24 21:30:15 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -286,16 +286,19 @@ image_make_bitmap_palette( Handle img)
    return r;
 }
 
-void
+Bool
 image_set_cache( Handle from, Handle self)
 {
    if ( sys pal == nil)
       sys pal = image_make_bitmap_palette( from);
    if ( sys bm == nil) {
       sys bm  = image_make_bitmap_handle( from, sys pal);
+      if ( sys bm == nil)
+         return false;
       if ( !is_apt( aptDeviceBitmap))
          hash_store( imageMan, &self, sizeof( self), (void*)self);
    }
+   return true;
 }
 
 void
@@ -408,7 +411,11 @@ apc_image_begin_paint( Handle self)
    if ( !( sys ps = CreateCompatibleDC( 0))) apiErrRet;
    if ( sys bm == nil) {
       Handle deja  = image_enscreen( self, self);
-      image_set_cache( deja, self);
+      if ( !image_set_cache( deja, self)) {
+         DeleteDC( sys ps);
+	 sys ps = nil;
+	 return false;
+      }
       if ( deja != self) Object_destroy( deja);
    }
    sys stockBM = SelectObject( sys ps, sys bm);

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * $Id: codec_jpeg.c,v 1.16 2007/09/13 14:53:08 dk Exp $
+ * $Id: codec_jpeg.c,v 1.19 2008/04/28 09:58:27 dk Exp $
  *
  */
 
@@ -239,10 +239,7 @@ open_load( PImgCodec instance, PImgLoadFileInstance fi)
       return false;
    } 
    jpeg_create_decompress( &l-> d);
-   if ( fi-> req_is_stdio)
-      jpeg_stdio_src( &l-> d, fi-> req-> handle);
-   else
-      custom_src( &l-> d, fi);
+   custom_src( &l-> d, fi);
    jpeg_read_header( &l-> d, true);
    l-> init = false;
    return l;
@@ -266,8 +263,8 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
    if ( bpp == 8) bpp |= imGrayScale;
    CImage( fi-> object)-> create_empty( fi-> object, 1, 1, bpp);
    if ( fi-> noImageData) {
-      hv_store( fi-> frameProperties, "width",  5, newSViv( l-> d. output_width), 0);
-      hv_store( fi-> frameProperties, "height", 6, newSViv( l-> d. output_height), 0);
+      (void) hv_store( fi-> frameProperties, "width",  5, newSViv( l-> d. output_width), 0);
+      (void) hv_store( fi-> frameProperties, "height", 6, newSViv( l-> d. output_height), 0);
       jpeg_abort_decompress( &l-> d);
       return true;
    }   
@@ -287,6 +284,7 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
          EVENT_TOPDOWN_SCANLINES_READY(fi,scanlines);
       }   
    }   
+   EVENT_SCANLINES_FINISHED(fi);
    jpeg_finish_decompress(&l-> d);
    return true;
 }   
@@ -296,12 +294,10 @@ static void
 close_load( PImgCodec instance, PImgLoadFileInstance fi)
 {
    LoadRec * l = ( LoadRec *) fi-> instance;
-   if ( !fi-> req_is_stdio) {
-       my_src_ptr src = (my_src_ptr) l->d.src;
-       free( src-> buffer);
-       free( src);
-       l->d.src = NULL;
-   }
+   my_src_ptr src = (my_src_ptr) l->d.src;
+   free( src-> buffer);
+   free( src);
+   l->d.src = NULL;
    jpeg_destroy_decompress(&l-> d);
    free( l);
 }
@@ -452,10 +448,7 @@ open_save( PImgCodec instance, PImgSaveFileInstance fi)
       return false;
    } 
    jpeg_create_compress( &l-> c);
-   if ( fi-> req_is_stdio)
-      jpeg_stdio_dest( &l-> c, fi-> req-> handle);
-   else
-      custom_dest( &l-> c, fi-> req);
+   custom_dest( &l-> c, fi-> req);
    l-> init = false;
    return l;
 }
@@ -520,13 +513,11 @@ static void
 close_save( PImgCodec instance, PImgSaveFileInstance fi)
 {
    SaveRec * l = ( SaveRec *) fi-> instance;
+   my_dest_ptr dest = (my_dest_ptr) l->c.dest;
+   free( dest-> buffer);
+   free( dest);
    free( l-> buf);
-   if ( !fi-> req_is_stdio) {
-       my_dest_ptr dest = (my_dest_ptr) l->c.dest;
-       free( dest-> buffer);
-       free( dest);
-       l->c.dest = NULL;
-   }
+   l->c.dest = NULL;
    jpeg_destroy_compress(&l-> c);
    free( l);
 }

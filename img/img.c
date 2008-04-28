@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * $Id: img.c,v 1.27 2007/09/13 14:53:08 dk Exp $
+ * $Id: img.c,v 1.31 2008/04/28 09:58:27 dk Exp $
  *
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
@@ -182,53 +182,42 @@ apc_img_profile_add( HV * to, HV * from, HV * keys)
          continue;
       holder = hv_fetch( from, key, keyLen, 0);
       if ( holder) 
-         hv_store( to, key, keyLen, newSVsv( *holder), 0);
+         (void) hv_store( to, key, keyLen, newSVsv( *holder), 0);
    }
 }   
 
-static unsigned long 
-stdio_read( void * f, unsigned long bufsize, char * buffer)
+static size_t 
+stdio_read( void * f, size_t bufsize, void * buffer)
 {
     return fread( buffer, 1, bufsize, ( FILE*) f);
 }
 
-static unsigned long 
-stdio_write( void * f, unsigned long bufsize, char * buffer)
+static size_t 
+stdio_write( void * f, size_t bufsize, void * buffer)
 {
     return fwrite( buffer, 1, bufsize, ( FILE*) f);
 }
 
-static unsigned long 
-stdio_seek( void * f, unsigned long offset, int whence)
+static int
+stdio_seek( void * f, long offset, int whence)
 {
     return fseek( ( FILE*) f, offset, whence);
 }
 
-static unsigned long 
+static long
 stdio_tell( void * f)
 {
     return ftell( ( FILE*) f);
 }
 
-static int
-stdio_flush( void * f)
-{
-    return fflush( ( FILE*) f);
-}
 
-static int
-stdio_error( void * f)
-{
-    return ferror( ( FILE*) f);
-}
-     
 static ImgIORequest std_ioreq = {
       stdio_read,
       stdio_write,
       stdio_seek,
       stdio_tell,
-      stdio_flush,
-      stdio_error
+      (void*) fflush,
+      (void*) ferror
 };
 
 PList 
@@ -463,7 +452,7 @@ apc_img_load( Handle self, char * fileName, PImgIORequest ioreq,  HV * profile, 
    }
 
    if ( fi. loadExtras && c-> info-> fileType) 
-      hv_store( fi. fileProperties, "codecID", 7, newSViv( codecID), 0);
+      (void) hv_store( fi. fileProperties, "codecID", 7, newSViv( codecID), 0);
 
    /* loading */
    for ( i = 0; i < fi. frameMapSize; i++) {
@@ -593,20 +582,20 @@ apc_img_load( Handle self, char * fileName, PImgIORequest ioreq,  HV * profile, 
          apc_img_profile_add( extras, fi. fileProperties,  fi. fileProperties);
          apc_img_profile_add( extras, fi. frameProperties, fi. frameProperties);
          if ( i == 0) firstObjectExtras = extras; 
-         hv_store(( HV* )SvRV((( PAnyObject) fi. object)-> mate), "extras", 6, newSVsv( sv), 0);
+         (void) hv_store(( HV* )SvRV((( PAnyObject) fi. object)-> mate), "extras", 6, newSVsv( sv), 0);
          sv_free( sv);
       } else if ( fi. noImageData) { /* no extras, report dimensions only */
          HV * extras = newHV();
          SV * sv = newRV_noinc(( SV *) extras), **item;
          if (( item = hv_fetch( fi. frameProperties, "width", 5, 0)) && SvOK( *item)) 
-            hv_store( extras, "width", 5, newSVsv( *item), 0);
+            (void) hv_store( extras, "width", 5, newSVsv( *item), 0);
          else
-            hv_store( extras, "width", 5, newSViv(PImage(fi.object)-> w), 0);
+            (void) hv_store( extras, "width", 5, newSViv(PImage(fi.object)-> w), 0);
          if (( item = hv_fetch( fi. frameProperties, "height", 6, 0)) && SvOK( *item)) 
-            hv_store( extras, "height", 6, newSVsv( *item), 0);
+            (void) hv_store( extras, "height", 6, newSVsv( *item), 0);
          else
-            hv_store( extras, "height", 6, newSViv(PImage(fi.object)-> h), 0);
-         hv_store(( HV* )SvRV((( PAnyObject) fi. object)-> mate), "extras", 6, newSVsv( sv), 0);
+            (void) hv_store( extras, "height", 6, newSViv(PImage(fi.object)-> h), 0);
+         (void) hv_store(( HV* )SvRV((( PAnyObject) fi. object)-> mate), "extras", 6, newSVsv( sv), 0);
          sv_free( sv);
       }
 
@@ -624,7 +613,7 @@ apc_img_load( Handle self, char * fileName, PImgIORequest ioreq,  HV * profile, 
       SV * sv = newRV_noinc(( SV *) extras);
       apc_img_profile_add( extras, fi. fileProperties,  fi. fileProperties);
       firstObjectExtras = extras; 
-      hv_store(( HV* )SvRV((( PAnyObject) self)-> mate), "extras", 6, newSVsv( sv), 0);
+      (void) hv_store(( HV* )SvRV((( PAnyObject) self)-> mate), "extras", 6, newSVsv( sv), 0);
       sv_free( sv);
    }   
    
@@ -635,7 +624,7 @@ EXIT_NOW:;
       fi. frameCount = apc_img_frame_count( fileName, ioreq);
    }
    if ( firstObjectExtras)
-      hv_store( firstObjectExtras, "frames", 6, newSViv( fi. frameCount), 0);
+      (void) hv_store( firstObjectExtras, "frames", 6, newSViv( fi. frameCount), 0);
    if ( err && ret)
       list_add( ret, nilHandle); /* indicate the error */
    if ( def)
@@ -1244,7 +1233,7 @@ static AV * fill_plist( char * key, char ** list, HV * profile)
       av_push( av, newSVpv( *list, 0));
       list++;
    }   
-   hv_store( profile, key, strlen( key), newRV_noinc(( SV *) av), 0);
+   (void) hv_store( profile, key, strlen( key), newRV_noinc(( SV *) av), 0);
    return av;
 }  
 
@@ -1256,7 +1245,7 @@ static void fill_ilist( char * key, int * list, HV * profile)
       av_push( av, newSViv( *list));
       list++;
    }   
-   hv_store( profile, key, strlen( key), newRV_noinc(( SV *) av), 0);
+   (void) hv_store( profile, key, strlen( key), newRV_noinc(( SV *) av), 0);
 }   
 
 
@@ -1299,15 +1288,15 @@ apc_img_info2hash( PImgCodec codec)
    if ( c-> IOFlags & ( IMG_LOAD_FROM_FILE|IMG_LOAD_FROM_STREAM)) {
       hv = codec-> vmt-> load_defaults( codec);
       if ( c-> IOFlags & IMG_LOAD_MULTIFRAME) {
-         hv_store( hv, "index",        5, newSViv(0),     0);
-         hv_store( hv, "map",          3, newSVsv(nilSV), 0);
-         hv_store( hv, "loadAll",      7, newSViv(0),     0);
-         hv_store( hv, "wantFrames",  10, newSViv(0),     0);
+         (void) hv_store( hv, "index",        5, newSViv(0),     0);
+         (void) hv_store( hv, "map",          3, newSVsv(nilSV), 0);
+         (void) hv_store( hv, "loadAll",      7, newSViv(0),     0);
+         (void) hv_store( hv, "wantFrames",  10, newSViv(0),     0);
       }
-      hv_store( hv, "loadExtras",  10, newSViv(0),     0);
-      hv_store( hv, "noImageData", 11, newSViv(0),     0);
-      hv_store( hv, "iconUnmask",  10, newSViv(0),     0);
-      hv_store( hv, "className",    9, newSVpv("Prima::Image", 0), 0);
+      (void) hv_store( hv, "loadExtras",  10, newSViv(0),     0);
+      (void) hv_store( hv, "noImageData", 11, newSViv(0),     0);
+      (void) hv_store( hv, "iconUnmask",  10, newSViv(0),     0);
+      (void) hv_store( hv, "className",    9, newSVpv("Prima::Image", 0), 0);
    } else
       hv = newHV();
    pset_sv_noinc( loadInput, newRV_noinc(( SV *) hv));
@@ -1324,9 +1313,9 @@ apc_img_info2hash( PImgCodec codec)
    if ( c-> IOFlags & ( IMG_SAVE_TO_FILE|IMG_SAVE_TO_STREAM)) {
       hv = codec-> vmt-> save_defaults( codec);
       if ( c-> IOFlags & IMG_SAVE_MULTIFRAME) 
-         hv_store( hv, "append",       6, newSViv(0), 0);
-      hv_store( hv, "autoConvert", 10, newSViv(1), 0);
-      hv_store( hv, "codecID",     7,  newSVsv( nilSV), 0);
+         (void) hv_store( hv, "append",       6, newSViv(0), 0);
+      (void) hv_store( hv, "autoConvert", 10, newSViv(1), 0);
+      (void) hv_store( hv, "codecID",     7,  newSVsv( nilSV), 0);
    } else
       hv = newHV();
    pset_sv_noinc( saveInput, newRV_noinc(( SV *) hv));
@@ -1351,14 +1340,14 @@ apc_img_notify_scanlines_ready( PImgLoadFileInstance fi, int scanlines)
       unsigned int dt;
       struct timeval t;
 
-      if ( scanlines == 0) return;
-
       fi-> lastCachedScanline += scanlines;
       gettimeofday( &t, nil);
       dt = 
          t.tv_sec * 1000 + t.tv_usec / 1000 -
          fi-> lastEventTime.tv_sec * 1000 - fi-> lastEventTime.tv_usec / 1000;
+
       if ( dt < fi-> eventDelay) return;
+      if ( fi-> lastEventScanline == fi-> lastCachedScanline) return;
 
       e. cmd = cmImageDataReady;
       height = PImage( fi-> object)-> h;

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_app.c,v 1.118 2008/04/10 08:05:24 dk Exp $
+ * $Id: apc_app.c,v 1.120 2008/04/24 15:15:10 dk Exp $
  */
 
 /***********************************************************/
@@ -580,8 +580,10 @@ window_subsystem_done( void)
 Bool
 apc_application_begin_paint( Handle self)
 {
+   DEFXX;
    if ( guts. appLock > 0) return false;
    prima_prepare_drawable_for_painting( self, false);
+   XX-> flags. force_flush = 1;
    return true;
 }
 
@@ -662,6 +664,8 @@ apc_application_destroy( Handle self)
 Bool
 apc_application_end_paint( Handle self)
 {
+   DEFXX;
+   XX-> flags. force_flush = 0;
    prima_cleanup_drawable_after_painting( self);
    return true;
 }
@@ -1074,6 +1078,13 @@ static XBool
 any_event( Display *d, XEvent *ev, XPointer arg)
 {
    (void)d; (void)ev; (void)arg; (void)any_event;
+   return true;
+}
+
+Bool
+apc_application_sync(void)
+{
+   XSync( DISP, false);
    return true;
 }
 

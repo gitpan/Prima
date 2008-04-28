@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: TransparencyControl.pm,v 1.5 2005/10/13 17:22:52 dk Exp $
+#  $Id: TransparencyControl.pm,v 1.6 2008/04/19 19:47:04 dk Exp $
 #
 
 package Prima::Image::TransparencyControl;
@@ -136,6 +136,7 @@ sub index
 sub Index_Change
 {
 	$_[0]-> index( $_[1]-> value);
+	$_[0]-> Palette-> repaint;
 }
 
 sub on_enable

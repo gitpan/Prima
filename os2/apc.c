@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc.c,v 1.44 2007/08/06 07:51:20 dk Exp $
+ * $Id: apc.c,v 1.45 2008/04/23 08:18:49 dk Exp $
  */
 /* Created by:
          Dmitry Karasik <dk@plab.ku.dk>
@@ -348,6 +348,12 @@ Bool
 apc_application_unlock( Handle self)
 {
   return lock( false);
+}
+
+Bool
+apc_application_sync( void)
+{
+   return true;
 }
 
 Bool

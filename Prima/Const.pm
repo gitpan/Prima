@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@plab.ku.dk>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Const.pm,v 1.27 2007/09/13 15:12:24 dk Exp $
+#  $Id: Const.pm,v 1.28 2008/04/20 07:56:41 dk Exp $
 package Prima::Const;
 use Prima '';
 use Carp;
@@ -111,6 +111,7 @@ See also L<Prima::Image/autoMasking>
 
 	am::None           - no mask update performed
 	am::MaskColor      - mask update based on Prima::Icon::maskColor property
+	am::MaskIndex      - mask update based on Prima::Icon::maskIndex property
 	am::Auto           - mask update based on corner pixel values
 
 =head2 apc:: - OS type

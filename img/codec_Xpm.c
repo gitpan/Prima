@@ -25,7 +25,7 @@
  
  Created by Dmitry Karasik <dk@plab.ku.dk> 
 
- $Id: codec_Xpm.c,v 1.10 2007/09/12 12:18:47 dk Exp $
+ $Id: codec_Xpm.c,v 1.11 2008/04/28 09:58:27 dk Exp $
 
  */
 
@@ -269,7 +269,7 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
                if ( j + 1 < e-> nlines) 
                   sv_catpv( string, "\n");
             }
-            hv_store( hash, e-> name, strlen( e-> name), string, 0);
+            (void) hv_store( hash, e-> name, strlen( e-> name), string, 0);
          }
          pset_sv_noinc( extensions, newRV_noinc((SV*)hash));
       }

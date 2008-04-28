@@ -22,7 +22,7 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  *
- * $Id: misc.c,v 1.17 2003/10/31 10:48:23 dk Exp $
+ * $Id: misc.c,v 1.18 2008/04/24 21:30:15 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #define INCL_DOSFILEMGR
@@ -460,4 +460,10 @@ apc_fetch_resource( const char *className, const char *name,
                     void *val)
 {
    return false;
+}
+
+char *
+apc_last_error( void )
+{
+   return NULL;
 }

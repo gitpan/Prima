@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Application.c,v 1.76 2007/08/09 13:03:06 dk Exp $
+ * $Id: Application.c,v 1.79 2008/04/28 09:58:27 dk Exp $
  */
 
 #include "apricot.h"
@@ -88,10 +88,10 @@ Application_init( Handle self, HV * profile)
    /* store extra info */
    {
       HV * hv = ( HV *) SvRV( var-> mate);
-      hv_store( hv, "PrinterClass",  12, newSVpv( pget_c( printerClass),  0), 0);
-      hv_store( hv, "PrinterModule", 13, newSVpv( pget_c( printerModule), 0), 0);
-      hv_store( hv, "HelpClass",     9,  newSVpv( pget_c( helpClass),     0), 0);
-      hv_store( hv, "HelpModule",    10, newSVpv( pget_c( helpModule),    0), 0);
+      (void) hv_store( hv, "PrinterClass",  12, newSVpv( pget_c( printerClass),  0), 0);
+      (void) hv_store( hv, "PrinterModule", 13, newSVpv( pget_c( printerModule), 0), 0);
+      (void) hv_store( hv, "HelpClass",     9,  newSVpv( pget_c( helpClass),     0), 0);
+      (void) hv_store( hv, "HelpModule",    10, newSVpv( pget_c( helpModule),    0), 0);
    }
 
    {
@@ -236,6 +236,12 @@ void Application_handle_event( Handle self, PEvent event)
 }
 
 void
+Application_sync( char * dummy)
+{
+   apc_application_sync();
+}
+
+void
 Application_yield( char * dummy)
 {
    apc_application_yield();
@@ -247,8 +253,10 @@ Application_begin_paint( Handle self)
    Bool ok;
    if ( !CDrawable-> begin_paint( self))
       return false;
-   if ( !( ok = apc_application_begin_paint( self)))
+   if ( !( ok = apc_application_begin_paint( self))) {
       CDrawable-> end_paint( self);
+      perl_error();
+   }
    return ok;
 }
 
@@ -259,8 +267,10 @@ Application_begin_paint_info( Handle self)
    if ( is_opt( optInDraw))     return true;
    if ( !CDrawable-> begin_paint_info( self))
       return false;
-   if ( !( ok = apc_application_begin_paint_info( self)))
+   if ( !( ok = apc_application_begin_paint_info( self))) {
       CDrawable-> end_paint_info( self);
+      perl_error();
+   }
    return ok;
 }
 

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Application.cls,v 1.39 2007/08/03 19:23:48 dk Exp $
+# $Id: Application.cls,v 1.40 2008/04/23 08:18:49 dk Exp $
 
 object Prima::Application( Prima::Widget)
 {
@@ -106,6 +106,7 @@ object Prima::Application( Prima::Widget)
    import void   setup();
    c_only void   set_hint_action( Handle widget, Bool show, Bool mouseEvent);
    method void   show();
+   static void   sync( char *dummy = "");
    static SV*    sys_action( char * dymmy = "", char * params = "");
    method Bool   unlock()                      => apc_application_unlock;
    c_only void   update_sys_handle( HV * profile);

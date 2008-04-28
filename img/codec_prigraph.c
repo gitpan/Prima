@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: codec_prigraph.c,v 1.19 2007/09/12 19:18:02 dk Exp $
+ * $Id: codec_prigraph.c,v 1.21 2008/04/19 21:13:25 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 
@@ -143,6 +143,8 @@ static int refCnt = 0;
 #define MAX_FAKE_FD  32
 static PImgIORequest fdmap[MAX_FAKE_FD+1];
 
+static int disabled_codecs[itMAX+1], n_disabled_codecs = 0;
+
 static int  
 std_open(const char *fn, int mode)
 {
@@ -192,6 +194,19 @@ std_write(int fd, const void *buf, int len)
    return req_write( fdmap[fd], len, (void*) buf);
 }
 
+static Bool
+codec_is_enabled( int ft)
+{
+   int i;
+   ft = gbm_ft_map[ft];
+   for ( i = 0; i < n_disabled_codecs; i++) {
+      if ( disabled_codecs[i] == ft)
+         return false;
+   }
+   return true;
+}
+
+
 static void * 
 init( ImgCodecInfo ** info, void * param)
 {
@@ -214,13 +229,6 @@ init( ImgCodecInfo ** info, void * param)
       return false;
    } 
 
-   for ( i = 0; i <= itMAX; i++) {
-      if ( strcmp( gft. short_name, gbm_ids[i]) == 0) {
-	 gbm_ft_map[(int)param] = i;
-	 break;
-      }
-   } 
-   
    memcpy( *info, &codec_info, sizeof( ImgCodecInfo));
    (*info)-> fileType = gft. long_name;
    (*info)-> fileShortType = gft. short_name;
@@ -295,7 +303,7 @@ init( ImgCodecInfo ** info, void * param)
          break;
       default:
          (*info)-> saveTypes = t_all;
-   }      
+   }
 
    switch ( gbm_ft_map[(int)param] ) {
    case itTGA:
@@ -364,12 +372,14 @@ type_ok( PImgIORequest req, int ft)
 {
    char buf[ 8];
    int i;
+
+   if ( !codec_is_enabled(ft)) return false;
+
    memset( buf, 0, 8);
    if ( req_seek( req, 0, SEEK_SET) < 0) return false;
    if ( req_read( req, 8, buf) < 8) return false;
    if ( req_seek( req, 0, SEEK_SET) < 0) return false;
    for ( i = 0; i < N_SIGS; i++) {
-      if ( signatures[ i]. type == ft)
       if (( signatures[ i]. type == ft) &&
           ( memcmp( buf, signatures[ i]. sig, signatures[ i]. size) == 0))
          return true;
@@ -397,6 +407,8 @@ open_load( PImgCodec instance, PImgLoadFileInstance fi)
          return nil;
       if ( ft != (int)(instance-> initParam)) 
          return nil;
+      if ( !codec_is_enabled( ft))
+         return nil;
    }  
 
    fi-> stop = true;
@@ -412,7 +424,7 @@ open_load( PImgCodec instance, PImgLoadFileInstance fi)
    if ( g-> ft == itBMP) {
       strcat( g-> params, "inv ");
       g-> params += 4;
-   }      
+   }
 
    if ( g-> ft == itGIF) 
       fi-> frameCount = -1;
@@ -680,7 +692,7 @@ close_save( PImgCodec instance, PImgSaveFileInstance fi)
 void 
 apc_img_codec_prigraph( void )
 {
-   int i, nft;
+   int i, j, nft;
    struct ImgCodecVMT vmt;
    memcpy( &vmt, &CNullImgCodecVMT, sizeof( CNullImgCodecVMT));
    vmt. init       = init;      
@@ -692,15 +704,60 @@ apc_img_codec_prigraph( void )
    vmt. open_save  = open_save;
    vmt. save       = save; 
    vmt. close_save = close_save; 
+   
+   /* relinquish support for non-prigraph codecs */
+   for ( i = 0; i < imgCodecs. count; i++) {
+      char * t;
+      PImgCodec c = ( PImgCodec ) ( imgCodecs. items[ i]);
+      /* we initialize all codecs here, not good, these will begin loading
+         DLLs -- but anyway this is temporary because the plan is for
+	 prigraph to go away */
+      if ( !c-> instance)
+         c-> instance = c-> vmt-> init( &c->info, c-> initParam);
+      if ( !c-> instance)
+         continue;
+      if ( !c-> info)
+         continue;
+      t = c-> info-> fileShortType;
+      if ( !t)
+         continue;
+
+      if ( strcmp( t, "BMP") == 0)
+         disabled_codecs[ n_disabled_codecs++ ] = itBMP;
+      else if ( strcmp( t, "GIF") == 0)
+         disabled_codecs[ n_disabled_codecs++ ] = itGIF;
+      else if ( strcmp( t, "JPEG") == 0)
+         disabled_codecs[ n_disabled_codecs++ ] = itJPG;
+      else if ( strcmp( t, "PNG") == 0)
+         disabled_codecs[ n_disabled_codecs++ ] = itPNG;
+      else if ( strcmp( t, "TIFF") == 0)
+         disabled_codecs[ n_disabled_codecs++ ] = itTIF;
+      else if ( strcmp( t, "XBM") == 0)
+         disabled_codecs[ n_disabled_codecs++ ] = itXBM;
+   }
+      
+   /* KPS cannot load from single file, requires .PAL */
+   disabled_codecs[ n_disabled_codecs++ ] = itKPS;
 
    gbm_init();
+   
+   /* fill map */
    gbm_query_n_filetypes(&nft);
    for ( i = 0; i < nft; i++) {
-      if ( i == itKPS) continue; /* KPS cannot load from single file, requires .PAL */
-      apc_img_register( &vmt, (void*)i);
+      GBMFT gft;
+      gbm_query_filetype( i, &gft);
+      for ( j = 0; j <= itMAX; j++) {
+         if ( strcmp( gft. short_name, gbm_ids[j]) == 0) {
+            gbm_ft_map[i] = j;
+            break;
+         }
+      }
    }
+   /* register codecs */
+   for ( i = 0; i < nft; i++)
+      if ( codec_is_enabled(i))
+         apc_img_register( &vmt, (void*)i);
 }  
-
 
 #ifdef __cplusplus
 }

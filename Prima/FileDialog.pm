@@ -29,7 +29,7 @@
 #  Modifications by:
 #     David Scott <dscott@dgt.com>
 #
-#  $Id: FileDialog.pm,v 1.35 2007/05/18 12:21:06 dk Exp $
+#  $Id: FileDialog.pm,v 1.36 2008/04/17 21:12:28 dk Exp $
 
 use strict;
 use Prima::Classes;
@@ -1545,6 +1545,7 @@ sub init
 		origin => [ 10, 10],
 		width  => 150,
 		name   => 'Drive',
+		drive  => $self-> Dir-> path,
 		delegations => [qw(Change)],
 	) if $drives;
 

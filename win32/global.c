@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: global.c,v 1.87 2005/09/27 06:36:25 dk Exp $
+ * $Id: global.c,v 1.89 2008/04/24 21:41:24 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -362,11 +362,12 @@ apc_deregister_event( void * sysMessage)
 }   
 
 
-static char buf[ 256];
+static char err_buf[ 256] = "";
 char * err_msg( DWORD errId, char * buffer)
 {
    LPVOID lpMsgBuf;
-   if ( buffer == nil) buffer = buf;
+   int len;
+   if ( buffer == nil) buffer = err_buf;
    FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, errId,
       MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
       ( LPTSTR) &lpMsgBuf, 0, NULL);
@@ -376,9 +377,24 @@ char * err_msg( DWORD errId, char * buffer)
       buffer[0] = 0;
    buffer[ 255] = 0;
    LocalFree( lpMsgBuf);
-   return buf;
+
+   /* chomp! */
+   len = strlen(buffer);
+   while ( len > 0) {
+      len--;
+      if ( buffer[len] != '\xD' && buffer[len] != '\xA' && buffer[len] != '.')
+         break;
+      buffer[len] = 0;
+   }
+
+   return buffer;
 }
 
+char *
+apc_last_error(void)
+{
+   return err_buf;
+}
 
 static Bool move_back( PWidget self, PWidget child, int * delta)
 {

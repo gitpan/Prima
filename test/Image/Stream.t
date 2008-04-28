@@ -1,4 +1,4 @@
-# $Id: Stream.t,v 1.2 2007/09/12 19:18:54 dk Exp $
+# $Id: Stream.t,v 1.3 2008/04/19 19:47:04 dk Exp $
 
 my @codecs;
 
@@ -47,6 +47,7 @@ for ( @codecs) {
 		skip(1);
 		next;
 	}
+	binmode F;
 	unless ( $xi-> save( \*F, codecID => $ci-> {codecID})) {
 		ok(0);
 		skip(1);
@@ -62,6 +63,7 @@ for ( @codecs) {
 		unlink $name;
 		next;
 	}
+	binmode F;
 
 	my $xl = Prima::Image-> load( \*F, loadExtras => 1);
 	close F;

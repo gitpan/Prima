@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: gp.c,v 1.88 2007/11/14 19:13:36 dk Exp $
+ * $Id: gp.c,v 1.91 2008/04/24 22:00:40 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #ifndef _APRICOT_H_
@@ -733,7 +733,11 @@ apc_gp_stretch_image( Handle self, Handle image, int x, int y, int xFrom, int yF
          if ( dsys( image) bm == nil) {
             image_destroy_cache( image); // if palette still exists
             deja = image_enscreen( image, self);
-            image_set_cache( deja, image);
+            if ( !image_set_cache( deja, image)) {
+	       // we're low on memory, reverting to StretchDIBits
+	       DeleteDC( dc);
+	       dc = nil;
+	    }
          }
       } else
          deja = image_enscreen( image, self);
@@ -751,11 +755,11 @@ apc_gp_stretch_image( Handle self, Handle image, int x, int y, int xFrom, int yF
       oFore  = GetTextColor( sys ps);
       oBack  = GetBkColor( sys ps);
       SetTextColor( sys ps,
-         i-> palSize > 1
+         i-> palSize > 0
          ? RGB( pal[0].r, pal[0].g, pal[0].b)
          : RGB( 0, 0, 0));
       SetBkColor( sys ps,
-         i-> palSize > 2
+         i-> palSize > 1
          ? RGB( pal[1].r, pal[1].g, pal[1].b)
          : RGB( 0xff, 0xff, 0xff));
    }
@@ -773,7 +777,6 @@ apc_gp_stretch_image( Handle self, Handle image, int x, int y, int xFrom, int yF
          yFrom = 0;
       }
    }
-
 
    // if image is actually icon, drawing and-mask
    if ( kind_of( deja, CIcon)) {
@@ -819,9 +822,11 @@ apc_gp_stretch_image( Handle self, Handle image, int x, int y, int xFrom, int yF
 
    //
    if ( dc) {
-      if ( !( ok = StretchBlt( xdc, x, ly - y - yDestLen, xDestLen, yDestLen, dc,
-            xFrom, i-> h - yFrom - yLen, xLen, yLen, theRop)))
+      if ( !StretchBlt( xdc, x, ly - y - yDestLen, xDestLen, yDestLen, dc,
+            xFrom, i-> h - yFrom - yLen, xLen, yLen, theRop)) {
+	 ok = false;
          apiErr;
+      }
    } else {
       XBITMAPINFO xbi;
       BITMAPINFO * bi = image_get_binfo( deja, &xbi);
@@ -855,6 +860,7 @@ apc_gp_stretch_image( Handle self, Handle image, int x, int y, int xFrom, int yF
       if ( dc) DeleteDC( dc);
       if ( deja != image) Object_destroy( deja);
    }
+
    return ok;
 }}
 

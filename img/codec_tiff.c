@@ -26,7 +26,7 @@
  * Created by Dmitry Karasik <dmitry@karasik.eu.org> with great help
  * of tiff2png.c by Willem van Schaik and Greg Roelofs
  *
- * $Id: codec_tiff.c,v 1.12 2007/09/13 14:53:08 dk Exp $
+ * $Id: codec_tiff.c,v 1.14 2008/04/26 11:19:58 dk Exp $
  */
 
 #include "img.h"
@@ -251,19 +251,12 @@ open_load( PImgCodec instance, PImgLoadFileInstance fi)
    TIFF * tiff;
    errbuf = fi-> errbuf;
    err_signal = 0;
-   if ( fi-> req_is_stdio) {
-      if (!( tiff = TIFFFdOpen( fileno(( FILE*) fi-> req-> handle), fi-> fileName, "r"))) {
-         req_seek( fi-> req, 0, SEEK_SET);
-         return nil;
-      }
-   } else {
-      if (!( tiff = TIFFClientOpen( "", "r", (thandle_t) fi-> req,
-         my_tiff_read, my_tiff_write,
-         my_tiff_seek, my_tiff_close, my_tiff_size, 
-	 my_tiff_map, my_tiff_unmap))) {
-         req_seek( fi-> req, 0, SEEK_SET);
-         return nil;
-      }
+   if (!( tiff = TIFFClientOpen( "", "r", (thandle_t) fi-> req,
+      my_tiff_read, my_tiff_write,
+      my_tiff_seek, my_tiff_close, my_tiff_size, 
+      my_tiff_map, my_tiff_unmap))) {
+      req_seek( fi-> req, 0, SEEK_SET);
+      return nil;
    }
    fi-> frameCount = TIFFNumberOfDirectories( tiff);
    fi-> stop = true;
@@ -888,6 +881,7 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
       }
       EVENT_TOPDOWN_SCANLINES_READY(fi,1);
    }
+   EVENT_SCANLINES_FINISHED(fi);
    
    /* finalize */
    free( tiffstrip);
@@ -937,16 +931,11 @@ open_save( PImgCodec instance, PImgSaveFileInstance fi)
    TIFF * tiff;
    errbuf = fi-> errbuf;
    err_signal = 0;
-   if ( fi-> req_is_stdio) {
-      if (!( tiff = TIFFFdOpen( fileno(( FILE*) fi-> req-> handle), fi-> fileName, "w")))
-         return nil;
-   } else {
-      if (!( tiff = TIFFClientOpen( "", "w", (thandle_t) fi-> req,
-         my_tiff_read, my_tiff_write,
-         my_tiff_seek, my_tiff_close, my_tiff_size, 
-	 my_tiff_map, my_tiff_unmap)))
-         return nil;
-   }
+   if (!( tiff = TIFFClientOpen( "", "w", (thandle_t) fi-> req,
+      my_tiff_read, my_tiff_write,
+      my_tiff_seek, my_tiff_close, my_tiff_size, 
+      my_tiff_map, my_tiff_unmap)))
+      return nil;
    return tiff;
 }
 

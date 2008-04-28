@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc.c,v 1.123 2007/08/10 18:46:54 dk Exp $
+ * $Id: apc.c,v 1.126 2008/04/23 08:18:49 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -214,6 +214,8 @@ apc_application_get_bitmap( Handle self, Handle image, int x, int y, int xLen, i
    DeleteObject( bm);
    SelectPalette( dc, hp3, 1);
    dc_free();
+
+   apc_image_update_change( image);
 
    return true;
 }
@@ -528,6 +530,12 @@ Bool
 apc_application_unlock( Handle self)
 {
    return HWND_lock( false);
+}
+
+Bool
+apc_application_sync( void)
+{
+   return true;
 }
 
 Bool
@@ -1707,7 +1715,6 @@ apc_widget_begin_paint( Handle self, Bool insideOnPaint)
          RealizePalette( sys ps);
       }
    }
-   hwnd_enter_paint( self);
 
    if ( useRPDraw) {
       HDC dc;
@@ -1729,6 +1736,11 @@ apc_widget_begin_paint( Handle self, Bool insideOnPaint)
       apc_gp_set_transform( owner, 0, 0);
       dsys( owner) ps = dc;
       CWidget( owner)-> end_paint( owner);
+   }
+
+   hwnd_enter_paint( self);
+
+   if ( useRPDraw) {
       apc_gp_set_transform( self, sys transform. x, sys transform. y);
    }
 

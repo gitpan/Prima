@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Drawable.pm,v 1.38 2007/10/25 11:24:27 dk Exp $
+#  $Id: Drawable.pm,v 1.39 2008/04/24 21:30:14 dk Exp $
 #
 use strict;
 use Prima;
@@ -1592,7 +1592,7 @@ Prima::PS::Drawable -  PostScript interface to Prima::Drawable
 		print F $_[1];
 		close F;
 	});
-	$x-> begin_doc;
+	die "error:$@" unless $x-> begin_doc;
 	$x-> font-> size( 30);
 	$x-> text_out( "hello!", 100, 100);
 	$x-> end_doc;

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Widget.c,v 1.138 2007/08/09 13:03:06 dk Exp $
+ * $Id: Widget.c,v 1.140 2008/04/28 09:58:27 dk Exp $
  */
 
 #include "apricot.h"
@@ -324,8 +324,10 @@ Widget_begin_paint( Handle self)
    Bool ok;
    if ( !inherited-> begin_paint( self))
       return false;
-   if ( !( ok = apc_widget_begin_paint( self, false)))
+   if ( !( ok = apc_widget_begin_paint( self, false))) {
       inherited-> end_paint( self);
+      perl_error();
+   }
    return ok;
 }
 
@@ -336,8 +338,10 @@ Widget_begin_paint_info( Handle self)
    if ( is_opt( optInDraw))     return true;
    if ( !inherited-> begin_paint_info( self))
       return false;
-   if ( !( ok = apc_widget_begin_paint_info( self)))
+   if ( !( ok = apc_widget_begin_paint_info( self))) {
       inherited-> end_paint_info( self);
+      perl_error();
+   }
    return ok;
 }
 
@@ -1400,6 +1404,7 @@ Widget_set( Handle self, HV * profile)
       Bool exists[ 6];
       int  values[ 6];
 
+      bzero( values, sizeof(values));
       if ( pexist( origin))
       {
          int set[2];

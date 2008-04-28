@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Classes.pm,v 1.102 2008/04/10 06:49:43 dk Exp $
+#  $Id: Classes.pm,v 1.103 2008/04/20 07:56:40 dk Exp $
 use Prima;
 use Prima::Const;
 
@@ -632,6 +632,7 @@ sub profile_default
 		autoMasking => am::Auto,
 		mask        => '',
 		maskColor   => 0,
+		maskIndex   => 0,
 	);
 	@$def{keys %prf} = values %prf;
 	return $def;

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Window.c,v 1.51 2007/08/09 13:03:06 dk Exp $
+ * $Id: Window.c,v 1.52 2008/04/28 09:58:27 dk Exp $
  */
 
 #include "apricot.h"
@@ -477,6 +477,8 @@ void Window_set( Handle self, HV * profile)
          o. x = set[0];
          o. y = set[1];
          io = 1;
+      } else {
+         o.x = o. y = 0;
       }
       if ( pexist( frameSize)) {
          int set[2];
@@ -485,6 +487,8 @@ void Window_set( Handle self, HV * profile)
          s. x = set[0];
          s. y = set[1];
          is = 1;
+      } else {
+         s.x = s. y = 0;
       }
       if ( is && io)
          apc_widget_set_rect( self, o. x, o. y, s. x, s. y);

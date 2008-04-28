@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: apricot.h,v 1.186 2008/02/11 17:17:04 dk Exp $ */
+/* $Id: apricot.h,v 1.191 2008/04/28 10:17:34 dk Exp $ */
 
 #ifndef _APRICOT_H_
 #define _APRICOT_H_
@@ -241,15 +241,12 @@ extern "C" {
    #endif
 #endif
 
-#ifndef PTR2UV
-#define PTR2UV(x) ((UV)(x))
-#endif
-#ifndef PTR2IV
-#define PTR2IV(x) ((IV)(x))
-#endif
-#ifndef INT2PTR
-#define INT2PTR(type,x) ((type)((UV)x))
-#endif
+#undef PTR2UV
+#define PTR2UV(x) ((UV)(PTRV)(x))
+#undef PTR2IV
+#define PTR2IV(x) ((IV)(PTRV)(x))
+#undef INT2PTR
+#define INT2PTR(type,x) ((type)((PTRV)x))
 
 #ifndef SvPV_nolen
 #define SvPV_nolen(_sv)  SvPV(_sv,na)
@@ -1291,6 +1288,9 @@ push_hv_for_REDEFINED( SV **sp, HV *hv);
 extern int
 pop_hv_for_REDEFINED( SV **sp, int count, HV *hv, int shouldBe);
 
+extern void
+perl_error(void);
+
 extern void*
 create_object( const char *objClass, const char *types, ...);
 
@@ -1305,7 +1305,7 @@ SvBOOL( SV *sv)
 #endif
 
 #define pexist( key) hv_exists( profile, # key, strlen( #key))
-#define pdelete( key) hv_delete( profile, # key, strlen( #key), G_DISCARD)
+#define pdelete( key) (void) hv_delete( profile, # key, strlen( #key), G_DISCARD)
 #define dPROFILE  SV ** temporary_prf_Sv
 #define pget_sv( key) ((( temporary_prf_Sv = hv_fetch( profile, # key, strlen( # key), 0)) == nil) ? croak( "Panic: bad profile key (``%s'') requested in ``%s'', line %d\n", # key, __FILE__, __LINE__ ), &sv_undef : *temporary_prf_Sv)
 #define pget_i( key)  ( pget_sv( key), SvIV( *temporary_prf_Sv))
@@ -1314,7 +1314,7 @@ SvBOOL( SV *sv)
 #define pget_H( key)  gimme_the_mate( pget_sv( key))
 #define pget_B( key)  ( SvTRUE( pget_sv( key)))
 
-#define pset_sv_noinc( key, value) hv_store( profile, # key, strlen( # key), value, 0);
+#define pset_sv_noinc( key, value) (void)hv_store( profile, # key, strlen( # key), value, 0)
 #define pset_sv( key, value) pset_sv_noinc( key, newSVsv( value))
 #define pset_i( key, value)  pset_sv_noinc( key, newSViv( value))
 #define pset_f( key, value)  pset_sv_noinc( key, newSVnv( value))
@@ -1832,6 +1832,9 @@ extern long   apcError;
 *  apc functions   *
 ***************** */
 
+extern char *
+apc_last_error();
+
 extern Handle
 apc_get_application(void);
 
@@ -1886,6 +1889,9 @@ apc_application_go( Handle self);
 
 extern Bool
 apc_application_lock( Handle self);
+
+extern Bool
+apc_application_sync( void);
 
 extern Bool
 apc_application_unlock( Handle self);
@@ -2847,6 +2853,8 @@ AM(None)
 AM(MaskColor)
 #define    amAuto                2
 AM(Auto)
+#define    amMaskIndex           3
+AM(MaskIndex)
 END_TABLE(am,UV)
 #undef AM
 

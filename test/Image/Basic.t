@@ -1,5 +1,5 @@
-# $Id: Basic.t,v 1.13 2005/10/13 17:22:54 dk Exp $
-print "1..20 create,type check,paintInfo,paint type consistency,palette,pixel,paint,get_paint_state(),type,pixel,stretch,pixel bpp1,reverse stretch,bpp4,bpp8,RGB,short,long,float,complex,offline put_image\n";
+# $Id: Basic.t,v 1.14 2008/04/17 19:31:43 dk Exp $
+print "1..22 create,type check,paintInfo,paint type consistency,palette,pixel,paint,get_paint_state(),type,pixel,stretch,pixel bpp1,reverse stretch,bpp4,bpp8,RGB,short,long,float,complex,offline put_image,integer roundoff\n";
 
 my $i = Prima::Image-> create(
 	width => 20,
@@ -103,6 +103,12 @@ ok(
 	($i-> pixel( 1, 0) == 255) &&
 	($i-> pixel( 1, 1) == 254) 
 );
+
+# 22
+$i-> type(im::Double);
+$i-> pixel(0, 0, 4.9999);
+$i-> type(im::Long);
+ok( $i-> pixel(0,0) == 5);
 
 $i-> destroy;
 

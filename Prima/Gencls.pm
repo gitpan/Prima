@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Vadim Belman   <voland@plab.ku.dk>
 #
-#  $Id: Gencls.pm,v 1.19 2007/08/09 13:03:07 dk Exp $
+#  $Id: Gencls.pm,v 1.20 2008/04/28 09:58:27 dk Exp $
 #
 # max error is APC058
 
@@ -2212,7 +2212,7 @@ CONTAINED_STRUCTURE
 				my $lNameLen = length $lName;
 				my $lType = @{$structs{$_}[TYPES]}[$k];
 				my $inter = type2sv( $lType, "strucRef-> $lName");
-				print HEADER "\thv_store( $incHV, \"$lName\", $lNameLen, $inter, 0);\n";
+				print HEADER "\t(void) hv_store( $incHV, \"$lName\", $lNameLen, $inter, 0);\n";
 			}
 			print HEADER "\treturn newRV_noinc(( SV*) $incHV);\n";
 			print HEADER "}\n\n";

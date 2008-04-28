@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_event.c,v 1.99 2007/11/11 13:12:17 dk Exp $
+ * $Id: apc_event.c,v 1.100 2008/04/28 09:58:27 dk Exp $
  */
 
 /***********************************************************/
@@ -954,7 +954,7 @@ prima_handle_event( XEvent *ev, XEvent *next_event)
    Event e, secondary;
    PDrawableSysData selfxx;
    XButtonEvent *bev;
-   KeySym keysym;
+   KeySym keysym = 0;
    int cmd;
 
    XCHECKPOINT;

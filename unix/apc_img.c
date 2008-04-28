@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_img.c,v 1.90 2007/09/20 10:02:27 dk Exp $
+ * $Id: apc_img.c,v 1.91 2008/04/24 15:15:11 dk Exp $
  */
 /*
  * System dependent image routines (unix, x11)
@@ -1227,6 +1227,7 @@ put_pixmap( Handle self, Handle pixmap, int dst_x, int dst_y, int src_x, int src
    if ( func != gcv. function)
       XSetFunction( DISP, XX-> gc, gcv. function);
    XCHECKPOINT;
+   XFLUSH;
    return true;
 }
 
@@ -1387,6 +1388,7 @@ apc_gp_put_image( Handle self, Handle image, int x, int y, int xFrom, int yFrom,
 
    if ( tempResult)
       prima_free_ximage( result);
+   XFLUSH;
    return true;
 }
 
@@ -1980,8 +1982,6 @@ do_stretch( Handle self, PrimaXImage *cache,
           prima_free_ximage( stretch);
           return nil;
       }   
-
-      
       
       if ( dst_h < 0) {
          dstData += ( yclipsize - 1) * tls;
@@ -2217,6 +2217,7 @@ apc_gp_stretch_image( Handle self, Handle image,
       XSetFunction( DISP, XX-> gc, ofunc);
    destroy_ximage( stretch);
    XCHECKPOINT;
+   XFLUSH;
 EXIT:   
    if ( tempResult)
       prima_free_ximage( result);
@@ -2231,6 +2232,8 @@ apc_application_get_bitmap( Handle self, Handle image, int x, int y, int xLen, i
    XImage * i;
    
    if ( !image || PObject(image)-> stage == csDead) return false;
+   
+   XFLUSH;
 
    /* rect validation - questionable but without it the request may be fatal ( by BadMatch) */
    if ( x < 0) x = 0;

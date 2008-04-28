@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_misc.c,v 1.104 2007/10/01 11:47:16 dk Exp $
+ * $Id: apc_misc.c,v 1.105 2008/04/24 21:30:15 dk Exp $
  */
 
 /***********************************************************/
@@ -1489,6 +1489,12 @@ prima_char2wchar( XChar2b * dest, char * src, int lim)
       dest-> byte1 = 0;
       dest--;
    }
+}
+
+char *
+apc_last_error( void )
+{
+   return NULL;
 }
 /* printer stubs */
 

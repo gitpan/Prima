@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: codec_X11.c,v 1.17 2008/04/08 08:29:53 dk Exp $
+ * $Id: codec_X11.c,v 1.18 2008/04/19 19:47:04 dk Exp $
  */
 
 #include "img.h"
@@ -41,19 +41,6 @@
 #undef Complex
 #undef FUNC
 #include "Image.h"
-
-#define MIRROR(a,b)
-#ifdef __CYGWIN__
-#else
-#ifdef _MSC_VER
-#undef vsnprintf
-#else
-#undef MIRROR
-extern void
-prima_mirror_bytes( unsigned char *data, int dataSize);
-#define MIRROR(a,b) prima_mirror_bytes(a,b)
-#endif
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -94,6 +81,42 @@ typedef struct _LoadRec {
    int w, h, yh, yw;
    Byte * data;
 } LoadRec;
+
+static Byte*
+mirror_bits( void)
+{
+   static Bool initialized = false;
+   static Byte bits[256];
+   unsigned int i, j;
+   int k;
+
+   if (!initialized) {
+      for ( i = 0; i < 256; i++) {
+         bits[i] = 0;
+         j = i;
+         for ( k = 0; k < 8; k++) {
+            bits[i] <<= 1;
+            if ( j & 0x1)
+               bits[i] |= 1;
+            j >>= 1;
+         }
+      }
+      initialized = true;
+   }
+
+   return bits;
+}
+
+static void
+mirror_bytes( unsigned char *data, int dataSize)
+{
+   Byte *mirrored_bits = mirror_bits();
+   while ( dataSize--) {
+      *data = mirrored_bits[*data];
+      data++;
+   }
+}
+
 
 
 static void * 
@@ -157,7 +180,7 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
       src += ls;
       dst -= i-> lineSize;
    }   
-   MIRROR( i-> data, i-> dataSize);
+   mirror_bytes( i-> data, i-> dataSize);
    return true;
 }   
 
@@ -246,7 +269,7 @@ save( PImgCodec instance, PImgSaveFileInstance fi)
       int w = ls;
       
       memcpy( s1, s, ls);
-      MIRROR( s1, ls);
+      mirror_bytes( s1, ls);
       
       while ( w--) {
          if ( first) {

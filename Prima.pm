@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Prima.pm,v 1.86 2008/04/10 18:28:20 dk Exp $
+#  $Id: Prima.pm,v 1.88 2008/04/28 18:19:31 dk Exp $
 
 package Prima;
 
@@ -34,7 +34,7 @@ require DynaLoader;
 use vars qw($VERSION @ISA $__import @preload);
 @ISA = qw(DynaLoader);
 sub dl_load_flags { 0x00 }
-$VERSION = '1.25';
+$VERSION = '1.26';
 bootstrap Prima $VERSION;
 unless ( UNIVERSAL::can('Prima', 'init')) {
 	$::application = 0;
@@ -451,6 +451,8 @@ L<Prima::faq> - frequently asked questions
 L<Prima::Const> - predefined toolkit constants 
 
 L<Prima::EventHook> - event filtering
+
+L<Prima::Image::AnimateGIF> - animate gif files
 
 L<Prima::IniFile> - support of Windows-like initialization files
 

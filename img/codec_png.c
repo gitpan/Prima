@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
-/* $Id: codec_png.c,v 1.13 2007/09/13 14:53:08 dk Exp $ */
+/* $Id: codec_png.c,v 1.18 2008/04/28 09:58:27 dk Exp $ */
 
 #ifdef HAVE_CONFIG_H
 #include <generic/config.h>
@@ -345,10 +345,7 @@ open_load( PImgCodec instance, PImgLoadFileInstance fi)
       return false;
    }
 
-   if ( !fi-> req_is_stdio)
-      png_set_read_fn( l-> png_ptr, fi, img_png_read);
-   else
-      png_init_io( l-> png_ptr, fi-> req-> handle);
+   png_set_read_fn( l-> png_ptr, fi, img_png_read);
    png_set_sig_bytes( l-> png_ptr, 8);
    return l;
 }
@@ -575,8 +572,8 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
    } 
 
    if ( fi-> noImageData) {
-      hv_store( fi-> frameProperties, "width",  5, newSViv( width), 0);
-      hv_store( fi-> frameProperties, "height", 6, newSViv( height), 0);
+      (void) hv_store( fi-> frameProperties, "width",  5, newSViv( width), 0);
+      (void) hv_store( fi-> frameProperties, "height", 6, newSViv( height), 0);
       if ( fi-> loadExtras) { /* skip data and read info blocks */
          for (pass = 0; pass < number_passes; pass++) {
             int y;
@@ -669,6 +666,7 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
 
          EVENT_TOPDOWN_SCANLINES_READY(fi,1);
       }
+      EVENT_SCANLINES_FINISHED(fi);
    }
 
    /* adjusting icon mask if possible */
@@ -692,10 +690,10 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
                    min_ix = i;
                 }
              p += min_ix;
+             PIcon( fi-> object)-> maskIndex = min_ix;
           } else 
-             p += trns_p[0].index;
-          PIcon( fi-> object)-> maskColor   = ARGB( p->r, p->g, p-> b);
-          PIcon( fi-> object)-> autoMasking = amMaskColor;
+             PIcon( fi-> object)-> maskIndex = trns_p[0].index;
+          PIcon( fi-> object)-> autoMasking = amMaskIndex;
       }
    }
 
@@ -748,7 +746,7 @@ READ_END:
       if ( png_get_text( l-> png_ptr, l-> info_ptr, &tx, &ct)) {
          HV * hash = newHV();
          for ( i = 0; i < ct; i++, tx++) 
-            hv_store( hash, tx-> key, strlen( tx-> key), newSVpv( tx-> text, tx-> text_length), 0);
+            (void) hv_store( hash, tx-> key, strlen( tx-> key), newSVpv( tx-> text, tx-> text_length), 0);
          pset_sv_noinc( text, newRV_noinc(( SV *) hash));
       }
 #endif      
@@ -876,10 +874,7 @@ open_save( PImgCodec instance, PImgSaveFileInstance fi)
       free( l);
       return false;
    }
-   if ( !fi-> req_is_stdio)
-      png_set_write_fn( l-> png_ptr, fi, img_png_write, img_png_flush);
-   else
-      png_init_io( l-> png_ptr, fi-> req-> handle);
+   png_set_write_fn( l-> png_ptr, fi, img_png_write, img_png_flush);
 
    return l;
 }
@@ -1029,25 +1024,37 @@ save( PImgCodec instance, PImgSaveFileInstance fi)
       png_byte trns_t[256];
       int trns_n = 0;
       Color color = pexist( transparent_color) ? pget_i( transparent_color) : clInvalid;
+      int   index = pexist( transparent_color_index) ? pget_i( transparent_color_index) : -1;
 
-      if ( icon && (i-> autoMasking == amMaskColor) && ( color & clSysFlag))
+      if ( index > i-> palSize)
+         index = i-> palSize - 1;
+      if ( icon && (i-> autoMasking == amMaskIndex) && ( index < 0))
+         index = i-> maskIndex;
+
+      if ( color & clSysFlag)
+         color = clInvalid;
+      if ( icon && (i-> autoMasking == amMaskColor) && ( color == clInvalid))
          color = i-> maskColor;
       memset( trns_p, 0, sizeof( trns_p));
-      if ( !( color & clSysFlag)) {
+      if ( color != clInvalid || index >= 0) {
          memset( trns_t, 255, sizeof( trns_t));
          if (( i-> type & imBPP) < 24) {
             int x;
-            RGBColor r;
-            r.r = (color & 0xFF0000) >> 16;
-            r.g = (color & 0x00FF00) >> 8;
-            r.b = (color & 0x0000FF);
-            x = cm_nearest_color( r, i-> palSize, i-> palette);
+	    if ( index < 0) {
+               RGBColor r;
+               r.r = (color & 0xFF0000) >> 16;
+               r.g = (color & 0x00FF00) >> 8;
+               r.b = (color & 0x0000FF);
+               x = cm_nearest_color( r, i-> palSize, i-> palette);
+	    } else {
+	       x = index;
+	    }
             trns_t[x] = 0;
             trns_n = x + 1;
             trns_p[0].index = x;
             trns_p[x].index = x;
             png_set_tRNS(l->png_ptr, l-> info_ptr, trns_t, trns_n, trns_p);
-         } else {
+         } else if ( color != clInvalid) {
             trns_p[0].red   = (color & 0xFF0000) >> 16;
             trns_p[0].green = (color & 0x00FF00) >> 8;
             trns_p[0].blue  = (color & 0x0000FF);

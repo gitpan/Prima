@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: img.h,v 1.11 2008/04/09 07:12:34 dk Exp $
+ * $Id: img.h,v 1.13 2008/04/26 11:19:58 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 
@@ -39,12 +39,12 @@ extern "C" {
 #endif
 
 typedef struct _ImgIORequest {
-  unsigned long (*read)       ( void * handle, unsigned long busize, void * buffer);
-  unsigned long (*write)      ( void * handle, unsigned long busize, void * buffer);
-  unsigned long (*seek)       ( void * handle, unsigned long offset, int whence);
-  unsigned long (*tell)       ( void * handle);
-  int           (*flush)      ( void * handle);
-  int           (*error)      ( void * handle);
+  size_t (*read)       ( void * handle, size_t busize, void * buffer);
+  size_t (*write)      ( void * handle, size_t busize, void * buffer);
+  int    (*seek)       ( void * handle, long offset, int whence);
+  long   (*tell)       ( void * handle);
+  int    (*flush)      ( void * handle);
+  int    (*error)      ( void * handle);
   void   * handle;
 } ImgIORequest, *PImgIORequest;
 
@@ -211,6 +211,11 @@ extern void  apc_img_notify_scanlines_ready( PImgLoadFileInstance fi, int scanli
 #define EVENT_TOPDOWN_SCANLINES_READY(fi,scanlines) \
   if ( (fi)-> eventMask & IMG_EVENTS_DATA_READY) \
     apc_img_notify_scanlines_ready((fi),scanlines)
+#define EVENT_SCANLINES_FINISHED(fi) \
+  if ( (fi)-> eventMask & IMG_EVENTS_DATA_READY) {\
+    fi-> lastEventTime.tv_sec = fi-> lastEventTime.tv_usec = 0;\
+    apc_img_notify_scanlines_ready((fi),0); \
+  }
 
 #ifdef __cplusplus
 }

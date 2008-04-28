@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: ImageViewer.pm,v 1.28 2008/04/05 19:01:14 dk Exp $
+#  $Id: ImageViewer.pm,v 1.33 2008/04/24 21:52:29 dk Exp $
 #
 use strict;
 use Prima::ScrollWidget;
@@ -94,7 +94,7 @@ sub on_paint
 			0, 0, $size[0]-1, $size[1]-1, $bw, 
 			$self-> dark3DColor, $self-> light3DColor, $self-> backColor
 		);
-		return;
+		return 1;
 	}
 
 	$canvas-> rect3d( 
@@ -155,7 +155,7 @@ sub on_paint
 
 	$canvas-> clear( $atx, $aty, $atx + $imXz, $aty + $imYz) if $self-> {icon};
 
-	$canvas-> put_image_indirect(
+	return $canvas-> put_image_indirect(
 		$self-> {image},
 		$atx, $aty,
 		$xDest, $yDest,
@@ -406,19 +406,29 @@ sub quality      {($#_)?$_[0]-> set_quality($_[1]):return $_[0]-> {quality}}
 sub PreviewImage_HeaderReady
 { 
 	my ( $self, $image) = @_;
-	$self-> image(
-		Prima::DeviceBitmap-> new(
+	my $db;
+	eval {
+		$db = Prima::DeviceBitmap-> new(
 			width    => $image-> width,
 			height   => $image-> height,
-		));
+		);
+	};
+	return unless $db;
+
+	$self-> image($db);
+        $self-> image-> backColor(0);
+        $self-> image-> clear;
 	$self-> {__preview_image} = 1;
 }
 
 sub PreviewImage_DataReady
 { 
 	my ( $self, $image, $x, $y, $w, $h) = @_;
+	return unless $self-> {__preview_image};
+
 	$self-> image-> put_image_indirect( $image, $x, $y, $x, $y, $w, $h, $w, $h, rop::CopyPut);
-	$self-> invalidate_rect( $self-> point2screen( $x, $y, $x + $w - 1, $y + $h - 1));
+	my @r = $self-> point2screen( $x, $y, $x + $w, $y + $h);
+	$self-> invalidate_rect( @r[0,1], map { int($_ + 0.5) } @r[2,3] );
 	$self-> update_view;
 }
 
@@ -590,6 +600,20 @@ Default value: 100
 =head2 Methods
 
 =over
+
+=item on_paint SELF, CANVAS
+
+The C<Paint> notification handler is mentioned here for the specific case
+of its return value, that is the return value of internal C<put_image> call.
+For those who might be interested in C<put_image> failures, that mostly occur
+when trying to draw an image that is too big, the following code might be 
+useful:
+
+    sub on_paint 
+    {
+        my ( $self, $canvas) = @_;
+	warn "put_image() error:$@" unless $self-> SUPER::on_paint($canvas);
+    }
 
 =item screen2point X, Y, [ X, Y, ... ]
 
