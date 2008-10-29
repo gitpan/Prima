@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_misc.c,v 1.105 2008/04/24 21:30:15 dk Exp $
+ * $Id: apc_misc.c,v 1.106 2008/07/03 08:37:41 dk Exp $
  */
 
 /***********************************************************/
@@ -418,6 +418,7 @@ void
 prima_no_cursor( Handle self)
 {
    if ( self && guts.focused == self && X(self)
+	&& !(XF_IN_PAINT(X(self)))
 	&& X(self)-> flags. cursor_visible
 	&& guts. cursor_save)
    {
@@ -443,7 +444,10 @@ prima_no_cursor( Handle self)
 void
 prima_update_cursor( Handle self)
 {
-   if ( guts.focused == self) {
+   if (
+   	guts.focused == self
+	&& !(XF_IN_PAINT(X(self)))
+   ) {
       DEFXX;
       int x, y, w, h;
 
@@ -513,7 +517,11 @@ prima_update_cursor( Handle self)
 void
 prima_cursor_tick( void)
 {
-   if ( guts. focused && X(guts. focused)-> flags. cursor_visible) {
+   if (
+   	guts. focused && 
+	X(guts. focused)-> flags. cursor_visible &&
+	!(XF_IN_PAINT(X(guts. focused)))
+   ) {
       PDrawableSysData selfxx = X(guts. focused);
       Pixmap pixmap;
       int x, y, w, h;

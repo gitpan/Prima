@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: amba.pl,v 1.15 2005/10/13 17:22:53 dk Exp $
+#  $Id: amba.pl,v 1.16 2008/05/06 09:34:04 dk Exp $
 #
 use Prima 'MsgBox', Application => { name => 'Chess puzzle' };
 
@@ -119,7 +119,7 @@ my $w = Prima::MainWindow-> create(
 		["~Help" => sub{
 			Prima::MsgBox::message( 
 				'Chess puzzle. Objective is to put figures so they could reach every cell upon the board',
-				mb::OK | mb::Cancel, {
+				mb::OK | mb::Cancel,
 				buttons => { mb::Cancel , {
 					text => '~Solution',
 					onClick => sub {
@@ -129,7 +129,7 @@ my $w = Prima::MainWindow-> create(
 						);
 					}
 				}}
-			});
+			);
 		}],
 	],
 	onPaint => sub {

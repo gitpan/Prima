@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Printer.pm,v 1.23 2008/04/09 20:10:41 dk Exp $
+#  $Id: Printer.pm,v 1.25 2008/05/06 09:34:03 dk Exp $
 #
 =pod
 
@@ -379,7 +379,7 @@ sub begin_doc
 	if ( $self-> {data}-> {spoolerType} == file) {
 		if ( $self-> {gui}) {
 			eval "use Prima::MsgBox"; die "$@\n" if $@;
-			my $f = Prima::MsgBox::input_box( 'Print to file', 'Output file name:', '', mb::OKCancel, { buttons => {
+			my $f = Prima::MsgBox::input_box( 'Print to file', 'Output file name:', '', mb::OKCancel, buttons => {
 				mb::OK, { 
 				modalResult => undef,
 				onClick => sub {
@@ -400,7 +400,7 @@ sub begin_doc
 					} 
 					$_[0]-> owner-> modalResult( mb::OK);
 					$_[0]-> owner-> end_modal;
-			}}}});
+			}}});
 			return 0 unless defined $f;
 			my $h = IO::Handle-> new;
 			unless ( open $h, "> $f") {
@@ -437,7 +437,9 @@ sub __end
 {
 	my $self = $_[0];
 	close( $self-> {spoolHandle}) if $self-> {spoolHandle};
-	defined($sigpipe) ? $SIG{PIPE} = $sigpipe : delete($SIG{PIPE});
+	if ( $self-> {data}-> {spoolerType} != file) {
+		defined($sigpipe) ? $SIG{PIPE} = $sigpipe : delete($SIG{PIPE});
+	}
 	$self-> {spoolHandle} = undef;
 	$sigpipe = undef;
 }

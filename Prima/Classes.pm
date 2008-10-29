@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Classes.pm,v 1.103 2008/04/20 07:56:40 dk Exp $
+#  $Id: Classes.pm,v 1.104 2008/05/06 09:34:03 dk Exp $
 use Prima;
 use Prima::Const;
 
@@ -53,7 +53,6 @@ sub DESTROY
 	my $class = ref( $self);
 	::destroy_mate( $self);
 }
-
 
 sub profile_add
 {
@@ -1343,7 +1342,8 @@ package Prima::MainWindow;
 use vars qw(@ISA);
 @ISA = qw(Prima::Window);
 
-sub on_destroy { $::application-> close }
+sub on_create  { $::main_window = $_[0]; }
+sub on_destroy { $::application-> close; undef $::main_window }
 
 # class MenuItem
 package Prima::MenuItem;

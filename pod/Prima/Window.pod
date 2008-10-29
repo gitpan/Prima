@@ -1,4 +1,4 @@
-=for rcs $Id: Window.pod,v 1.10 2007/05/26 21:05:54 dk Exp $
+=for rcs $Id: Window.pod,v 1.11 2008/05/06 09:34:04 dk Exp $
 
 =head1 NAME
 
@@ -212,6 +212,8 @@ rather than
    Prima::Window-> create( ..., onDestroy => sub { $::application-> close })
 
 , although these lines are equivalent.
+
+Also, the C<$::main_window> is pointed to a newly created main window.
 
 =head1 API
 

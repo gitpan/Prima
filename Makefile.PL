@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Makefile.PL,v 1.219 2008/04/28 12:03:44 dk Exp $
+#  $Id: Makefile.PL,v 1.220 2008/10/03 06:24:38 dk Exp $
 #
 
 BEGIN {
@@ -632,11 +632,11 @@ sub setup_variables
 			liboflag => '',
 		},
 		gcc => {
-			warnflags => "-Wall",
+			warnflags => "",
 			cflags => "",
 			coutoflag => '-o ',
 			coutexeflag => '-o ',
-			cdebugflags => '-g -O',
+			cdebugflags => '-g -O -Wall',
 			clinkprefix => '',
 			clibpathflag => '-L',
 			ldflags => '',
@@ -1449,7 +1449,9 @@ sub setup_codecs
 				@codec_libpath = ();
 			}
 			push( @ACTIVE_CODECS, $codec);
-			push( @LIBS, $lib) unless $libs{$lib};
+			# In gcc, order of libs matters. libXpm requires libgdi32, and
+			# has to be mentioned _after_ it to work.
+			unshift( @LIBS, $lib) unless $libs{$lib};
 			print "yes";
 			print ", in $foundlib" if defined($foundlib) and length($foundlib);
 			print "\n";

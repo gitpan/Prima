@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: img.h,v 1.13 2008/04/26 11:19:58 dk Exp $
+ * $Id: img.h,v 1.14 2008/10/25 07:44:48 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 
@@ -130,6 +130,7 @@ typedef struct _ImgSaveFileInstance {
 #define IMG_SAVE_TO_FILE             0x0000010
 #define IMG_SAVE_TO_STREAM           0x0000020
 #define IMG_SAVE_MULTIFRAME          0x0000040
+#define IMG_SAVE_APPEND              0x0000080
 
 /* codec info */
 typedef struct _ImgCodecInfo {

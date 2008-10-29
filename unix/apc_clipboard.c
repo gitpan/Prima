@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_clipboard.c,v 1.30 2008/04/09 07:12:34 dk Exp $
+ * $Id: apc_clipboard.c,v 1.31 2008/10/24 08:15:04 dk Exp $
  */
 
 #include "unix/guts.h"
@@ -683,7 +683,7 @@ apc_clipboard_get_data( Handle self, long id, PClipboardDataRec c)
    case cfUTF8: {
       void * ret = malloc( size);
       if ( !ret) {
-         warn("Not enough memory: %d bytes\n", size);
+         warn("Not enough memory: %d bytes\n", (int)size);
          return false;
       }
       memcpy( ret, data, size);
@@ -693,7 +693,7 @@ apc_clipboard_get_data( Handle self, long id, PClipboardDataRec c)
    default: {
       void * ret = malloc( size);
       if ( !ret) {
-         warn("Not enough memory: %d bytes\n", size);
+         warn("Not enough memory: %d bytes\n", (int)size);
          return false;
       }
       memcpy( ret, data, size);

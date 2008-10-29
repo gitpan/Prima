@@ -25,7 +25,7 @@
  
  Created by Dmitry Karasik <dk@plab.ku.dk> 
 
- $Id: codec_Xpm.c,v 1.11 2008/04/28 09:58:27 dk Exp $
+ $Id: codec_Xpm.c,v 1.13 2008/10/24 08:15:04 dk Exp $
 
  */
 
@@ -35,9 +35,7 @@
 #define Font            XFont
 #define Window          XWindow
 #undef FUNC
-#ifdef _MSC_VER
 #define Bool I32
-#endif
 #include <X11/xpm.h>
 #undef Font
 #undef Drawable
@@ -209,7 +207,7 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
                   }
                   xc = ARGB( r, g, b);
                } else {
-                  xc = (Color) hash_fetch( c, s, strlen(s));
+                  xc = (UV) hash_fetch( c, s, strlen(s));
                   if ( xc) {
                      xc -= 10;
                   } else if ( stricmp( s, "none") == 0)  {
@@ -218,7 +216,7 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
                      xc = 0;
                   } else {
                      xc = apc_lookup_color( s);
-                     hash_store( c, s, strlen(s), (void*)(xc + 10));
+                     hash_store( c, s, strlen(s), (void*)((UV)xc + 10));
                      if ( xc == clInvalid) xc = 0;
                   }
                }

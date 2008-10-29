@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_app.c,v 1.120 2008/04/24 15:15:10 dk Exp $
+ * $Id: apc_app.c,v 1.121 2008/10/24 08:15:04 dk Exp $
  */
 
 /***********************************************************/
@@ -1071,13 +1071,6 @@ Bool
 apc_application_unlock( Handle self)
 {
    if ( guts. appLock > 0) guts. appLock--;
-   return true;
-}
-
-static XBool
-any_event( Display *d, XEvent *ev, XPointer arg)
-{
-   (void)d; (void)ev; (void)arg; (void)any_event;
    return true;
 }
 

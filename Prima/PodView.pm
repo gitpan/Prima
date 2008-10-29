@@ -25,7 +25,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: PodView.pm,v 1.46 2007/09/13 15:12:25 dk Exp $
+#  $Id: PodView.pm,v 1.47 2008/07/03 12:22:36 dk Exp $
 
 use strict;
 use Prima;
@@ -1099,7 +1099,7 @@ sub add
 					} else {
 						$l = $s;
 					}
-					unless ( $linkHREF =~ /\//) {
+					unless ( $s =~ /^\w+\:\/\//) {
 						my ( $page, $section) = ( '', '');
 						if ( $s =~ /^([^\/]*)\/(.*)$/) {
 							( $page, $section) = ( $1, $2);

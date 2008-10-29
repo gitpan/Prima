@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc.c,v 1.126 2008/04/23 08:18:49 dk Exp $
+ * $Id: apc.c,v 1.127 2008/07/27 14:38:26 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -1718,6 +1718,7 @@ apc_widget_begin_paint( Handle self, Bool insideOnPaint)
 
    if ( useRPDraw) {
       HDC dc;
+      HGDIOBJ o_pen, o_brush, o_font, o_pal, o_extpen;
       Handle owner = var owner;
       Point tr = dsys(owner)transform2;
       Point ed = apc_widget_get_pos( self);
@@ -1730,8 +1731,22 @@ apc_widget_begin_paint( Handle self, Bool insideOnPaint)
       dsys(owner) transform2. x += ed. x;
       dsys(owner) transform2. y += so. y - sz. y - ed. y;
       apc_gp_set_transform( owner, 0, 0);
+      apc_gp_set_text_out_baseline( owner, dsys(owner) options. aptTextOutBaseline);
+
+      SelectObject( sys ps, o_pen    = GetCurrentObject( dc, OBJ_PEN));
+      SelectObject( sys ps, o_brush  = GetCurrentObject( dc, OBJ_BRUSH));
+      SelectObject( sys ps, o_font   = GetCurrentObject( dc, OBJ_FONT));
+      SelectObject( sys ps, o_pal    = GetCurrentObject( dc, OBJ_PAL));
+      SelectObject( sys ps, o_extpen = GetCurrentObject( dc, OBJ_EXTPEN));
 
       CWidget( owner)-> notify( owner, "sH", "Paint", owner);
+
+      SelectObject( sys ps, o_pen);
+      SelectObject( sys ps, o_brush);
+      SelectObject( sys ps, o_font);
+      SelectObject( sys ps, o_pal);
+      SelectObject( sys ps, o_extpen);
+
       dsys(owner)transform2 = tr;
       apc_gp_set_transform( owner, 0, 0);
       dsys( owner) ps = dc;

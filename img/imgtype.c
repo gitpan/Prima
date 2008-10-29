@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: imgtype.c,v 1.20 2005/09/29 08:59:17 dk Exp $
+ * $Id: imgtype.c,v 1.21 2008/07/27 14:39:52 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "img_conv.h"
@@ -540,7 +540,7 @@ ic_type_convert( Handle self, Byte * dstData, PRGBColor dstPal, int dstType, int
 
 static int imTypes[] = {
    imbpp1, imbpp1|imGrayScale, 
-   imbpp4, 
+   imbpp4, imbpp4|imGrayScale,
    imbpp8, imbpp8|imGrayScale,
    imRGB, 
    imShort, imLong, imFloat, imDouble,

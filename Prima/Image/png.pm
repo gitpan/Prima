@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
+#  Copyright (c) 2008 Dmitry Karasik
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -23,31 +23,33 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: jpeg.pm,v 1.5 2008/07/27 14:41:30 dk Exp $
+#  Created by Dmitry Karasik <dmitry@karasik.eu.org>
+#  $Id$
 #
 
 use strict;
 use Prima;
 use Prima::Buttons;
+use Prima::ComboBox;
+use Prima::Edit;
+use Prima::ImageViewer;
 use Prima::Label;
 use Prima::Sliders;
-use Prima::Edit;
+use Prima::Image::TransparencyControl;
 
-package Prima::Image::jpeg;
+package Prima::Image::png;
 use vars qw(@ISA);
 @ISA = qw(Prima::Dialog);
-
 
 sub profile_default
 {
 	my $def = $_[ 0]-> SUPER::profile_default;
 	my %prf = (
-		text   => 'JPEG filter',
-		width  => 241,
-		height => 192,
-		designScale => [ 7, 16],
+		width    => 480,
+		text     => 'PNG filter',
+		height   => 300,
 		centered => 1,
+		designScale => [ 7, 16],
 	);
 	@$def{keys %prf} = values %prf;
 	return $def;
@@ -57,27 +59,27 @@ sub init
 {
 	my $self = shift;
 	my %profile = $self-> SUPER::init(@_);
-	my $se = $self-> insert( qq(Prima::SpinEdit) => 
-		origin => [ 5, 145],
-		name => 'Quality',
-		size => [ 74, 20],
-		min => 1,
-		max => 100,
+	my $a = $self-> insert( qq(Prima::CheckBox) => 
+		origin => [ 4, 261],
+		name => 'Transparent',
+		size => [ 133, 36],
+		text => '~Transparent',
+		delegations => ['Check'],
 	);
-	$self-> insert( qq(Prima::Label) => 
-		origin => [ 5, 169],
-		size => [ 131, 20],
-		text => '~Quality (1-100)',
-		focusLink => $se,
+	my $b = $self-> insert( qq(Prima::CheckBox) => 
+		origin => [ 144, 261],
+		name => 'Interlaced',
+		size => [ 100, 36],
+		text => '~Interlaced',
 	);
-	$self-> insert( qq(Prima::CheckBox) => 
-		origin => [ 5, 105],
-		name => 'Progressive',
-		size => [ 131, 36],
-		text => '~Progressive',
+	$self-> insert( qq(Prima::Image::TransparencyControl) => 
+		origin => [ 4, 100],
+		size => [ 364, 158],
+		text => '',
+		name => 'TC',
 	);
 	$self-> insert( qq(Prima::Button) => 
-		origin => [ 141, 150],
+		origin => [ 380, 259],
 		name => 'OK',
 		size => [ 96, 36],
 		text => '~OK',
@@ -86,49 +88,54 @@ sub init
 		delegations => ['Click'],
 	);
 	$self-> insert( qq(Prima::Button) => 
-		origin => [ 141, 105],
-		name => 'Cancel',
+		origin => [ 380, 213],
 		size => [ 96, 36],
 		text => 'Cancel',
 		modalResult => mb::Cancel,
 	);
-	my $comm = $self-> insert( qq(Prima::Edit) => 
-		origin => [ 5, 5],
-		size   => [ 231, 75],
-		name   => 'Comment',
-		text   => '',
-	);
-	$self-> insert( qq(Prima::Label) => 
-		origin => [ 5, 85],
-		size => [ 131, 20],
-		text => '~Comment',
-		focusLink => $comm,
-	);
 	return %profile;
+}
+
+
+sub transparent
+{
+	my $self = $_[0];
+	$self-> Transparent-> checked( $_[1]);
+	$self-> TC-> enabled( $_[1]);
+}
+
+sub Transparent_Check
+{
+	my ( $self, $tr) = @_;
+	$self-> transparent( $tr-> checked);
 }
 
 sub on_change
 {
 	my ( $self, $codec, $image) = @_;
 	$self-> {image} = $image;
-	$self-> Quality-> value( exists( $image-> {extras}-> {quality}) ? 
-		$image-> {extras}-> {quality} : $codec-> {saveInput}-> {quality});
-	$self-> Progressive-> checked( exists( $image-> {extras}-> {progressive}) ? 
-		$image-> {extras}-> {progressive} : $codec-> {saveInput}-> {progressive});
-	$self-> Comment-> text( exists( $image-> {extras}-> {comment}) ?
-		$image-> {extras}-> {comment} : '');
+	return unless $image;
+	$self-> Interlaced-> checked( exists( $image-> {extras}-> {interlaced}) ? 
+		$image-> {extras}-> {interlaced} : $codec-> {saveInput}-> {interlaced});
+	$self-> transparent( $image-> {extras}-> {transparentColorIndex} ? 1 : 0);
+	$self-> TC-> image( $image);
+	$self-> TC-> index( exists( $image-> {extras}-> {transparentColorIndex}) ? 
+		$image-> {extras}-> {transparentColorIndex} : 0);
 }
 
 sub OK_Click
 {
 	my $self = $_[0];
-	$self-> {image}-> {extras}-> {quality} = $self-> Quality-> value;
-	$self-> {image}-> {extras}-> {progressive} = $self-> Progressive-> checked;
-	$self-> {image}-> {extras}-> {comment} = $self-> Comment-> text;
+	if ( $self-> Transparent-> checked) {
+		$self-> {image}-> {extras}-> {transparentColorIndex} = $self-> TC-> index;
+	} else {
+		delete $self-> {image}-> {extras}-> {transparentColorIndex};
+	}
+	$self-> {image}-> {extras}-> {interlaced} = $self-> Interlaced-> checked;
 	delete $self-> {image};
+	$self-> TC-> image( undef);
 }
 
-sub save_dialog
-{
-	return Prima::Image::jpeg-> create;
-}
+sub save_dialog { Prima::Image::png-> create }
+
+1;

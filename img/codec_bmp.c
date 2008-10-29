@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: codec_bmp.c,v 1.3 2008/04/26 11:19:58 dk Exp $
+ * $Id: codec_bmp.c,v 1.4 2008/10/24 08:15:04 dk Exp $
  */
 /*
 
@@ -521,7 +521,7 @@ req_read_big( PImgLoadFileInstance fi, int h, unsigned long lineSize, Byte * dat
 		if ( r < 0)
 			outr( fi-> req);
 		if ( r != size)
-			outcm( "Read error: unexpected end of file");
+			outc( "Read error: unexpected end of file");
 	}
 
 	return true;

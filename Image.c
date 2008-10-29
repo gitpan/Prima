@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Image.c,v 1.133 2008/04/28 09:58:27 dk Exp $
+ * $Id: Image.c,v 1.134 2008/09/02 10:21:54 dk Exp $
  */
 
 #include "img.h"
@@ -455,7 +455,7 @@ Image_set_extended_data( Handle self, HV * profile)
    dPROFILE;
    void *data, *proc;
    STRLEN dataSize;
-   int lineSize = 0, newType = -1, fixType, oldType = -1;
+   int lineSize = 0, newType = var-> type, fixType, oldType = -1;
    Bool pexistType, pexistLine, pexistReverse, supp, reverse = false;
 
    if ( !pexist( data)) {

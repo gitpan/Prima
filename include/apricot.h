@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: apricot.h,v 1.191 2008/04/28 10:17:34 dk Exp $ */
+/* $Id: apricot.h,v 1.192 2008/04/28 20:54:03 dk Exp $ */
 
 #ifndef _APRICOT_H_
 #define _APRICOT_H_
@@ -241,12 +241,14 @@ extern "C" {
    #endif
 #endif
 
+#ifdef PTRV
 #undef PTR2UV
 #define PTR2UV(x) ((UV)(PTRV)(x))
 #undef PTR2IV
 #define PTR2IV(x) ((IV)(PTRV)(x))
 #undef INT2PTR
 #define INT2PTR(type,x) ((type)((PTRV)x))
+#endif
 
 #ifndef SvPV_nolen
 #define SvPV_nolen(_sv)  SvPV(_sv,na)

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: codec_ungif.c,v 1.24 2008/04/24 14:39:50 dk Exp $
+ * $Id: codec_ungif.c,v 1.25 2008/10/25 07:44:48 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 
@@ -565,7 +565,7 @@ save( PImgCodec instance, PImgSaveFileInstance fi)
    PImage i = ( PImage) fi-> object;
    HV * profile = fi-> objectExtras;
 
-   if ( fi-> frame == 0) {  
+   if ( fi-> frame == 0) {
       /* put screen description */
       int w = i-> w, h = i-> h, cr = i-> palSize, bg = 0, ps = i-> palSize;
       RGBColor * r = i-> palette;
@@ -587,8 +587,8 @@ save( PImgCodec instance, PImgSaveFileInstance fi)
          out;
       }
       FreeMapObject( c);
-   }   
-   
+   }
+
    /* writing extras */
 
    /* comments  */
