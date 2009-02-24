@@ -4,7 +4,7 @@ package Prima::Config;
 use vars qw(%Config %Config_inst);
 
 %Config_inst = (
-	incpaths              => [ '/usr/local/lib/perl/5.10.0/Prima/CORE','/usr/local/lib/perl/5.10.0/Prima/CORE/generic','/usr/lib/perl/5.10/CORE','/usr/local/include','/usr/include/freetype2','/usr/include/gtk-2.0','/usr/lib/gtk-2.0/include','/usr/include/atk-1.0','/usr/include/cairo','/usr/include/pango-1.0','/usr/include/glib-2.0','/usr/lib/glib-2.0/include','/usr/include/libpng12','/usr/include/pixman-1' ],
+	incpaths              => [ '/usr/local/lib/perl/5.10.0/Prima/CORE','/usr/local/lib/perl/5.10.0/Prima/CORE/generic','/usr/lib/perl/5.10/CORE','/usr/local/include','/usr/include/freetype2','/usr/include/gtk-2.0','/usr/lib/gtk-2.0/include','/usr/include/atk-1.0','/usr/include/cairo','/usr/include/pango-1.0','/usr/include/glib-2.0','/usr/lib/glib-2.0/include','/usr/include/directfb','/usr/include/libpng12','/usr/include/pixman-1' ],
 	gencls                => '/usr/bin/gencls',
 	tmlink                => '/usr/bin/tmlink',
 	libname               => '/usr/local/lib/perl/5.10.0/auto/Prima/Prima.a',
@@ -13,7 +13,7 @@ use vars qw(%Config %Config_inst);
 
 	libs                  => '',
 	define                => '-DHAVE_CONFIG_H=1',
-	inc                   => '-I/usr/local/lib/perl/5.10.0/Prima/CORE -I/usr/local/lib/perl/5.10.0/Prima/CORE/generic -I/usr/lib/perl/5.10/CORE -I/usr/local/include -I/usr/include/freetype2 -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/libpng12 -I/usr/include/pixman-1',
+	inc                   => '-I/usr/local/lib/perl/5.10.0/Prima/CORE -I/usr/local/lib/perl/5.10.0/Prima/CORE/generic -I/usr/lib/perl/5.10/CORE -I/usr/local/include -I/usr/include/freetype2 -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/directfb -I/usr/include/libpng12 -I/usr/include/pixman-1',
 );
 
 %Config = (
@@ -21,7 +21,7 @@ use vars qw(%Config %Config_inst);
 	quote                 => '\'',
 	platform              => 'unix',
 	compiler              => 'gcc',
-	incpaths              => [ '/home/dk/src/Prima/include','/home/dk/src/Prima/include/generic','/usr/lib/perl/5.10/CORE','/usr/local/include','/usr/include/freetype2','/usr/include/gtk-2.0','/usr/lib/gtk-2.0/include','/usr/include/atk-1.0','/usr/include/cairo','/usr/include/pango-1.0','/usr/include/glib-2.0','/usr/lib/glib-2.0/include','/usr/include/libpng12','/usr/include/pixman-1' ],
+	incpaths              => [ '/home/dk/src/Prima/include','/home/dk/src/Prima/include/generic','/usr/lib/perl/5.10/CORE','/usr/local/include','/usr/include/freetype2','/usr/include/gtk-2.0','/usr/lib/gtk-2.0/include','/usr/include/atk-1.0','/usr/include/cairo','/usr/include/pango-1.0','/usr/include/glib-2.0','/usr/lib/glib-2.0/include','/usr/include/directfb','/usr/include/libpng12','/usr/include/pixman-1' ],
 	platform_path         => '/home/dk/src/Prima/unix',
 	gencls                => '\'/usr/bin/perl\' /home/dk/src/Prima/utils/gencls.pl',
 	tmlink                => '\'/usr/bin/perl\' /home/dk/src/Prima/utils/tmlink.pl',
@@ -59,7 +59,7 @@ use vars qw(%Config %Config_inst);
 
 	libs                  => '',
 	define                => '-DHAVE_CONFIG_H=1',
-	inc                   => '-I/usr/local/lib/perl/5.10.0/Prima/CORE -I/usr/local/lib/perl/5.10.0/Prima/CORE/generic -I/usr/lib/perl/5.10/CORE -I/usr/local/include -I/usr/include/freetype2 -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/libpng12 -I/usr/include/pixman-1',
+	inc                   => '-I/usr/local/lib/perl/5.10.0/Prima/CORE -I/usr/local/lib/perl/5.10.0/Prima/CORE/generic -I/usr/lib/perl/5.10/CORE -I/usr/local/include -I/usr/include/freetype2 -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/directfb -I/usr/include/libpng12 -I/usr/include/pixman-1',
 );
 
 1;

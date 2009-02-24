@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: apricot.h,v 1.192 2008/04/28 20:54:03 dk Exp $ */
+/* $Id: apricot.h,v 1.193 2008/11/06 10:54:37 dk Exp $ */
 
 #ifndef _APRICOT_H_
 #define _APRICOT_H_
@@ -423,6 +423,10 @@ typedef struct { double r,  ph; } TrigDComplex;
 
 /* Event structures */
 
+#ifdef KeyEvent
+#undef KeyEvent
+#endif
+
 typedef struct _KeyEvent {
    int    cmd;
    int    subcmd;
@@ -433,6 +437,10 @@ typedef struct _KeyEvent {
    int    repeat;
 } KeyEvent, *PKeyEvent;
 
+#ifdef PositionalEvent
+#undef PositionalEvent
+#endif
+
 typedef struct _PositionalEvent {
    int    cmd;
    int    subcmd;
@@ -442,6 +450,10 @@ typedef struct _PositionalEvent {
    int    mod;
    Bool   dblclk;
 } PositionalEvent, *PPositionalEvent;
+
+#ifdef GenericEvent
+#undef GenericEvent
+#endif
 
 typedef struct _GenericEvent {
    int    cmd;

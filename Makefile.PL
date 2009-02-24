@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Makefile.PL,v 1.220 2008/10/03 06:24:38 dk Exp $
+#  $Id: Makefile.PL,v 1.221 2008/11/08 23:19:02 dk Exp $
 #
 
 BEGIN {
@@ -1428,16 +1428,18 @@ sub setup_codecs
 	
 	my @codec_libpath = qd( $Config{installsitearch});
 	my @warn_codecs;
-	for ( @codecs) {
+	for my $cx ( @codecs) {
 		my @inc;
 		my $foundlib;
-		m/codec_(.*)\.c$/i;
-		my ( $fn, $lib, $codec) = ( $_, $1, $1);
+		$cx =~ m/codec_(.*)\.c$/i;
+		my ( $fn, $lib, $codec) = ( $cx, $1, $1);
 		next unless open F, $fn;
 		while(<F>) {
 			push @inc, $_ if m/^\s*#include\s*\</;
 		}
 		close F;
+
+	AGAIN:
 		$lib.='.lib' if ( $COMPILER eq 'msvc') || $OS2;
 		print "Checking for $codec library... ";
 		if ( 
@@ -1455,6 +1457,10 @@ sub setup_codecs
 			print "yes";
 			print ", in $foundlib" if defined($foundlib) and length($foundlib);
 			print "\n";
+		} elsif ( $codec eq 'ungif') {
+			$lib = $codec = 'gif';
+			print "no\n";
+			goto AGAIN;
 		} else {
 			$PASSIVE_CODECS{$fn} = 1;
 			push @warn_codecs, $codec unless $codec eq 'prigraph';

@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Sliders.pm,v 1.39 2007/09/13 15:12:25 dk Exp $
+#  $Id: Sliders.pm,v 1.42 2009/01/02 23:19:04 dk Exp $
 
 # contains:
 #   SpinButton
@@ -785,7 +785,7 @@ sub init
 	my %profile = $self-> SUPER::init( @_);
 	for ( qw( step min max increment readOnly ticks snap value autoTrack))
 	{$self-> $_($profile{$_});}
-	$self-> scheme( $profile{scheme}, 1) if defined $profile{scheme};
+	$self-> scheme( $profile{scheme}) if defined $profile{scheme};
 	return %profile;
 }
 
@@ -846,7 +846,6 @@ sub set_step
 	$_[0]-> {step} = $i;
 }
 
-
 sub get_ticks
 {
 	my $self  =  $_[0];
@@ -880,6 +879,7 @@ sub set_ticks
 	$self-> {tickVal} = \@val;
 	$self-> {tickLen} = \@len;
 	$self-> {tickTxt} = \@txt;
+	$self-> {scheme}  = undef;
 	$self-> value( $self-> value);
 	$self-> repaint;
 }
@@ -888,17 +888,21 @@ sub set_bound
 {
 	my ( $self, $val, $bound) = @_;
 	$self-> {$bound} = $val;
+	$self-> scheme($self-> {scheme}) if defined $self-> {scheme};
 	$self-> repaint;
 }
 
-
 sub set_scheme
 {
-	my ( $self, $s, $addFlag) = @_;
-	return unless defined $s;
+	my ( $self, $s) = @_;
+	unless ( defined $s) {
+		$self-> {scheme} = undef;
+		return;
+	}
 	my ( $max, $min) = ( $self-> {max}, $self-> {min});
-	( $addFlag ? 0 : $self-> ticks([])), return if $max == $min;
-	my @t = $addFlag ? $self-> ticks : ();
+	$self-> ticks([]), return if $max == $min;
+
+	my @t;
 	my $i;
 	my $inc = $self-> {increment};
 	if ( $s == ss::Gauge) {
@@ -909,10 +913,14 @@ sub set_scheme
 		for ( $i = $min; $i <= $max; $i += $inc) {
 			push ( @t, { value => $i, height => 6,   text => $i });
 			if ( $i < $max) {
-				push ( @t, { value => $i + $inc / 5 * 1, height => 3 });
-				push ( @t, { value => $i + $inc / 5 * 2, height => 3 });
-				push ( @t, { value => $i + $inc / 5 * 3, height => 3 });
-				push ( @t, { value => $i + $inc / 5 * 4, height => 3 });
+				for ( 1..4) {
+					my $v = $i + $inc / 5 * $_;
+					last if $v > $max;
+					push ( @t, { value => $v, height => 3 });
+					push ( @t, { value => $v, height => 3 });
+					push ( @t, { value => $v, height => 3 });
+					push ( @t, { value => $v, height => 3 });
+				}
 			}
 		}
 	} elsif ( $s == ss::StdMinMax) {
@@ -928,8 +936,10 @@ sub set_scheme
 			if ( $i < $max) {
 				my $j;
 				for ( $j = 1; $j < 10; $j++) {
+					my $v = $i + $inc / 10 * $j;
+					last if $v > $max;
 					push ( @t, { 
-						value => $i + $inc / 10 * $j, 
+						value => $v,
 						height => $j == 5 ? 5 : 3 
 					});
 				}
@@ -937,14 +947,24 @@ sub set_scheme
 		}
 	}
 	$self-> ticks( @t);
+	$self-> {scheme} = $s;
 }
 
-sub increment   {($#_)?$_[0]-> {increment}   =  $_[1] :return $_[0]-> {increment};}
+sub increment
+{
+	return $_[0]-> {increment} unless $#_;
+	my ( $self, $increment) = @_;
+	$self-> {increment} = $increment;
+	if ( defined $self-> {scheme}) {
+		$self-> scheme( $self-> {scheme});
+		$self-> repaint;
+	}
+}
 sub readOnly    {($#_)?$_[0]-> set_read_only   ($_[1]):return $_[0]-> {readOnly};}
 sub ticks       {($#_)?shift-> set_ticks          (@_):return $_[0]-> get_ticks;}
 sub snap        {($#_)?$_[0]-> set_snap        ($_[1]):return $_[0]-> {snap};}
 sub step        {($#_)?$_[0]-> set_step        ($_[1]):return $_[0]-> {step};}
-sub scheme      {($#_)?shift-> set_scheme         (@_):$_[0]-> raise_wo("scheme");}
+sub scheme      {($#_)?shift-> set_scheme         (@_):return $_[0]-> {scheme}}
 sub value       {($#_)?$_[0]-> {value} =       $_[1]  :return $_[0]-> {value};}
 sub min         {($#_)?$_[0]-> set_bound($_[1],q(min)):return $_[0]-> {min};}
 sub max         {($#_)?$_[0]-> set_bound($_[1],q(max)):return $_[0]-> {max};}
@@ -966,6 +986,7 @@ sub profile_default
 {
 	return {
 		%{$_[ 0]-> SUPER::profile_default},
+		borderWidth    => 0,
 		ribbonStrip    => 0,
 		shaftBreadth   => 6,
 		tickAlign      => tka::Normal,
@@ -977,10 +998,10 @@ sub init
 {
 	my $self = shift;
 	$self-> {$_} = 0 
-		for qw( vertical tickAlign ribbonStrip shaftBreadth);
+		for qw( vertical tickAlign ribbonStrip shaftBreadth borderWidth);
 	my %profile = $self-> SUPER::init( @_);
 	$self-> $_($profile{$_}) 
-		for qw( vertical tickAlign ribbonStrip shaftBreadth);
+		for qw( vertical tickAlign ribbonStrip shaftBreadth borderWidth);
 	return %profile;
 }
 
@@ -1083,7 +1104,7 @@ sub on_paint
 			$canvas-> line($bw - 3, $jp[7]-1, $jp[6]-1, $jp[7]-1);
 		}
 	} else {
-		my $bw = $canvas-> font-> width;
+		my $bw = $canvas-> font-> width + $self-> {borderWidth};
 		my $bh  = ( $size[1] - $sb) / 2;
 		my $fh = $canvas-> font-> height;
 		return if $size[0] <= DefButtonX * ($self-> {readOnly} ? 1 : 0) + 2 * $bw + 2;
@@ -1109,19 +1130,63 @@ sub on_paint
 		my $i;
 
 		$canvas-> color( $clr[0]);
+		my @texts;
 		for ( $i = 0; $i < scalar @{$tval}; $i++) {
-			my $val = 1 + $bw + abs( $$tval[$i] - $min) * ( $br - 3) / $range;
+			my $val = int( 1 + $bw + abs( $$tval[$i] - $min) * ( $br - 3) / $range + .5);
 			if ( $$tlen[ $i]) {
 				$canvas-> line( $val, $bh + $sb + 3, $val, $bh + $sb + $$tlen[ $i] + 3) 
 					if $ta & 1;
 				$canvas-> line( $val, $bh - 4, $val, $bh - 4 - $$tlen[ $i]) 
 					if $ta & 2;
 			}
-			$canvas-> text_out( $$ttxt[ $i],
-				$val - $canvas-> get_text_width( $$ttxt[ $i]) / 2,
+
+			next unless defined $$ttxt[ $i]; 
+			my $tw = int( $canvas-> get_text_width( $$ttxt[ $i]) / 2 + .5);
+			my $x = $val - $tw;
+			next if $x >= $size[0] or $val + $tw < 0;
+			push @texts, [
+				$$ttxt[$i], $val, $tw,
 				( $ta == 2) ? $bh - $$tlen[ $i] - 5 - $fh : $bh + $sb + $$tlen[ $i] + 5
-			) if defined $$ttxt[ $i];
+			];
 		}
+
+		
+		if ( @texts) {
+			# see that leftmost val fits
+			if ( $texts[0]->[1] - $texts[0]->[2] < 0) {
+				$texts[0]->[1] = $texts[0]->[2];
+				shift @texts
+					if $texts[0]->[1] + $texts[0]->[2] > $size[0];
+				goto NO_LABELS unless @texts;
+			}
+
+			# see that rightmost text fits
+			my ( $rightmost_val, $rightmost_label_width) = (
+				$texts[-1]->[1], $texts[-1]->[2]);
+			$rightmost_val = $size[0] - 1 - $rightmost_label_width
+				if $rightmost_val > $size[0] - 1 - $rightmost_label_width;
+			if ( 1 < @texts and $rightmost_val < 0) {
+				# skip it
+				pop @texts;
+				goto NO_LABELS unless @texts;
+			} else {
+				my $dx = $texts[-1]->[1] - $rightmost_val;
+				$texts[-1]->[1] = $rightmost_val;
+				# push the label next to it (but not the 1st one)
+				$texts[-2]->[1] -= $dx if 2 < @texts;
+			}
+
+			# draw labels
+			my $lastx = 0;
+			for ( @texts) {
+				my ( $text, $val, $width, $y) = @$_;
+				my $x = $val - $width;
+				next if $x < $lastx or $x < 0 or $val + $width >= $size[0];
+				$lastx = $val + $width;
+				$canvas-> text_out( $text, $x, $y);
+			}
+		}
+		NO_LABELS:
 
 		unless ( $self-> {readOnly}) {
 			my @jp = (
@@ -1168,7 +1233,7 @@ sub pos2info
 			return 1, $ret1, $y - $val;
 		}
 	} else {
-		my $bw = $self-> font-> width;
+		my $bw = $self-> font-> width + $self->{borderWidth};
 		my $val = 
 			$bw + 
 			1 + 
@@ -1287,9 +1352,9 @@ sub set_bound
 {
 	my ( $self, $val, $bound) = @_;
 	$self-> {$bound} = $val;
+	$self-> scheme($self-> {scheme}) if defined $self-> {scheme};
 	$self-> repaint;
 }
-
 
 sub value
 {
@@ -1334,7 +1399,7 @@ sub value
 		} else {
 			$sb = $size[1] / 6 unless $sb;
 			$sb = 2 unless $sb;
-			my $bw = $self-> font-> width;
+			my $bw = $self-> font-> width + $self-> {borderWidth};
 			my $bh  = ( $size[1] - $sb) / 2;
 			my $v1  = $bw + 1 + abs( $self-> {value} - $self-> {min}) *
 				( $size[0] - 2 * $bw - 5) / (abs($self-> {max} - $self-> {min})||1);
@@ -1357,6 +1422,15 @@ sub vertical    {($#_)?$_[0]-> set_vertical    ($_[1]):return $_[0]-> {vertical}
 sub tickAlign   {($#_)?$_[0]-> set_tick_align  ($_[1]):return $_[0]-> {tickAlign};}
 sub ribbonStrip {($#_)?$_[0]-> set_ribbon_strip($_[1]):return $_[0]-> {ribbonStrip};}
 sub shaftBreadth{($#_)?$_[0]-> set_shaft_breadth($_[1]):return $_[0]-> {shaftBreadth};}
+
+sub borderWidth
+{
+	return $_[0]-> {borderWidth} unless $#_;
+	my ( $self, $bw) = @_;
+	$bw = 0 if $bw < 0;
+	$self-> {borderWidth} = $bw;
+	$self-> repaint;
+}
 
 package Prima::CircularSlider;
 use vars qw(@ISA);
@@ -1712,7 +1786,6 @@ sub on_stringify
 	$$sref = $value;
 	$self-> clear_event;
 }
-
 
 sub set_buttons
 {
@@ -2107,7 +2180,7 @@ If ARRAY is C<undef>, no ticks are drawn.
 
 =item scheme INTEGER
 
-C<scheme> is a write-only property, that creates a set of tick marks
+C<scheme> is a property, that creates a set of tick marks
 using one of the predefined scale designs, selected by C<ss::XXX> constants.
 Each constant produces different scale; some make use of C<increment> integer
 property, which selects a step by which the additional 
@@ -2124,6 +2197,8 @@ The module defines the following constants:
 	ss::Gauge         - 1 tick per increment
 	ss::StdMinMax     - 2 ticks at the ends of the bar
 	ss::Thermometer   - 10 minor ticks per increment, longer text ticks
+
+When C<tick> property is set, C<scheme> is reset to C<undef>.
 
 =item snap BOOLEAN
 
@@ -2173,6 +2248,13 @@ Presents a linear sliding bar, movable along a linear shaft.
 =head2 Properties
 
 =over
+
+=item borderWidth INTEGER
+
+In horizontal mode, sets extra margin space between the slider line and
+the widget boundaries. Can be used for fine tuning of displaying text
+labels from <ticks()>, where the default spacing (0) or spacing procedure 
+(drop overlapping labels) is not enough.
 
 =item ribbonStrip BOOLEAN
 

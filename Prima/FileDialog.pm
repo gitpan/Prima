@@ -29,7 +29,7 @@
 #  Modifications by:
 #     David Scott <dscott@dgt.com>
 #
-#  $Id: FileDialog.pm,v 1.36 2008/04/17 21:12:28 dk Exp $
+#  $Id: FileDialog.pm,v 1.37 2008/10/29 19:40:52 dk Exp $
 
 use strict;
 use Prima::Classes;
@@ -1095,7 +1095,7 @@ sub CompletionList_KeyDown
 sub Files_KeyDown
 {
 	my ( $dlg, $self, $code, $key, $mod) = @_;
-	if (( $mod & km::Ctrl) && ( uc chr( $code & 0xFF) eq 'R'))
+	if ( $code == ord("\cR"))
 	{
 		$dlg-> Dir-> path( $dlg-> Dir-> path);
 		$self-> clear_event;
@@ -1588,7 +1588,7 @@ sub init
 sub Dir_KeyDown
 {
 	my ( $dlg, $self, $code, $key, $mod) = @_;
-	if (( $mod & km::Ctrl) && ( uc chr( $code & 0xFF) eq 'R')) {
+	if ( $code == ord("\cR")) {
 		$dlg-> Dir-> path( $dlg-> Dir-> path);
 		$self-> clear_event;
 	}

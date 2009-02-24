@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Edit.pm,v 1.51 2008/04/09 20:14:27 dk Exp $
+#  $Id: Edit.pm,v 1.52 2008/10/29 19:40:52 dk Exp $
 #
 # edit block types
 package bt;
@@ -943,7 +943,7 @@ sub on_keydown
 		$mod &= ~km::Ctrl;
 	}
 	if  (
-		(( $code & 0xFF) >= ord(' ') || (( $code & 0xFF) == ord("\t"))) &&
+		( $code >= ord(' ') || ( $code == ord("\t"))) &&
 		(( $mod  & (km::Alt | km::Ctrl)) == 0) &&
 		(( $key == kb::NoKey) || ( $key == kb::Space) || ( $key == kb::Tab))
 	) {

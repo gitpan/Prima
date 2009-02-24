@@ -26,7 +26,7 @@
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #  Modifications by Anton Berezin <tobez@tobez.org>
 #
-#  $Id: InputLine.pm,v 1.32 2007/12/21 15:29:47 dk Exp $
+#  $Id: InputLine.pm,v 1.33 2008/10/29 19:40:52 dk Exp $
 
 package Prima::InputLine;
 use vars qw(@ISA);
@@ -415,20 +415,19 @@ sub on_keydown
 		return;
 	}
 
-	my $c = chr($code & 0xff);
-	if ($c eq "\cC") {
+	if ($code == ord("\cC")) {
 		$self-> copy if $start != $end;
 		$self-> clear_event;
 		return;
-	} elsif ($c eq "\cA") {
+	} elsif ($code == ord("\cA")) {
 		$self-> select_all;
 		$self-> clear_event;
 		return;
-	} elsif ($c eq "\cV") {
+	} elsif ($code == ord("\cV")) {
 		$self-> paste;
 		$self-> clear_event;
 		return;
-	} elsif ($c eq "\cX") {
+	} elsif ($code == ord("\cX")) {
 		if ( !$self-> {readOnly} && $start != $end) {
 			my $del;
 			$del = substr( $cap, $start, $end - $start);
@@ -446,7 +445,7 @@ sub on_keydown
 	
 	if  (
 		!$self-> {readOnly} &&
-		(( $code & 0xFF) >= ord(' ')) &&
+		( $code >= ord(' ')) &&
 		(( $mod  & (km::Alt | km::Ctrl)) == 0) &&
 		(( $key == kb::NoKey) || ( $key == kb::Space))
 	) {

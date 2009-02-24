@@ -22,7 +22,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: VB.pl,v 1.91 2008/04/04 10:27:21 dk Exp $
+# $Id: VB.pl,v 1.93 2009/01/08 08:13:47 dk Exp $
 use strict;
 use Prima qw(StdDlg Notebooks MsgBox ComboBox FontDialog ColorDialog IniFile Utils);
 use Prima::VB::VBLoader;
@@ -2016,8 +2016,13 @@ sub write_PL
 	$VB::writeMode = 1;
 
 	my $header = <<PREPREHEAD;
+package ${main}Window;
+
 use Prima;
 use Prima::Classes;
+use vars qw(\@ISA);
+\@ISA = qw(Prima::MainWindow);
+
 PREPREHEAD
 
 	my %modules = map { $_-> {module} => 1 } @cmp;
@@ -2025,11 +2030,8 @@ PREPREHEAD
 	CodeEditor::sync_code;
 	
 	my $c = <<PREHEAD;
-$VB::code
 
-package ${main}Window;
-use vars qw(\@ISA);
-\@ISA = qw(Prima::MainWindow);
+$VB::code
 
 sub profile_default
 {
@@ -2044,6 +2046,17 @@ PREHEAD
 		$val = defined($val) ? $type-> write( $_, $val) : 'undef';
 		$c .= "\t\t$_ => $val,\n";
 	}
+
+	# size/origin have lower priority than width/left etc
+	if ( not($prf-> {sizeDontCare}) and exists $prf->{size}) {
+		my @s = @{$prf->{size}};
+		$c .= "\t\twidth => $s[0],\n\t\theight => $s[1],\n";
+	}
+	if ( not($prf-> {originDontCare}) and exists $prf->{origin}) {
+		my @o = @{$prf->{origin}};
+		$c .= "\t\tleft => $o[0],\n\t\tbottom => $o[1],\n";
+	}
+
 	my @ds = ( $::application-> font-> width, $::application-> font-> height);
 	$c .= "\t\tdesignScale => [ $ds[0], $ds[1]],\n";
 	$c .= <<HEAD2;
