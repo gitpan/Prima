@@ -22,7 +22,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: AnimateGIF.pm,v 1.2 2008/04/24 19:45:20 dk Exp $
+# $Id: AnimateGIF.pm,v 1.3 2010/02/09 18:10:22 dk Exp $
 package Prima::Image::AnimateGIF;
 
 use strict;
@@ -188,9 +188,9 @@ sub reset
 				$self-> {images}-> [0]-> palette;
 		my $i = $e-> {screenBackGroundColor} * 3;
 		$self-> {bgColor} = (
-			($$cm[$i] || 0) | 
+			($$cm[$i+2] || 0) | 
 			(($$cm[$i+1] || 0) << 8) | 
-			(($$cm[$i+2] || 0) << 16)
+			(($$cm[$i] || 0) << 16)
 		);
 	}
 }

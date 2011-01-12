@@ -23,10 +23,11 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * $Id: codec_jpeg.c,v 1.23 2008/10/24 08:15:04 dk Exp $
+ * $Id: codec_jpeg.c,v 1.24 2010/06/15 17:30:39 dk Exp $
  *
  */
 
+#define USE_NO_MINGW_SETJMP_TWO_ARGS
 #include "img.h"
 #include "img_conv.h"
 #include "Image.h"

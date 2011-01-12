@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: img.h,v 1.14 2008/10/25 07:44:48 dk Exp $
+ * $Id: img.h,v 1.15 2009/10/23 17:22:28 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 
@@ -71,12 +71,14 @@ typedef struct _ImgLoadFileInstance {
   int             frameCount;     /* total frames in the file; can return -1 if unknown */
   HV            * fileProperties; /* specific file data */
   void          * instance;       /* user instance */
+  Bool            wasTruncated;   /* if codec can recover from EOF */
 
   /* user-specified data - applied to whole file */
   Bool            loadExtras; 
   Bool            loadAll;
   Bool            noImageData;
   Bool            iconUnmask;
+  Bool            noIncomplete;
   HV            * extras;         /* profile applied to all frames */
 
   /* user-specified data - applied to every frame */

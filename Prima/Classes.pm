@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Classes.pm,v 1.105 2009/01/04 21:38:52 dk Exp $
+#  $Id: Classes.pm,v 1.106 2009/09/22 13:48:25 dk Exp $
 use Prima;
 use Prima::Const;
 
@@ -237,6 +237,17 @@ sub AUTOLOAD
 	Carp::croak("Unknown widget or method \"$expectedMethod\"") 
 		unless $component && ref($component);
 	return $component;
+}
+
+sub find_component
+{
+	my ( $self, $name ) = @_;
+	my @q = $self-> get_components;
+	while ( my $x = shift @q ) {
+		return $x if $x-> name eq $name;
+		push @q, $x-> get_components;
+	}
+	return undef;
 }
 
 # class File

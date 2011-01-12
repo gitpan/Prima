@@ -24,8 +24,9 @@
  * SUCH DAMAGE.
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
-/* $Id: codec_png.c,v 1.18 2008/04/28 09:58:27 dk Exp $ */
+/* $Id: codec_png.c,v 1.19 2010/06/15 17:30:39 dk Exp $ */
 
+#define USE_NO_MINGW_SETJMP_TWO_ARGS
 #ifdef HAVE_CONFIG_H
 #include <generic/config.h>
 #endif

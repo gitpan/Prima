@@ -26,13 +26,13 @@
  * Created by Dmitry Karasik <dmitry@karasik.eu.org> with great help
  * of tiff2png.c by Willem van Schaik and Greg Roelofs
  *
- * $Id: codec_tiff.c,v 1.14 2008/04/26 11:19:58 dk Exp $
+ * $Id: codec_tiff.c,v 1.15 2011/01/09 23:24:41 dk Exp $
  */
 
 #include "img.h"
 #include "img_conv.h"
 #include "Icon.h"
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1500
 #define HAVE_INT32
 #endif
 #include <tiff.h>

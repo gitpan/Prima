@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: ImageViewer.pm,v 1.35 2008/07/27 14:36:59 dk Exp $
+#  $Id: ImageViewer.pm,v 1.36 2010/07/06 06:42:29 dk Exp $
 #
 use strict;
 use Prima::ScrollWidget;
@@ -431,7 +431,7 @@ sub PreviewImage_DataReady
 
 	$self-> image-> put_image_indirect( $image, $x, $y, $x, $y, $w, $h, $w, $h, rop::CopyPut);
 	my @r = $self-> point2screen( $x, $y, $x + $w, $y + $h);
-	$self-> invalidate_rect( @r[0,1], map { int($_ + 0.5) } @r[2,3] );
+	$self-> invalidate_rect( @r[0,1], map { int($_ + 1) } @r[2,3] );
 	$self-> update_view;
 }
 
