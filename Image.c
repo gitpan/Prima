@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Image.c,v 1.134 2008/09/02 10:21:54 dk Exp $
+ * $Id: Image.c,v 1.136 2011/03/26 20:59:19 dk Exp $
  */
 
 #include "img.h"
@@ -667,22 +667,22 @@ XS( Image_load_FROMPERL)
             if (( Handle) o != self)
               --SvREFCNT( SvRV( o-> mate));
          } else {
-            XPUSHs( &sv_undef);    
+            XPUSHs( &PL_sv_undef);    
             err = true;
          }   
       }
       plist_destroy( ret);
    } else {
-      XPUSHs( &sv_undef);   
+      XPUSHs( &PL_sv_undef);   
       err = true;
    }   
 
    /* This code breaks exception propagation chain
       since it uses $@ for its own needs  */
    if ( err)
-      sv_setpv( GvSV( errgv), error);
+      sv_setpv( GvSV( PL_errgv), error);
    else
-      sv_setsv( GvSV( errgv), nilSV);
+      sv_setsv( GvSV( PL_errgv), nilSV);
 
    PUTBACK;
    return;
@@ -762,9 +762,9 @@ XS( Image_save_FROMPERL)
    /* This code breaks exception propagation chain
       since it uses $@ for its own needs  */
    if ( ret <= 0)
-      sv_setpv( GvSV( errgv), error);
+      sv_setpv( GvSV( PL_errgv), error);
    else
-      sv_setsv( GvSV( errgv), nilSV);
+      sv_setsv( GvSV( PL_errgv), nilSV);
    PUTBACK;
    return;
 }   
@@ -1531,16 +1531,16 @@ Image_put_image_indirect( Handle self, Handle image, int x, int y, int xFrom, in
    return ret;
 }
 
-long
+UV
 Image_add_notification( Handle self, char * name, SV * subroutine, Handle referer, int index)
 {
-   long id = inherited add_notification( self, name, subroutine, referer, index);
+   UV id = inherited add_notification( self, name, subroutine, referer, index);
    if ( id != 0) Image_reset_notifications( self);
    return id;
 }
 
 void
-Image_remove_notification( Handle self, long id)
+Image_remove_notification( Handle self, UV id)
 {
    inherited remove_notification( self, id);
    Image_reset_notifications( self);

@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Object.c,v 1.32 2007/05/23 17:50:57 dk Exp $
+ * $Id: Object.c,v 1.33 2011/03/26 20:59:19 dk Exp $
  */
 
 #include "apricot.h"
@@ -88,12 +88,12 @@ Object_create( char *className, HV * profile)
 
       OPEN_G_EVAL;
       PERL_CALL_METHOD( "init", G_VOID|G_DISCARD|G_EVAL);
-      if ( SvTRUE( GvSV( errgv))) {
+      if ( SvTRUE( GvSV( PL_errgv))) {
          CLOSE_G_EVAL;
          OPEN_G_EVAL;
          Object_destroy( self);
          CLOSE_G_EVAL;
-         croak( SvPV_nolen( GvSV( errgv)));
+         croak( SvPV_nolen( GvSV( PL_errgv)));
       }
       CLOSE_G_EVAL;
       SPAGAIN;

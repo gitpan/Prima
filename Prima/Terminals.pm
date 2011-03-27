@@ -25,7 +25,7 @@
 #
 #  Created by Vadim Belman <voland@plab.ku.dk>
 #
-#  $Id: Terminals.pm,v 1.17 2008/04/09 20:14:27 dk Exp $
+#  $Id: Terminals.pm,v 1.18 2011/01/14 23:56:54 dk Exp $
 
 use strict;
 use Prima::Const;
@@ -646,7 +646,7 @@ sub reset_cursor {
 	else {
 		#print "setting cursor to ",$self->{ charWidth} * $cursorCol, "x", $self->{ charHeight} * ( $self->{ textRows} - $cursorRow - 1);
 		$self-> { termView}-> cursorVisible(1);
-		$self-> { termView}-> set_cursor_pos( $self-> { charWidth} * $cursorCol,
+		$self-> { termView}-> set_cursor_pos( $self-> { charWidth} * $cursorCol, $self->{ charHeight} * ( $self->{textRows} - $cursorRow - 1));
 	}
 }
 

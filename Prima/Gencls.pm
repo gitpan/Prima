@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Vadim Belman   <voland@plab.ku.dk>
 #
-#  $Id: Gencls.pm,v 1.20 2008/04/28 09:58:27 dk Exp $
+#  $Id: Gencls.pm,v 1.22 2011/03/26 20:59:19 dk Exp $
 #
 # max error is APC058
 
@@ -219,7 +219,7 @@ sub init_variables
 
 	%mapTypes = (
 		"int" => "int", "Bool" => "Bool", "Handle" => "Handle", "long" => "int", "short" => "int",
-		"char" => "int", "U8" => "int",
+		"char" => "int", "U8" => "int", "UV" => "UV", 
 		"double" => "double", "Color" => "int", "SV"=> "SV", "HV"=> "HV");
 
 	%typedefs = ();
@@ -228,6 +228,7 @@ sub init_variables
 		# declare   access      set          unused   unused      extra2sv POPx     newXXxx extrasv2
 		# 0         1            2           3        4           5        6        7       8
 		'int'     => ['int',    'SvIV',      'sv_setiv',  '',      '(IV)',     '',    'POPi',    'SViv', ''     ],
+		'UV'      => ['UV',     'SvUV',      'sv_setuv',  '',      '(UV)',     '',    'POPu',    'SVuv', ''     ],
 		'double'  => ['double', 'SvNV',      'sv_setnv',  '',      '(double)', '',    'POPn',    'SVnv', ''     ],
 		'char*'   => ['char *', 'SvPV_nolen','sv_setpv',  '(SV*)', '',         ', 0', 'POPp',    'SVpv', '' ],
 		'string'  => ['char',   'SvPV_nolen','sv_setpv',  '(SV*)', '',         ', 0', 'POPp',    'SVpv', '' ],
@@ -1179,7 +1180,7 @@ sub type2sv
 	if ( ref $type) {
 		return "sv_$type->[PROPS]->{name}2HV(&($name))";
 	} elsif ( $type eq 'Handle') {
-		return "( $name ? (( $incInst)$name)-> $hMate : &sv_undef)";
+		return "( $name ? (( $incInst)$name)-> $hMate : &PL_sv_undef)";
 	} elsif ( $type eq 'SV*') {
 		return $name;
 	} else {
@@ -1867,7 +1868,7 @@ LABEL
 				print HEADER "\t\tif ( $incRes && (( $incInst) $incRes)-> $hMate && ((( $incInst) $incRes)-> $hMate != nilSV))\n";
 				print HEADER "\t\t{\n";
 				print HEADER "\t\t\tXPUSHs( sv_mortalcopy((( $incInst) $incRes)-> $hMate));\n";
-				print HEADER "\t\t} else XPUSHs( &sv_undef);\n";
+				print HEADER "\t\t} else XPUSHs( &PL_sv_undef);\n";
 			} elsif ($resSub eq "SV*") {
 				print HEADER "\t\tXPUSHs( sv_2mortal( $incRes));\n";
 			} else {

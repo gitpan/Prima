@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Component.cls,v 1.18 2004/03/26 13:34:07 dk Exp $
+# $Id: Component.cls,v 1.19 2011/01/17 20:10:01 dk Exp $
 
 object Prima::Component( Prima::Object)
 {
@@ -36,7 +36,7 @@ object Prima::Component( Prima::Object)
     property SV *      name;
     property Handle    owner;
 
-    method   long      add_notification( char * name, SV * subroutine, Handle referer = nilHandle, int index = -1);
+    method   UV        add_notification( char * name, SV * subroutine, Handle referer = nilHandle, int index = -1);
     method   void      attach( Handle objectHandle);
     method   Handle    bring( char * componentName);
     method   Bool      can_event();
@@ -61,7 +61,7 @@ object Prima::Component( Prima::Object)
     import   SV *      profile_default();
     method   void      push_event();
     c_only   void      recreate();
-    method   void      remove_notification( long id);
+    method   void      remove_notification( UV id);
     method   void      set( HV * profile);
     method   void      setup();
     public   void      set_notification( char * name, SV * subroutine);

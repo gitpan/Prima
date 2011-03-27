@@ -1,0 +1,858 @@
+LIBRARY Prima
+EXPORTS
+	Object_create
+	_Object_create = Object_create
+	Object_destroy
+	_Object_destroy = Object_destroy
+	apc_application_begin_paint
+	_apc_application_begin_paint = apc_application_begin_paint
+	apc_application_begin_paint_info
+	_apc_application_begin_paint_info = apc_application_begin_paint_info
+	apc_application_close
+	_apc_application_close = apc_application_close
+	apc_application_create
+	_apc_application_create = apc_application_create
+	apc_application_destroy
+	_apc_application_destroy = apc_application_destroy
+	apc_application_end_paint
+	_apc_application_end_paint = apc_application_end_paint
+	apc_application_end_paint_info
+	_apc_application_end_paint_info = apc_application_end_paint_info
+	apc_application_get_bitmap
+	_apc_application_get_bitmap = apc_application_get_bitmap
+	apc_application_get_gui_info
+	_apc_application_get_gui_info = apc_application_get_gui_info
+	apc_application_get_handle
+	_apc_application_get_handle = apc_application_get_handle
+	apc_application_get_indents
+	_apc_application_get_indents = apc_application_get_indents
+	apc_application_get_os_info
+	_apc_application_get_os_info = apc_application_get_os_info
+	apc_application_get_size
+	_apc_application_get_size = apc_application_get_size
+	apc_application_get_widget_from_point
+	_apc_application_get_widget_from_point = apc_application_get_widget_from_point
+	apc_application_go
+	_apc_application_go = apc_application_go
+	apc_application_lock
+	_apc_application_lock = apc_application_lock
+	apc_application_sync
+	_apc_application_sync = apc_application_sync
+	apc_application_unlock
+	_apc_application_unlock = apc_application_unlock
+	apc_application_yield
+	_apc_application_yield = apc_application_yield
+	apc_beep
+	_apc_beep = apc_beep
+	apc_beep_tone
+	_apc_beep_tone = apc_beep_tone
+	apc_clipboard_clear
+	_apc_clipboard_clear = apc_clipboard_clear
+	apc_clipboard_close
+	_apc_clipboard_close = apc_clipboard_close
+	apc_clipboard_create
+	_apc_clipboard_create = apc_clipboard_create
+	apc_clipboard_deregister_format
+	_apc_clipboard_deregister_format = apc_clipboard_deregister_format
+	apc_clipboard_destroy
+	_apc_clipboard_destroy = apc_clipboard_destroy
+	apc_clipboard_get_data
+	_apc_clipboard_get_data = apc_clipboard_get_data
+	apc_clipboard_get_handle
+	_apc_clipboard_get_handle = apc_clipboard_get_handle
+	apc_clipboard_has_format
+	_apc_clipboard_has_format = apc_clipboard_has_format
+	apc_clipboard_open
+	_apc_clipboard_open = apc_clipboard_open
+	apc_clipboard_register_format
+	_apc_clipboard_register_format = apc_clipboard_register_format
+	apc_clipboard_set_data
+	_apc_clipboard_set_data = apc_clipboard_set_data
+	apc_component_create
+	_apc_component_create = apc_component_create
+	apc_component_destroy
+	_apc_component_destroy = apc_component_destroy
+	apc_component_fullname_changed_notify
+	_apc_component_fullname_changed_notify = apc_component_fullname_changed_notify
+	apc_cursor_get_pos
+	_apc_cursor_get_pos = apc_cursor_get_pos
+	apc_cursor_get_size
+	_apc_cursor_get_size = apc_cursor_get_size
+	apc_cursor_get_visible
+	_apc_cursor_get_visible = apc_cursor_get_visible
+	apc_cursor_set_pos
+	_apc_cursor_set_pos = apc_cursor_set_pos
+	apc_cursor_set_size
+	_apc_cursor_set_size = apc_cursor_set_size
+	apc_cursor_set_visible
+	_apc_cursor_set_visible = apc_cursor_set_visible
+	apc_dbm_create
+	_apc_dbm_create = apc_dbm_create
+	apc_dbm_destroy
+	_apc_dbm_destroy = apc_dbm_destroy
+	apc_dbm_get_handle
+	_apc_dbm_get_handle = apc_dbm_get_handle
+	apc_deregister_event
+	_apc_deregister_event = apc_deregister_event
+	apc_deregister_hook
+	_apc_deregister_hook = apc_deregister_hook
+	apc_dl_export
+	_apc_dl_export = apc_dl_export
+	apc_fetch_resource
+	_apc_fetch_resource = apc_fetch_resource
+	apc_file_attach
+	_apc_file_attach = apc_file_attach
+	apc_file_change_mask
+	_apc_file_change_mask = apc_file_change_mask
+	apc_file_detach
+	_apc_file_detach = apc_file_detach
+	apc_font_default
+	_apc_font_default = apc_font_default
+	apc_font_encodings
+	_apc_font_encodings = apc_font_encodings
+	apc_font_load
+	_apc_font_load = apc_font_load
+	apc_font_pick
+	_apc_font_pick = apc_font_pick
+	apc_fonts
+	_apc_fonts = apc_fonts
+	apc_get_application
+	_apc_get_application = apc_get_application
+	apc_get_standard_clipboards
+	_apc_get_standard_clipboards = apc_get_standard_clipboards
+	apc_get_user_name
+	_apc_get_user_name = apc_get_user_name
+	apc_getdir
+	_apc_getdir = apc_getdir
+	apc_gp_arc
+	_apc_gp_arc = apc_gp_arc
+	apc_gp_bar
+	_apc_gp_bar = apc_gp_bar
+	apc_gp_chord
+	_apc_gp_chord = apc_gp_chord
+	apc_gp_clear
+	_apc_gp_clear = apc_gp_clear
+	apc_gp_done
+	_apc_gp_done = apc_gp_done
+	apc_gp_draw_poly
+	_apc_gp_draw_poly = apc_gp_draw_poly
+	apc_gp_draw_poly2
+	_apc_gp_draw_poly2 = apc_gp_draw_poly2
+	apc_gp_ellipse
+	_apc_gp_ellipse = apc_gp_ellipse
+	apc_gp_fill_chord
+	_apc_gp_fill_chord = apc_gp_fill_chord
+	apc_gp_fill_ellipse
+	_apc_gp_fill_ellipse = apc_gp_fill_ellipse
+	apc_gp_fill_poly
+	_apc_gp_fill_poly = apc_gp_fill_poly
+	apc_gp_fill_sector
+	_apc_gp_fill_sector = apc_gp_fill_sector
+	apc_gp_flood_fill
+	_apc_gp_flood_fill = apc_gp_flood_fill
+	apc_gp_get_back_color
+	_apc_gp_get_back_color = apc_gp_get_back_color
+	apc_gp_get_bpp
+	_apc_gp_get_bpp = apc_gp_get_bpp
+	apc_gp_get_clip_rect
+	_apc_gp_get_clip_rect = apc_gp_get_clip_rect
+	apc_gp_get_color
+	_apc_gp_get_color = apc_gp_get_color
+	apc_gp_get_fill_pattern
+	_apc_gp_get_fill_pattern = apc_gp_get_fill_pattern
+	apc_gp_get_fill_winding
+	_apc_gp_get_fill_winding = apc_gp_get_fill_winding
+	apc_gp_get_font_abc
+	_apc_gp_get_font_abc = apc_gp_get_font_abc
+	apc_gp_get_handle
+	_apc_gp_get_handle = apc_gp_get_handle
+	apc_gp_get_line_end
+	_apc_gp_get_line_end = apc_gp_get_line_end
+	apc_gp_get_line_join
+	_apc_gp_get_line_join = apc_gp_get_line_join
+	apc_gp_get_line_pattern
+	_apc_gp_get_line_pattern = apc_gp_get_line_pattern
+	apc_gp_get_line_width
+	_apc_gp_get_line_width = apc_gp_get_line_width
+	apc_gp_get_nearest_color
+	_apc_gp_get_nearest_color = apc_gp_get_nearest_color
+	apc_gp_get_physical_palette
+	_apc_gp_get_physical_palette = apc_gp_get_physical_palette
+	apc_gp_get_pixel
+	_apc_gp_get_pixel = apc_gp_get_pixel
+	apc_gp_get_region
+	_apc_gp_get_region = apc_gp_get_region
+	apc_gp_get_resolution
+	_apc_gp_get_resolution = apc_gp_get_resolution
+	apc_gp_get_rop
+	_apc_gp_get_rop = apc_gp_get_rop
+	apc_gp_get_rop2
+	_apc_gp_get_rop2 = apc_gp_get_rop2
+	apc_gp_get_text_box
+	_apc_gp_get_text_box = apc_gp_get_text_box
+	apc_gp_get_text_opaque
+	_apc_gp_get_text_opaque = apc_gp_get_text_opaque
+	apc_gp_get_text_out_baseline
+	_apc_gp_get_text_out_baseline = apc_gp_get_text_out_baseline
+	apc_gp_get_text_width
+	_apc_gp_get_text_width = apc_gp_get_text_width
+	apc_gp_get_transform
+	_apc_gp_get_transform = apc_gp_get_transform
+	apc_gp_init
+	_apc_gp_init = apc_gp_init
+	apc_gp_line
+	_apc_gp_line = apc_gp_line
+	apc_gp_put_image
+	_apc_gp_put_image = apc_gp_put_image
+	apc_gp_rectangle
+	_apc_gp_rectangle = apc_gp_rectangle
+	apc_gp_sector
+	_apc_gp_sector = apc_gp_sector
+	apc_gp_set_back_color
+	_apc_gp_set_back_color = apc_gp_set_back_color
+	apc_gp_set_clip_rect
+	_apc_gp_set_clip_rect = apc_gp_set_clip_rect
+	apc_gp_set_color
+	_apc_gp_set_color = apc_gp_set_color
+	apc_gp_set_fill_pattern
+	_apc_gp_set_fill_pattern = apc_gp_set_fill_pattern
+	apc_gp_set_fill_winding
+	_apc_gp_set_fill_winding = apc_gp_set_fill_winding
+	apc_gp_set_font
+	_apc_gp_set_font = apc_gp_set_font
+	apc_gp_set_line_end
+	_apc_gp_set_line_end = apc_gp_set_line_end
+	apc_gp_set_line_join
+	_apc_gp_set_line_join = apc_gp_set_line_join
+	apc_gp_set_line_pattern
+	_apc_gp_set_line_pattern = apc_gp_set_line_pattern
+	apc_gp_set_line_width
+	_apc_gp_set_line_width = apc_gp_set_line_width
+	apc_gp_set_palette
+	_apc_gp_set_palette = apc_gp_set_palette
+	apc_gp_set_pixel
+	_apc_gp_set_pixel = apc_gp_set_pixel
+	apc_gp_set_region
+	_apc_gp_set_region = apc_gp_set_region
+	apc_gp_set_rop
+	_apc_gp_set_rop = apc_gp_set_rop
+	apc_gp_set_rop2
+	_apc_gp_set_rop2 = apc_gp_set_rop2
+	apc_gp_set_text_opaque
+	_apc_gp_set_text_opaque = apc_gp_set_text_opaque
+	apc_gp_set_text_out_baseline
+	_apc_gp_set_text_out_baseline = apc_gp_set_text_out_baseline
+	apc_gp_set_transform
+	_apc_gp_set_transform = apc_gp_set_transform
+	apc_gp_stretch_image
+	_apc_gp_stretch_image = apc_gp_stretch_image
+	apc_gp_text_out
+	_apc_gp_text_out = apc_gp_text_out
+	apc_image_begin_paint
+	_apc_image_begin_paint = apc_image_begin_paint
+	apc_image_begin_paint_info
+	_apc_image_begin_paint_info = apc_image_begin_paint_info
+	apc_image_create
+	_apc_image_create = apc_image_create
+	apc_image_destroy
+	_apc_image_destroy = apc_image_destroy
+	apc_image_end_paint
+	_apc_image_end_paint = apc_image_end_paint
+	apc_image_end_paint_info
+	_apc_image_end_paint_info = apc_image_end_paint_info
+	apc_image_get_handle
+	_apc_image_get_handle = apc_image_get_handle
+	apc_image_update_change
+	_apc_image_update_change = apc_image_update_change
+	apc_img_codecs
+	_apc_img_codecs = apc_img_codecs
+	apc_img_done
+	_apc_img_done = apc_img_done
+	apc_img_frame_count
+	_apc_img_frame_count = apc_img_frame_count
+	apc_img_info2hash
+	_apc_img_info2hash = apc_img_info2hash
+	apc_img_init
+	_apc_img_init = apc_img_init
+	apc_img_load
+	_apc_img_load = apc_img_load
+	apc_img_notify_header_ready
+	_apc_img_notify_header_ready = apc_img_notify_header_ready
+	apc_img_notify_scanlines_ready
+	_apc_img_notify_scanlines_ready = apc_img_notify_scanlines_ready
+	apc_img_profile_add
+	_apc_img_profile_add = apc_img_profile_add
+	apc_img_read_palette
+	_apc_img_read_palette = apc_img_read_palette
+	apc_img_register
+	_apc_img_register = apc_img_register
+	apc_img_save
+	_apc_img_save = apc_img_save
+	apc_kbd_get_state
+	_apc_kbd_get_state = apc_kbd_get_state
+	apc_last_error
+	_apc_last_error = apc_last_error
+	apc_lookup_color
+	_apc_lookup_color = apc_lookup_color
+	apc_menu_create
+	_apc_menu_create = apc_menu_create
+	apc_menu_default_font
+	_apc_menu_default_font = apc_menu_default_font
+	apc_menu_destroy
+	_apc_menu_destroy = apc_menu_destroy
+	apc_menu_get_color
+	_apc_menu_get_color = apc_menu_get_color
+	apc_menu_get_font
+	_apc_menu_get_font = apc_menu_get_font
+	apc_menu_get_handle
+	_apc_menu_get_handle = apc_menu_get_handle
+	apc_menu_item_delete
+	_apc_menu_item_delete = apc_menu_item_delete
+	apc_menu_item_set_accel
+	_apc_menu_item_set_accel = apc_menu_item_set_accel
+	apc_menu_item_set_check
+	_apc_menu_item_set_check = apc_menu_item_set_check
+	apc_menu_item_set_enabled
+	_apc_menu_item_set_enabled = apc_menu_item_set_enabled
+	apc_menu_item_set_image
+	_apc_menu_item_set_image = apc_menu_item_set_image
+	apc_menu_item_set_key
+	_apc_menu_item_set_key = apc_menu_item_set_key
+	apc_menu_item_set_text
+	_apc_menu_item_set_text = apc_menu_item_set_text
+	apc_menu_set_color
+	_apc_menu_set_color = apc_menu_set_color
+	apc_menu_set_font
+	_apc_menu_set_font = apc_menu_set_font
+	apc_menu_update
+	_apc_menu_update = apc_menu_update
+	apc_message
+	_apc_message = apc_message
+	apc_pointer_get_bitmap
+	_apc_pointer_get_bitmap = apc_pointer_get_bitmap
+	apc_pointer_get_hot_spot
+	_apc_pointer_get_hot_spot = apc_pointer_get_hot_spot
+	apc_pointer_get_pos
+	_apc_pointer_get_pos = apc_pointer_get_pos
+	apc_pointer_get_shape
+	_apc_pointer_get_shape = apc_pointer_get_shape
+	apc_pointer_get_size
+	_apc_pointer_get_size = apc_pointer_get_size
+	apc_pointer_get_state
+	_apc_pointer_get_state = apc_pointer_get_state
+	apc_pointer_get_visible
+	_apc_pointer_get_visible = apc_pointer_get_visible
+	apc_pointer_set_pos
+	_apc_pointer_set_pos = apc_pointer_set_pos
+	apc_pointer_set_shape
+	_apc_pointer_set_shape = apc_pointer_set_shape
+	apc_pointer_set_user
+	_apc_pointer_set_user = apc_pointer_set_user
+	apc_pointer_set_visible
+	_apc_pointer_set_visible = apc_pointer_set_visible
+	apc_popup
+	_apc_popup = apc_popup
+	apc_popup_create
+	_apc_popup_create = apc_popup_create
+	apc_popup_default_font
+	_apc_popup_default_font = apc_popup_default_font
+	apc_prn_abort_doc
+	_apc_prn_abort_doc = apc_prn_abort_doc
+	apc_prn_begin_doc
+	_apc_prn_begin_doc = apc_prn_begin_doc
+	apc_prn_begin_paint_info
+	_apc_prn_begin_paint_info = apc_prn_begin_paint_info
+	apc_prn_create
+	_apc_prn_create = apc_prn_create
+	apc_prn_destroy
+	_apc_prn_destroy = apc_prn_destroy
+	apc_prn_end_doc
+	_apc_prn_end_doc = apc_prn_end_doc
+	apc_prn_end_paint_info
+	_apc_prn_end_paint_info = apc_prn_end_paint_info
+	apc_prn_enum_options
+	_apc_prn_enum_options = apc_prn_enum_options
+	apc_prn_enumerate
+	_apc_prn_enumerate = apc_prn_enumerate
+	apc_prn_get_default
+	_apc_prn_get_default = apc_prn_get_default
+	apc_prn_get_handle
+	_apc_prn_get_handle = apc_prn_get_handle
+	apc_prn_get_option
+	_apc_prn_get_option = apc_prn_get_option
+	apc_prn_get_resolution
+	_apc_prn_get_resolution = apc_prn_get_resolution
+	apc_prn_get_selected
+	_apc_prn_get_selected = apc_prn_get_selected
+	apc_prn_get_size
+	_apc_prn_get_size = apc_prn_get_size
+	apc_prn_new_page
+	_apc_prn_new_page = apc_prn_new_page
+	apc_prn_select
+	_apc_prn_select = apc_prn_select
+	apc_prn_set_option
+	_apc_prn_set_option = apc_prn_set_option
+	apc_prn_setup
+	_apc_prn_setup = apc_prn_setup
+	apc_query_drive_type
+	_apc_query_drive_type = apc_query_drive_type
+	apc_query_drives_map
+	_apc_query_drives_map = apc_query_drives_map
+	apc_register_event
+	_apc_register_event = apc_register_event
+	apc_register_hook
+	_apc_register_hook = apc_register_hook
+	apc_show_message
+	_apc_show_message = apc_show_message
+	apc_sys_get_caption_font
+	_apc_sys_get_caption_font = apc_sys_get_caption_font
+	apc_sys_get_insert_mode
+	_apc_sys_get_insert_mode = apc_sys_get_insert_mode
+	apc_sys_get_msg_font
+	_apc_sys_get_msg_font = apc_sys_get_msg_font
+	apc_sys_get_value
+	_apc_sys_get_value = apc_sys_get_value
+	apc_sys_set_insert_mode
+	_apc_sys_set_insert_mode = apc_sys_set_insert_mode
+	apc_system_action
+	_apc_system_action = apc_system_action
+	apc_timer_create
+	_apc_timer_create = apc_timer_create
+	apc_timer_destroy
+	_apc_timer_destroy = apc_timer_destroy
+	apc_timer_get_handle
+	_apc_timer_get_handle = apc_timer_get_handle
+	apc_timer_get_timeout
+	_apc_timer_get_timeout = apc_timer_get_timeout
+	apc_timer_set_timeout
+	_apc_timer_set_timeout = apc_timer_set_timeout
+	apc_timer_start
+	_apc_timer_start = apc_timer_start
+	apc_timer_stop
+	_apc_timer_stop = apc_timer_stop
+	apc_widget_begin_paint
+	_apc_widget_begin_paint = apc_widget_begin_paint
+	apc_widget_begin_paint_info
+	_apc_widget_begin_paint_info = apc_widget_begin_paint_info
+	apc_widget_create
+	_apc_widget_create = apc_widget_create
+	apc_widget_default_font
+	_apc_widget_default_font = apc_widget_default_font
+	apc_widget_destroy
+	_apc_widget_destroy = apc_widget_destroy
+	apc_widget_end_paint
+	_apc_widget_end_paint = apc_widget_end_paint
+	apc_widget_end_paint_info
+	_apc_widget_end_paint_info = apc_widget_end_paint_info
+	apc_widget_get_clip_owner
+	_apc_widget_get_clip_owner = apc_widget_get_clip_owner
+	apc_widget_get_color
+	_apc_widget_get_color = apc_widget_get_color
+	apc_widget_get_first_click
+	_apc_widget_get_first_click = apc_widget_get_first_click
+	apc_widget_get_focused
+	_apc_widget_get_focused = apc_widget_get_focused
+	apc_widget_get_handle
+	_apc_widget_get_handle = apc_widget_get_handle
+	apc_widget_get_invalid_rect
+	_apc_widget_get_invalid_rect = apc_widget_get_invalid_rect
+	apc_widget_get_parent_handle
+	_apc_widget_get_parent_handle = apc_widget_get_parent_handle
+	apc_widget_get_pos
+	_apc_widget_get_pos = apc_widget_get_pos
+	apc_widget_get_shape
+	_apc_widget_get_shape = apc_widget_get_shape
+	apc_widget_get_size
+	_apc_widget_get_size = apc_widget_get_size
+	apc_widget_get_sync_paint
+	_apc_widget_get_sync_paint = apc_widget_get_sync_paint
+	apc_widget_get_transparent
+	_apc_widget_get_transparent = apc_widget_get_transparent
+	apc_widget_get_z_order
+	_apc_widget_get_z_order = apc_widget_get_z_order
+	apc_widget_invalidate_rect
+	_apc_widget_invalidate_rect = apc_widget_invalidate_rect
+	apc_widget_is_captured
+	_apc_widget_is_captured = apc_widget_is_captured
+	apc_widget_is_enabled
+	_apc_widget_is_enabled = apc_widget_is_enabled
+	apc_widget_is_exposed
+	_apc_widget_is_exposed = apc_widget_is_exposed
+	apc_widget_is_focused
+	_apc_widget_is_focused = apc_widget_is_focused
+	apc_widget_is_responsive
+	_apc_widget_is_responsive = apc_widget_is_responsive
+	apc_widget_is_showing
+	_apc_widget_is_showing = apc_widget_is_showing
+	apc_widget_is_visible
+	_apc_widget_is_visible = apc_widget_is_visible
+	apc_widget_map_color
+	_apc_widget_map_color = apc_widget_map_color
+	apc_widget_map_points
+	_apc_widget_map_points = apc_widget_map_points
+	apc_widget_scroll
+	_apc_widget_scroll = apc_widget_scroll
+	apc_widget_set_capture
+	_apc_widget_set_capture = apc_widget_set_capture
+	apc_widget_set_color
+	_apc_widget_set_color = apc_widget_set_color
+	apc_widget_set_enabled
+	_apc_widget_set_enabled = apc_widget_set_enabled
+	apc_widget_set_first_click
+	_apc_widget_set_first_click = apc_widget_set_first_click
+	apc_widget_set_focused
+	_apc_widget_set_focused = apc_widget_set_focused
+	apc_widget_set_font
+	_apc_widget_set_font = apc_widget_set_font
+	apc_widget_set_palette
+	_apc_widget_set_palette = apc_widget_set_palette
+	apc_widget_set_pos
+	_apc_widget_set_pos = apc_widget_set_pos
+	apc_widget_set_rect
+	_apc_widget_set_rect = apc_widget_set_rect
+	apc_widget_set_shape
+	_apc_widget_set_shape = apc_widget_set_shape
+	apc_widget_set_size
+	_apc_widget_set_size = apc_widget_set_size
+	apc_widget_set_size_bounds
+	_apc_widget_set_size_bounds = apc_widget_set_size_bounds
+	apc_widget_set_visible
+	_apc_widget_set_visible = apc_widget_set_visible
+	apc_widget_set_z_order
+	_apc_widget_set_z_order = apc_widget_set_z_order
+	apc_widget_update
+	_apc_widget_update = apc_widget_update
+	apc_widget_validate_rect
+	_apc_widget_validate_rect = apc_widget_validate_rect
+	apc_window_activate
+	_apc_window_activate = apc_window_activate
+	apc_window_close
+	_apc_window_close = apc_window_close
+	apc_window_create
+	_apc_window_create = apc_window_create
+	apc_window_end_modal
+	_apc_window_end_modal = apc_window_end_modal
+	apc_window_execute
+	_apc_window_execute = apc_window_execute
+	apc_window_execute_shared
+	_apc_window_execute_shared = apc_window_execute_shared
+	apc_window_get_active
+	_apc_window_get_active = apc_window_get_active
+	apc_window_get_border_icons
+	_apc_window_get_border_icons = apc_window_get_border_icons
+	apc_window_get_border_style
+	_apc_window_get_border_style = apc_window_get_border_style
+	apc_window_get_client_pos
+	_apc_window_get_client_pos = apc_window_get_client_pos
+	apc_window_get_client_size
+	_apc_window_get_client_size = apc_window_get_client_size
+	apc_window_get_icon
+	_apc_window_get_icon = apc_window_get_icon
+	apc_window_get_on_top
+	_apc_window_get_on_top = apc_window_get_on_top
+	apc_window_get_task_listed
+	_apc_window_get_task_listed = apc_window_get_task_listed
+	apc_window_get_window_state
+	_apc_window_get_window_state = apc_window_get_window_state
+	apc_window_is_active
+	_apc_window_is_active = apc_window_is_active
+	apc_window_set_caption
+	_apc_window_set_caption = apc_window_set_caption
+	apc_window_set_client_pos
+	_apc_window_set_client_pos = apc_window_set_client_pos
+	apc_window_set_client_rect
+	_apc_window_set_client_rect = apc_window_set_client_rect
+	apc_window_set_client_size
+	_apc_window_set_client_size = apc_window_set_client_size
+	apc_window_set_icon
+	_apc_window_set_icon = apc_window_set_icon
+	apc_window_set_menu
+	_apc_window_set_menu = apc_window_set_menu
+	apc_window_set_window_state
+	_apc_window_set_window_state = apc_window_set_window_state
+	bc_bgri_rgb
+	_bc_bgri_rgb = bc_bgri_rgb
+	bc_byte_cr
+	_bc_byte_cr = bc_byte_cr
+	bc_byte_graybyte
+	_bc_byte_graybyte = bc_byte_graybyte
+	bc_byte_mono_cr
+	_bc_byte_mono_cr = bc_byte_mono_cr
+	bc_byte_mono_ed
+	_bc_byte_mono_ed = bc_byte_mono_ed
+	bc_byte_mono_ht
+	_bc_byte_mono_ht = bc_byte_mono_ht
+	bc_byte_nibble_cr
+	_bc_byte_nibble_cr = bc_byte_nibble_cr
+	bc_byte_nibble_ed
+	_bc_byte_nibble_ed = bc_byte_nibble_ed
+	bc_byte_nibble_ht
+	_bc_byte_nibble_ht = bc_byte_nibble_ht
+	bc_byte_op
+	_bc_byte_op = bc_byte_op
+	bc_byte_rgb
+	_bc_byte_rgb = bc_byte_rgb
+	bc_graybyte_mono_ht
+	_bc_graybyte_mono_ht = bc_graybyte_mono_ht
+	bc_graybyte_nibble_ed
+	_bc_graybyte_nibble_ed = bc_graybyte_nibble_ed
+	bc_graybyte_nibble_ht
+	_bc_graybyte_nibble_ht = bc_graybyte_nibble_ht
+	bc_graybyte_rgb
+	_bc_graybyte_rgb = bc_graybyte_rgb
+	bc_ibgr_rgb
+	_bc_ibgr_rgb = bc_ibgr_rgb
+	bc_irgb_rgb
+	_bc_irgb_rgb = bc_irgb_rgb
+	bc_mono_byte
+	_bc_mono_byte = bc_mono_byte
+	bc_mono_byte_cr
+	_bc_mono_byte_cr = bc_mono_byte_cr
+	bc_mono_copy
+	_bc_mono_copy = bc_mono_copy
+	bc_mono_graybyte
+	_bc_mono_graybyte = bc_mono_graybyte
+	bc_mono_nibble
+	_bc_mono_nibble = bc_mono_nibble
+	bc_mono_nibble_cr
+	_bc_mono_nibble_cr = bc_mono_nibble_cr
+	bc_mono_rgb
+	_bc_mono_rgb = bc_mono_rgb
+	bc_nibble_byte
+	_bc_nibble_byte = bc_nibble_byte
+	bc_nibble_byte_cr
+	_bc_nibble_byte_cr = bc_nibble_byte_cr
+	bc_nibble_copy
+	_bc_nibble_copy = bc_nibble_copy
+	bc_nibble_cr
+	_bc_nibble_cr = bc_nibble_cr
+	bc_nibble_graybyte
+	_bc_nibble_graybyte = bc_nibble_graybyte
+	bc_nibble_mono_cr
+	_bc_nibble_mono_cr = bc_nibble_mono_cr
+	bc_nibble_mono_ed
+	_bc_nibble_mono_ed = bc_nibble_mono_ed
+	bc_nibble_mono_ht
+	_bc_nibble_mono_ht = bc_nibble_mono_ht
+	bc_nibble_rgb
+	_bc_nibble_rgb = bc_nibble_rgb
+	bc_rgb_bgri
+	_bc_rgb_bgri = bc_rgb_bgri
+	bc_rgb_byte
+	_bc_rgb_byte = bc_rgb_byte
+	bc_rgb_byte_ed
+	_bc_rgb_byte_ed = bc_rgb_byte_ed
+	bc_rgb_byte_ht
+	_bc_rgb_byte_ht = bc_rgb_byte_ht
+	bc_rgb_byte_op
+	_bc_rgb_byte_op = bc_rgb_byte_op
+	bc_rgb_graybyte
+	_bc_rgb_graybyte = bc_rgb_graybyte
+	bc_rgb_ibgr
+	_bc_rgb_ibgr = bc_rgb_ibgr
+	bc_rgb_irgb
+	_bc_rgb_irgb = bc_rgb_irgb
+	bc_rgb_mono_ed
+	_bc_rgb_mono_ed = bc_rgb_mono_ed
+	bc_rgb_mono_ht
+	_bc_rgb_mono_ht = bc_rgb_mono_ht
+	bc_rgb_nibble
+	_bc_rgb_nibble = bc_rgb_nibble
+	bc_rgb_nibble_ed
+	_bc_rgb_nibble_ed = bc_rgb_nibble_ed
+	bc_rgb_nibble_ht
+	_bc_rgb_nibble_ht = bc_rgb_nibble_ht
+	bc_rgb_rgbi
+	_bc_rgb_rgbi = bc_rgb_rgbi
+	bc_rgbi_rgb
+	_bc_rgbi_rgb = bc_rgbi_rgb
+	boot_Prima
+	_boot_Prima = boot_Prima
+	bs_Complex_in
+	_bs_Complex_in = bs_Complex_in
+	bs_Complex_out
+	_bs_Complex_out = bs_Complex_out
+	bs_DComplex_in
+	_bs_DComplex_in = bs_DComplex_in
+	bs_DComplex_out
+	_bs_DComplex_out = bs_DComplex_out
+	bs_RGBColor_in
+	_bs_RGBColor_in = bs_RGBColor_in
+	bs_RGBColor_out
+	_bs_RGBColor_out = bs_RGBColor_out
+	bs_double_in
+	_bs_double_in = bs_double_in
+	bs_double_out
+	_bs_double_out = bs_double_out
+	bs_float_in
+	_bs_float_in = bs_float_in
+	bs_float_out
+	_bs_float_out = bs_float_out
+	bs_int16_t_in
+	_bs_int16_t_in = bs_int16_t_in
+	bs_int16_t_out
+	_bs_int16_t_out = bs_int16_t_out
+	bs_int32_t_in
+	_bs_int32_t_in = bs_int32_t_in
+	bs_int32_t_out
+	_bs_int32_t_out = bs_int32_t_out
+	bs_mono_in
+	_bs_mono_in = bs_mono_in
+	bs_mono_out
+	_bs_mono_out = bs_mono_out
+	bs_nibble_in
+	_bs_nibble_in = bs_nibble_in
+	bs_nibble_out
+	_bs_nibble_out = bs_nibble_out
+	bs_uint8_t_in
+	_bs_uint8_t_in = bs_uint8_t_in
+	bs_uint8_t_out
+	_bs_uint8_t_out = bs_uint8_t_out
+	build_dynamic_vmt
+	_build_dynamic_vmt = build_dynamic_vmt
+	build_static_vmt
+	_build_static_vmt = build_static_vmt
+	call_perl
+	_call_perl = call_perl
+	call_perl_indirect
+	_call_perl_indirect = call_perl_indirect
+	clean_perl_call_method
+	_clean_perl_call_method = clean_perl_call_method
+	clean_perl_call_pv
+	_clean_perl_call_pv = clean_perl_call_pv
+	cm_fill_colorref
+	_cm_fill_colorref = cm_fill_colorref
+	cm_init_colormap
+	_cm_init_colormap = cm_init_colormap
+	cm_nearest_color
+	_cm_nearest_color = cm_nearest_color
+	cm_optimized_palette
+	_cm_optimized_palette = cm_optimized_palette
+	cm_reverse_palette
+	_cm_reverse_palette = cm_reverse_palette
+	cm_squeeze_palette
+	_cm_squeeze_palette = cm_squeeze_palette
+	cm_study_palette
+	_cm_study_palette = cm_study_palette
+	create_mate
+	_create_mate = create_mate
+	create_object
+	_create_object = create_object
+	ctx_remap_def
+	_ctx_remap_def = ctx_remap_def
+	cv_call_perl
+	_cv_call_perl = cv_call_perl
+	debug_write
+	_debug_write = debug_write
+	duplicate_string
+	_duplicate_string = duplicate_string
+	eval
+	_eval = eval
+	gimme_the_mate
+	_gimme_the_mate = gimme_the_mate
+	gimme_the_vmt
+	_gimme_the_vmt = gimme_the_vmt
+	ibc_repad
+	_ibc_repad = ibc_repad
+	ic_stretch
+	_ic_stretch = ic_stretch
+	ic_type_convert
+	_ic_type_convert = ic_type_convert
+	img_put
+	_img_put = img_put
+	init_image_support
+	_init_image_support = init_image_support
+	itype_importable
+	_itype_importable = itype_importable
+	itype_supported
+	_itype_supported = itype_supported
+	kill_zombies
+	_kill_zombies = kill_zombies
+	kind_of
+	_kind_of = kind_of
+	list_add
+	_list_add = list_add
+	list_at
+	_list_at = list_at
+	list_create
+	_list_create = list_create
+	list_delete
+	_list_delete = list_delete
+	list_delete_all
+	_list_delete_all = list_delete_all
+	list_delete_at
+	_list_delete_at = list_delete_at
+	list_destroy
+	_list_destroy = list_destroy
+	list_first_that
+	_list_first_that = list_first_that
+	list_index_of
+	_list_index_of = list_index_of
+	list_insert_at
+	_list_insert_at = list_insert_at
+	notify_perl
+	_notify_perl = notify_perl
+	parse_hv
+	_parse_hv = parse_hv
+	perl_error
+	_perl_error = perl_error
+	plist_create
+	_plist_create = plist_create
+	plist_destroy
+	_plist_destroy = plist_destroy
+	pop_hv_for_REDEFINED
+	_pop_hv_for_REDEFINED = pop_hv_for_REDEFINED
+	prima_hash_create
+	_prima_hash_create = prima_hash_create
+	prima_hash_delete
+	_prima_hash_delete = prima_hash_delete
+	prima_hash_destroy
+	_prima_hash_destroy = prima_hash_destroy
+	prima_hash_fetch
+	_prima_hash_fetch = prima_hash_fetch
+	prima_hash_first_that
+	_prima_hash_first_that = prima_hash_first_that
+	prima_hash_store
+	_prima_hash_store = prima_hash_store
+	prima_mallocz
+	_prima_mallocz = prima_mallocz
+	prima_normalize_resource_string
+	_prima_normalize_resource_string = prima_normalize_resource_string
+	prima_utf8_length
+	_prima_utf8_length = prima_utf8_length
+	protect_object
+	_protect_object = protect_object
+	push_hv
+	_push_hv = push_hv
+	push_hv_for_REDEFINED
+	_push_hv_for_REDEFINED = push_hv_for_REDEFINED
+	query_method
+	_query_method = query_method
+	rgb_color_to_16
+	_rgb_color_to_16 = rgb_color_to_16
+	rs_Byte_Byte
+	_rs_Byte_Byte = rs_Byte_Byte
+	rs_Long_Byte
+	_rs_Long_Byte = rs_Long_Byte
+	rs_Long_Long
+	_rs_Long_Long = rs_Long_Long
+	rs_Short_Byte
+	_rs_Short_Byte = rs_Short_Byte
+	rs_Short_Short
+	_rs_Short_Short = rs_Short_Short
+	rs_double_Byte
+	_rs_double_Byte = rs_double_Byte
+	rs_double_double
+	_rs_double_double = rs_double_double
+	rs_float_Byte
+	_rs_float_Byte = rs_float_Byte
+	rs_float_float
+	_rs_float_float = rs_float_float
+	sv_call_perl
+	_sv_call_perl = sv_call_perl
+	sv_query_method
+	_sv_query_method = sv_query_method
+	unprotect_object
+	_unprotect_object = unprotect_object
+	bzero
+	_bzero = bzero

@@ -25,7 +25,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: PodView.pm,v 1.47 2008/07/03 12:22:36 dk Exp $
+#  $Id: PodView.pm,v 1.48 2011/01/21 10:08:16 dk Exp $
 
 use strict;
 use Prima;
@@ -718,18 +718,12 @@ sub _bulletpaint
 		$canvas-> ellipse     ( $x + $fh / 2, $y + $$block[ tb::BLK_HEIGHT] / 2, $fh, $fh);
 }
 
-sub read
+sub read_paragraph
 {
-	my ( $self, $pod) = @_;
+	my ( $self, $line ) = @_;
 	my $r = $self-> {readState};
-	return unless $r;
 
-	my $odd = 0;
-	for ( split ( "(\n)", $pod)) {
-		next unless $odd = !$odd;
-	
-		$_ .= "\n";
-
+	for ( $line ) {
 		if ($r-> {cutting}) {
 			next unless /^=/;
 			$r-> {cutting} = 0;
@@ -805,6 +799,34 @@ sub read
 		else {
 			$self-> add($_, STYLE_TEXT, $r-> {indent});
 		}
+	}
+}
+
+sub read
+{
+	my ( $self, $pod) = @_;
+	my $r = $self-> {readState};
+	return unless $r;
+
+	my $odd = 0;
+	for ( split ( "(\n)", $pod)) {
+		next unless $odd = !$odd;
+
+		if (defined $r-> {command_buffer}) {
+			if ( /^$/) {
+				my $cb = $r-> {command_buffer};
+				undef $r-> {command_buffer};
+				$self-> read_paragraph("$cb\n");
+			} else {
+				$r-> {command_buffer} .= " $_";
+				next;
+			}
+		} elsif ( /^=/) {
+			$r-> {command_buffer} = $_;
+			next;
+		}
+	
+		$self-> read_paragraph("$_\n");
 	}
 }
 

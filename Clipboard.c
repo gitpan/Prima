@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Clipboard.c,v 1.44 2007/10/11 11:34:25 dk Exp $
+ * $Id: Clipboard.c,v 1.45 2011/01/17 20:10:01 dk Exp $
  */
 
 #include "apricot.h"
@@ -54,7 +54,7 @@ typedef ClipboardExchangeFunc *PClipboardExchangeFunc;
 typedef struct _ClipboardFormatReg
 {
    char                          *id;
-   long                          sysId;
+   Handle                         sysId;
    ClipboardExchangeFunc         *server;
    void                          *data;
    Bool                           written;
@@ -157,7 +157,7 @@ Clipboard_register_format_proc( Handle self, char * format, void * serverProc)
    list += formatCount++;
    list-> id     = duplicate_string( format);
    list-> server = ( ClipboardExchangeFunc *) serverProc;
-   list-> sysId  = ( long) list-> server( self, list, cefInit, nilSV);
+   list-> sysId  = ( Handle) list-> server( self, list, cefInit, nilSV);
    return list;
 }
 

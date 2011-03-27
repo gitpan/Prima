@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: File.c,v 1.24 2007/08/09 13:03:06 dk Exp $
+ * $Id: File.c,v 1.25 2011/01/17 20:10:01 dk Exp $
  */
 
 #include "apricot.h"
@@ -149,16 +149,16 @@ File_mask( Handle self, Bool set, int mask)
    return mask;
 }
 
-long
+UV
 File_add_notification( Handle self, char * name, SV * subroutine, Handle referer, int index)
 {
-   long id = inherited-> add_notification( self, name, subroutine, referer, index);
+   UV id = inherited-> add_notification( self, name, subroutine, referer, index);
    if ( id != 0) File_reset_notifications( self);
    return id;
 }
 
 void
-File_remove_notification( Handle self, long id)
+File_remove_notification( Handle self, UV id)
 {
    inherited-> remove_notification( self, id);
    File_reset_notifications( self);

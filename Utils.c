@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Utils.c,v 1.12 2007/05/23 17:50:57 dk Exp $
+ * $Id: Utils.c,v 1.13 2011/03/26 20:59:19 dk Exp $
  */
 
 #include "apricot.h"
@@ -95,7 +95,7 @@ XS(Utils_getdir_FROMPERL) {
          }
          plist_destroy( dirlist);
       } else {
-         XPUSHs( &sv_undef);
+         XPUSHs( &PL_sv_undef);
       }
    }
    PUTBACK;

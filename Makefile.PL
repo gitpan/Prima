@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Makefile.PL,v 1.226 2011/01/10 21:59:20 dk Exp $
+#  $Id: Makefile.PL,v 1.230 2011/03/26 21:40:56 dk Exp $
 #
 
 BEGIN {
@@ -124,6 +124,7 @@ use vars @path_expand_ovvars = qw(
 use vars qw(
 	$CWD
 	$Win32
+	$Win64
 	$cygwin
 	$NeedX11
 	$OS2
@@ -181,6 +182,14 @@ sub qd
 	my ( $path_str) = @_;
 	$path_str =~ s[/][$dir_sep]g;
 	return $path_str;
+}
+
+sub qtilde
+{
+	my $path = shift;
+	return $path unless $path =~ s/^~//;
+	die "** path '~$path' begins with '~' but no HOME is set\n" unless exists $ENV{HOME};
+	return $ENV{HOME} . $path;
 }
 
 sub quoted_split
@@ -733,7 +742,7 @@ sub setup_variables
 			name => "EMX",
 		},
 		msvc => {
-			warnflags => "-W3 -WX",
+			warnflags => "-W3",
 			cflags => "-nologo",
 			coutoflag => '-Fo',
 			coutexeflag => '-Fe',
@@ -878,7 +887,7 @@ sub setup_variables
 	setvar( 'INCPATH', (
 		"include",
 		qd( "include/generic"),
-		$Config{archlib} . qd( "/CORE"),
+		qtilde($Config{archlib}) . qd( "/CORE"),
 		( map { s/-I//; $_ } split ' ', $INC)
 	));
 	my @libpaths = quoted_split( $Config{ libpth});
@@ -919,7 +928,7 @@ sub setup_variables
 	open F, 'Prima.pm' or die "Cannot open Prima.pm:$!\n";
 	my ($ver1, $ver2);
 	while (<F>) {
-		next unless m/\$VERSION[^\.\d]*(\d+)\.(\d+)/;
+		next unless m/\$VERSION[^\.\d]*(\d+)\.([_\d]+)/;
 		$ver1 = $1, $ver2 = $2, last;
 	}
 	close F;
@@ -979,6 +988,11 @@ sub setup_variables
 		}
 		if ( $compiler_version >= 1600 ) {
 			delete $DEFINES{_USE_32BIT_TIME_T};
+			$DEFINES{_CRT_SECURE_NO_WARNINGS} = 1;
+			$CFLAGS .= " -D_CRT_SECURE_NO_WARNINGS";
+			$CFLAGS .= " /wd4244"; # warning C4244: '=' : conversion from 'Bool' to 'char', possible loss of data
+			$CFLAGS .= " /wd4267"; # warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+			$CFLAGS .= " /wd4018"; # warning C4018: '<' : signed/unsigned mismatch";
 		}
 	}
 
@@ -1083,6 +1097,14 @@ int main() {
 MSCVER
 		print "$compiler_version\n";
 	}
+	
+	if ($Win32) {
+		print "Checking windows subsystem...";
+		$Win64 = have_define('_WIN64');
+		print $Win64 ? " 64" : " 32";
+		print " bits\n";
+	}
+
 }
 
 sub setup_X11
@@ -1166,7 +1188,8 @@ sub setup_perl
 		print "Checking for perl library... ";
 		my $libperl = $Config{ libperl};
 		$libperl =~ s/\.dll$//i if $cygwin;
-		my $libpath = find_lib( $libperl, '', "", qd( "$Config{ archlib}/CORE"));
+		$libperl =~ s/\.lib$// if $Win32 and $COMPILER eq 'gcc' and not $cygwin;
+		my $libpath = find_lib( $libperl, '', "", qtilde(qd( "$Config{ archlib}/CORE")));
 		unless ( defined $libpath) {
 			print "no\n";
 			die "Cannot find perl library $see_makefile_log\n" 
@@ -1452,6 +1475,7 @@ sub setup_codecs
 	# see if Prima::codecs:: is installed
 	my ( $prereq, $have_binary_prereq);
 	$prereq = 'win32' if $Win32 and not $cygwin;
+	$prereq = 'win64' if $Win64 and not $cygwin;
 	$prereq = 'os2'   if $OS2; 
 	if ( $prereq) {
 		print "Checking for Prima::codecs::$prereq... ";
@@ -1884,6 +1908,13 @@ sub manname
 	return (( $section == 3 ) ? $INSTALL_MAN3 : $INSTALL_MAN1) . $dir_sep . $name;
 }
 
+sub _quote
+{
+	my $name = shift;
+	$name =~ s/'/\\'/g;
+	return \ "'$name'";
+}
+
 sub create_config_pm
 {
 	my $_cwd = cwd;
@@ -1961,39 +1992,39 @@ use vars qw(%Config %Config_inst);
 	platform              => '$PLATFORM',
 	compiler              => '$COMPILER',
 	incpaths              => [ $ipp ],
-	platform_path         => '$cwd${ifs}$PLATFORM',
+	platform_path         => ${_quote("$cwd${ifs}$PLATFORM")},
 	gencls                => '\\$SHQUOTE$perl\\$SHQUOTE $cwd${ifs}utils${ifs}gencls.pl',
 	tmlink                => '\\$SHQUOTE$perl\\$SHQUOTE $cwd${ifs}utils${ifs}tmlink.pl',
 	scriptext             => '$SCRIPT_EXT',
 	genclsoptions         => '--tml --h --inc',
-	cc                    => '$CC',
-	cflags                => '-c $C_FLAGS $CCFLAGS',
-	cdebugflags           => '$cc_specs{$COMPILER}->{cdebugflags}',
-	cincflag              => '$CINCPATHFLAG',
-	cobjflag              => '$COUTOFLAG',
-	cdefflag              => '$CDEFFLAG',
+	cc                    => ${_quote($CC)},
+	cflags                => ${_quote("-c $C_FLAGS $CCFLAGS")},
+	cdebugflags           => ${_quote($cc_specs{$COMPILER}->{cdebugflags})},
+	cincflag              => ${_quote($CINCPATHFLAG)},
+	cobjflag              => ${_quote($COUTOFLAG)},
+	cdefflag              => ${_quote($CDEFFLAG)},
 	cdefs                 => [$cdefs],
-	objext                => '$OBJ_EXT',
-	lib                   => '$LIB',
-	liboutflag            => '$LIBOFLAG',
-	libext                => '$LIB_EXT',
-	libprefix             => '$LIB_PREFIX',
-	libname               => '$cwd${ifs}$pl',
-	libs                  => '$cwd${ifs}$pl',
-	dlname                => '$cwd${ifs}$pt',
-	dlext                 => '$DL_EXT',
-	ld                    => '$LD',
-	ldflags               => '$LD_FLAGS',
-	lddefflag             => '$lddef',
-	lddebugflags          => '$cc_specs{$COMPILER}->{lddebugflags}',
-	ldoutflag             => '$LDOUTFLAG',
-	ldlibflag             => '$LDLIBFLAG',
-	ldlibpathflag         => '$LDLIBPATHFLAG',
+	objext                => ${_quote($OBJ_EXT)},
+	lib                   => ${_quote($LIB)},
+	liboutflag            => ${_quote($LIBOFLAG)},
+	libext                => ${_quote($LIB_EXT)},
+	libprefix             => ${_quote($LIB_PREFIX)},
+	libname               => ${_quote("$cwd${ifs}$pl")},
+	libs                  => ${_quote("$cwd${ifs}$pl")},
+	dlname                => ${_quote("$cwd${ifs}$pt")},
+	dlext                 => ${_quote($DL_EXT)},
+	ld                    => ${_quote($LD)},
+	ldflags               => ${_quote($LD_FLAGS)},
+	lddefflag             => ${_quote($lddef)},
+	lddebugflags          => ${_quote($cc_specs{$COMPILER}->{lddebugflags})},
+	ldoutflag             => ${_quote($LDOUTFLAG)},
+	ldlibflag             => ${_quote($LDLIBFLAG)},
+	ldlibpathflag         => ${_quote($LDLIBPATHFLAG)},
 	ldpaths               => [$libpath],
 	ldlibs                => [$ldlibs],
-	ldlibext              =>'$cc_specs{$COMPILER}->{ldlibext}',
-	inline                => '$DEFINES{__INLINE__}',
-	perl                  => '$perl',
+	ldlibext              => ${_quote($cc_specs{$COMPILER}->{ldlibext})},
+	inline                => ${_quote($DEFINES{__INLINE__})},
+	perl                  => ${_quote($perl)},
 	dl_load_flags         => $DL_LOAD_FLAGS,
 
 	libs                  => '$libs',

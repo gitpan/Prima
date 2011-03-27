@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: apricot.h,v 1.193 2008/11/06 10:54:37 dk Exp $ */
+/* $Id: apricot.h,v 1.195 2011/03/26 20:59:19 dk Exp $ */
 
 #ifndef _APRICOT_H_
 #define _APRICOT_H_
@@ -337,6 +337,10 @@ typedef unsigned long Handle;
 typedef unsigned int Handle;
 #elif PTRSIZE==SHORTSIZE
 typedef unsigned short Handle;
+#elif defined(HAS_LONG_LONG) && PTRSIZE==LONGLONGSIZE
+typedef unsigned long long Handle;
+#elif defined(HAS_QUAD) && PTRSIZE==8
+typedef Uquad_t Handle;
 #else
 #error "Cannot find adequate integer type"
 #endif
@@ -417,7 +421,7 @@ typedef struct { double r,  ph; } TrigDComplex;
 #define nil       Null(void*)
 #endif
 #define nilHandle Null(Handle)
-#define nilSV     &sv_undef
+#define nilSV     &PL_sv_undef
 #define true TRUE
 #define false FALSE
 
@@ -565,7 +569,7 @@ XS(prima_autoload_##package##_constant) \
                / sizeof( ConstTable_##package); i++) \
          hash_store( table, \
                      Prima_Autoload_##package##_constants[i]. name, \
-                     strlen( Prima_Autoload_##package##_constants[i]. name), \
+                     (I32) strlen( Prima_Autoload_##package##_constants[i]. name), \
                      &Prima_Autoload_##package##_constants[i]. value); \
    } \
  \
@@ -573,7 +577,7 @@ XS(prima_autoload_##package##_constant) \
    name = SvPV_nolen( ST( 0)); \
    SPAGAIN; \
    SP -= items; \
-   r = (type *)hash_fetch( table, name, strlen( name)); \
+   r = (type *)hash_fetch( table, name, (I32) strlen( name)); \
    if ( !r) croak( "invalid value: " #package "::%s", name); \
    XPUSHs( sv_2mortal( newSV##suffix((conversion)*r))); \
    PUTBACK; \
@@ -1318,17 +1322,17 @@ SvBOOL( SV *sv)
 }
 #endif
 
-#define pexist( key) hv_exists( profile, # key, strlen( #key))
-#define pdelete( key) (void) hv_delete( profile, # key, strlen( #key), G_DISCARD)
+#define pexist( key) hv_exists( profile, # key, (I32) strlen( #key))
+#define pdelete( key) (void) hv_delete( profile, # key, (I32) strlen( #key), G_DISCARD)
 #define dPROFILE  SV ** temporary_prf_Sv
-#define pget_sv( key) ((( temporary_prf_Sv = hv_fetch( profile, # key, strlen( # key), 0)) == nil) ? croak( "Panic: bad profile key (``%s'') requested in ``%s'', line %d\n", # key, __FILE__, __LINE__ ), &sv_undef : *temporary_prf_Sv)
+#define pget_sv( key) ((( temporary_prf_Sv = hv_fetch( profile, # key, (I32) strlen( # key), 0)) == nil) ? croak( "Panic: bad profile key (``%s'') requested in ``%s'', line %d\n", # key, __FILE__, __LINE__ ), &PL_sv_undef : *temporary_prf_Sv)
 #define pget_i( key)  ( pget_sv( key), SvIV( *temporary_prf_Sv))
 #define pget_f( key)  ( pget_sv( key), SvNV( *temporary_prf_Sv))
 #define pget_c( key)  ( pget_sv( key), SvPV_nolen( *temporary_prf_Sv))
 #define pget_H( key)  gimme_the_mate( pget_sv( key))
 #define pget_B( key)  ( SvTRUE( pget_sv( key)))
 
-#define pset_sv_noinc( key, value) (void)hv_store( profile, # key, strlen( # key), value, 0)
+#define pset_sv_noinc( key, value) (void)hv_store( profile, # key, (I32) strlen( # key), value, 0)
 #define pset_sv( key, value) pset_sv_noinc( key, newSVsv( value))
 #define pset_i( key, value)  pset_sv_noinc( key, newSViv( value))
 #define pset_f( key, value)  pset_sv_noinc( key, newSVnv( value))
@@ -1381,8 +1385,8 @@ SvBOOL( SV *sv)
 
 #define endCtx          0x19740108
 
-extern int
-ctx_remap_def ( int value, int * table, Bool direct, int default_value);
+extern Handle
+ctx_remap_def ( Handle value, Handle * table, Bool direct, Handle default_value);
 
 #define ctx_remap_end(a,b,c)    ctx_remap_def((a),(b),(c), endCtx)
 #define ctx_remap(a,b,c)        ctx_remap_def((a),(b),(c), 0)
@@ -2312,22 +2316,22 @@ extern Bool
 apc_clipboard_clear( Handle self);
 
 extern Bool
-apc_clipboard_has_format( Handle self, long id);
+apc_clipboard_has_format( Handle self, Handle id);
 
 extern Bool
-apc_clipboard_get_data( Handle self, long id, PClipboardDataRec c);
+apc_clipboard_get_data( Handle self, Handle id, PClipboardDataRec c);
 
 extern ApiHandle
 apc_clipboard_get_handle( Handle self);
 
 extern Bool
-apc_clipboard_set_data( Handle self, long id, PClipboardDataRec c);
+apc_clipboard_set_data( Handle self, Handle id, PClipboardDataRec c);
 
-extern long
+extern Handle
 apc_clipboard_register_format( Handle self, const char *format);
 
 extern Bool
-apc_clipboard_deregister_format( Handle self, long id);
+apc_clipboard_deregister_format( Handle self, Handle id);
 
 /* Menus & popups */
 

@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
-/* $Id: codec_png.c,v 1.19 2010/06/15 17:30:39 dk Exp $ */
+/* $Id: codec_png.c,v 1.20 2011/01/17 20:10:02 dk Exp $ */
 
 #define USE_NO_MINGW_SETJMP_TWO_ARGS
 #ifdef HAVE_CONFIG_H
@@ -337,7 +337,6 @@ open_load( PImgCodec instance, PImgLoadFileInstance fi)
    }
 
    fi-> instance = l;
-
    if (setjmp(png_jmpbuf( l-> png_ptr))) {
       /* If we get here, we had a problem inside open_load */
       png_destroy_read_struct(&l-> png_ptr, &l-> info_ptr, (png_infopp)NULL);

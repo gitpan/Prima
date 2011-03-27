@@ -25,7 +25,7 @@
  
  Created by Dmitry Karasik <dk@plab.ku.dk> 
 
- $Id: codec_Xpm.c,v 1.13 2008/10/24 08:15:04 dk Exp $
+ $Id: codec_Xpm.c,v 1.15 2011/01/17 20:16:37 dk Exp $
 
  */
 
@@ -169,11 +169,11 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
       PHash c = hash_create();
       XpmColor * x = l-> image. colorTable;
       unsigned int offsets[5];
-      offsets[0] = (unsigned long)(&x-> c_color)  - (unsigned long)x;
-      offsets[1] = (unsigned long)(&x-> g_color)  - (unsigned long)x;
-      offsets[2] = (unsigned long)(&x-> g4_color) - (unsigned long)x;
-      offsets[3] = (unsigned long)(&x-> m_color)  - (unsigned long)x;
-      offsets[4] = (unsigned long)(&x-> symbolic) - (unsigned long)x;
+      offsets[0] = (Handle)(&x-> c_color)  - (Handle)x;
+      offsets[1] = (Handle)(&x-> g_color)  - (Handle)x;
+      offsets[2] = (Handle)(&x-> g4_color) - (Handle)x;
+      offsets[3] = (Handle)(&x-> m_color)  - (Handle)x;
+      offsets[4] = (Handle)(&x-> symbolic) - (Handle)x;
       for ( i = 0; i < l-> image. ncolors; i++, x++) {
          for ( j = 0; j < 5; j++) {
             char * s = *((char**)((char *)x + offsets[j]));
@@ -207,7 +207,7 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
                   }
                   xc = ARGB( r, g, b);
                } else {
-                  xc = (UV) hash_fetch( c, s, strlen(s));
+                  xc = (Color) hash_fetch( c, s, strlen(s));
                   if ( xc) {
                      xc -= 10;
                   } else if ( stricmp( s, "none") == 0)  {
@@ -216,7 +216,7 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
                      xc = 0;
                   } else {
                      xc = apc_lookup_color( s);
-                     hash_store( c, s, strlen(s), (void*)((UV)xc + 10));
+                     hash_store( c, s, strlen(s), (void*)((Color)xc + 10));
                      if ( xc == clInvalid) xc = 0;
                   }
                }
@@ -455,7 +455,7 @@ save( PImgCodec instance, PImgSaveFileInstance fi)
           for ( x = 0; x < i-> w; x++, pp++) {
              if ( !icon || !( mask[ x >> 3] & ( 0x80 >> ( x & 7)))) {
                 Color key = ARGB(pp->r,pp->g,pp->b);
-                unsigned long val = (unsigned long) hash_fetch( hash, &key, sizeof(key));
+                Handle val = (Handle) hash_fetch( hash, &key, sizeof(key));
                 if ( val == 0) 
                    hash_store( hash, &key, sizeof(key), (void*)(val = (hash_count( hash) + 1)));
                 *(dest++) = val - 1;

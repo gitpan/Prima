@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: codec_bmp.c,v 1.6 2009/10/23 17:22:28 dk Exp $
+ * $Id: codec_bmp.c,v 1.7 2011/01/17 20:10:02 dk Exp $
  */
 /*
 
@@ -443,7 +443,7 @@ read_bmp_header( PImgLoadFileInstance fi)
 	   		outr(fd);
 		
 		if ( cx == 0 || cy == 0 )
-			outcm("Bad size");
+			outc("Bad size");
 		if ( cPlanes != 1 )
 			outcd("Number of bitmap planes is %d, must be 1", cPlanes);
 		if ( cBitCount != 1 && cBitCount != 4 && cBitCount != 8 && cBitCount != 24 )

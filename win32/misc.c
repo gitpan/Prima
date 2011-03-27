@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: misc.c,v 1.32 2007/10/05 07:39:15 dk Exp $
+ * $Id: misc.c,v 1.34 2011/03/26 20:59:19 dk Exp $
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include "win32\win32guts.h"
@@ -39,7 +39,7 @@ extern "C" {
 #endif
 
 
-static int ctx_mb2MB[] =
+static Handle ctx_mb2MB[] =
 {
    mbError       , MB_ICONHAND,
    mbQuestion    , MB_ICONQUESTION,
@@ -79,7 +79,7 @@ apc_beep_tone( int freq, int duration)
          Sleep( duration);
          return true;
       }   
-#ifndef __GNUC__
+#if defined(_MSC_VER) && defined (_M_IX86)
       // Nastiest hack ever - Beep() doesn't work under W9X.
       __asm {
         in      al,0x61                  ;Stop sound, if any
@@ -155,7 +155,7 @@ apc_query_drives_map( const char *firstDrive, char *map, int len)
    return true;
 }
 
-static int ctx_dt2DRIVE[] =
+static Handle ctx_dt2DRIVE[] =
 {
    dtUnknown  , 0               ,
    dtNone     , 1               ,
@@ -450,8 +450,8 @@ static Bool
 prf_exists( HKEY hk, char * path, int * info)
 {
    HKEY hKey;
-   long cache;
-   if (( cache = ( long) hash_fetch( regnodeMan, path, strlen( path)))) {
+   Handle cache;
+   if (( cache = ( Handle) hash_fetch( regnodeMan, path, strlen( path)))) {
       if ( info) *info = cache;
       return cache & rgxExists;
    }

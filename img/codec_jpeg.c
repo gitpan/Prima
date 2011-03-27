@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * $Id: codec_jpeg.c,v 1.24 2010/06/15 17:30:39 dk Exp $
+ * $Id: codec_jpeg.c,v 1.26 2011/01/27 12:20:22 dk Exp $
  *
  */
 
@@ -308,6 +308,7 @@ open_load( PImgCodec instance, PImgLoadFileInstance fi)
 {
    LoadRec * l;
    Byte buf[2];
+   jmp_buf j;
 
    if ( req_seek( fi-> req, 0, SEEK_SET) < 0) return false;
    if ( req_read( fi-> req, 2, buf) < 0) {
@@ -332,12 +333,13 @@ open_load( PImgCodec instance, PImgLoadFileInstance fi)
    l-> d. err-> error_exit = load_error_exit;
    l-> init = true;
    fi-> instance = l;
-   if ( setjmp( l-> j) != 0) {
+   if ( setjmp( j) != 0) {
       fi-> instance = nil;
       jpeg_destroy_decompress(&l-> d);
       free( l);
       return false;
    } 
+   memcpy( l->j, j, sizeof(jmp_buf));
    jpeg_create_decompress( &l-> d);
    custom_src( &l-> d, fi);
    l-> init = false;
@@ -350,8 +352,10 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
    LoadRec * l = ( LoadRec *) fi-> instance;
    PImage i = ( PImage) fi-> object;
    int bpp;
+   jmp_buf j;
   
-   if ( setjmp( l-> j) != 0) return false;
+   if ( setjmp( j) != 0) return false;
+   memcpy( l->j, j, sizeof(jmp_buf));
 
    ((my_source_mgr*)(l-> d. src))-> fp = fi-> frameProperties;
    jpeg_read_header( &l-> d, true);
@@ -535,6 +539,7 @@ static void *
 open_save( PImgCodec instance, PImgSaveFileInstance fi)
 {
    SaveRec * l;
+   jmp_buf j;
    
    l = malloc( sizeof( SaveRec));
    if ( !l) return nil;
@@ -546,12 +551,14 @@ open_save( PImgCodec instance, PImgSaveFileInstance fi)
    l-> c. err-> error_exit = save_error_exit;
    l-> init = true;
    fi-> instance = l;
-   if ( setjmp( l-> j) != 0) {
+
+   if ( setjmp( j) != 0) {
       fi-> instance = nil;
       jpeg_destroy_compress(&l-> c);
       free( l);
       return false;
-   } 
+   }
+   memcpy( l->j, j, sizeof(jmp_buf));
    jpeg_create_compress( &l-> c);
    custom_dest( &l-> c, fi-> req);
    l-> init = false;
@@ -581,8 +588,10 @@ save( PImgCodec instance, PImgSaveFileInstance fi)
    SaveRec * l = ( SaveRec *) fi-> instance;
    AV * appdata = NULL;
    HV * profile = fi-> objectExtras;
+   jmp_buf j;
    
-   if ( setjmp( l-> j) != 0) return false;
+   if ( setjmp( j) != 0) return false;
+   memcpy( l->j, j, sizeof(jmp_buf));
 
    l-> c. image_width  = i-> w;
    l-> c. image_height = i-> h;

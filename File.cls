@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: File.cls,v 1.8 2002/05/14 13:22:16 dk Exp $
+# $Id: File.cls,v 1.9 2011/01/17 20:10:01 dk Exp $
 
 object Prima::File( Prima::Component)
 {
@@ -36,12 +36,12 @@ object Prima::File( Prima::Component)
    property SV *      file;
    property int       mask;
 
-   method   long      add_notification( char * name, SV * subroutine, Handle referer = nilHandle, int index = -1);
+   method   UV        add_notification( char * name, SV * subroutine, Handle referer = nilHandle, int index = -1);
    method   void      init( HV * profile);
    method   void      cleanup();
    method   SV      * get_handle();
    c_only   void      handle_event( PEvent event);
    method   Bool      is_active( Bool autoDetach = false);
    import   SV *      notification_types();
-   method   void      remove_notification( long id);
+   method   void      remove_notification( UV id);
 }
