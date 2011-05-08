@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: os2guts.c,v 1.27 2004/05/07 10:03:24 dk Exp $
+ * $Id$
  */
 /* Created by:
      Dmitry Karasik <dk@plab.ku.dk>

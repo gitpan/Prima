@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: File.c,v 1.25 2011/01/17 20:10:01 dk Exp $
+ * $Id$
  */
 
 #include "apricot.h"

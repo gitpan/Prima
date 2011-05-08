@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Label.pm,v 1.25 2005/12/05 21:48:12 dk Exp $
+#  $Id$
 package Prima::Label;
 use vars qw(@ISA);
 @ISA = qw(Prima::Widget);

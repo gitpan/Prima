@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Object.cls,v 1.9 2003/06/05 18:47:00 dk Exp $
+# $Id$
 
 object Prima::Object
 {

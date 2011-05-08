@@ -1,4 +1,4 @@
-# $Id: ROP.t,v 1.1 2006/11/02 13:41:52 dk Exp $
+# $Id$
 
 # extensive testing of raster operations:
 # - Image::put_image ( img/put.c ) outside begin_paint/end_paint

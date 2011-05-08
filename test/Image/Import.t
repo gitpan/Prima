@@ -1,4 +1,4 @@
-# $Id: Import.t,v 1.6 2007/03/19 08:41:50 dk Exp $
+# $Id$
 print "1..10 import,bounds overset,bounds underset,im::fmtBGR,im::fmtIRGB,im::fmtRGBI,im::fmtIBGR,im::fmtBGRI,im::bpp8+palette,reverse";
 
 my $i = Prima::Image-> create( 

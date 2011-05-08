@@ -26,7 +26,7 @@
 #  Module for simulated extreme situations, useful for testing.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Stress.pm,v 1.6 2005/10/13 17:22:51 dk Exp $
+#  $Id$
 #
 use strict;
 no warnings;

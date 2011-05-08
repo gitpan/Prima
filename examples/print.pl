@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: print.pl,v 1.16 2006/01/06 19:13:29 dk Exp $
+#  $Id$
 #
 =pod 
 =item NAME

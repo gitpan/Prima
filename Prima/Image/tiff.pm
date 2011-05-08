@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: tiff.pm,v 1.2 2005/10/13 17:22:52 dk Exp $
+#  $Id$
 #
 
 use strict;

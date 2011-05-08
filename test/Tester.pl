@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Tester.pl,v 1.21 2007/09/19 19:29:37 dk Exp $
+#  $Id$
 #
 package main;
 use vars qw( @ISA $noX11 $w $dong);

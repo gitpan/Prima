@@ -1,4 +1,4 @@
-# $Id: Window.t,v 1.6 2007/06/07 11:26:53 dk Exp $
+# $Id$
 print "1..15 activate,onActivate,deactivate,onDeactivate,maximize,onWindowState,".
 		"restore from maximized,minimize,restore from minimized,restore max->min->normal,".
 		"user modality,execute,show,hide,close\n";

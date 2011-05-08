@@ -1,4 +1,4 @@
-# $Id: Basic.t,v 1.14 2008/04/17 19:31:43 dk Exp $
+# $Id$
 print "1..22 create,type check,paintInfo,paint type consistency,palette,pixel,paint,get_paint_state(),type,pixel,stretch,pixel bpp1,reverse stretch,bpp4,bpp8,RGB,short,long,float,complex,offline put_image,integer roundoff\n";
 
 my $i = Prima::Image-> create(

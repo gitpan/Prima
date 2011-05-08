@@ -1,4 +1,4 @@
-# $Id: Clipboard.t,v 1.4 2001/01/24 12:48:09 dk Exp $
+# $Id$
 print "1..6 alive,predefined formats,text,image,user-defined format,clear\n";
 
 my $c = $::application-> Clipboard;

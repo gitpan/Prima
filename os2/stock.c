@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: stock.c,v 1.19 2007/06/07 09:46:03 dk Exp $
+ * $Id$
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
 #include <limits.h>

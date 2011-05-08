@@ -1,4 +1,4 @@
-=for rcs $Id: Image.pod,v 1.25 2011/01/14 19:37:37 dk Exp $
+=for rcs $Id$
 
 =head1 NAME
 

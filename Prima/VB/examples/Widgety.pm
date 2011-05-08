@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Widgety.pm,v 1.5 2005/10/13 17:22:53 dk Exp $
+#  $Id$
 
 #     Example of how to implement mirror to VB widget palette.
 #     In fact, you don't need to keep runtime package and VB

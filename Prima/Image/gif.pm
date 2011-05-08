@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: gif.pm,v 1.5 2008/04/19 19:47:04 dk Exp $
+#  $Id$
 #
 
 use strict;

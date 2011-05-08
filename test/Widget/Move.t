@@ -1,4 +1,4 @@
-# $Id: Move.t,v 1.10 2005/10/13 17:22:54 dk Exp $
+# $Id$
 print "1..10 onMove message - pass 1,correct movement,parameters consistency - pass 1,child move,child move consistency,onMove message - pass 2,parameters consistency - pass 2,gmDontCare,recreate consistency,scroll children\n";
 
 my $dong2 = 0;

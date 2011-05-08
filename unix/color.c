@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: color.c,v 1.28 2008/04/10 08:05:24 dk Exp $
+ * $Id$
  */
 
 /***********************************************************/

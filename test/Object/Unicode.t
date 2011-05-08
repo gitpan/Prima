@@ -1,4 +1,4 @@
-# $Id: Unicode.t,v 1.5 2005/10/13 17:22:54 dk Exp $
+# $Id$
 
 unless ( $] >= 5.006 && 
 	$::application-> get_system_value( sv::CanUTF8_Output)

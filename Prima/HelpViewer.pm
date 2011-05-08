@@ -26,7 +26,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: HelpViewer.pm,v 1.37 2006/01/20 12:44:00 dk Exp $
+#  $Id$
 
 use strict;
 use Prima;

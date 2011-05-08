@@ -1,4 +1,4 @@
-# $Id: Stream.t,v 1.3 2008/04/19 19:47:04 dk Exp $
+# $Id$
 
 my @codecs;
 

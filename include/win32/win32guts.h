@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: win32guts.h,v 1.66 2008/04/24 21:30:15 dk Exp $ */
+/* $Id$ */
 
 #ifndef _WIN32_H_
 #define _WIN32_H_

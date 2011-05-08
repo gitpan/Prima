@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: DockManager.pm,v 1.9 2005/10/13 17:22:50 dk Exp $
+#  $Id$
 #
 # contains
 #    DockManager

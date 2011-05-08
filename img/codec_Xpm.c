@@ -25,7 +25,7 @@
  
  Created by Dmitry Karasik <dk@plab.ku.dk> 
 
- $Id: codec_Xpm.c,v 1.15 2011/01/17 20:16:37 dk Exp $
+ $Id$
 
  */
 

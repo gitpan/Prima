@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Setup.pm,v 1.12 2008/04/09 20:10:14 dk Exp $
+#  $Id$
 #
 #  Setup dialog management
 

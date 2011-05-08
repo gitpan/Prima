@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dmitry@karasik.eu.org>
 #
-#  $Id: Widgets.pm,v 1.11 2005/10/13 17:22:51 dk Exp $
+#  $Id$
 
 # contains:
 #   Panel

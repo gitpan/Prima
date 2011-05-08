@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Image.cls,v 1.34 2011/01/17 20:10:01 dk Exp $
+# $Id$
 
 local @ImageStats double[7];
 

@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: iv.pl,v 1.25 2007/09/13 14:53:01 dk Exp $
+#  $Id$
 #
 =pod 
 =item NAME

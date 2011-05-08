@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: img_conv.h,v 1.25 2007/03/19 08:41:50 dk Exp $
+ * $Id$
  */
 
 #include "Image.h"

@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik  <dmitry@karasik.eu.org>
 #
-# $Id: noX11.pm,v 1.6 2008/09/03 11:29:13 dk Exp $
+# $Id$
 #
 # Initializes Prima in no-X11 environment
 
@@ -45,7 +45,7 @@ sub XOpenDisplay
 
 __DATA__
 
-=for rcs $Id: noX11.pm,v 1.6 2008/09/03 11:29:13 dk Exp $
+=for rcs $Id$
 
 =head1 NAME
 

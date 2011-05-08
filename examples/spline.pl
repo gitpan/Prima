@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: spline.pl,v 1.6 2007/11/01 11:43:17 dk Exp $
+#  $Id$
 #
 
 =pod 

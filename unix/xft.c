@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: xft.c,v 1.28 2008/04/24 15:15:11 dk Exp $
+ * $Id$
  */
 
 /*********************************/
@@ -80,6 +80,17 @@
 
 #ifdef HAVE_ICONV_H
 #include <iconv.h>
+#endif
+
+/* fontconfig version < 2.2.0 */
+#ifndef FC_WEIGHT_NORMAL
+#define FC_WEIGHT_NORMAL 80
+#endif
+#ifndef FC_WEIGHT_THIN
+#define FC_WEIGHT_THIN 0
+#endif
+#ifndef FC_WIDTH
+#define FC_WIDTH "width"
 #endif
 
 typedef struct {

@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: PrintDialog.pm,v 1.12 2007/09/13 15:12:25 dk Exp $
+#  $Id$
 
 use strict;
 use Carp;

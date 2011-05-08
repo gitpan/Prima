@@ -1,4 +1,4 @@
-# $Id: fmview.pl,v 1.1 2005/09/28 09:30:03 dk Exp $
+# $Id$
 
 die <<USAGE unless @ARGV;
 Prima::VB form file viewer

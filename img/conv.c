@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: conv.c,v 1.13 2008/04/17 19:31:43 dk Exp $
+ * $Id$
  */
 /* Created by Anton Berezin <tobez@plab.ku.dk> */
 #include "img_conv.h"

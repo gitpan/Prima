@@ -26,7 +26,7 @@
 #  Created by:
 #     Vadim Belman <voland@lflat.org>
 #
-#  $Id: FrameSet.pm,v 1.9 2007/09/13 15:12:24 dk Exp $
+#  $Id$
 use strict;
 use Prima;
 use Prima::Const;

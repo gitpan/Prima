@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_font.c,v 1.96 2007/10/26 14:55:34 dk Exp $
+ * $Id$
  */
 
 /***********************************************************/

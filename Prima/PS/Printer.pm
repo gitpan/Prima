@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Printer.pm,v 1.25 2008/05/06 09:34:03 dk Exp $
+#  $Id$
 #
 =pod
 

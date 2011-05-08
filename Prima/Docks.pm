@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Docks.pm,v 1.10 2007/09/13 15:12:24 dk Exp $
+#  $Id$
 #
 # contains:
 #	AbstractDocker::Interface

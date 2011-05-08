@@ -1,4 +1,4 @@
-# $Id: Map.t,v 1.3 2000/10/18 11:58:24 tobez Exp $
+# $Id$
 print "1..3 screen to client,client to screen,application";
 
 my $ww = $w-> insert( 'Widget' => origin => [ 10, 10],);

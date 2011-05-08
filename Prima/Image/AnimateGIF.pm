@@ -22,7 +22,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: AnimateGIF.pm,v 1.3 2010/02/09 18:10:22 dk Exp $
+# $Id$
 package Prima::Image::AnimateGIF;
 
 use strict;

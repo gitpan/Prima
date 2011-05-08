@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Popup.c,v 1.20 2007/08/09 13:03:06 dk Exp $
+ * $Id$
  */
 
 #include "apricot.h"

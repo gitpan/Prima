@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Encodings.pm,v 1.7 2005/10/13 17:22:52 dk Exp $
+#  $Id$
 #
 
 package Prima::PS::Encodings;

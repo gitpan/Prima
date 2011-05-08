@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Config.pm,v 1.16 2005/10/13 17:22:52 dk Exp $
+# $Id$
 package Prima::VB::Config;
 
 sub pages

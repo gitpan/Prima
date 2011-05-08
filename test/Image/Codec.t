@@ -1,4 +1,4 @@
-# $Id: Codec.t,v 1.5 2008/04/19 21:13:25 dk Exp $
+# $Id$
 
 my $codecs = Prima::Image-> codecs;
 if ( !defined $codecs || ref($codecs) ne 'ARRAY') {

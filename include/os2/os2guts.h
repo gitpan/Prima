@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: os2guts.h,v 1.20 2005/08/23 14:00:03 dk Exp $ */
+/* $Id$ */
 
 #ifndef _OS2GUTS_H_
 #define _OS2GUTS_H_

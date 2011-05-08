@@ -1,4 +1,4 @@
-# $Id: async.pl,v 1.2 2005/09/12 07:47:33 dk Exp $
+# $Id$
 
 =pod
 

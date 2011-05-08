@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@tobez.org>
 #
-#  $Id: IniFile.pm,v 1.19 2005/10/13 17:22:50 dk Exp $
+#  $Id$
 
 package Prima::IniFile;
 

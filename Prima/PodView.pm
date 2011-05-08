@@ -25,7 +25,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: PodView.pm,v 1.48 2011/01/21 10:08:16 dk Exp $
+#  $Id$
 
 use strict;
 use Prima;

@@ -1,7 +1,7 @@
 #
 #  Created by Dmitry Karasik  <dmitry@karasik.eu.org>
 #
-# $Id: noARGV.pm,v 1.1 2007/08/17 20:19:38 dk Exp $
+# $Id$
 #
 # Initializes Prima so that it skips parsing @ARGV;
 

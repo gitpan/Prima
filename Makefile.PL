@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: Makefile.PL,v 1.230 2011/03/26 21:40:56 dk Exp $
+#  $Id$
 #
 
 BEGIN {
@@ -1119,7 +1119,8 @@ sub setup_X11
 		qd( "/usr/X11R6/include"), 
 		qd( "/usr/X11/include"), 
 		qd("/usr/X/include"), 
-		qd("/usr/openwin/include")
+		qd("/usr/openwin/include"),
+		qd("/opt/X11/include")
 	);
 
 	unless ( defined $incpath) {
@@ -1145,7 +1146,8 @@ sub setup_X11
 		"/usr/X11R6/lib", 
 		"/usr/X11/lib",
 		"/usr/X/lib",
-		"/usr/openwin/lib"
+		"/usr/openwin/lib",
+		"/opt/X11/lib"
 	);
 	# using /usr/X11R6/lib64 ?
 	unshift @libpath, map { s/lib$/lib64/; $_ } grep { /lib$/ } @libpath
@@ -1244,15 +1246,15 @@ sub setup_defines
 		have_header( 'gc.h');
 	}
 
-	have_funcs_in( 'string.h', 'strcasecmp');
-	have_funcs_in( 'string.h', 'strncasecmp');
-	have_funcs_in( 'string.h', 'strcasestr');
-	have_funcs_in( 'strings.h', 'stricmp');
-	have_funcs_in( 'strings.h', 'strnicmp');
+	have_funcs_in( 'strings.h', 'strcasecmp');
+	have_funcs_in( 'strings.h', 'strncasecmp');
+	have_funcs_in( 'strings.h', 'strcasestr');
+	have_funcs_in( 'string.h', 'stricmp');
+	have_funcs_in( 'string.h', 'strnicmp');
 	have_funcs_in( 'stdio.h', 'snprintf');
 	have_funcs_in( 'stdio.h', '_snprintf');
 	have_funcs_in( 'stdlib.h', 'reallocf');
-	have_funcs_in( 'string.h', 'bzero');
+	have_funcs_in( 'strings.h', 'bzero');
 	if ( $Win32) {
 		have_type( "BOOLEAN", "windows.h");
 	}
@@ -1285,6 +1287,7 @@ sub setup_xft
 			qd("/usr/X11/include/freetype2"),
 			qd("/usr/X/include/freetype2"),
 			qd("/usr/openwin/include/freetype2"),
+			qd("/opt/X11/include/freetype2"),
 			qd("/usr/local/include/freetype2"),
 			qd("/usr/gnu/include/freetype2"),
 			qd("/usr/freeware/include/freetype2"),
@@ -2263,10 +2266,10 @@ FOOTER
 		return if $_ eq '.' || 
 			($_ eq 'Makefile' && $File::Find::dir eq $cwd) || 
 			$_ eq 'makefile.log' || 
-			$_ eq '.packlist';
+			m/^\./;
 		return if /\.(pdb|ncb|opt|dsp|dsw)$/i; # M$VC
 		my $f = "$File::Find::dir/$_";
-		return if $f =~ /include.generic|CVS/;
+		return if $f =~ /include.generic|CVS|\.git/;
 		if ($type eq 'bin') {
 			return if $f =~ /\.(c|cls|h)$/i;
 			return if $f =~ /$cwd.(img|include|os2|win32|unix|Makefile.PL)/i;

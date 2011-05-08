@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: socket.pl,v 1.9 2007/05/17 21:41:13 dk Exp $
+#  $Id$
 #
 =pod 
 =item NAME

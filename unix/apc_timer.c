@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * $Id: apc_timer.c,v 1.4 2002/05/14 13:22:35 dk Exp $
+ * $Id$
  */
 
 #include "unix/guts.h"

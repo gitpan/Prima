@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: apricot.h,v 1.195 2011/03/26 20:59:19 dk Exp $ */
+/* $Id$ */
 
 #ifndef _APRICOT_H_
 #define _APRICOT_H_

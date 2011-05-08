@@ -1,4 +1,4 @@
-# $Id: Mouse.t,v 1.3 2005/10/13 17:22:54 dk Exp $
+# $Id$
 print "1..9 send,post,mouse up,mouse move,click,doubleclick,capture,positioning,simulated movement\n";
 
 $dong = 0;

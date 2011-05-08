@@ -1,4 +1,4 @@
-# $Id: Tie.pm,v 1.3 2007/09/13 15:12:25 dk Exp $
+# $Id$
 use strict;
 
 package Prima::Tie::Array;

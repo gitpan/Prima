@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Outlines.pm,v 1.49 2008/10/29 19:40:53 dk Exp $
+#  $Id$
 
 # contains:
 #   OutlineViewer

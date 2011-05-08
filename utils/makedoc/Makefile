@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.3 2007/12/21 16:29:39 dk Exp $
+# $Id$
 all: Prima.dvi Prima.pdf
 
 Prima.dvi: Prima.tex

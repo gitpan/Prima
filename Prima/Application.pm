@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Application.pm,v 1.31 2008/04/23 08:18:49 dk Exp $
+#  $Id$
 
 package main;
 

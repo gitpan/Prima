@@ -1,4 +1,4 @@
-# $Id: animate.pl,v 1.2 2008/04/25 08:17:35 dk Exp $
+# $Id$
 use strict;
 use Prima qw(Application Image::AnimateGIF);
 

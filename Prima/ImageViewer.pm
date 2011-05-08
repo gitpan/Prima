@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: ImageViewer.pm,v 1.36 2010/07/06 06:42:29 dk Exp $
+#  $Id$
 #
 use strict;
 use Prima::ScrollWidget;

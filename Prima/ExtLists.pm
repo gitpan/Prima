@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ExtLists.pm,v 1.23 2005/10/15 14:02:52 dk Exp $
+#  $Id$
 
 # contains:
 #   CheckList

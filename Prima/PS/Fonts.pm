@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Fonts.pm,v 1.11 2007/09/13 15:12:25 dk Exp $
+#  $Id$
 #
 package Prima::PS::Fonts;
 

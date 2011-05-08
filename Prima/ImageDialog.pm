@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: ImageDialog.pm,v 1.18 2008/04/05 18:59:39 dk Exp $
+#  $Id$
 #
 
 package Prima::ImageDialog;

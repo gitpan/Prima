@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Drawable.cls,v 1.37 2005/03/30 19:33:43 dk Exp $
+# $Id$
 
 use Types;
 

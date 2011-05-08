@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ScrollWidget.pm,v 1.21 2008/04/09 20:14:27 dk Exp $
+#  $Id$
 use strict;
 use Prima::Const;
 use Prima::Classes;

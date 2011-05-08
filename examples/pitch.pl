@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: pitch.pl,v 1.4 2005/10/13 17:22:53 dk Exp $
+#  $Id$
 use Prima;
 use Prima::Utils;
 =pod 

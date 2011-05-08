@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Calendar.pm,v 1.16 2007/05/24 13:57:28 dk Exp $
+#  $Id$
 
 use strict;
 

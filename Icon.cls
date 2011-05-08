@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Icon.cls,v 1.13 2008/04/20 07:56:33 dk Exp $
+# $Id$
 
 local @IconHandle
 {

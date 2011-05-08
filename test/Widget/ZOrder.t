@@ -1,4 +1,4 @@
-# $Id: ZOrder.t,v 1.2 2000/10/18 11:58:26 tobez Exp $
+# $Id$
 print "1..3 create,runtime,event\n";
 
 my $first   = $w-> insert( 'Widget');

@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Sliders.pm,v 1.42 2009/01/02 23:19:04 dk Exp $
+#  $Id$
 
 # contains:
 #   SpinButton

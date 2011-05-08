@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc.c,v 1.45 2008/04/23 08:18:49 dk Exp $
+ * $Id$
  */
 /* Created by:
          Dmitry Karasik <dk@plab.ku.dk>

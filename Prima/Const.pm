@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@plab.ku.dk>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Const.pm,v 1.28 2008/04/20 07:56:41 dk Exp $
+#  $Id$
 package Prima::Const;
 use Prima '';
 use Carp;

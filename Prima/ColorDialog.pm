@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: ColorDialog.pm,v 1.38 2008/04/04 10:28:14 dk Exp $
+#  $Id$
 
 # contains:
 #    ColorDialog

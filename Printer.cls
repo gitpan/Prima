@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Printer.cls,v 1.18 2006/01/06 19:13:29 dk Exp $
+# $Id$
 
 object Prima::Printer( Prima::Drawable)
 {

@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Anton Berezin  <tobez@tobez.org>
 #
-#  $Id: Lists.pm,v 1.57 2008/04/09 20:14:27 dk Exp $
+#  $Id$
 package Prima::Lists;
 
 # contains:

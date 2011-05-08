@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: macro.pl,v 1.7 2005/10/13 17:22:53 dk Exp $
+#  $Id$
 =pod 
 =item NAME
 

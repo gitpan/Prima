@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: put.c,v 1.13 2006/11/02 13:39:42 dk Exp $
+ * $Id$
  */
 
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */

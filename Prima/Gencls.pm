@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Vadim Belman   <voland@plab.ku.dk>
 #
-#  $Id: Gencls.pm,v 1.22 2011/03/26 20:59:19 dk Exp $
+#  $Id$
 #
 # max error is APC058
 

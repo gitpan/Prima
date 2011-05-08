@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: MsgBox.pm,v 1.22 2008/05/06 09:34:03 dk Exp $
+#  $Id$
 package Prima::MsgBox;
 
 use strict;

@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Types.cls,v 1.11 2007/10/25 11:24:27 dk Exp $
+# $Id$
 
 global @Point {
    int x;

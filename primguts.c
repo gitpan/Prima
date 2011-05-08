@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: primguts.c,v 1.111 2011/03/26 20:59:19 dk Exp $
+ * $Id$
  */
 /* Guts library, main file */
 

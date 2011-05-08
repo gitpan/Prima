@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * $Id: codec_jpeg.c,v 1.26 2011/01/27 12:20:22 dk Exp $
+ * $Id$
  *
  */
 

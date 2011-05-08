@@ -26,7 +26,7 @@
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #  Modifications by Anton Berezin <tobez@tobez.org>
 #
-#  $Id: Header.pm,v 1.15 2005/10/13 17:22:50 dk Exp $
+#  $Id$
 
 package Prima::Header;
 

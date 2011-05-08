@@ -26,7 +26,7 @@
  * Created by Dmitry Karasik <dmitry@karasik.eu.org> with great help
  * of tiff2png.c by Willem van Schaik and Greg Roelofs
  *
- * $Id: codec_tiff.c,v 1.15 2011/01/09 23:24:41 dk Exp $
+ * $Id$
  */
 
 #include "img.h"

@@ -1,4 +1,4 @@
-# $Id: Application.t,v 1.6 2001/06/14 21:47:14 dk Exp $
+# $Id$
 print "1..3 gp_init,pixel,forbidden actions\n";
 my $a = $::application;
 

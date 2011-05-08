@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: codec_X11.c,v 1.18 2008/04/19 19:47:04 dk Exp $
+ * $Id$
  */
 
 #include "img.h"

@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dmitry@karasik.eu.org>
 #
-#  $Id: theme.pl,v 1.6 2005/10/13 17:22:53 dk Exp $
+#  $Id$
 
 use Prima qw(Application Themes ScrollBar Buttons InputLine ExtLists Notebooks ScrollWidget);
 

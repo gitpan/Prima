@@ -27,7 +27,7 @@
 #     Vadim Belman   <voland@plab.ku.dk>
 #     Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Utils.pm,v 1.14 2007/05/18 12:21:06 dk Exp $
+#  $Id$
 
 package Prima::Utils;
 use strict;

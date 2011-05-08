@@ -29,7 +29,7 @@
 #  Modifications by:
 #     David Scott <dscott@dgt.com>
 #
-#  $Id: FileDialog.pm,v 1.37 2008/10/29 19:40:52 dk Exp $
+#  $Id$
 
 use strict;
 use Prima::Classes;

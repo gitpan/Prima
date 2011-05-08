@@ -24,7 +24,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: MDI.pm,v 1.28 2007/09/13 15:12:24 dk Exp $
+#  $Id$
 package Prima::MDI;
 
 # contains:

@@ -1,4 +1,4 @@
-# $Id: Object.t,v 1.4 2005/10/13 17:22:54 dk Exp $
+# $Id$
 print "1..8 init,create result,alive,method override,done,destroy,done on croak,croak during init\n";
 
 my $stage = 1;

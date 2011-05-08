@@ -1,4 +1,4 @@
-# $Id: makedoc.pl,v 1.6 2007/09/21 10:58:17 dk Exp $
+# $Id$
 use strict;
 use Config;
 

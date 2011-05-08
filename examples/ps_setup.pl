@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: ps_setup.pl,v 1.7 2007/11/08 12:07:31 dk Exp $
+# $Id$
 =pod 
 =item NAME
 

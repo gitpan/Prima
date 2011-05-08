@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Clipboard.cls,v 1.15 2002/10/31 22:34:21 dk Exp $
+# $Id$
 
 object Prima::Clipboard( Prima::Component)
 {

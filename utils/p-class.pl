@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: p-class.pl,v 1.3 2005/10/13 17:22:55 dk Exp $
+# $Id$
 #
 # dumps hierarchy of widget classes. 
 #

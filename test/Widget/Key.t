@@ -1,4 +1,4 @@
-# $Id: Key.t,v 1.4 2005/10/13 17:22:54 dk Exp $
+# $Id$
 print "1..3 send,post,simulation\n";
 
 $dong = 0;

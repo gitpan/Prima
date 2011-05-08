@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: jpeg.pm,v 1.5 2008/07/27 14:41:30 dk Exp $
+#  $Id$
 #
 
 use strict;

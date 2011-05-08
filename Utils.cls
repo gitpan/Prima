@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Utils.cls,v 1.6 2002/05/14 13:22:18 dk Exp $
+# $Id$
 
 package Prima::Utils
 {

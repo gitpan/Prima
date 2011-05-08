@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: podview.pl,v 1.3 2005/10/13 17:22:55 dk Exp $
+#  $Id$
 #
 
 use strict;

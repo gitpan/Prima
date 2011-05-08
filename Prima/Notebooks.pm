@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Notebooks.pm,v 1.33 2010/04/03 13:30:37 dk Exp $
+#  $Id$
 use strict;
 use Prima::Const;
 use Prima::Classes;

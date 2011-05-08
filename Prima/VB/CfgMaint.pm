@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: CfgMaint.pm,v 1.12 2005/10/13 17:22:52 dk Exp $
+# $Id$
 package Prima::VB::CfgMaint;
 use strict;
 use Prima::Utils;

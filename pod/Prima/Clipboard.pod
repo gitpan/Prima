@@ -1,4 +1,4 @@
-=for rcs $Id: Clipboard.pod,v 1.9 2007/09/13 15:12:25 dk Exp $
+=for rcs $Id$
 
 =head1 NAME
 

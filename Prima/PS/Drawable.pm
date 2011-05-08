@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: Drawable.pm,v 1.41 2008/05/01 09:46:13 dk Exp $
+#  $Id$
 #
 package Prima::PS::Drawable;
 use vars qw(@ISA);

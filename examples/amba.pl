@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: amba.pl,v 1.16 2008/05/06 09:34:04 dk Exp $
+#  $Id$
 #
 use Prima 'MsgBox', Application => { name => 'Chess puzzle' };
 

@@ -1,4 +1,4 @@
-# $Id: Lock.t,v 1.3 2005/10/13 17:22:54 dk Exp $
+# $Id$
 print "1..3 child create lock,child unlock,lock conststency\n";
 
 $dong = 0;

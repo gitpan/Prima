@@ -26,7 +26,7 @@
 #  Created by:
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Grids.pm,v 1.10 2008/04/09 20:14:27 dk Exp $
+#  $Id$
 
 use strict;
 use Prima;

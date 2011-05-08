@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * $Id: img.c,v 1.35 2009/10/23 17:22:28 dk Exp $
+ * $Id$
  *
  */
 /* Created by Dmitry Karasik <dk@plab.ku.dk> */
@@ -1337,7 +1337,7 @@ apc_img_info2hash( PImgCodec codec)
       hv = codec-> vmt-> save_defaults( codec);
       if ( c-> IOFlags & IMG_SAVE_MULTIFRAME) 
          (void) hv_store( hv, "append",       6, newSViv(0), 0);
-      (void) hv_store( hv, "autoConvert", 10, newSViv(1), 0);
+      (void) hv_store( hv, "autoConvert", 11, newSViv(1), 0);
       (void) hv_store( hv, "codecID",     7,  newSVsv( nilSV), 0);
    } else
       hv = newHV();

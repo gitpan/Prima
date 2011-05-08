@@ -1,4 +1,4 @@
-# $Id: color.pm,v 1.2 2005/10/13 17:22:53 dk Exp $
+# $Id$
 # sample color styles
 
 use strict;

@@ -1,4 +1,4 @@
-# $Id: leshed.t,v 1.5 2007/06/07 11:26:53 dk Exp $
+# $Id$
 # Leave, Enter, Show, Hide, Enable, Disable
 print "1..6 hide,show,disable,enable,enter,leave\n";
 

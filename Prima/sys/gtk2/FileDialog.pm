@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: FileDialog.pm,v 1.1 2007/05/18 12:21:06 dk Exp $
+#  $Id$
 
 use Prima::Utils;
 

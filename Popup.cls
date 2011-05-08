@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Popup.cls,v 1.9 2002/05/14 13:22:17 dk Exp $
+# $Id$
 
 object Prima::Popup( Prima::AbstractMenu)
 {

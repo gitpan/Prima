@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: VBLoader.pm,v 1.28 2007/11/14 11:41:34 dk Exp $
+# $Id$
 package Prima::VB::VBLoader;
 use strict;
 use Prima::Utils;

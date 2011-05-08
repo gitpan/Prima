@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: fonthash.c,v 1.11 2002/05/14 13:22:31 dk Exp $
+ * $Id$
  */
 /* Created by Anton Berezin <tobez@plab.ku.dk> */
 #include "os2/os2guts.h"

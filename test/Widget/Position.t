@@ -1,4 +1,4 @@
-# $Id: Position.t,v 1.3 2005/10/13 17:22:54 dk Exp $
+# $Id$
 print "1..7 create,runtime,horizontal,vertical,hidden,event,reparent\n";
 
 my $ww = $w-> insert( Widget =>

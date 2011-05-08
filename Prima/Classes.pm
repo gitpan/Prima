@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: Classes.pm,v 1.106 2009/09/22 13:48:25 dk Exp $
+#  $Id$
 use Prima;
 use Prima::Const;
 

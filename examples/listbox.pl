@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: listbox.pl,v 1.12 2006/10/30 10:54:21 dk Exp $
+#  $Id$
 #
 #  Example of listbox extended usage
 #

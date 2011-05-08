@@ -1,4 +1,4 @@
-# $Id: Fonts.t,v 1.4 2005/10/13 17:22:54 dk Exp $
+# $Id$
 print "1..6 height,width,size,direction,pitch,style,text_wrap\n";
 
 my $x = Prima::DeviceBitmap-> create( monochrome => 1, width => 8, height => 8);

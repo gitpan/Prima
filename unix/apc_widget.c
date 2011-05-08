@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_widget.c,v 1.97 2008/04/24 15:15:11 dk Exp $
+ * $Id$
  */
 
 /***********************************************************/

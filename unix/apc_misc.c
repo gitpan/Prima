@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_misc.c,v 1.106 2008/07/03 08:37:41 dk Exp $
+ * $Id$
  */
 
 /***********************************************************/

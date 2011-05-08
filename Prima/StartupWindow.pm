@@ -25,7 +25,7 @@
 #
 #  Created by Anton Berezin  <tobez@tobez.org>
 #
-#  $Id: StartupWindow.pm,v 1.10 2005/10/13 17:22:51 dk Exp $
+#  $Id$
 
 package Prima::StartupWindow;
 use strict;

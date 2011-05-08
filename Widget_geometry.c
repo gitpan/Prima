@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Widget_geometry.c,v 1.7 2007/11/14 21:11:03 dk Exp $
+ * $Id$
  */
 
 #include "apricot.h"

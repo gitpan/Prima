@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Printer.c,v 1.27 2008/04/24 21:30:14 dk Exp $
+ * $Id$
  */
 
 #include "apricot.h"

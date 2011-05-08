@@ -1,4 +1,4 @@
-=for rcs $Id: Drawable.pod,v 1.30 2008/04/24 21:30:15 dk Exp $
+=for rcs $Id$
 
 =head1 NAME
 

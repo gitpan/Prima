@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: IntUtils.pm,v 1.28 2008/04/09 19:06:17 dk Exp $
+#  $Id$
 package Prima::IntUtils;
 
 use strict;

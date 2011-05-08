@@ -24,7 +24,7 @@
 #  SUCH DAMAGE.
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
-#  $Id: KeySelector.pm,v 1.9 2005/10/13 17:22:50 dk Exp $
+#  $Id$
 #
 #  Contains:
 #       Prima::KeySelector

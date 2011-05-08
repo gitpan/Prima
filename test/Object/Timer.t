@@ -1,4 +1,4 @@
-# $Id: Timer.t,v 1.3 2000/10/18 11:58:22 tobez Exp $
+# $Id$
 print "1..4 create,start,onTick,recreate\n";
 
 my $t = $w-> insert( Timer => timeout => 20 => onTick => \&__dong);

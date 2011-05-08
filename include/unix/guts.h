@@ -24,7 +24,7 @@
  * SUCH DAMAGE.
  */
 
-/* $Id: guts.h,v 1.149 2008/04/24 15:15:10 dk Exp $ */
+/* $Id$ */
 
 #ifndef _UNIX_GUTS_H_
 #define _UNIX_GUTS_H_

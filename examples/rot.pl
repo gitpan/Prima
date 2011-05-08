@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: rot.pl,v 1.12 2007/05/17 20:50:20 dk Exp $
+#  $Id$
 #
 =pod 
 =item NAME

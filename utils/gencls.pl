@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: gencls.pl,v 1.18 2007/05/23 17:50:57 dk Exp $
+#  $Id$
 #
 
 use Prima::Gencls;

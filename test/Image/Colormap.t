@@ -1,4 +1,4 @@
-# $Id: Colormap.t,v 1.2 2007/08/17 11:55:23 dk Exp $
+# $Id$
 
 print "1..3 create,get,set,nearest\n";
 

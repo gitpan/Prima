@@ -1,4 +1,4 @@
-# $Id: GP.t,v 1.10 2005/10/13 17:22:54 dk Exp $
+# $Id$
 print "1..21 create,pixel,pixel,line,lines,polyline,rectangle,ellipse,arc,bar,fillpoly,fill_ellipse,fill_chord,flood_fill,clipRect,translate,put_image,stretch_image,xor_put,text_out,dbm(put_image)\n";
 
 my $x = Prima::DeviceBitmap-> create( monochrome => 1, width => 8, height => 8);

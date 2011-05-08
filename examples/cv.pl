@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: cv.pl,v 1.17 2005/10/17 14:22:42 dk Exp $
+#  $Id$
 #
 
 =pod 

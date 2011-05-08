@@ -26,7 +26,7 @@
 #
 #  Main widget description
 #
-# $Id: Widget.cls,v 1.52 2005/04/29 09:06:05 dk Exp $
+# $Id$
 
 object Prima::Widget( Prima::Drawable)
 {

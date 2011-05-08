@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: Buttons.pm,v 1.43 2008/04/09 16:58:10 dk Exp $
+#  $Id$
 
 # contains:
 #   Button

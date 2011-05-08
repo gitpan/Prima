@@ -25,7 +25,7 @@
 #
 #  Created by Vadim Belman <voland@plab.ku.dk>
 #
-#  $Id: Terminals.pm,v 1.18 2011/01/14 23:56:54 dk Exp $
+#  $Id$
 
 use strict;
 use Prima::Const;

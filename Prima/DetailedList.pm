@@ -26,7 +26,7 @@
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #  Modifications by Anton Berezin <tobez@tobez.org>
 #
-#  $Id: DetailedList.pm,v 1.23 2006/11/08 20:02:39 dk Exp $
+#  $Id$
 
 
 package Prima::DetailedList;

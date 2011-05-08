@@ -1,4 +1,4 @@
-# $Id: EventHook.pm,v 1.6 2006/10/09 22:15:09 dk Exp $
+# $Id$
 #
 #  Copyright (c) 1997-2004 Dmitry Karasik
 #  All rights reserved.
@@ -26,7 +26,7 @@
 #
 #  Created by Dmitry Karasik <dmitry@karasik.eu.org>
 #
-#  $Id: EventHook.pm,v 1.6 2006/10/09 22:15:09 dk Exp $
+#  $Id$
 use strict;
 
 package Prima::EventHook;

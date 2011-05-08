@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: DeviceBitmap.cls,v 1.8 2002/05/14 13:22:16 dk Exp $
+# $Id$
 
 object Prima::DeviceBitmap( Prima::Drawable)
 {

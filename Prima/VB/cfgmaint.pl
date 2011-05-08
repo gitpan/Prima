@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: cfgmaint.pl,v 1.8 2005/10/13 17:22:52 dk Exp $
+# $Id$
 use Prima::VB::CfgMaint;
 
 die <<ABOUT unless @ARGV;

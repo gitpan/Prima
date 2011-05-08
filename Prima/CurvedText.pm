@@ -22,7 +22,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: CurvedText.pm,v 1.2 2007/11/01 11:41:55 dk Exp $
+# $Id$
 package Prima::CurvedText;
 
 use strict;

@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: FontDialog.pm,v 1.23 2005/10/13 17:22:50 dk Exp $
+#  $Id$
 
 package Prima::FontDialog;
 

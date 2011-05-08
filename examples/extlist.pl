@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: extlist.pl,v 1.11 2005/10/15 14:02:53 dk Exp $
+#  $Id$
 #
 
 =pod 

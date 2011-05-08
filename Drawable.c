@@ -34,7 +34,7 @@
  * of this code, and for a DISCLAIMER OF ALL WARRANTIES.
  * ---------------------------------------------------------------------
  *
- * $Id: Drawable.c,v 1.99 2008/04/24 21:30:14 dk Exp $
+ * $Id$
  */
 
 #include "apricot.h"

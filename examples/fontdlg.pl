@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: fontdlg.pl,v 1.23 2007/10/25 11:24:27 dk Exp $
+#  $Id$
 #
 package fontdlg;
 

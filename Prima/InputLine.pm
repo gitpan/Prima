@@ -26,7 +26,7 @@
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #  Modifications by Anton Berezin <tobez@tobez.org>
 #
-#  $Id: InputLine.pm,v 1.33 2008/10/29 19:40:52 dk Exp $
+#  $Id$
 
 package Prima::InputLine;
 use vars qw(@ISA);

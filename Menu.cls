@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Menu.cls,v 1.10 2002/10/31 22:34:21 dk Exp $
+# $Id$
 
 object Prima::Menu ( Prima::AbstractMenu)
 {

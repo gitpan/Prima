@@ -1,4 +1,4 @@
-# $Id: Paint.t,v 1.8 2005/10/13 17:22:54 dk Exp $
+# $Id$
 print "1..8 onPaint message,update_view,scroll,query invalid area,invalid area consistency,pixel,clipRect,translate\n";
 
 $dong = 0;

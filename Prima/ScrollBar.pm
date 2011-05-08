@@ -30,7 +30,7 @@
 #  Documentation by:
 #     Anton Berezin  <tobez@tobez.org>
 #
-#  $Id: ScrollBar.pm,v 1.21 2008/04/09 16:58:10 dk Exp $
+#  $Id$
 
 package Prima::ScrollBar;
 use vars qw(@ISA @stdMetrics);

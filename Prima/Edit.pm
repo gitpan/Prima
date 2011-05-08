@@ -27,7 +27,7 @@
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #     Anton Berezin  <tobez@plab.ku.dk>
 #
-#  $Id: Edit.pm,v 1.52 2008/10/29 19:40:52 dk Exp $
+#  $Id$
 #
 # edit block types
 package bt;

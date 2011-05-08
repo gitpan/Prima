@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: Image.c,v 1.136 2011/03/26 20:59:19 dk Exp $
+ * $Id$
  */
 
 #include "img.h"

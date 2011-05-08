@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: dock.pl,v 1.10 2005/10/13 17:22:53 dk Exp $
+#  $Id$
 #
 
 =pod 

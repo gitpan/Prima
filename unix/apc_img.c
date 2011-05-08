@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_img.c,v 1.91 2008/04/24 15:15:11 dk Exp $
+ * $Id$
  */
 /*
  * System dependent image routines (unix, x11)
@@ -1018,7 +1018,7 @@ cache_remap_1( Image*img, ImageCache* cache)
    int sz = img-> h * cache-> image-> bytes_per_line_alias;
    Byte * p = cache-> image-> data_alias;
    if ( guts. mappingPlace[0] == guts. mappingPlace[1]) 
-      memset( p, sz, (guts. mappingPlace[0] == 0) ? 0 : 0xff);
+      memset( p, (guts. mappingPlace[0] == 0) ? 0 : 0xff, sz);
    else if ( guts. mappingPlace[0] != 0)  
       while ( sz--) {
          *p = ~(*p);

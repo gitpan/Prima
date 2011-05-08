@@ -1,4 +1,4 @@
-# $Id: Basic.t,v 1.3 2005/10/13 17:22:54 dk Exp $
+# $Id$
 print "1..5 create,onCreate,onPostMessage,onPostMessage,onDestroy\n";
 
 $dong = 0;

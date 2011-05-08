@@ -27,7 +27,7 @@
 #     Anton Berezin  <tobez@tobez.org>
 #     Dmitry Karasik <dk@plab.ku.dk> 
 #
-#  $Id: StdDlg.pm,v 1.28 2007/09/13 15:12:25 dk Exp $
+#  $Id$
 
 
 

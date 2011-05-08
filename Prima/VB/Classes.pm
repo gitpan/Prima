@@ -23,7 +23,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-# $Id: Classes.pm,v 1.93 2008/04/09 20:13:04 dk Exp $
+# $Id$
 use strict;
 package Prima::VB::Classes;
 

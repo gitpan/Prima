@@ -1,4 +1,4 @@
-# $Id: Component.t,v 1.4 2005/10/13 17:22:54 dk Exp $
+# $Id$
 print "1..7 create,onCreate,name,onPostMessage,onPostMessage,onDestroy,garbage collection\n";
 
 { # block for mys

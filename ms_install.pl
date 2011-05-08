@@ -24,7 +24,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: ms_install.pl,v 1.9 2005/10/13 17:22:50 dk Exp $
+#  $Id$
 #
 
 BEGIN {

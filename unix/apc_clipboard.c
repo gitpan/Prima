@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_clipboard.c,v 1.32 2011/01/17 20:10:02 dk Exp $
+ * $Id$
  */
 
 #include "unix/guts.h"

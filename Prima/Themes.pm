@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dmitry@karasik.eu.org>
 #
-#  $Id: Themes.pm,v 1.7 2007/09/13 15:12:25 dk Exp $
+#  $Id$
 
 use strict;
 use Prima;

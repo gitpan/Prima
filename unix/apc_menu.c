@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: apc_menu.c,v 1.46 2004/05/29 21:45:58 dk Exp $
+ * $Id$
  */
 
 /***********************************************************/

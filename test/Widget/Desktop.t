@@ -1,4 +1,4 @@
-# $Id: Desktop.t,v 1.1 2007/08/06 07:51:20 dk Exp $
+# $Id$
 print "1..2 size,indents";
 my @sz = $::application-> size;
 ok( $sz[0] > 256 and $sz[1] > 256);

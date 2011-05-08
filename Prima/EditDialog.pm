@@ -25,7 +25,7 @@
 #
 #  Created by Dmitry Karasik <dk@plab.ku.dk>
 #
-#  $Id: EditDialog.pm,v 1.14 2007/09/13 15:12:24 dk Exp $
+#  $Id$
 
 #  contains:
 #      FindDialog
