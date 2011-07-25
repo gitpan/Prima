@@ -876,6 +876,8 @@ KM(Shift)
 KM(Ctrl)
 #define kmAlt           0x08000000
 KM(Alt)
+#define kmUnicode       0x10000000
+KM(Unicode)
 #define kmKeyPad        0x40000000
 KM(KeyPad)
 #define kmDeadKey       0x80000000
@@ -1949,6 +1951,9 @@ apc_window_get_border_icons( Handle self);
 
 extern int
 apc_window_get_border_style( Handle self);
+
+extern ApiHandle
+apc_window_get_client_handle( Handle self);
 
 extern Point
 apc_window_get_client_pos( Handle self);

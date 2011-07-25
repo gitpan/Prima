@@ -139,8 +139,9 @@ sub init
 	$self-> $_( $profile{ $_}) for qw( 
 		allowChangeCellHeight allowChangeCellWidth
 		constantCellWidth constantCellHeight
-		autoHScroll autoVScroll drawHGrid drawVGrid gridColor hScroll vScroll leftCell
-		cellIndents multiSelect focusedCell topCell borderWidth indentCellColor
+		autoHScroll autoVScroll drawHGrid drawVGrid gridColor hScroll vScroll
+		columns rows cellIndents 
+		leftCell topCell multiSelect focusedCell borderWidth indentCellColor
 		indentCellBackColor clipCells gridGravity
 	);
 	$self-> reset;
@@ -2104,13 +2105,13 @@ sub rowHeight
 sub columns
 {
 	return $_[0]-> {columns} unless $#_;
-	$_[0]-> raise_ro('columns');
+	$_[0]-> raise_ro('columns') if $_[0]-> alive != 2; # AbstractGrid does it inside init
 }
 
 sub rows
 {
 	return $_[0]-> {rows} unless $#_;
-	$_[0]-> raise_ro('rows');
+	$_[0]-> raise_ro('rows') if $_[0]-> alive != 2 # AbstractGrid does it inside init;
 }
 
 sub constantCellWidth

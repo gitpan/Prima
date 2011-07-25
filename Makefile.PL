@@ -79,6 +79,7 @@ use vars @ovvars = qw(
 	$MAKETYPE
 	$DEFFILE
 	$DISTNAME
+	$DISTVERSION
 	$DL_LOAD_FLAGS
 	$DEBUG
 	$WITH_XFT
@@ -165,6 +166,7 @@ use vars qw(
 	%cache_find_files
 	$binary_prereq
 	$win32_use_dlltool
+	$win32_dlltool
 	$compiler_version
 );
 
@@ -827,6 +829,7 @@ sub setup_variables
 	}
 	print "$cc_specs{ $COMPILER}->{ name}\n";
 	$win32_use_dlltool = $Win32 && ( $COMPILER eq 'gcc') && !$cygwin;
+	$win32_dlltool = $Config{dlltool} || 'dlltool';
 
 	# 5.8.0 hack
 	$Config{PATCHLEVEL} = $Config{PERL_PATCHLEVEL} if !defined $Config{PATCHLEVEL} || !length $Config{PATCHLEVEL};
@@ -911,15 +914,19 @@ sub setup_variables
 	}
 	if (
 		$COMPILER eq 'gcc' and 
-		$LD ne 'g++' # g++ and gcc together are weird kind - g++ does -lgcc itself
+		$LD !~ /^g\+\+/ # g++ and gcc together are weird kind - g++ does -lgcc itself
 	) {
 		push @libs, 'gcc';
 	}
 	my @flibs;
 	
-	if ( $Win32 && $COMPILER eq 'gcc') {
-		$Config{libperl} =~ s/^lib(.*)\.a$/$1/i;
-		push @libs, qw(gdi32 mpr winspool comdlg32); # add more when appropriate
+	if ( $Win32 ) {
+		if ( $COMPILER eq 'gcc') {
+			$Config{libperl} =~ s/^lib(.*)\.a$/$1/i;
+			push @libs, qw(gdi32 mpr winspool comdlg32); # add more when appropriate
+		}
+#		push @libs, map { $_ . $cc_specs{$COMPILER}->{ldlibext} } 
+#			qw(imm32); # add more when appropriate 
 	}
 	if ( $CYGWIN_X11) {
 		$Config{libperl} =~ s/^lib(.*)\.a$/$1/i;
@@ -935,6 +942,7 @@ sub setup_variables
 	die "Cannot find VERSION string in Prima.pm\n" unless defined $ver1;
 	print "Version: $ver1.$ver2\n";
 	setvar( 'DISTNAME', "Prima-$ver1.$ver2");
+	setvar( 'DISTVERSION', "$ver1.$ver2");
 
 # here starts lot of execs...
 	setup_compiler();
@@ -1378,9 +1386,14 @@ EOF
 			push @LIBS, 'iconv';
 			print "yes\n";
 		} else {
-			$DEFINES{HAVE_ICONV_H} = undef;
-			$WITH_ICONV = 0;
-			print "no\n";
+			my $ok = compile( "#include <iconv.h>\nint main() { iconv_close(0); return 0; }\n");
+			if ( $ok ) {
+				print "no, but works as part of libc\n";
+			} else {
+				$DEFINES{HAVE_ICONV_H} = undef;
+				$WITH_ICONV = 0;
+				print "no\n";
+			}
 		}
 	} else {
 		$WITH_ICONV = 0;
@@ -1486,8 +1499,11 @@ sub setup_codecs
 		unless ( $@) {
 			print "yes\n";
 			$have_binary_prereq++;
-			push @LIBPATH, qd("$Config{installsitearch}/Prima/codecs/$prereq/lib");
-			push @INCPATH, qd("$Config{installsitearch}/Prima/codecs/$prereq/include");
+			my $f = $INC{"Prima/codecs/$prereq.pm"};
+			$f =~ s/.pm$//;
+			push @LIBPATH, qd("$f/lib");
+			push @INCPATH, qd("$f/include");
+
 		} else {
 			print "no\n";
 		}
@@ -2040,6 +2056,40 @@ CONFIG
 	close F;
 }
 
+sub create_meta_yml
+{
+	open F, '>', 'META.yml' or die "Can't open META.yml:$!\n"; 
+print F <<YAML;	
+--- #YAML:1.0
+name:               Prima
+version:            $DISTVERSION
+abstract:           a perl graphic toolkit
+author:
+    - Dmitry Karasik <dmitry\@karasik.eu.org>
+license:            BSD
+homepage:           http://www.prima.eu.org/
+repository:         http://github.com/dk/Prima
+distribution_type:  module
+no_index:
+    directory:
+        - include
+        - img
+        - os2
+        - test
+        - unix
+        - win32
+    file:
+        - Makefile.PL
+        - test.pl
+        - ms_install.pl
+generated_by:       Prima/Makefile.PL
+meta-spec:
+    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
+    version:  1.4
+YAML
+	close F;
+}
+
 sub create_codecs_c
 {
 	open F, "> img/codecs.c" or die "cannot open img/codecs.c:$!\n";
@@ -2419,6 +2469,8 @@ EOF
 	create_config_pm;
 	print "Creating img/codecs.c\n";
 	create_codecs_c;
+	print "Creating META.yml\n";
+	create_meta_yml;
 	#exit;
 
 	my $make = <<HEADER;
@@ -2557,7 +2609,7 @@ EOF
 
 	print MAKE <<DLLTOOL if $win32_use_dlltool;
 $PrimaLib: $PrimaTarget
-\t\@dlltool -l $PrimaLib -d win32/Prima.def -D PRIMA.DLL $PrimaTarget
+\t\@$win32_dlltool -l $PrimaLib -d win32/Prima.def -D PRIMA.DLL $PrimaTarget
 
 DLLTOOL
 

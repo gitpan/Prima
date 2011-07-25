@@ -67,6 +67,7 @@ char * keyLayouts[]   = {  "0409", "0403", "0405", "0406", "0407",
       "040A","040B","040C","040E","040F","0410","0413","0414","0415","0416",
       "0417","0418","041A","041D"
 };
+WCHAR lastDeadKey = 0;
 
 
 BOOL APIENTRY
@@ -83,7 +84,7 @@ DllMain( HINSTANCE hInstance, DWORD reason, LPVOID reserved)
 Bool
 window_subsystem_init( char * error_buf)
 {
-   WNDCLASS  wc;
+   WNDCLASSW wc;
    HDC dc;
    HBITMAP hbm;
 
@@ -109,8 +110,8 @@ window_subsystem_init( char * error_buf)
    wc.hIcon         = LoadIcon( guts. instance, IDI_APPLICATION);
    wc.hCursor       = LoadCursor( NULL, IDC_ARROW);
    wc.hbrBackground = (HBRUSH)NULL;
-   wc.lpszClassName = "GenericApp";
-   RegisterClass( &wc);
+   wc.lpszClassName = const_char2wchar("GenericApp");
+   RegisterClassW( &wc);
 
    memset( &wc, 0, sizeof( wc));
    wc.style         = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
@@ -121,8 +122,8 @@ window_subsystem_init( char * error_buf)
    wc.hIcon         = LoadIcon( guts. instance, IDI_APPLICATION);
    wc.hCursor       = LoadCursor( NULL, IDC_ARROW);
    wc.hbrBackground = (HBRUSH)NULL;
-   wc.lpszClassName = "GenericFrame";
-   RegisterClass( &wc);
+   wc.lpszClassName = const_char2wchar("GenericFrame");
+   RegisterClassW( &wc);
 
    memset( &wc, 0, sizeof( wc));
    wc.style         = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
@@ -133,8 +134,8 @@ window_subsystem_init( char * error_buf)
    wc.hIcon         = LoadIcon( guts. instance, IDI_APPLICATION);
    wc.hCursor       = NULL; // LoadCursor( NULL, IDC_ARROW);
    wc.hbrBackground = (HBRUSH)NULL;
-   wc.lpszClassName = "Generic";
-   RegisterClass( &wc);
+   wc.lpszClassName = const_char2wchar("Generic");
+   RegisterClassW( &wc);
 
    stylusMan  = hash_create();
    fontMan    = hash_create();
@@ -442,6 +443,14 @@ find_oid( PAbstractMenu menu, PMenuItemReg m, int id)
    return m-> down && ( m-> down-> id == id);
 }
 
+Handle ctx_deadkeys[] = {
+   0x5E, 0x302, // Circumflex accent
+   0x60, 0x300, // Grave accent
+   0xA8, 0x308, // Diaeresis
+   0xB4, 0x301, // Acute accent
+   0xB8, 0x327, // Cedilla
+   endCtx
+};
 
 static void
 zorder_sync( Handle self, HWND me, LPWINDOWPOS lp)
@@ -472,7 +481,7 @@ LRESULT CALLBACK generic_view_handler( HWND win, UINT  msg, WPARAM mp1, LPARAM m
    Bool    message_result = true;
 
    if ( !self || appDead)
-      return DefWindowProc( win, msg, mp1, mp2);
+      return DefWindowProcW( win, msg, mp1, mp2);
 
    for ( i = 0; i < guts. eventHooks. count; i++) {
       if ((( PrimaHookProc *)( guts. eventHooks. items[i]))((void*) &msg))
@@ -545,6 +554,14 @@ LRESULT CALLBACK generic_view_handler( HWND win, UINT  msg, WPARAM mp1, LPARAM m
    case WM_HASMATE:
       *(( Handle*) mp2) = self;
       return HASMATE_MAGIC;
+   case WM_IME_CHAR:
+      if ( apc_widget_is_responsive( self)) {
+         ev. cmd = cmKeyDown;
+         ev. key. mod  = kmUnicode;
+         ev. key. key  = kbNoKey;
+         ev. key. code = mp1;
+      }
+      break;
    case WM_SYSKEYDOWN:
    case WM_SYSKEYUP:
       if ( mp2 & ( 1 << 29)) ev. key. mod = kmAlt;
@@ -586,6 +603,15 @@ AGAIN:
              // unicode mapping
              switch ( ToUnicodeEx( mp1, scan, keyState, keys, 2, 0, kl)) {
              case 1: // char
+	     	if ( lastDeadKey ) {
+ 		   WCHAR wcBuffer[3];
+ 		   WCHAR out[3];
+ 		   wcBuffer[0] = keys[0];
+ 		   wcBuffer[1] = lastDeadKey;
+ 		   wcBuffer[2] = '\0';
+ 		   if ( FoldStringW(MAP_PRECOMPOSED, (LPWSTR) wcBuffer, 3, (LPWSTR) out, 3) )
+ 		      keys[0] = out[0];
+		}
                 if ( !deadPollCount && ( GetKeyState( VK_MENU) < 0) && ( GetKeyState( VK_SHIFT) >= 0)) {
                    WCHAR keys2[2];
                    if (( ToUnicodeEx( mp1, scan, guts. emptyKeyState, keys2, 2, 0, kl) == 1) &&
@@ -596,20 +622,12 @@ AGAIN:
                        ev. key. mod &= ~(kmAlt|kmCtrl|kmShift);
                    }
                 }   
+                if (!up) lastDeadKey = 0;
                 break;
-             case 2: { // double char
-                   Event evx;
-                   if ( !deadPollCount && ( GetKeyState( VK_MENU) < 0) && ( GetKeyState( VK_SHIFT) >= 0)) {
-                      WCHAR keys2[2];
-                      if (( ToUnicodeEx( mp1, scan, guts. emptyKeyState, keys2, 2, 0, kl) == 1) &&
-                          ( keys2[0] != keys[1]))
-                          ev. key. mod &= ~(kmAlt|kmCtrl|kmShift);
-                   }   
-                   memcpy( &evx, &ev, sizeof( ev));
-                   evx. key. code = keys[ 0];
-                   keys[ 0] = keys[ 1];
-                   v-> self-> message( self, &evx);
-                   if ( v-> stage != csNormal) return 1;
+             case 2: { // dead key
+                   lastDeadKey = ctx_remap_def( keys[0], ctx_deadkeys, true, keys[0]);
+                   keys[ 0] = 0;
+               	   ev. key. mod |= kmDeadKey;
                 }
                 break;
              case 0: // virtual key
@@ -621,17 +639,28 @@ AGAIN:
                 } else {
                 /* same meaning without mods, no code anyway */
                    keys[ 0] = 0;
-                }   
+                }
+                if (!up) lastDeadKey = 0;
                 break;
              default:
-                 ev. key. mod |= kmDeadKey;
+               	ev. key. mod |= kmDeadKey;
+                if (!up) lastDeadKey = 0;
              }
              ev. key. code = keys[ 0];
+	     ev. key. mod |= kmUnicode;
           } else {
              BYTE keys[ 4];
-             // ascii mapping
              switch ( ToAsciiEx( mp1, scan, keyState, (LPWORD) keys, 0, kl)) {
              case 1: // char
+	     	if ( lastDeadKey ) {
+ 		   BYTE cBuffer[3];
+ 		   BYTE out[3];
+ 		   cBuffer[0] = keys[0];
+ 		   cBuffer[1] = lastDeadKey;
+ 		   cBuffer[2] = '\0';
+ 		   if ( FoldStringA(MAP_PRECOMPOSED, (LPSTR) cBuffer, 3, (LPSTR) out, 3) )
+ 		      keys[0] = out[0];
+		}
                 if ( !deadPollCount && ( GetKeyState( VK_MENU) < 0) && ( GetKeyState( VK_SHIFT) >= 0)) {
                    BYTE keys2[4];
                    if (( ToAsciiEx( mp1, scan, guts. emptyKeyState, (LPWORD) keys2, 0, kl) == 1) &&
@@ -643,19 +672,10 @@ AGAIN:
                    }
                 }   
                 break;
-             case 2: { // double char
-                   Event evx;
-                   if ( !deadPollCount && ( GetKeyState( VK_MENU) < 0) && ( GetKeyState( VK_SHIFT) >= 0)) {
-                      BYTE keys2[4];
-                      if (( ToAsciiEx( mp1, scan, guts. emptyKeyState, (LPWORD) keys2, 0, kl) == 1) &&
-                          ( keys2[0] != keys[1]))
-                          ev. key. mod &= ~(kmAlt|kmCtrl|kmShift);
-                   }   
-                   memcpy( &evx, &ev, sizeof( ev));
-                   evx. key. code = keys[ 0];
-                   keys[ 0] = keys[ 1];
-                   v-> self-> message( self, &evx);
-                   if ( v-> stage != csNormal) return 1;
+             case 2: { // dead key
+                   lastDeadKey = keys[0];
+                   keys[ 0] = 0;
+               	   ev. key. mod |= kmDeadKey;
                 }
                 break;
              case 0: // virtual key
@@ -668,13 +688,14 @@ AGAIN:
                 /* same meaning without mods, no code anyway */
                    keys[ 0] = 0;
                 }   
+                if (!up) lastDeadKey = 0;
                 break;
              default:
-                 ev. key. mod |= kmDeadKey;
+                ev. key. mod |= kmDeadKey;
+                if (!up) lastDeadKey = 0;
              }
              ev. key. code = keys[ 0];
           }
-          
 
           // simulated key codes
           if ( ev. key. key == kbTab && ( ev. key. mod & kmShift))
@@ -974,7 +995,7 @@ AGAIN:
    }
 
    if ( hiStage)
-      ret = DefWindowProc( win, msg, mp1, mp2);
+      ret = DefWindowProcW( win, msg, mp1, mp2);
 
    orgCmd = ev. cmd;
    if ( ev. cmd) 
@@ -1023,7 +1044,7 @@ AGAIN:
    }
 
    if ( ev. cmd && !hiStage)
-      ret = DefWindowProc( win, msg, mp1, mp2);
+      ret = DefWindowProcW( win, msg, mp1, mp2);
 
    return ret;
 }
@@ -1039,7 +1060,7 @@ LRESULT CALLBACK generic_frame_handler( HWND win, UINT  msg, WPARAM mp1, LPARAM 
    int     i, orgCmd;
 
    if ( !self)
-      return DefWindowProc( win, msg, mp1, mp2);
+      return DefWindowProcW( win, msg, mp1, mp2);
 
    for ( i = 0; i < guts. eventHooks. count; i++) {
       MSG ms = { win, msg, mp1, mp2, 0};
@@ -1280,7 +1301,7 @@ LRESULT CALLBACK generic_frame_handler( HWND win, UINT  msg, WPARAM mp1, LPARAM 
    }
 
    if ( hiStage)
-      ret = DefWindowProc( win, msg, mp1, mp2);
+      ret = DefWindowProcW( win, msg, mp1, mp2);
 
    orgCmd = ev. cmd;
    if ( ev. cmd) v-> self-> message( self, &ev); else ev. cmd = orgMsg;
@@ -1303,7 +1324,7 @@ LRESULT CALLBACK generic_frame_handler( HWND win, UINT  msg, WPARAM mp1, LPARAM 
    }
 
    if ( ev. cmd && !hiStage)
-      ret = DefWindowProc( win, msg, mp1, mp2);
+      ret = DefWindowProcW( win, msg, mp1, mp2);
    return ret;
 }
 

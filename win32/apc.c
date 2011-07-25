@@ -89,8 +89,15 @@ apc_application_create( Handle self)
 {
    HWND h;
    RECT r;
+   MSG msg;
+   const WCHAR wnull = 0;
+
    objCheck false;
-   if ( !( h = CreateWindowEx( 0, "GenericApp", "", 0, 0, 0, 0, 0,
+
+   // make sure that no leftover messages, esp.WM_QUIT, are floating around
+   while ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE)); 
+
+   if ( !( h = CreateWindowExW( 0, const_char2wchar("GenericApp"), &wnull, 0, 0, 0, 0, 0,
           nil, nil, guts. instance, nil))) apiErrRet;
    sys handle = h;
    sys parent = sys owner = HWND_DESKTOP;
@@ -99,7 +106,7 @@ apc_application_create( Handle self)
    sys className = WC_APPLICATION;
    // if ( !SetTimer( h, TID_USERMAX, 100, nil)) apiErr;
    GetClientRect( h, &r);
-   if ( !( var handle = ( Handle) CreateWindowEx( 0,  "Generic", "", WS_VISIBLE | WS_CHILD | WS_CLIPCHILDREN,
+   if ( !( var handle = ( Handle) CreateWindowExW( 0,  const_char2wchar("Generic"), &wnull, WS_VISIBLE | WS_CHILD | WS_CLIPCHILDREN,
         0, 0, r. right - r. left, r. bottom - r. top, h, nil,
         guts. instance, nil))) apiErrRet;
    SetWindowLongPtr(( HWND) var handle, GWLP_USERDATA, self);
@@ -720,6 +727,7 @@ create_group( Handle self, Handle owner, Bool syncPaint, Bool clipOwner,
    int  count = 0;
    Bool reset = false;
    Handle * list = nil;
+   const WCHAR wnull = 0;
 
    if ( HANDLE)
    {
@@ -755,7 +763,7 @@ create_group( Handle self, Handle owner, Bool syncPaint, Bool clipOwner,
               parentView = DHANDLE( application);
           if ( !usePos)  rcp[0] = rcp[1] = CW_USEDEFAULT;
           if ( !useSize) rcp[2] = rcp[3] = CW_USEDEFAULT;
-          if ( !( frame = CreateWindowEx( exstyle, "GenericFrame", "",
+          if ( !( frame = CreateWindowExW( exstyle, const_char2wchar("GenericFrame"), &wnull,
                 style | WS_CLIPCHILDREN,
                 rcp[0], rcp[1], rcp[2], rcp[3],
                 parentView, nil, guts. instance, nil)))
@@ -769,7 +777,7 @@ create_group( Handle self, Handle owner, Bool syncPaint, Bool clipOwner,
                    0,0,0,0,SWP_NOMOVE | SWP_NOSIZE  | SWP_NOACTIVATE))
                 apiErr;
           GetClientRect( frame, &r);
-          if ( !( ret = CreateWindowEx( 0,  "Generic", "",
+          if ( !( ret = CreateWindowExW( 0,  const_char2wchar("Generic"), &wnull,
                 WS_VISIBLE | WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
                 0, 0, r. right - r. left, r. bottom - r. top, frame, nil,
                 guts. instance, nil)))
@@ -789,7 +797,7 @@ create_group( Handle self, Handle owner, Bool syncPaint, Bool clipOwner,
        if ( parentHandle) parentView = parentHandle;
        sys parentHandle = parentHandle;
 
-       if ( !( ret = CreateWindowEx( exstyle,  "Generic", "",
+       if ( !( ret = CreateWindowExW( exstyle,  (LPCWSTR) const_char2wchar("Generic"), &wnull,
              style | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, 0, 0, 0, 0,
              parentView, nil, guts. instance, nil)))
           apiErrRet;
@@ -1026,6 +1034,13 @@ apc_window_get_border_style( Handle self)
    return sys s. window. borderStyle;
 }
 
+ApiHandle
+apc_window_get_client_handle( Handle self)
+{
+   objCheck 0;
+   return ( ApiHandle) var handle;
+}
+
 Point
 apc_window_get_client_pos( Handle self)
 {
@@ -1236,8 +1251,11 @@ Bool
 apc_window_set_caption( Handle self, const char * caption, Bool utf8)
 {
    objCheck false;
-   if ( HAS_WCHAR && utf8) {
-      WCHAR * c = alloc_utf8_to_wchar( caption, -1);
+   if ( HAS_WCHAR) {
+      WCHAR * c = utf8 ? 
+      	alloc_utf8_to_wchar( caption, -1) :
+      	alloc_char_to_wchar( caption, -1)
+	;
       if ( !( rc = SetWindowTextW( HANDLE, c))) apiErr;
       free( c);
    } else {
