@@ -1,26 +1,34 @@
 --- #YAML:1.0
 name:               Prima
-version:            1.31
+version:            1.31_1
 abstract:           a perl graphic toolkit
 author:
     - Dmitry Karasik <dmitry@karasik.eu.org>
 license:            BSD
-homepage:           http://www.prima.eu.org/
-repository:         http://github.com/dk/Prima
 distribution_type:  module
+configure_requires:
+    ExtUtils::MakeMaker:  0
+build_requires:
+    ExtUtils::MakeMaker:  0
+requires:  {}
+resources:
+    homepage:    http://www.prima.eu.org/
+    repository:  http://github.com/dk/Prima
 no_index:
     directory:
+        - t
+        - inc
         - include
         - img
-        - os2
         - test
+        - os2
         - unix
         - win32
     file:
         - Makefile.PL
         - test.pl
         - ms_install.pl
-generated_by:       Prima/Makefile.PL
+generated_by:       ExtUtils::MakeMaker version 6.56
 meta-spec:
     url:      http://module-build.sourceforge.net/META-spec-v1.4.html
     version:  1.4
