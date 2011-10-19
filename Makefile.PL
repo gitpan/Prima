@@ -1,3 +1,30 @@
+#!env perl
+#
+#  Copyright (c) 1997-2002 The Protein Laboratory, University of Copenhagen
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+#  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+#  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+#  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+#  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+#  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+#  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+#  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+#  SUCH DAMAGE.
+#
+
 package MY;
 use strict;
 use warnings;
@@ -11,11 +38,6 @@ use File::Find;
 use File::Path;
 use File::Basename;
 use File::Copy;
-
-# XXX
-# - binary_prereq under automated CPAN
-# - msvc warnings
-# - msvc ld debug flags /DEBUG
 
 use vars qw(
 	$ARGV_STR
@@ -45,6 +67,8 @@ use vars qw(
 	$SHQUOTE
 	$DEFFILE
 	$OPTIMIZE
+	%ALL_PM_INSTALL
+	%ALL_MAN_INSTALL
 );
 
 use vars qw(
@@ -55,6 +79,7 @@ use vars qw(
 	$unix
 	$cygwin
 	$platform
+	$flavor
 	$path_sep
 	$dir_sep
 	%alldeps
@@ -71,6 +96,7 @@ use vars qw(
 	$binary_prereq
 	$compiler_version
 	@Prima_exports
+	$win32_use_dlltool
 );
 
 my $END;
@@ -206,7 +232,7 @@ sub setup_files
 	@c_files    = ( 
 		<*.c>,
 		(grep { not $PASSIVE_CODECS{$_} } <img/*.c>),
-		<$platform/*.c>,
+		(grep { !m/xft.c/ || $cmd_options{WITH_XFT} } <$platform/*.c>),
 	);
 	@cls_files  = ( <*.cls> );
 	@h_files    = ( 
@@ -235,6 +261,31 @@ sub setup_files
 		@exe_files = extmap('', @exe_files);
 		push @target_clean, @exe_files;
 	}
+
+	%ALL_PM_INSTALL = (
+		# PM
+		( map { $_ => '$(INST_LIBDIR)/'. $_ } @prima_files ),
+		# INC
+		( map {
+			my $k = $_;
+			s/^include\///;
+			( $k => '$(INST_LIBDIR)/Prima/CORE/' . $_ )
+		} @h_files ),
+		# POD
+		( map { $_ => '$(INST_LIBDIR)/Prima/' . $_ } @pod_files ),
+		# examples
+		( map { $_ => '$(INST_LIBDIR)/Prima/' . $_ } <examples/*> ),
+	);
+	%ALL_MAN_INSTALL = (
+		map {
+			my $target = $_;
+			$target =~ s/^pod\///;
+			$target =~ s/\//::/g;
+			$target =~ s/\.\w+$//;
+			$_ => '$(INST_MAN3DIR)/'. $target . '.$(MAN3EXT)'
+		}
+		(@pm_files, grep { /pod$/ } @pod_files)
+	);
 }
 
 sub setup_environment
@@ -242,6 +293,8 @@ sub setup_environment
 	if ( $Win32 and not $cygwin ) {
 		$SCRIPT_EXT = '.bat';
 		$SHQUOTE    = '"';
+		$win32_use_dlltool = $Config{dlltool} || 'dlltool'
+			if $Config{ccname} eq 'gcc';
 	} elsif ( $OS2 ) {
 		$SCRIPT_EXT = '.cmd';
 		$SHQUOTE    = "'";
@@ -261,14 +314,15 @@ sub setup_environment
 		$LDOUTFLAG    = '/OUT:';
 		$LD_LIB_EXT   = '.lib';
 		$OPTIMIZE     = '-Zi' if $cmd_options{DEBUG};
+		# link flag is /DEBUG, but we don't care because ActiveState has it on by default anyway
 	}
 	else {
-		$COUTOFLAG    = '-o';
-		$COUTEXEFLAG  = '-o';
+		$COUTOFLAG    = '-o ';
+		$COUTEXEFLAG  = '-o ';
 		$CLIBPATHFLAG = '-L';
 		$CLINKPREFIX  = '';
 		$LDLIBFLAG    = '-l';
-		$LDOUTFLAG    = '-o';
+		$LDOUTFLAG    = '-o ';
 		$LD_LIB_EXT   = '';
 		$OPTIMIZE     = '-g' if $cmd_options{DEBUG};
 	}
@@ -287,15 +341,15 @@ sub setup_environment
 	die "Cannot find VERSION string in Prima.pm\n" unless defined $ver1;
 	print "Version: $ver1.$ver2\n";
 
-	my $os_suffix = $^O;
-	$os_suffix =~ s/\s/_/g;
-	$DISTNAME = "Prima-$ver1.$ver2-$os_suffix-$Config{PERL_REVISION}.$Config{PATCHLEVEL}.$Config{SUBVERSION}";
+	my $PATCHLEVEL = defined($Config{PATCHLEVEL}) ? $Config{PATCHLEVEL} : $Config{PERL_PATCHLEVEL};
+	my $SUBVERSION = defined($Config{SUBVERSION}) ? $Config{SUBVERSION} : $Config{PERL_SUBVERSION};
+	my $REVISION   = defined($Config{REVISION})   ? $Config{REVISION}   : $Config{PERL_REVISION};
 
 	%DEFINES = (
 		PRIMA_VERSION    => $ver1,
 		PRIMA_SUBVERSION => $ver2,
-		PERL_PATCHLEVEL  => $Config{PATCHLEVEL},
-		PERL_SUBVERSION  => $Config{SUBVERSION},
+		PERL_PATCHLEVEL  => $PATCHLEVEL,
+		PERL_SUBVERSION  => $SUBVERSION,
 		PRIMA_CORE       => 1,
 		PERL_POLLUTE     => 1,
 		PRIMA_DEBUG      => 0,
@@ -306,6 +360,23 @@ sub setup_environment
 
 	$OS2DLLF = 'Prima';
 	$OS2DLLF = &DynaLoader::mod2fname([$OS2DLLF]) if $OS2 && defined &DynaLoader::mod2fname;
+
+	print "Flavor: ";
+	$flavor = $^O;
+	if ( $Win32 and not $cygwin ) {
+		if ( $Config{myuname} =~ /strawberryperl/i) {
+			$flavor = 'strawberry';
+		} elsif ( `perl -V` =~ /activeperl/i) {
+			$flavor = 'activestate';
+		}
+	}
+	$flavor =~ s/\s/_/g;
+	print "$flavor\n";
+
+	$flavor = 'sb32' if $flavor eq 'strawberry';
+	$flavor = 'as32' if $flavor eq 'activestate';
+	
+	$DISTNAME = "Prima-$ver1.$ver2-$flavor-$REVISION.$PATCHLEVEL.$SUBVERSION";
 }
 
 sub qtilde
@@ -406,7 +477,7 @@ sub cc_command_line
 	$cc .= ' ' . join(' ', map { "-I$_" } @INCPATH);
 	$cc .= $compile_only ? " $COUTOFLAG$objf" : " $COUTEXEFLAG$exef";
 	$cc .= " $COUTOFLAG$objf" if $Config{ccname} eq 'cl' && !$compile_only;
-	$cc .= ' ' . join( map { "$CLIBPATHFLAG$_"} @LIBPATH) unless $compile_only || ( $Config{ccname} eq 'cl');
+	$cc .= ' ' . join(' ', map { "$CLIBPATHFLAG$_"} @LIBPATH) unless $compile_only || ( $Config{ccname} eq 'cl');
 	$cc .= " $srcf";
 	return $cc if $compile_only;
 	$cc .= " $CLINKPREFIX";
@@ -768,7 +839,7 @@ MSCVER
 		$Win64 = have_define('_WIN64');
 		print $Win64 ? " 64" : " 32";
 		print " bits\n";
-		$DISTNAME =~ s/(mswin)32/${1}64/i if $Win64;
+		$DISTNAME =~ s/(mswin|sb|as)32/${1}64/i if $Win64;
 	}
 
 	@INCPATH = (
@@ -778,6 +849,10 @@ MSCVER
 
 	@LIBS = qw(gdi32 mpr winspool comdlg32) if $Win32; # add more when appropriate
 	push @LIBPATH, '/usr/lib/w32api' if $cygwin;
+	if ($^O eq 'solaris') {
+		push @LIBPATH, '/opt/csw/lib';
+		$OPTIMIZE .= ' -Wall' if $Config{ccname} eq 'gcc';
+	}
 
 }
 
@@ -1548,15 +1623,19 @@ sub command_postinstall
 
 	if ( $opt{dl} ) {
 		my $f = "$opt{lib}/Prima.pm";
+		$DL_LOAD_FLAGS = $opt{dl};
 		print "Setting dl_load_flags=$DL_LOAD_FLAGS in $f\n";
 		open F, $f or die "cannot open $f:$!\n";
 		local $/;
 		my $ct = <F>;
 		close F;
 		$ct =~ s/(dl_load_flags\s*\{\s*)0x00/${1}0x01/;
-		open F, "> $f" or die "cannot write $f:$!\n";
+		# open_rw(\*F, $f);
+		open F, "> $f.tmp" or die "Cannot open $f.tmp:$!";
 		print F $ct;
 		close F;
+		unlink $f;
+		rename "$f.tmp", $f;
 	}
 	
 	my $fn_cfg = "$opt{lib}/Prima/Config.pm";
@@ -1656,7 +1735,7 @@ sub command_bindist
 		my $f = "$File::Find::dir/$_";
 		return if $f =~ /include.generic|\.git|blib|dll.base|dll.exp|Prima.bs|Prima.def/;
 		return if $f =~ /\.(c|cls|h)$/i;
-		return if $f =~ /$CWD.(img|include|os2|win32|unix|Makefile.PL)/i;
+		return if $f =~ /$CWD.(img|include|os2|win32|unix|Makefile.PL|Makefile.old)/i;
 		if ( -d $f) {
 			$f =~ s/^$CWD/$DISTNAME/;
 			push @dirs, $f;
@@ -1747,7 +1826,7 @@ sub postamble
 		my $ancestors = join(' ', map { "include/generic/$_.h $_.cls" } gencls( $clsfile, depend => 1));
 	  	$t .= <<H;
 
-include/generic/$base.h: Makefile $base.cls $ancestors
+include/generic/$base.h: \$(FIRST_MAKEFILE) $base.cls $ancestors
 \t$^X -I. utils/gencls.pl --inc --h --tml $clsfile include/generic
 
 H
@@ -1756,7 +1835,7 @@ H
 	}
 
 	$t .= <<H;
-include/generic/thunks.tinc: Makefile @alltmldeps
+include/generic/thunks.tinc: \$(FIRST_MAKEFILE) @alltmldeps
 \t$^X utils/tmlink.pl -Iinclude/generic -oinclude/generic/thunks.tinc @alltml
 
 H
@@ -1767,11 +1846,46 @@ H
 		my @deps = find_cdeps( $cfile );
 	  	$t .= <<H
 
-$base$Config{_o}: Makefile $cfile @deps
+$base$Config{_o}: \$(FIRST_MAKEFILE) $cfile @deps
 
 H
 	}
-	
+
+	my ( $pm_deinstall, $pm_deinstall_dir, %pm_deinstall_dir) = ('');
+	my @rm;
+	for ( values %ALL_PM_INSTALL ) {
+		my $f = $_;
+		$f =~ s/INST_LIBDIR/DESTINSTALLSITEARCH/;
+		push @rm, $f;
+		$f =~ s/[-\w\.]*$//;
+		$pm_deinstall_dir{$f} = 1;
+	}
+	$pm_deinstall_dir{'$(DESTINSTALLSITEARCH)/Prima/sys'}  = 1;
+	$pm_deinstall_dir{'$(DESTINSTALLSITEARCH)/auto/Prima'} = 1;
+	for ( values %ALL_MAN_INSTALL ) {
+		my $f = $_;
+		$f =~ s/INST_MAN3DIR/DESTINSTALLSITEMAN3DIR/;
+		push @rm, $f;
+	}
+	push @rm, 
+		'$(DESTINSTALLSITEMAN3DIR)/gencls.$(MAN3EXT)',
+		'$(DESTINSTALLSITEMAN1DIR)/VB.$(MAN1EXT)',
+		'$(DESTINSTALLSITEMAN1DIR)/cfgmaint.$(MAN1EXT)',
+		'$(DESTINSTALLSITEARCH)/auto/Prima/$(BASEEXT)$(LIB_EXT)',
+		'$(DESTINSTALLSITEARCH)/auto/Prima/$(DLBASE).$(DLEXT)',
+		'$(DESTINSTALLSITEARCH)/auto/Prima/$(BASEEXT).bs',
+		'$(DESTINSTALLSITEARCH)/auto/Prima/Prima.exp',
+		'$(DESTINSTALLSITEARCH)/auto/Prima/Prima.pdb',
+		;
+	while (@rm) {
+		my @part = splice(@rm, 0, 20);
+		$pm_deinstall .= "\t\$(ABSPERL) -e ${SHQUOTE}unlink \@ARGV${SHQUOTE} @part\n";
+	}
+	chomp $pm_deinstall;
+	$pm_deinstall_dir = 
+		"\t\$(ABSPERL) -e ${SHQUOTE}rmdir for \@ARGV${SHQUOTE} ".
+		join( ' ', sort { length $b <=> length $a } keys %pm_deinstall_dir)
+		;
 	$t .= <<H;
 
 bindist: all
@@ -1781,11 +1895,8 @@ devclean:
 \t\$(RM_F) *$Config{_o} img/*$Config{_o} $platform/*$Config{_o}
 
 deinstall:
-\t\$(RM_RF) \$(DESTINSTALLSITEARCH)/auto/\$(FULLEXT) \$(DESTINSTALLSITEARCH)/Prima*
-\t\$(RM_F)  \$(DESTINSTALLSITEMAN3DIR)/Prima* \\
-\t\$(DESTINSTALLSITEMAN3DIR)/gencls.\$(MAN3EXT) \\
-\t\$(DESTINSTALLSITEMAN1DIR)/VB.\$(MAN1EXT) \\
-\t\$(DESTINSTALLSITEMAN1DIR)/cfgmaint.\$(MAN1EXT)
+$pm_deinstall
+$pm_deinstall_dir 
 
 H
 
@@ -1797,6 +1908,25 @@ $_: $_.pl
 H
 	}
 
+	return $t;
+}
+
+sub dynamic_lib
+{
+	my $self = shift;
+	my $t = $self->SUPER::dynamic_lib(@_);
+	if ( $win32_use_dlltool ) {
+		my $line = "\t$win32_use_dlltool -l \$(INST_STATIC) -d Prima.def -D PRIMA.DLL \$\@\n";
+		$END .= <<BAD_MAKEFILE unless $t =~ s/(^\$\(INST_DYNAMIC\)\:.*?\n(?:\t.*?\n)*)/$1$line/m;
+
+** Warning: expected format of Makefile generated by ExtUtils::MakeMaker is
+changed, so making of library Prima.a will not be performed correcty.  
+Prima will run OK, but modules dependent on it may not build.
+Please notify the author.
+
+BAD_MAKEFILE
+
+	}
 	return $t;
 }
 
@@ -1834,20 +1964,7 @@ WriteMakefile(
 	VERSION_FROM      => 'Prima.pm',
 	ABSTRACT_FROM     => 'Prima.pm',
 	AUTHOR            => 'Dmitry Karasik <dmitry@karasik.eu.org>',
-	PM                => {
-		# PM
-		( map { $_ => '$(INST_LIBDIR)/'. $_ } @prima_files ),
-		# INC
-		( map {
-			my $k = $_;
-			s/^include\///;
-			( $k => '$(INST_LIBDIR)/Prima/CORE/' . $_ )
-		} @h_files ),
-		# POD
-		( map { $_ => '$(INST_LIBDIR)/Prima/' . $_ } @pod_files ),
-		# examples
-		( map { $_ => '$(INST_LIBDIR)/Prima/' . $_ } <examples/*> ),
-	},
+	PM                => \%ALL_PM_INSTALL,
 	OPTIMIZE          => $OPTIMIZE,
 	PREREQ_PM         => \%PREREQ,
 	OBJECT            => "@o_files",
@@ -1859,16 +1976,7 @@ WriteMakefile(
 	LICENSE           => 'BSD',
 	EXE_FILES         => \@exe_files,
 	PL_FILES          => {},
-	MAN3PODS          => {
-		map {
-			my $target = $_;
-			$target =~ s/^pod\///;
-			$target =~ s/\//::/g;
-			$target =~ s/\.\w+$//;
-			$_ => '$(INST_MAN3DIR)/'. $target . '.$(MAN3EXT)'
-		}
-		(@pm_files, grep { /pod$/ } @pod_files)
-	},
+	MAN3PODS          => \%ALL_MAN_INSTALL,
 	META_MERGE        => {
 		resources => {
 			homepage   => 'http://www.prima.eu.org/',

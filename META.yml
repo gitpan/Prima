@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Prima
-version:            1.31_1
+version:            1.32
 abstract:           a perl graphic toolkit
 author:
     - Dmitry Karasik <dmitry@karasik.eu.org>
