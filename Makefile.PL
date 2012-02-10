@@ -73,6 +73,7 @@ use vars qw(
 
 use vars qw(
 	%cmd_options
+	%passthru_options
 	$Win32
 	$Win64
 	$OS2
@@ -104,7 +105,16 @@ END {
 	print $END if defined $END;
 };
 
+my ($offset_makefile_log, $captured_makefile_log);
 my $see_makefile_log = "(see also makefile.log for details)";
+
+sub see_makefile_log
+{
+	my $ret = "$see_makefile_log\n";
+	$ret .= "\n--------------------------------------------\n$captured_makefile_log\n"
+		if defined $captured_makefile_log;
+	return $ret;
+}
 
 sub usage
 {
@@ -122,6 +132,8 @@ options:
     WITH_GTK2         - compile with/without GTK2 (default 1), X only
     CYGWIN_X11        - X11 build in cygwin environment
     DEBUG             - build with debug information
+    EXTRA_LDFLAGS      - add extra ld line (i.e. -lgcc )
+    EXTRA_CCFLAGS      - add extra cc line (i.e. -I/usr/local/include )
 
 HELP
 	exit;
@@ -162,16 +174,32 @@ sub setup_argv
 		WITH_GTK2    => 1,
 		CYGWIN_X11   => 0,
 		DEBUG        => 0,
+		EXTRA_CCFLAGS => '',
+		EXTRA_LDFLAGS => '',
 		
 		# service vars
 		AUTOMATED_RUN => 0,
 		DL_LOAD_FLAGS => undef,
+	);
+
+	%passthru_options = (
+		DEFINE        => '',
+		LIBS          => '',
+		INC           => '',
+		LD            => $Config{ld},
+		LDDLFLAGS     => $Config{lddlflags},
 	);
 	
 	@ARGV = grep {
 		my ( $k, $v) = split( '=', $_, 2 );
 		exists($cmd_options{$k}) ? ($cmd_options{$k} = $v, 0) : 1;
 	} @ARGV;
+
+	for ( @ARGV ) {
+		my ( $k, $v) = split( '=', $_, 2 );
+		next unless exists $passthru_options{$k};
+		$passthru_options{$k} = $v;
+	}
 }
 
 sub setup_variables
@@ -310,6 +338,7 @@ sub setup_environment
 		$COUTEXEFLAG  = '-Fe';
 		$CLIBPATHFLAG = '/LIBPATH:';
 		$CLINKPREFIX  = '/link';
+		$CLINKPREFIX .= " $1" if $Config{libs} =~ /(bufferoverflowU.lib)/i;
 		$LDLIBFLAG    = '';
 		$LDOUTFLAG    = '/OUT:';
 		$LD_LIB_EXT   = '.lib';
@@ -471,10 +500,13 @@ sub cc_command_line
 	my $ccflags = $Config{ccflags};
 	$ccflags =~ s/\b\-W(all|error|\d)w*//i;
 	my $cc = "$Config{cc} $ccflags";
+	$cc .= " $cmd_options{EXTRA_CCFLAGS}"  if length $cmd_options{EXTRA_CCFLAGS};
+	$cc .= " $passthru_options{DEFINE}" if length $passthru_options{DEFINE};
 	$cc .= " $Config{cccdlflags}" if $dl;
 	$cc .= " $Config{ccdlflags}" if $dl && !$compile_only;
 	$cc .= " -c " if $compile_only;
 	$cc .= ' ' . join(' ', map { "-I$_" } @INCPATH);
+	$cc .= " $passthru_options{INC}" if length $passthru_options{INC};
 	$cc .= $compile_only ? " $COUTOFLAG$objf" : " $COUTEXEFLAG$exef";
 	$cc .= " $COUTOFLAG$objf" if $Config{ccname} eq 'cl' && !$compile_only;
 	$cc .= ' ' . join(' ', map { "$CLIBPATHFLAG$_"} @LIBPATH) unless $compile_only || ( $Config{ccname} eq 'cl');
@@ -483,13 +515,16 @@ sub cc_command_line
 	$cc .= " $CLINKPREFIX";
 	$cc .= ' ' . join(' ', map { "\"$CLIBPATHFLAG\\\"$_\\\"\"" } @LIBPATH) if $Config{ccname} eq 'cl';
 	$cc .= ' ' . join(' ', map { "$LDLIBFLAG$_$LD_LIB_EXT"} @LIBS);
+	$cc .= " $passthru_options{LIBS}" if length $passthru_options{LIBS};
+	$cc .= " $cmd_options{EXTRA_LDFLAGS}" if length $cmd_options{EXTRA_LDFLAGS};
 	return $cc;
 }
 
 sub ld_command_line
 {
 	my ( $dstf) = shift;
-	my $ld = "$Config{ld} $Config{lddlflags}";
+	my $ld = "$passthru_options{LD} $passthru_options{LDDLFLAGS}";
+	$ld .= " $cmd_options{EXTRA_LDFLAGS}" if length $cmd_options{EXTRA_LDFLAGS};
 	$ld .= " $LDOUTFLAG$dstf @_";
 	$ld .= ' ' . join(' ', map { "$LDLIBFLAG$_$LD_LIB_EXT"} @LIBS);
 	return $ld;
@@ -507,6 +542,11 @@ sub null_output
 	}
 	open STDOUT, ">>$NULLDEV" or die "STDOUT redirect failed: $!";
 	open STDERR, ">&STDOUT" or die "STDERR redirect failed: $!";
+
+	if ( -f $NULLDEV ) {
+		$offset_makefile_log = -s $NULLDEV;
+		undef $captured_makefile_log;
+	}
 }
 
 sub restore_output
@@ -519,6 +559,16 @@ sub restore_output
 	open STDERR, ">&OLDSTDERR" or die "STDERR restoration failed: $!";
 	close OLDSTDOUT;
 	close OLDSTDERR;
+
+	if ( -f $NULLDEV ) {
+		if ( open MAKEFILELOG, '<', $NULLDEV) {
+			binmode MAKEFILELOG;
+			seek MAKEFILELOG, $offset_makefile_log, 0;
+			local $/;
+			$captured_makefile_log = <MAKEFILELOG>;
+			close MAKEFILELOG;
+		}
+	}
 }
 
 sub tempfile
@@ -541,8 +591,9 @@ sub compile
 	my @tmpextras = ( $tmpsrc, $tmpsrc);
 	$tmpextras[0] =~ s/\.[^\.+]$/.ilk/;
 	$tmpextras[1] =~ s/\.[^\.+]$/.pdb/;
+	unlink @tmpextras; # leftovers are toxic to msvc
 
-	open TMPSRC, ">$tmpsrc" or die "Creation of temporary file $tmpsrc failed $see_makefile_log";
+	open TMPSRC, ">$tmpsrc" or die "Creation of temporary file $tmpsrc failed";
 	print TMPSRC $text;
 	close TMPSRC;
 
@@ -568,8 +619,9 @@ sub compile_and_run
 	my @tmpextras = ( $tmpsrc, $tmpsrc);
 	$tmpextras[0] =~ s/\.[^\.+]$/.ilk/;
 	$tmpextras[1] =~ s/\.[^\.+]$/.pdb/;
+	unlink @tmpextras; # leftovers are toxic to msvc
 
-	open TMPSRC, ">$tmpsrc" or die "Creation of temporary file $tmpsrc failed $see_makefile_log";
+	open TMPSRC, ">$tmpsrc" or die "Creation of temporary file $tmpsrc failed";
 	print TMPSRC $text;
 	close TMPSRC;
 
@@ -660,7 +712,7 @@ EOF
 sub have_func
 {
 	my ( $funcname, @headers) = @_;
-	die "have_func() without any header is deprecated $see_makefile_log" unless @headers;
+	die "have_func() without any header is deprecated " unless @headers;
 	my $defname = "HAVE_" . uc $funcname;
 	my @srchead = map { "#include <$_>\n"} @headers;
 	$defname =~ s/\W/_/g;
@@ -693,7 +745,7 @@ sub have_define
 	my $tmpsrc = qd( tempfile( "pmts%04d.c"));
 	my $tmpo = $tmpsrc;
 	$tmpo =~ s/\.c$/\.$Config{_o}/;
-	open TMPSRC, ">$tmpsrc" or die "Creation of temporary file $tmpsrc failed $see_makefile_log";
+	open TMPSRC, ">$tmpsrc" or die "Creation of temporary file $tmpsrc failed";
 	print TMPSRC <<EOF;
 int
 main()
@@ -798,11 +850,11 @@ sub setup_compiler
 	print "Compiler: $Config{ccname}\n";
 
 	print "Checking if can compile... ";
-	compile('int a;', 1) or die "no $see_makefile_log\n";
+	compile('int a;', 1) or die "no " . see_makefile_log;
 	print "yes\n";
 
 	print "Checking if can link... ";
-	compile( <<EOF, 0) or die "no $see_makefile_log\n";
+	compile( <<EOF, 0) or die "no " . see_makefile_log;
 int
 main()
 {
@@ -853,7 +905,6 @@ MSCVER
 		push @LIBPATH, '/opt/csw/lib';
 		$OPTIMIZE .= ' -Wall' if $Config{ccname} eq 'gcc';
 	}
-
 }
 
 sub setup_defines
@@ -862,7 +913,7 @@ sub setup_defines
 	have_header( "unistd.h");
 	have_header( "strings.h");
 
-	my @int_types = qw(int8_t int16_t int32_t);
+	my @int_types = qw(int8_t int16_t int32_t int64_t);
 	my @uint_types = qw(uint8_t uint16_t uint32_t uint64_t);
 	my @u_int_types = qw(u_int8_t u_int16_t u_int32_t u_int64_t);
 	have_types_in( "sys/types.h", @int_types)
@@ -1100,12 +1151,11 @@ sub setup_xlibs
 			qd("/usr/freeware/include/freetype2"),
 			qd("/usr/opt/include/freetype2")
 		);
-		my $have_ft2build_h = find_header( qd("ft2build.h"), @ft_incpaths );
+		my $have_ft2build_h = defined find_header( qd("ft2build.h"), @ft_incpaths );
 
 		print "Checking for presence of freetype/freetype.h... ";
 		my $incpath;
 		if ($have_ft2build_h) {
-			$DEFINES{HAVE_FT2BUILD_H} = undef;
 			$incpath = find_header( 
 				qd("freetype/freetype.h"), {
 					Code => <<EOF,
@@ -1128,6 +1178,7 @@ EOF
 				push @LIBS, 'freetype';
 				$HAVE_XFT++;
 				print "yes\n";
+				$DEFINES{HAVE_FREETYPE_FREETYPE_H} = 1;
 			} else {
 				print "no\n";
 				$DEFINES{HAVE_FREETYPE_FREETYPE_H} = undef;
@@ -1343,9 +1394,7 @@ sub setup_codecs
 	my @codecs;
 	my @builtin_codecs;
 	while ( <img/codec_*.c>) {
-		if ( m/prigraph/) {
-			unshift @codecs, $_; # put it first
-		} elsif ( m/codec_(bmp)/) {
+		if ( m/codec_(bmp)/) {
 			push @builtin_codecs, $1;
 		} else {
 			push @codecs, $_;
@@ -1386,9 +1435,13 @@ sub setup_codecs
 			$lib = $codec = 'gif';
 			print "no\n";
 			goto AGAIN;
+		} elsif ( $codec eq 'X11') {
+			$DEFINES{EMULATE_X11_CODEC} = 1;
+			push( @ACTIVE_CODECS, $codec);
+			print "no, using built-in\n";
 		} else {
 			$PASSIVE_CODECS{$fn} = 1;
-			push @warn_codecs, $codec unless $codec eq 'prigraph';
+			push @warn_codecs, $codec;
 			print "no\n";
 		}
 	}
@@ -1436,11 +1489,6 @@ Please follow the instructions in README file.
 NOCODECS
 	}
 	push @ACTIVE_CODECS, @builtin_codecs;
-
-	# make prigraph last so it'll have a chance to check which codecs it doesn't 
-	# need to support
-	@codecs = grep { $_ ne 'prigraph' } @ACTIVE_CODECS;
-	@ACTIVE_CODECS = ( @codecs, 'prigraph' ) unless @codecs == @ACTIVE_CODECS;
 }
 
 sub create_codecs_c
@@ -1759,7 +1807,7 @@ sub command_bindist
 		cleanup("Error copying $_ to $_") unless copy $_, $f;
 	}
 	for (<blib/arch/auto/Prima/*>) {
-		next if m/(\.exists|Prima\.bs)$/;
+		next if m/(\.exists|Prima\.bs|Prima\.pdb)$/;
 		my $f = $_;
 		$f =~ s[^blib/arch][$DISTNAME];
 		cleanup("Error copying $_ to $_") unless copy $_, $f;
@@ -1802,7 +1850,7 @@ sub special_targets
 	my $self = shift;
 	my $t = $self->SUPER::special_targets(@_);
 	$t .= <<RERUN if $binary_prereq and not $cmd_options{AUTOMATED_RUN};
-prima_prereq:
+all ::
 \t\@echo Rebuilding Makefile...
 \t\@\$(RM_F) Makefile
 \t\@$^X Makefile.PL $ARGV_STR AUTOMATED_RUN=1
@@ -1920,7 +1968,7 @@ sub dynamic_lib
 		$END .= <<BAD_MAKEFILE unless $t =~ s/(^\$\(INST_DYNAMIC\)\:.*?\n(?:\t.*?\n)*)/$1$line/m;
 
 ** Warning: expected format of Makefile generated by ExtUtils::MakeMaker is
-changed, so making of library Prima.a will not be performed correcty.  
+changed, so making of library Prima.a will not be performed correctly.  
 Prima will run OK, but modules dependent on it may not build.
 Please notify the author.
 
@@ -1930,7 +1978,7 @@ BAD_MAKEFILE
 	return $t;
 }
 
-# generate Prima.def ourselves - too many symbols, EU::MM dies with "command like too long"
+# generate Prima.def ourselves - too many symbols, EU::MM dies with "command line too long"
 sub dlsyms { '' }
 
 sub install
@@ -1968,8 +2016,12 @@ WriteMakefile(
 	OPTIMIZE          => $OPTIMIZE,
 	PREREQ_PM         => \%PREREQ,
 	OBJECT            => "@o_files",
-	INC               => join(' ', map { "-I$_" } @INCPATH ),
+	INC               => 
+		$cmd_options{EXTRA_CCFLAGS} . ' ' .
+		join(' ', map { "-I$_" } @INCPATH ),
 	LIBS              => [ 
+		$cmd_options{EXTRA_LDFLAGS} . ' ' .
+		':nosearch ' .
 		join(' ', map { "-L$_" } @LIBPATH) . ' ' .
 		join(' ', map { "-l$_" } @LIBS),
 	],

@@ -381,6 +381,9 @@ typedef U32 uint32_t;
 typedef u_int64_t       uint64_t;
 #elif defined U64
 typedef U64 uint64_t;
+#elif defined(_MSC_VER) && _MSC_VER < 1500
+typedef unsigned __int64 uint64_t;
+typedef __int64 int64_t;
 #else
 typedef unsigned long uint64_t;
 #endif
@@ -1620,6 +1623,7 @@ typedef struct _ObjectOptions_ {
    unsigned optAutoPopup           : 1;   /* Popup */
    unsigned optActive              : 1;   /* Timer */
    unsigned optOwnerIcon           : 1;   /* Window */
+   unsigned optMainWindow          : 1;
 } ObjectOptions;
 
 #define opt_set( option)           (PObject(self)-> options. option = 1)
@@ -1840,6 +1844,8 @@ SV(ColorPointer)
 SV(CanUTF8_Input)
 #define   svCanUTF8_Output  31
 SV(CanUTF8_Output)
+#define   svCompositeDisplay 32
+SV(CompositeDisplay)
 END_TABLE(sv,UV)
 #undef SV
 
@@ -2770,6 +2776,8 @@ IM(RealNumber)
 IM(ComplexNumber)
 #define    imTrigComplexNumber   0x8000
 IM(TrigComplexNumber)
+#define    imSignedInt           0x0100
+IM(SignedInt)
 #define    imCategory            0xFF00
 IM(Category)
 
@@ -2810,9 +2818,9 @@ IM(RGB)
 IM(Triple)
 #define    imByte           (imbpp8|imGrayScale)
 IM(Byte)
-#define    imShort          (imbpp16|imGrayScale)
+#define    imShort          (imbpp16|imGrayScale|imSignedInt)
 IM(Short)
-#define    imLong           (imbpp32|imGrayScale)
+#define    imLong           (imbpp32|imGrayScale|imSignedInt)
 IM(Long)
 #define    imFloat          ((sizeof(float)*8)|imGrayScale|imRealNumber)
 IM(Float)

@@ -1339,7 +1339,7 @@ sub prf_types
 			'menuLight3DColor', 'menuDark3DColor'
 		],
 		font          => ['menuFont'],
-		bool          => ['modalHorizon', 'taskListed', 'ownerIcon', 'onTop'],
+		bool          => ['modalHorizon', 'taskListed', 'ownerIcon', 'onTop', 'mainWindow'],
 		uiv           => ['modalResult'],
 	);
 	$_[0]-> prf_types_add( $pt, \%de);
@@ -2803,7 +2803,7 @@ sub write
 		', height=>'.$data-> height;
 	my $type = $data-> type;
 	my $xc = '';
-	for ( qw(GrayScale RealNumber ComplexNumber TrigComplexNumber)) {
+	for ( qw(GrayScale RealNumber ComplexNumber TrigComplexNumber SignedInt)) {
 		$xc = "im::$_ | " if &{$im::{$_}}() & $type;
 	}
 	$xc .= 'im::bpp'.( $type & im::BPP);

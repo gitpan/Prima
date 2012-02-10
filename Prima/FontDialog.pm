@@ -67,6 +67,7 @@ sub profile_default
 		showHelp    => 0,
 		fixedOnly   => 0,
 		logFont     => $_[ 0]-> get_default_font,
+		sampleText  => 'AaBbYyZz',
 	}
 }
 
@@ -88,9 +89,10 @@ sub init
 	my %profile = $self-> SUPER::init(@_);
 	my $j;
 
-	$self-> {showHelp}  = $profile{showHelp};
-	$self-> {logFont}   = $profile{logFont};
-	$self-> {fixedOnly} = $profile{fixedOnly};
+	$self-> {showHelp}   = $profile{showHelp};
+	$self-> {logFont}    = $profile{logFont};
+	$self-> {fixedOnly}  = $profile{fixedOnly};
+	$self-> {sampleText} = $profile{sampleText};
 
 	my $gr = $self-> insert( CheckBoxGroup =>
 		origin => [ 10, 10],
@@ -175,8 +177,9 @@ sub init
 		origin     => [ 5, 5],
 		size       => [ 345, 90],
 		name       => 'Example',
-		delegations=> [ $self, 'Paint', 'FontChanged', 'MouseDown', 'MouseUp'],
+		delegations=> [ $self, 'Paint', 'FontChanged', 'MouseDown', 'MouseUp', 'MouseClick'],
 		growMode   => gm::Client,
+		hint       => 'Click to drag font, double-click to edit text',
 	);
 
 	my $enc = $self-> insert( ComboBox =>
@@ -357,12 +360,27 @@ sub Example_Paint
 	$canvas-> bar( 0, 0, @size);
 	$canvas-> color( cl::Black);
 	my $f = $self-> font;
-	my $line = 'AaBbYyZz';
+	my $line = $owner-> sampleText;
 	$canvas-> text_out(
 		$line,
 		( $size[0] - $canvas-> get_text_width( $line)) / 2,
 		( $size[1] - $f-> height) / 2
 	);
+}
+
+sub Example_MouseClick
+{
+	my ( $owner, $self, $button, $mod, $x, $y, $double) = @_;
+	return unless $double;
+	require Prima::MsgBox;
+
+	my $wui  = $::application-> wantUnicodeInput;
+	$::application-> wantUnicodeInput(1);
+	my $text = Prima::MsgBox::input_box( $owner-> text, 'Set new sample text', $owner-> sampleText);
+	$::application-> wantUnicodeInput($wui);
+	return unless defined $text;
+	$owner-> sampleText($text);
+	$self-> repaint;
 }
 
 sub Example_FontChanged
@@ -450,6 +468,8 @@ sub logFont
 
 sub showHelp         { ($#_)? shift-> raise_ro('showHelp')  : return $_[0]-> {showHelp}};
 sub fixedOnly        { ($#_)? shift-> set_fixed_only($_[1]) : return $_[0]-> {fixedOnly}};
+sub sampleText       { ($#_)? shift-> {sampleText} = $_[1]  : return $_[0]-> {sampleText}};
+
 
 1;
 
@@ -489,6 +509,12 @@ Default value: 0
 
 Provides access to the interactive font selection as a hash reference.
 FONT format is fully compatible with C<Prima::Drawable::font>.
+
+=item sampleText STRING
+
+Sample line of text featuring current font selection.
+
+Default value: AaBbYyZz
 
 =item showHelp BOOLEAN
 
