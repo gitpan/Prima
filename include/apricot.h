@@ -423,8 +423,14 @@ typedef struct { double r,  ph; } TrigDComplex;
 #endif
 #define nilHandle Null(Handle)
 #define nilSV     &PL_sv_undef
+
+#ifndef true
 #define true TRUE
+#endif
+
+#ifndef false
 #define false FALSE
+#endif
 
 /* Event structures */
 
@@ -1484,6 +1490,9 @@ prima_uv_to_utf8( U8 * utf8, UV uv);
 
 extern int
 prima_utf8_length( const char * utf8);
+
+extern Bool
+prima_is_utf8_sv( SV * sv);
 
 /* OS types */
 #define APC(const_name) CONSTANT(apc,const_name)
