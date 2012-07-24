@@ -373,4 +373,5 @@ win32/gp.c
 win32/misc.c
 win32/stock.c
 win32/timers.c
-META.yml                                 Module meta-data (added by MakeMaker)
+META.yml                                 Module YAML meta-data (added by MakeMaker)
+META.json                                Module JSON meta-data (added by MakeMaker)
