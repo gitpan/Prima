@@ -486,16 +486,20 @@ sub realize_state
 sub recalc_ymap
 {
 	my ( $self, $from) = @_;
+	# if $from is zero or not defined, clear the ymap; otherwise we append
+	# to what was already calculated. This is optimized for *building* a
+	# collection of blocks; if you need to change a collection of blocks,
+	# you should always set $from to a false value.
 	$self-> {ymap} = [] unless $from; # ok if $from == 0
 	my $ymap = $self-> {ymap};
-	my ( $i, $lim) = ( defined($from) ? $from : 0, scalar(@{$self-> {blocks}}));
-	my $b = $self-> {blocks};
+	my $blocks = $self-> {blocks};
+	my ( $i, $lim) = ( defined($from) ? $from : 0, scalar(@{$blocks}));
 	for ( ; $i < $lim; $i++) {
-		$_ = $$b[$i];
-		my $y1 = $$_[ tb::BLK_Y];
-		my $y2 = $$_[ tb::BLK_HEIGHT] + $y1;
-		for ( int( $y1 / tb::YMAX) .. int ( $y2 / tb::YMAX)) {
-			push @{$ymap-> [$_]}, $i; 
+		my $block = $$blocks[$i];
+		my $y1 = $block->[ tb::BLK_Y];
+		my $y2 = $block->[ tb::BLK_HEIGHT] + $y1;
+		for my $y ( int( $y1 / tb::YMAX) .. int ( $y2 / tb::YMAX)) {
+			push @{$ymap-> [$y]}, $i;
 		}
 	}
 }
@@ -561,8 +565,8 @@ sub block_wrap
 				$state_hash{$state_key} = $f_taint 
 					unless $state_hash{$state_key};
 			}
-			my $ofs  = $$b[ $i + 1];
-			my $tlen = $$b[ $i + 2];
+			my $ofs  = $$b[ $i + tb::T_OFS];
+			my $tlen = $$b[ $i + tb::T_LEN];
 			$lastTextOffset = $ofs + $tlen unless $wrapmode;
 		REWRAP: 
 			my $tw = $canvas-> get_text_width( substr( $$t, $o + $ofs, $tlen), 1);
@@ -654,10 +658,10 @@ sub block_wrap
 			$wrapmode = $$b[ $i + 1];
 # print "wrap: $wrapmode\n";
 		} elsif ( $cmd == tb::OP_FONT) {
-			if ( $$b[$i + 1] == tb::F_SIZE && $$b[$i + 2] < tb::F_HEIGHT ) {
-				$$state[ $$b[$i + 1]] = $self-> {defaultFontSize} + $$b[$i + 2];
+			if ( $$b[$i + tb::F_MODE] == tb::F_SIZE && $$b[$i + tb::F_DATA] < tb::F_HEIGHT ) {
+				$$state[ $$b[$i + tb::F_MODE]] = $self-> {defaultFontSize} + $$b[$i + tb::F_DATA];
 			} else {
-				$$state[ $$b[$i + 1]] = $$b[$i + 2];
+				$$state[ $$b[$i + tb::F_MODE]] = $$b[$i + tb::F_DATA];
 			}
 			$f_taint = undef;
 			push @$z, @$b[ $i .. ( $i + $tb::oplen[ $cmd] - 1)];
@@ -666,7 +670,7 @@ sub block_wrap
 				$$b[$i + 1];
 			push @$z, @$b[ $i .. ( $i + $tb::oplen[ $cmd] - 1)];
 		} elsif ( $cmd == tb::OP_TRANSPOSE) {
-			my @r = @$b[ $i .. $i + 3];
+			my @r = @$b[ $i .. $i + tb::X_FLAGS];
 			if ( $$b[ $i + tb::X_FLAGS] & tb::X_DIMENSION_FONT_HEIGHT) {
 				unless ( $f_taint) {
 					$self-> realize_state( $canvas, $state, tb::REALIZE_FONTS); 
@@ -731,7 +735,7 @@ sub block_wrap
 				$f_taint = $state_hash{ join('.', 
 					@$state[tb::BLK_FONT_ID .. tb::BLK_FONT_STYLE]
 				) };
-				$x += $$b[ $i + 3];
+				$x += $$b[ $i + tb::T_WID];
 				$$b[ tb::BLK_WIDTH] = $x 
 					if $$b[ tb::BLK_WIDTH ] < $x;
 				$$b[ tb::BLK_APERTURE_Y] = $f_taint-> {descent} - $y 
@@ -743,15 +747,15 @@ sub block_wrap
 #            print "OP_TEXT patch $$b[$i+1] => ";
 				$lastTextOffset = 
 					$$b[ tb::BLK_TEXT_OFFSET] + 
-					$$b[ $i + 1] + 
-					$$b[ $i + 2];
-				$$b[ $i + 1] -= $lastBlockOffset - $$b[ tb::BLK_TEXT_OFFSET];
+					$$b[ $i + tb::T_OFS] + 
+					$$b[ $i + tb::T_LEN];
+				$$b[ $i + tb::T_OFS] -= $lastBlockOffset - $$b[ tb::BLK_TEXT_OFFSET];
 #            print "$$b[$i+1]\n";
 			} elsif ( $cmd == tb::OP_FONT) {
-				if ( $$b[$i + 1] == tb::F_SIZE && $$b[$i + 2] < tb::F_HEIGHT ) {
-					$$state[ $$b[$i + 1]] = $self-> {defaultFontSize} + $$b[$i + 2];
+				if ( $$b[$i + tb::F_MODE] == tb::F_SIZE && $$b[$i + tb::F_DATA] < tb::F_HEIGHT ) {
+					$$state[ $$b[$i + tb::F_MODE]] = $self-> {defaultFontSize} + $$b[$i + tb::F_DATA];
 				} else {
-					$$state[ $$b[$i + 1]] = $$b[$i + 2];
+					$$state[ $$b[$i + tb::F_MODE]] = $$b[$i + tb::F_DATA];
 				}
 			} elsif ( $cmd == tb::OP_TRANSPOSE) {
 				my ( $newX, $newY) = ( $x + $$b[ $i + tb::X_X], $y + $$b[ $i + tb::X_Y]);
@@ -826,10 +830,9 @@ sub on_paint
 
 	my ( $sx1, $sy1, $sx2, $sy2) = @{$self-> {selection}};
 
-	for ( int( $cy[0] / tb::YMAX) .. int( $cy[1] / tb::YMAX)) {
-		next unless $self-> {ymap}-> [$_];
-		for ( @{$self-> {ymap}-> [$_]}) {
-			my $j = $_;
+	for my $ymap_i ( int( $cy[0] / tb::YMAX) .. int( $cy[1] / tb::YMAX)) {
+		next unless $self-> {ymap}-> [$ymap_i];
+		for my $j ( @{$self-> {ymap}-> [$ymap_i]}) {
 			$b = $$bx[$j];
 			my ( $x, $y) = ( 
 				$aa[0] - $offset + $$b[ tb::BLK_X], 
@@ -896,7 +899,7 @@ sub on_paint
 				$self-> selection_state( $canvas);
 				$self-> block_draw( $canvas, $b, $x, $y);
 				$self-> {selectionPaintMode} = 0;
-			} else {
+			} else { # no selection case
 				$self-> block_draw( $canvas, $b, $x, $y);
 			}
 		}
@@ -926,7 +929,7 @@ sub block_draw
 	for ( ; $i < $lim; $i += $tb::oplen[ $$b[ $i]] ) {
 		$cmd = $$b[$i];
 		if ( $cmd == tb::OP_TEXT) {
-			if ( $$b[$i + 2] > 0) {
+			if ( $$b[$i + tb::T_LEN] > 0) {
 				unless ( $f_taint) {
 					$self-> realize_state( $canvas, \@state, tb::REALIZE_FONTS); 
 					$f_taint = $canvas-> get_font;
@@ -935,14 +938,18 @@ sub block_draw
 					$self-> realize_state( $canvas, \@state, tb::REALIZE_COLORS); 
 					$c_taint = 1;
 				}
-				$ret = $canvas-> text_out( substr( $$t, $o + $$b[$i + 1], $$b[$i + 2]), $x, $y);
+				# Make sure we ultimately return "fail" if any text_out operation
+				# in this block fails. XXX if there are multiple failures, $@
+				# will only contain the last one. Consider consolidating
+				# them somehow.
+				$ret &&= $canvas-> text_out( substr( $$t, $o + $$b[$i + tb::T_OFS], $$b[$i + tb::T_LEN]), $x, $y);
 			}
-			$x += $$b[ $i + 3];
+			$x += $$b[ $i + tb::T_WID];
 		} elsif ( $cmd == tb::OP_FONT) {
-			if ( $$b[$i + 1] == tb::F_SIZE && $$b[$i + 2] < tb::F_HEIGHT ) {
-				$state[ $$b[$i + 1]] = $self-> {defaultFontSize} + $$b[$i + 2];
+			if ( $$b[$i + tb::F_MODE] == tb::F_SIZE && $$b[$i + tb::F_DATA] < tb::F_HEIGHT ) {
+				$state[ $$b[$i + tb::F_MODE]] = $self-> {defaultFontSize} + $$b[$i + tb::F_DATA];
 			} else {
-				$state[ $$b[$i + 1]] = $$b[$i + 2];
+				$state[ $$b[$i + tb::F_MODE]] = $$b[$i + tb::F_DATA];
 			}
 			$f_taint = undef;
 		} elsif (( $cmd == tb::OP_TRANSPOSE) && !($$b[ $i + tb::X_FLAGS] & tb::X_EXTEND)) {
@@ -962,6 +969,8 @@ sub block_draw
 			$state[ tb::BLK_COLOR + (($$b[ $i + 1] & tb::BACKCOLOR_FLAG) ? 1 : 0)] 
 				= $$b[$i + 1];
 			$c_taint = undef;
+		} elsif ($cmd >= @tb::oplen) {
+			die("Unknown Prima::TextView block op $cmd\n");
 		}
 	}
 
@@ -1075,9 +1084,9 @@ sub xy2info
 	for ( ; $i < $lim; $i += $tb::oplen[ $$b[ $i]] ) {
 		my $cmd = $$b[$i];
 		if ( $cmd == tb::OP_TEXT) {
-			my $npx = $px + $$b[$i+3];
+			my $npx = $px + $$b[$i + tb::T_WID];
 			if ( $px > $x) {
-				$ofs = $$b[ $i + 1]; 
+				$ofs = $$b[ $i + tb::T_OFS]; 
 				undef $unofs;
 				last;
 			} elsif ( $px <= $x && $npx > $x) {
@@ -1085,9 +1094,9 @@ sub xy2info
 					$self-> realize_state( $self, \@state, tb::REALIZE_FONTS); 
 					$f_taint = $self-> get_font;
 				}
-				$ofs = $$b[ $i + 1] + $self-> text_wrap( 
+				$ofs = $$b[ $i + tb::T_OFS] + $self-> text_wrap( 
 					substr( 
-						${$self-> {text}}, $bofs + $$b[ $i + 1], $$b[ $i + 2]
+						${$self-> {text}}, $bofs + $$b[ $i + tb::T_OFS], $$b[ $i + tb::T_LEN]
 					),
 					$x - $px, 
 					tw::ReturnFirstLineLength | tw::BreakSingle
@@ -1095,15 +1104,15 @@ sub xy2info
 				undef $unofs;
 				last;
 			} 
-			$unofs = $$b[ $i + 1] + $$b[ $i + 2];
+			$unofs = $$b[ $i + tb::T_OFS] + $$b[ $i + tb::T_LEN];
 			$px = $npx;
 		} elsif (( $cmd == tb::OP_TRANSPOSE) && !($$b[ $i + tb::X_FLAGS] & tb::X_EXTEND)) {
 			$px += $$b[ $i + tb::X_X];
 		} elsif ( $cmd == tb::OP_FONT) {
-			if ( $$b[$i + 1] == tb::F_SIZE && $$b[$i + 2] < tb::F_HEIGHT ) {
-				$state[ $$b[$i + 1]] = $self-> {defaultFontSize} + $$b[$i + 2];
+			if ( $$b[$i + tb::F_MODE] == tb::F_SIZE && $$b[$i + tb::F_DATA] < tb::F_HEIGHT ) {
+				$state[ $$b[$i + tb::F_MODE]] = $self-> {defaultFontSize} + $$b[$i + tb::F_DATA];
 			} else {
-				$state[ $$b[$i + 1]] = $$b[$i + 2];
+				$state[ $$b[$i + tb::F_MODE]] = $$b[$i + tb::F_DATA];
 			}
 			$f_taint = undef;
 		}
@@ -1151,8 +1160,8 @@ sub text2xoffset
 	for ( ; $i < $lim; $i += $tb::oplen[ $$b[ $i]] ) {
 		my $cmd = $$b[$i];
 		if ( $cmd == tb::OP_TEXT) {
-			if ( $x >= $$b[$i+1]) {
-				if ( $x < $$b[$i+1] + $$b[$i+2]) {
+			if ( $x >= $$b[$i + tb::T_OFS]) {
+				if ( $x < $$b[$i + tb::T_OFS] + $$b[$i + tb::T_LEN]) {
 					unless ( $f_taint) {
 						$self-> realize_state( 
 							$self, \@state, 
@@ -1163,24 +1172,24 @@ sub text2xoffset
 					$px += $self-> get_text_width( 
 						substr( 
 							${$self-> {text}}, 
-							$bofs + $$b[$i+1], 
-							$x - $$b[$i+1] 
+							$bofs + $$b[$i+tb::T_OFS], 
+							$x - $$b[$i+tb::T_OFS] 
 						)
 					);
 					last;
-				} elsif ( $x == $$b[$i+1] + $$b[$i+2]) {
-					$px += $$b[$i+3];
+				} elsif ( $x == $$b[$i+tb::T_OFS] + $$b[$i+tb::T_LEN]) {
+					$px += $$b[$i+tb::T_WID];
 					last;
 				}
 			}
-			$px += $$b[$i+3];
+			$px += $$b[$i+tb::T_WID];
 		} elsif (( $cmd == tb::OP_TRANSPOSE) && !($$b[ $i + tb::X_FLAGS] & tb::X_EXTEND)) {
 			$px += $$b[ $i + tb::X_X];
 		} elsif ( $cmd == tb::OP_FONT) {
-			if ( $$b[$i + 1] == tb::F_SIZE && $$b[$i + 2] < tb::F_HEIGHT ) {
-				$state[ $$b[$i + 1]] = $self-> {defaultFontSize} + $$b[$i + 2];
+			if ( $$b[$i + tb::F_MODE] == tb::F_SIZE && $$b[$i + tb::F_DATA] < tb::F_HEIGHT ) {
+				$state[ $$b[$i + tb::F_MODE]] = $self-> {defaultFontSize} + $$b[$i + tb::F_DATA];
 			} else {
-				$state[ $$b[$i + 1]] = $$b[$i + 2];
+				$state[ $$b[$i + tb::F_MODE]] = $$b[$i + tb::F_DATA];
 			}
 			$f_taint = undef;
 		}
@@ -1631,6 +1640,42 @@ __END__
 =head1 NAME 
 
 Prima::TextView - rich text browser widget
+
+=head1 SYNOPSIS
+
+ use strict;
+ use warnings;
+ use Prima qw(TextView Application);
+ 
+ my $w = Prima::MainWindow-> create(
+     name => 'TextView example',
+ );
+ 
+ my $t = $w->insert(TextView =>
+     text     => 'Hello from TextView!',
+     pack     => { expand => 1, fill => 'both' },
+ );
+ 
+ # Create a single block that renders all the text using the default font
+ my $tb = tb::block_create();
+ my $text_width_px = $t->get_text_width($t->text);
+ my $font_height_px = $t->font->height;
+ $tb->[tb::BLK_WIDTH]  = $text_width_px;
+ $tb->[tb::BLK_HEIGHT] = $font_height_px;
+ $tb->[tb::BLK_BACKCOLOR] = cl::Back;
+ $tb->[tb::BLK_FONT_SIZE] = int($font_height_px) + tb::F_HEIGHT;
+ # Add an operation that draws the text:
+ push @$tb, tb::text(0, length($t->text), $text_width_px);
+ 
+ # Set the markup block(s) and recalculate the ymap
+ $t->{blocks} = [$tb];
+ $t->recalc_ymap;
+ 
+ # Additional step needed for horizontal scroll as well as per-character
+ # selection:
+ $t->paneSize($text_width_px, $font_height_px);
+ 
+ run Prima;
 
 =head1 DESCRIPTION
 

@@ -32,6 +32,7 @@ use Prima;
 use Config;
 use Prima::Utils;
 use Prima::TextView;
+use Encode;
 
 package Prima::PodView::Link;
 use vars qw(@ISA);
@@ -73,9 +74,11 @@ use constant STYLE_CODE   => 0;
 use constant STYLE_TEXT   => 1;
 use constant STYLE_HEAD_1 => 2;
 use constant STYLE_HEAD_2 => 3;
-use constant STYLE_ITEM   => 4;
-use constant STYLE_LINK   => 5;
-use constant STYLE_MAX_ID => 5;
+use constant STYLE_HEAD_3 => 4;
+use constant STYLE_HEAD_4 => 5;
+use constant STYLE_ITEM   => 6;
+use constant STYLE_LINK   => 7;
+use constant STYLE_MAX_ID => 7;
 
 # model layout indices
 use constant M_INDENT      => 0; # pod-content driven indent
@@ -144,6 +147,8 @@ sub profile_default
 			{ },                                      # STYLE_TEXT
 			{ fontSize => 4, fontStyle => fs::Bold }, # STYLE_HEAD_1
 			{ fontSize => 2, fontStyle => fs::Bold }, # STYLE_HEAD_2
+			{ fontStyle => fs::Bold | fs::Italic },   # STYLE_HEAD_3
+			{ fontStyle => fs::Italic },              # STYLE_HEAD_4
 			{ fontStyle => fs::Bold },                # STYLE_ITEM
 			{ color     => COLOR_LINK_FOREGROUND,     # STYLE_LINK
 			fontStyle => fs::Underlined   },  
@@ -241,7 +246,7 @@ sub make_bookmark
 			
 			return "$self->{pageName}|0|0" unless defined $t;
 			return undef if $tid + 1 >= scalar @{$self-> {topics}}; # already on top
-			if ( $$t[ T_STYLE] == STYLE_HEAD_1 || $$t[ T_STYLE] == STYLE_HEAD_2) {
+			if ( $$t[ T_STYLE] == STYLE_HEAD_1 && $$t[ T_STYLE] == STYLE_HEAD_2) {
 				$t = $self-> {topics}-> [-1];
 				return "$self->{pageName}|$$t[T_MODEL_START]|0" 
 			}
@@ -309,6 +314,8 @@ sub load_link
 		my $default_topic = 0;
 
 		if ( $s =~ /^file:\/\/(.*)$/) {
+			$page = $1;
+		} elsif ( $s =~ m{^([:\w]+)/?$} ) {
 			$page = $1;
 		} elsif ( $s =~ /^([^\/]*)(\/)(.*)$/) {
 			( $page, $lead_slash, $section) = ( $1, $2, $3);
@@ -616,6 +623,7 @@ sub open_read
 		ignoreFormat => 0,
 
 		createIndex  => 1,
+		encoding     => undef,
 	};
 }
 
@@ -627,6 +635,7 @@ sub add_formatted
 	
 	if ( $format eq 'text') {
 		$self-> add($text,STYLE_CODE,0);
+		$self-> add_new_line;
 	} elsif ( $format eq 'podview') {
 		while ( $text =~ m/<\s*([^<>]*)\s*>/gcs) {
 			my $cmd = lc $1;
@@ -736,7 +745,7 @@ sub read_paragraph
 			my $begun = $r-> {begun};
 			if (/^=end\s+$begun/ || /^=cut/) {
 					$r-> {begun} = '';
-					$self-> add("\n",STYLE_TEXT,0); # end paragraph
+					$self-> add_new_line; # end paragraph 
 					$r-> {cutting} = 1 if /^=cut/;
 			} else {
 					$self-> add_formatted( $r-> {begun}, $_);
@@ -751,8 +760,9 @@ sub read_paragraph
 		}me;
 
 		# Translate verbatim paragraph
-		if (/^\s/) {
-			$self-> add($_,STYLE_CODE,$r-> {indent});
+		if (/^\s/) { 
+			$self-> add($_,STYLE_CODE,$r-> {indent}) for split "\n", $_;
+			$self-> add_new_line;
 			next;
 		}
 
@@ -765,10 +775,9 @@ sub read_paragraph
 			next;
 		}
 
-
 		if (s/^=//) {
-			my $Cmd;
-			($Cmd, $_) = split(' ', $_, 2);
+			my ($Cmd, $args) = split(' ', $_, 2);
+			$args = '' unless defined $args;
 			if ($Cmd eq 'cut') {
 				$r-> {cutting} = 1;
 			}
@@ -776,28 +785,38 @@ sub read_paragraph
 				$r-> {cutting} = 0;
 			}
 			elsif ($Cmd eq 'head1') {
-				$self-> add($_, STYLE_HEAD_1, 0);
+				$self-> add( $args, STYLE_HEAD_1, 0);
 			}
 			elsif ($Cmd eq 'head2') {
-				$self-> add( $_, STYLE_HEAD_2, 0);
+				$self-> add( $args, STYLE_HEAD_2, 0);
+			}
+			elsif ($Cmd eq 'head3') {
+				$self-> add( $args, STYLE_HEAD_3, 0);
+			}
+			elsif ($Cmd eq 'head4') {
+				$self-> add( $args, STYLE_HEAD_4, 0);
 			}
 			elsif ($Cmd eq 'over') {
 				push(@{$r-> {indentStack}}, $r-> {indent});
-				$r-> {indent} += ( m/^(\d+)$/ ) ? $1 : DEF_INDENT;
-				$self-> add("\n", STYLE_TEXT, 0);
+				$r-> {indent} += ( $args =~ m/^(\d+)$/ ) ? $1 : DEF_INDENT;
 			}
 			elsif ($Cmd eq 'back') {
 				$self-> _close_topic( STYLE_ITEM);
 				$r-> {indent} = pop(@{$r-> {indentStack}}) || 0;
-				$self-> add("\n", STYLE_TEXT, 0);
 			}
 			elsif ($Cmd eq 'item') {
-				$self-> add($_, STYLE_ITEM, $r-> {indentStack}-> [-1] || DEF_INDENT);
+				$self-> add( $args, STYLE_ITEM, $r-> {indentStack}-> [-1] || DEF_INDENT);
 			}
-		}
+			elsif ($Cmd eq 'encoding') {
+				$r->{encoding} = Encode::find_encoding($args); # or undef
+			}
+		}			
 		else {
+			s/\n/ /g;
 			$self-> add($_, STYLE_TEXT, $r-> {indent});
 		}
+
+		$self-> add_new_line unless $r->{bulletMode};
 	}
 }
 
@@ -810,31 +829,38 @@ sub read
 	my $odd = 0;
 	for ( split ( "(\n)", $pod)) {
 		next unless $odd = !$odd;
+		$_ = $r->{encoding}->decode($_, Encode::FB_HTMLCREF) if $r->{encoding};
 
-		if (defined $r-> {command_buffer}) {
+        	if (defined $r-> {paragraph_buffer}) {
 			if ( /^$/) {
-				my $cb = $r-> {command_buffer};
-				undef $r-> {command_buffer};
-				$self-> read_paragraph("$cb\n");
-			} else {
-				$r-> {command_buffer} .= " $_";
+				my $pb = $r-> {paragraph_buffer};
+				undef $r-> {paragraph_buffer};
+				$self-> read_paragraph($pb);
+        	    	} else {
+				$r-> {paragraph_buffer} .= "\n$_";
 				next;
-			}
-		} elsif ( /^=/) {
-			$r-> {command_buffer} = $_;
-			next;
-		}
-	
-		$self-> read_paragraph("$_\n");
-	}
+	            	}
+        	} elsif ( !/^$/) {
+	            $r->{paragraph_buffer} = $_;
+        	    next;
+	        }
+	}        
 }
 
 sub close_read
 {
 	my ( $self, $topicView) = @_;
 	return unless $self-> {readState};
+
+	my $r = $self-> {readState};
+	if ( defined $r->{paragraph_buffer}) {
+		my $pb = $r-> {paragraph_buffer};
+		undef $r-> {paragraph_buffer};
+		$self-> read_paragraph("$pb\n");
+	}
+
 	$topicView = $self-> {topicView} unless defined $topicView;
-	$self-> add( "\n", STYLE_TEXT, 0); # end
+	$self-> add_new_line; # end
 	$self-> {contents}-> [0]-> references( $self-> {links});
 
 	goto NO_INDEX unless $self-> {readState}-> {createIndex};
@@ -854,7 +880,6 @@ sub close_read
 	## and then uses black magic to put it in the front.
 
 	# remember the current end state
-	my $r = $self-> {readState};
 	my @text_ends_at = ( 
 		$r-> {bigofs}, 
 		scalar @{$self->{model}},
@@ -874,13 +899,13 @@ sub close_read
 		$msecid++;
 	}
 	$self-> add( "Index",  STYLE_HEAD_1, 0);
+	$self-> add_new_line;
 	$self-> {hasIndex} = 1;
 	for my $k ( @{$self-> {topics}}) {
 		last if $secid == $msecid; # do not add 'Index' entry
 		my ( $ofs, $end, $text, $style, $depth, $linkStart) = @$k;
-		my $indent = ( $style - STYLE_HEAD_1 + $depth ) * 2;
-		$self-> add("L<$text|topic://$secid>\n", STYLE_TEXT, $indent);
-		$self-> add("\n", STYLE_TEXT, 0);
+		my $indent = DEF_INDENT + ( $style - STYLE_HEAD_1 + $depth ) * 2;
+		$self-> add("L<$text|topic://$secid>", STYLE_TEXT, $indent);
 		$secid++;
 	}
 
@@ -986,22 +1011,6 @@ sub add
 	my $r = $self-> {readState};
 	return unless $r;
 
-	# line up the wrappable text
-	if ( $style == STYLE_TEXT) {
-		if ( $p =~ m/^\n$/ ) {
-			$p = $r-> {wrapstate} . $p;
-			$r-> {wrapstate} = '';
-			$indent = $r-> {wrapindent};
-		} else {
-			chomp $p;
-			$r-> {wrapindent} = $indent unless length $r-> {wrapstate};
-			$r-> {wrapstate} .= ' ' . $p;
-			return;
-		}
-	} elsif ( length $r-> {wrapstate}) {
-		$self-> add( "\n", STYLE_TEXT, $r-> {wrapindent});
-	}
-
 	$p =~ s/\n//g; 
 	my $g = [ $indent, $r-> {bigofs}, 0];
 	my $styles = $self-> {styles};
@@ -1042,7 +1051,6 @@ sub add
 		$p =~ s/[\s\t]+/ /g;
 		$p =~ s/([\200-\377])/"E<".ord($1).">"/ge;
 		$p =~ s/(E<[^<>]+>)/noremap($1)/ge;
-		$p =~ s/(\W)([\$\@\%\*\&])(?!Z<>)([^\s\(\)\{\}]+)/$1C<$2$3>/g; 
 		$p =~ s/([:A-Za-z_][:A-Za-z_0-9]*\([^\)]*\))/C<$1>/g;
 		my $maxnest = 10;
 		my $linkStart = scalar @{$self-> {links}};
@@ -1055,9 +1063,9 @@ sub add
 					[ pos($m) - 1, lc $1, 1];
 				substr $m, $ids[$_][0], $ids[$_][2], '_' x $ids[$_][2] for -2,-1;
 			}
-			while ( $m =~ m/([A-Z])(<<+\s?)/gcs) {
-				my ( $pos, $cmd, $left, $right) = ( pos($m), $1, $2, ' ' . ('>' x ( length($2) - 1)));
-				if ( $m =~ m/(.*?)($right)(?!>)/gcs) {
+			while ( $m =~ m/([A-Z])(<<+) /gcs) {
+				my ( $pos, $cmd, $left, $right) = ( pos($m), $1, $2, ('>' x ( length($2))));
+				if ( $m =~ m/\G.*? $right(?!>)/gcs) {
 					push @ids, 
 						[ 
 							$pos - length($left) - 1, 
@@ -1225,10 +1233,21 @@ sub add
 
 	# all-string format options - close brackets
 	push @$g, @{$self-> {styleInfo}-> [$style * 2 + 1]};
-
+	
 	# finish block
 	$r-> {bigofs} += length $p;
 	push @{$self-> {model}}, $g unless $no_push_block;
+}
+
+sub add_new_line
+{
+	my $self = $_[0];
+	my $r = $self-> {readState};
+	return unless $r;
+	my $p = " \n";
+	${$self-> {text}} .= $p;
+	push @{$self-> {model}}, [ 0, $r->{bigofs}, 0, tb::text(0, 1) ];
+	$r-> {bigofs} += length $p;
 }
 
 sub stop_format
@@ -1380,9 +1399,9 @@ sub format_chunks
 				for ( ; $i < $lim; $i += $tb::oplen[ $$b[$i] ]) {
 					my $cmd = $$b[$i];
 					if ( $cmd == tb::OP_TEXT) {
-						$x += $$b[ $i + 3];
+						$x += $$b[ $i + tb::T_WID];
 					} elsif ( $cmd == tb::OP_TRANSPOSE) {
-						$x += $$b[ $i + 1] 
+						$x += $$b[ $i + tb::X_X] 
 							unless $$b[ $i + tb::X_FLAGS] & tb::X_EXTEND;
 					} elsif ( $cmd == $OP_LINK) {
 						if ( $linkState = $$b[ $i + 1]) {

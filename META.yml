@@ -30,4 +30,4 @@ requires: {}
 resources:
   homepage: http://www.prima.eu.org/
   repository: http://github.com/dk/Prima
-version: 1.36
+version: 1.37
