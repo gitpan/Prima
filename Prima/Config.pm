@@ -4,25 +4,25 @@ package Prima::Config;
 use vars qw(%Config %Config_inst);
 
 %Config_inst = (
-	incpaths              => [ '$(lib)/Prima/CORE','$(lib)/Prima/CORE/generic','/usr/local/include','/usr/include/freetype2','/usr/include/gtk-2.0','/usr/lib/i386-linux-gnu/gtk-2.0/include','/usr/include/atk-1.0','/usr/include/cairo','/usr/include/gdk-pixbuf-2.0','/usr/include/pango-1.0','/usr/include/gio-unix-2.0/','/usr/include/glib-2.0','/usr/lib/i386-linux-gnu/glib-2.0/include','/usr/include/pixman-1','/usr/include/libpng12' ],
-	gencls                => '$(bin)/gencls',
-	tmlink                => '$(bin)/tmlink',
-	libname               => '$(lib)/auto/Prima/Prima.a',
-	dlname                => '$(lib)/auto/Prima/Prima.so',
+	incpaths              => [ '$(lib)\Prima\CORE','$(lib)\Prima\CORE\generic' ],
+	gencls                => '$(bin)\gencls.bat',
+	tmlink                => '$(bin)\tmlink.bat',
+	libname               => '$(lib)\auto\Prima\libPrima.a',
+	dlname                => '$(lib)\auto\Prima\Prima.dll',
 	ldpaths               => [],
 
-	inc                   => '-I$(lib)/Prima/CORE -I$(lib)/Prima/CORE/generic -I/usr/local/include -I/usr/include/freetype2 -I/usr/include/gtk-2.0 -I/usr/lib/i386-linux-gnu/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/pango-1.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/glib-2.0 -I/usr/lib/i386-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/libpng12',
-	libs                  => '',
+	inc                   => '-I$(lib)\Prima\CORE -I$(lib)\Prima\CORE\generic',
+	libs                  => '$(lib)\auto\Prima\libPrima.a',
 );
 
 %Config = (
-	ifs                   => '\/',
-	quote                 => '\'',
-	platform              => 'unix',
-	incpaths              => [ '/usr/home/dk/src/Prima/include','/usr/home/dk/src/Prima/include/generic','/usr/local/include','/usr/include/freetype2','/usr/include/gtk-2.0','/usr/lib/i386-linux-gnu/gtk-2.0/include','/usr/include/atk-1.0','/usr/include/cairo','/usr/include/gdk-pixbuf-2.0','/usr/include/pango-1.0','/usr/include/gio-unix-2.0/','/usr/include/glib-2.0','/usr/lib/i386-linux-gnu/glib-2.0/include','/usr/include/pixman-1','/usr/include/libpng12' ],
-	gencls                => '/usr/home/dk/src/Prima/blib/script/gencls',
-	tmlink                => '/usr/home/dk/src/Prima/blib/script/tmlink',
-	scriptext             => '',
+	ifs                   => '\\',
+	quote                 => '\"',
+	platform              => 'win32',
+	incpaths              => [ 'C:/home/Prima/Prima\include','C:/home/Prima/Prima\include\generic' ],
+	gencls                => 'C:\home\Prima\Prima\blib\script\gencls.bat',
+	tmlink                => 'C:\home\Prima\Prima\blib\script\tmlink.bat',
+	scriptext             => '.bat',
 	genclsoptions         => '--tml --h --inc',
 	cobjflag              => '-o ',
 	coutexecflag          => '-o ',
@@ -30,21 +30,21 @@ use vars qw(%Config %Config_inst);
 	clibpathflag          => '-L',
 	cdefs                 => [],
 	libext                => '.a',
-	libprefix             => '',
-	libname               => '/usr/home/dk/src/Prima/blib/arch/auto/Prima/Prima.a',
-	dlname                => '/usr/home/dk/src/Prima/blib/arch/auto/Prima/Prima.so',
+	libprefix             => 'lib',
+	libname               => 'C:\home\Prima\Prima\blib\arch\auto\Prima\libPrima.a',
+	dlname                => 'C:\home\Prima\Prima\blib\arch\auto\Prima\Prima.dll',
 	ldoutflag             => '-o ',
 	ldlibflag             => '-l',
 	ldlibpathflag         => '-L',
 	ldpaths               => [],
-	ldlibs                => ['Xpm','ungif','png','X11','Xext','freetype','fontconfig','Xrender','Xft','gtk-x11-2.0','gdk-x11-2.0','atk-1.0','gio-2.0','pangoft2-1.0','pangocairo-1.0','gdk_pixbuf-2.0','cairo','pango-1.0','gobject-2.0','glib-2.0'],
+	ldlibs                => ['Xpm','gif','tiff','png','jpeg','gdi32','mpr','winspool','comdlg32'],
 	ldlibext              => '',
 	inline                => 'inline',
-	dl_load_flags         => 1,
+	dl_load_flags         => 0,
 
-	inc                   => '-I/usr/home/dk/src/Prima/include -I/usr/home/dk/src/Prima/include/generic -I/usr/local/include -I/usr/include/freetype2 -I/usr/include/gtk-2.0 -I/usr/lib/i386-linux-gnu/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/pango-1.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/glib-2.0 -I/usr/lib/i386-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/libpng12',
+	inc                   => '-IC:/home/Prima/Prima\include -IC:/home/Prima/Prima\include\generic',
 	define                => '',
-	libs                  => '',
+	libs                  => 'C:\home\Prima\Prima\blib\arch\auto\Prima\libPrima.a',
 );
 
 1;

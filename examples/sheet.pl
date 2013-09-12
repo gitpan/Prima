@@ -25,19 +25,22 @@
 #
 #  $Id$
 #
-=pod 
-=item NAME
+=pod
+
+=head1 NAME
 
 Prima DetailedList widget example
 
-=item FEATURES
+=head1 FEATURES
 
-Demonstrates the usage of Prima::DetailedList class.
+Demonstrates the usage of L<Prima::DetailedList> class.
 Note the header-driven actions: column sort ( vertical, with click ) and 
 rearrangement ( horizontal, with drag ).
 
 =cut
 
+use strict;
+use warnings;
 use Prima;
 use Prima::DetailedList;
 
