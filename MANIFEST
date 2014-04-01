@@ -15,7 +15,7 @@ Drawable.c
 Drawable.cls
 File.c
 File.cls
-HISTORY
+Changes
 Icon.c
 Icon.cls
 Image.c
@@ -92,6 +92,7 @@ examples/rtc.pl
 examples/scrollbar.pl
 examples/sheet.pl
 examples/socket.pl
+examples/socket_anyevent.pl
 examples/spline.pl
 examples/theme.pl
 examples/transparent.pl
@@ -359,5 +360,4 @@ win32/gp.c
 win32/misc.c
 win32/stock.c
 win32/timers.c
-META.yml                                 Module YAML meta-data (added by MakeMaker)
-META.json                                Module JSON meta-data (added by MakeMaker)
+META.yml                                 Module meta-data (added by MakeMaker)

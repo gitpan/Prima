@@ -107,7 +107,7 @@ Image_init( Handle self, HV * profile)
 
    {
       Point set;
-      prima_read_point( pget_sv( resolution), (int*)&set, 2, "RTC0109: Array panic on 'resolution'");
+      prima_read_point( pget_sv( resolution), (int*)&set, 2, "Array panic on 'resolution'");
       my-> set_resolution( self, set);
    }
    if ( var->type & imGrayScale) switch ( var->type & imBPP)
@@ -284,7 +284,7 @@ Image_set( Handle self, HV * profile)
    {
       int newType = pget_i( type);
       if ( !itype_supported( newType))
-         warn("RTC0100: Invalid image type requested (%08x) in Image::set_type", newType);
+         warn("Invalid image type requested (%08x) in Image::set_type", newType);
       else 
          if ( !opt_InPaint) {
 	    SV * palette;
@@ -309,7 +309,7 @@ Image_set( Handle self, HV * profile)
    if ( pexist( resolution))
    {
       Point set;
-      prima_read_point( pget_sv( resolution), (int*)&set, 2, "RTC0109: Array panic on 'resolution'");
+      prima_read_point( pget_sv( resolution), (int*)&set, 2, "Array panic on 'resolution'");
       my-> set_resolution( self, set);
       pdelete( resolution);
    }
@@ -964,7 +964,7 @@ Image_palette( Handle self, Bool set, SV * palette)
       if ( ps)
          var-> palSize = ps;
       else
-         warn("RTC0107: Invalid array reference passed to Image::palette");
+         warn("Invalid array reference passed to Image::palette");
       my-> update_change( self);
    } else {
       int i;
@@ -1261,7 +1261,7 @@ Image_dup( Handle self)
    memcpy( i-> palette, var->palette, 768);
    i-> palSize = var-> palSize;
    if ( i-> type != var->type)
-      croak("RTC0108: Image::dup consistency failed");
+      croak("Image::dup consistency failed");
    else
       memcpy( i-> data, var->data, var->dataSize);
    memcpy( i-> stats, var->stats, sizeof( var->stats));
@@ -1285,6 +1285,7 @@ Image_extract( Handle self, int x, int y, int width, int height)
    HV * profile;
    unsigned char * data = var->data;
    int ls = var->lineSize;
+   int nodata = 0;
 
    if ( var->w == 0 || var->h == 0) return my->dup( self);
    if ( x < 0) x = 0;
@@ -1293,7 +1294,16 @@ Image_extract( Handle self, int x, int y, int width, int height)
    if ( y >= var->h) y = var->h - 1;
    if ( width  + x > var->w) width  = var->w - x;
    if ( height + y > var->h) height = var->h - y;
-   if ( width <= 0 || height <= 0) return my->dup( self);
+   if ( width <= 0 ) {
+      warn("Requested image width is less than 1");
+      width = 1;
+      nodata = 1;
+   }
+   if ( height <= 0 ) {
+      warn("Requested image height is less than 1");
+      height = 1;
+      nodata = 1;
+   }
 
    profile = newHV();
    pset_H( owner,        var->owner);
@@ -1311,6 +1321,8 @@ Image_extract( Handle self, int x, int y, int width, int height)
    i = ( PImage) h;
    memcpy( i-> palette, var->palette, 768);
    i-> palSize = var-> palSize;
+   if (nodata) goto NODATA;
+
    if (( var->type & imBPP) >= 8) {
       int pixelSize = ( var->type & imBPP) / 8;
       while ( height > 0) {
@@ -1330,6 +1342,7 @@ Image_extract( Handle self, int x, int y, int width, int height)
          bc_mono_copy( data + ( y + height) * ls, i-> data + height * i-> lineSize, x, width);
       }
    }
+NODATA:   
    --SvREFCNT( SvRV( i-> mate));
    return h;
 }

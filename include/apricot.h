@@ -422,6 +422,14 @@ typedef struct { double re, im; } DComplex;
 typedef struct { float  r,  ph; } TrigComplex;
 typedef struct { double r,  ph; } TrigDComplex;
 
+typedef struct _Rect2
+{
+    int x;
+    int y;
+    int width;
+    int height;
+} Rect2, *PRect2;
+
 #ifdef __cplusplus
 #define nil       NULL
 #else
@@ -1792,6 +1800,18 @@ END_TABLE(ws,UV)
 #define   zoNext           2
 #define   zoPrev           3
 
+/* paint state values */
+#define PS(const_name) CONSTANT(ps,const_name)
+START_TABLE(ps,UV)
+#define   psDisabled        0
+PS(Disabled)
+#define   psEnabled         1
+PS(Enabled)
+#define   psInformation     2
+PS(Information)
+END_TABLE(ps,UV)
+#undef PS
+
 /* system values */
 #define SV(const_name) CONSTANT(sv,const_name)
 START_TABLE(sv,UV)
@@ -1925,6 +1945,9 @@ apc_application_get_os_info( char *system, int slen,
 
 extern Point
 apc_application_get_size( Handle self);
+
+extern Rect2 *
+apc_application_get_monitor_rects( Handle self, int * nrects);
 
 extern Bool
 apc_application_go( Handle self);
@@ -2383,6 +2406,7 @@ typedef struct _MenuItemReg {   /* Menu item registration record */
       unsigned int utf8_text     : 1;
       unsigned int utf8_accel    : 1;
       unsigned int utf8_perlSub  : 1;
+      unsigned int autotoggle    : 1;  /* true if menu is toggled automatially */
    } flags;
 } MenuItemReg, *PMenuItemReg;
 

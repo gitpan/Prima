@@ -59,6 +59,9 @@
 #     define NEED_X11_EXTENSIONS_XRENDER_H
 #  endif
 #endif
+#ifdef HAVE_X11_EXTENSIONS_XRANDR_H
+#include <X11/extensions/Xrandr.h>
+#endif
 #undef Font
 #undef Drawable
 #undef Bool
@@ -582,6 +585,7 @@ typedef struct _UnixGuts
    Bool                         xft_disable_large_fonts;
    int                          xft_xrender_major_opcode;
    Bool                         xft_no_antialias;
+   Bool				randr_extension;
    struct MsgDlg               *message_boxes;
    XWindow                      grab_redirect;
    Handle                       grab_widget;
@@ -743,7 +747,6 @@ typedef struct _drawable_sys_data
       unsigned reload_font		: 1;
       unsigned sizeable                 : 1;
       unsigned sizemax_set              : 1;
-      unsigned suppress_cmMinimize      : 1;
       unsigned sync_paint               : 1;
       unsigned task_listed              : 1;
       unsigned transparent              : 1;
