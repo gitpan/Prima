@@ -1,33 +1,33 @@
---- #YAML:1.0
-name:               Prima
-version:            1.38
-abstract:           a perl graphic toolkit
+---
+abstract: 'a perl graphic toolkit'
 author:
-    - Dmitry Karasik <dmitry@karasik.eu.org>
-license:            FREEBSD
-distribution_type:  module
-configure_requires:
-    ExtUtils::MakeMaker:  0
+  - 'Dmitry Karasik <dmitry@karasik.eu.org>'
 build_requires:
-    ExtUtils::MakeMaker:  0
-requires:  {}
-resources:
-    homepage:    http://www.prima.eu.org/
-    repository:  http://github.com/dk/Prima
-no_index:
-    directory:
-        - t
-        - inc
-        - include
-        - img
-        - test
-        - unix
-        - win32
-    file:
-        - Makefile.PL
-        - test.pl
-        - ms_install.pl
-generated_by:       ExtUtils::MakeMaker version 6.57_05
+  ExtUtils::MakeMaker: '0'
+configure_requires:
+  ExtUtils::MakeMaker: '0'
+dynamic_config: 1
+generated_by: 'ExtUtils::MakeMaker version 6.98, CPAN::Meta::Converter version 2.140640'
+license: open_source
 meta-spec:
-    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
-    version:  1.4
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: '1.4'
+name: Prima
+no_index:
+  directory:
+    - t
+    - inc
+    - include
+    - img
+    - test
+    - unix
+    - win32
+  file:
+    - Makefile.PL
+    - test.pl
+    - ms_install.pl
+requires: {}
+resources:
+  homepage: http://www.prima.eu.org/
+  repository: http://github.com/dk/Prima
+version: '1.39'

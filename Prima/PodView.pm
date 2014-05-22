@@ -147,8 +147,8 @@ sub profile_default
 			{ },                                      # STYLE_TEXT
 			{ fontSize => 4, fontStyle => fs::Bold }, # STYLE_HEAD_1
 			{ fontSize => 2, fontStyle => fs::Bold }, # STYLE_HEAD_2
-			{ fontStyle => fs::Bold | fs::Italic },   # STYLE_HEAD_3
-			{ fontStyle => fs::Italic },              # STYLE_HEAD_4
+			{ fontSize => 1, fontStyle => fs::Bold }, # STYLE_HEAD_3
+			{ fontSize => 1, fontStyle => fs::Bold }, # STYLE_HEAD_4
 			{ fontStyle => fs::Bold },                # STYLE_ITEM
 			{ color     => COLOR_LINK_FOREGROUND,     # STYLE_LINK
 			fontStyle => fs::Underlined   },  
@@ -246,7 +246,7 @@ sub make_bookmark
 			
 			return "$self->{pageName}|0|0" unless defined $t;
 			return undef if $tid + 1 >= scalar @{$self-> {topics}}; # already on top
-			if ( $$t[ T_STYLE] == STYLE_HEAD_1 && $$t[ T_STYLE] == STYLE_HEAD_2) {
+			if ( $$t[ T_STYLE] >= STYLE_HEAD_1 && $$t[ T_STYLE] <= STYLE_HEAD_4) {
 				$t = $self-> {topics}-> [-1];
 				return "$self->{pageName}|$$t[T_MODEL_START]|0" 
 			}
@@ -831,19 +831,19 @@ sub read
 		next unless $odd = !$odd;
 		$_ = $r->{encoding}->decode($_, Encode::FB_HTMLCREF) if $r->{encoding};
 
-        	if (defined $r-> {paragraph_buffer}) {
-			if ( /^$/) {
+		if (defined $r-> {paragraph_buffer}) {
+			if ( /^\s*$/) {
 				my $pb = $r-> {paragraph_buffer};
 				undef $r-> {paragraph_buffer};
 				$self-> read_paragraph($pb);
-        	    	} else {
+			} else {
 				$r-> {paragraph_buffer} .= "\n$_";
 				next;
-	            	}
-        	} elsif ( !/^$/) {
-	            $r->{paragraph_buffer} = $_;
-        	    next;
-	        }
+			}
+		} elsif ( !/^$/) {
+		    $r->{paragraph_buffer} = $_;
+		    next;
+		}
 	}        
 }
 
@@ -981,7 +981,7 @@ sub _close_topic
 
 	my $r = $self-> {readState};
 	my $t = $r-> { topicStack};
-	my $state = ( $style == STYLE_HEAD_1 || $style == STYLE_HEAD_2) ? 
+	my $state = ( $style >= STYLE_HEAD_1 && $style <= STYLE_HEAD_4) ? 
 		0 : scalar @{$r-> {indentStack}};
 
 	if ( $state <= $$t[-1]-> [0]) {
@@ -1210,7 +1210,8 @@ sub add
 		}
 
 		# add topic
-		if ( $style == STYLE_HEAD_1 || $style == STYLE_HEAD_2 || 
+		if ( 
+            ( $style >= STYLE_HEAD_1 && $style <= STYLE_HEAD_4 ) ||
 			(( $style == STYLE_ITEM) && $p !~ /^[0-9*]+\.?$/)) {
 			my $itemDepth = ( $style == STYLE_ITEM) ?
 				scalar @{$r-> {indentStack}} : 0;
@@ -1493,8 +1494,29 @@ sub print
 	$$state[ tb::BLK_FONT_ID] = 0;
 
 	my ( $formatWidth, $formatHeight) = $canvas-> size;
+        my $hmargin = $formatWidth  / 24;
+        my $vmargin = $formatHeight / 12;
+        $formatWidth  -= $hmargin * 2;
+        $formatHeight -= $vmargin * 2;
+        $canvas->translate( $hmargin, $vmargin );
+
 	my $mid = $min;
 	my $y = $formatHeight;
+
+	my $pageno = 1;
+	my $pagenum  = sub {
+		$canvas->translate( 0, 0 );
+		$canvas->font->set( name => $self->fontPalette->[0]->{name} || 'Default', size => 6, style => 0, pitch => fp::Default );
+		$canvas->set( color => cl::Black );
+		$canvas->text_out( $pageno, ( $formatWidth - $canvas->get_text_width($pageno) ) / 2, ($vmargin - $canvas->font->height ) / 2 );
+		$pageno++;
+	};
+	my $new_page = sub {
+		goto ABORT if $callback && ! $callback-> ();
+		$pagenum->();
+		goto ABORT unless $canvas-> new_page;
+		$canvas->translate( $hmargin, $vmargin );
+	};
 
 	for ( ; $mid <= $max; $mid++) {
 		my $g = tb::block_create();
@@ -1513,15 +1535,13 @@ sub print
 			my $b = $_; 
 			if ( $y < $$b[ tb::BLK_HEIGHT]) {
 				if ( $$b[ tb::BLK_HEIGHT] < $formatHeight) {
-					goto ABORT if $callback && ! $callback-> ();
-					goto ABORT unless $canvas-> new_page;
+					$new_page->();
 					$y = $formatHeight - $$b[ tb::BLK_HEIGHT];
 					$self-> block_draw( $canvas, $b, $indent, $y);
 				} else { 
 					$y -= $$b[ tb::BLK_HEIGHT];
 					while ( $y < 0) {
-						goto ABORT if $callback && ! $callback-> ();
-						goto ABORT unless $canvas-> new_page;
+						$new_page->();
 						$self-> block_draw( $canvas, $b, $indent, $y);
 						$y += $formatHeight;
 					}
@@ -1532,6 +1552,7 @@ sub print
 			}
 		}
 	}
+	$pagenum->();
 
 	$ret = 1;
 ABORT:
