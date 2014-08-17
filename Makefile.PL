@@ -131,7 +131,7 @@ options:
     WITH_XFT          - compile with/without Xft (default 1), X only
     WITH_ICONV        - compile with/without iconv (default 1), X only
     WITH_GTK2         - compile with/without GTK2 (default 1), X only
-    CYGWIN_X11        - X11 build in cygwin environment
+    CYGWIN_WINAPI     - Winapi build in cygwin environment
     DEBUG             - build with debug information
     EXTRA_LDFLAGS      - add extra ld line (i.e. -lgcc )
     EXTRA_CCFLAGS      - add extra cc line (i.e. -I/usr/local/include )
@@ -169,12 +169,12 @@ sub setup_argv
 	$ARGV_STR = join(' ', @ARGV);
 
 	%cmd_options = (
-		X11BASE      => undef,
-		WITH_XFT     => 1,
-		WITH_ICONV   => 1,
-		WITH_GTK2    => 1,
-		CYGWIN_X11   => 0,
-		DEBUG        => 0,
+		X11BASE       => undef,
+		WITH_XFT      => 1,
+		WITH_ICONV    => 1,
+		WITH_GTK2     => 1,
+		CYGWIN_WINAPI => 0,
+		DEBUG         => 0,
 		EXTRA_CCFLAGS => '',
 		EXTRA_LDFLAGS => '',
 		
@@ -210,12 +210,12 @@ sub setup_variables
 		$Win32 = 1;
 		$platform = 'win32';
 	} elsif ( $^O =~ /cygwin/i) {
-		if ( $cmd_options{CYGWIN_X11}) {
-			$unix = 1;
-			$platform = 'unix';
-		} else {
+		if ( $cmd_options{CYGWIN_WINAPI}) {
 			$Win32 = 1;
 			$platform = 'win32';
+		} else {
+			$unix = 1;
+			$platform = 'unix';
 		}
 		$cygwin = 1;
 	} else {
@@ -408,9 +408,10 @@ sub setup_environment
 
 	$flavor = 'sb32' if $flavor eq 'strawberry';
 	$flavor = 'as32' if $flavor eq 'activestate';
+	$flavor .= '.' . ( $cmd_options{CYGWIN_WINAPI} ? 'win32' : 'x11' ) if $flavor eq 'cygwin';
 	
 	$DISTNAME = "Prima-$ver1.$ver2-$flavor-$REVISION.$PATCHLEVEL.$SUBVERSION";
-    print "Build: $DISTNAME\n";
+	print "Build: $DISTNAME\n";
    
 	if ( $cygwin and $] > 5.010 ) {
 		# 5.10 was shipped with a hack in ExtUtils/Liblist/Kid.pm where having auto/Prima.dll was ok
@@ -1667,28 +1668,11 @@ sub command_postinstall
 {
 	my %opt = map { split /=/, $_, 2 } @_;
 
-	if ( $opt{dl} ) {
-		my $f = "$opt{dest}/Prima.pm";
-		$DL_LOAD_FLAGS = $opt{dl};
-		print "Setting dl_load_flags=$DL_LOAD_FLAGS in $f\n";
-		open F, $f or die "cannot open $f:$!\n";
-		local $/;
-		my $ct = <F>;
+	if ( $opt{slib} ) {
+		my $f = "$opt{dest}/auto/Prima/$opt{slib}";
+		open F, ">", $f or warn "** warning: Cannot write to a fake lib '$f': Prima extensions won't build\n";
 		close F;
-		$ct =~ s/(dl_load_flags\s*\{\s*)0x00/${1}0x01/;
-		# open_rw(\*F, $f);
-		open F, "> $f.tmp" or die "Cannot open $f.tmp:$!";
-		print F $ct;
-		close F;
-		unlink $f;
-		rename "$f.tmp", $f;
 	}
-
-    if ( $opt{slib} ) {
-        my $f = "$opt{dest}/auto/Prima/$opt{slib}";
-        open F, ">", $f or warn "** warning: Cannot write to a fake lib '$f': Prima extensions won't build\n";
-        close F;
-    }
 	
 	my $fn_cfg = "$opt{dest}/Prima/Config.pm";
 	print "Updating config $fn_cfg\n";
@@ -1748,6 +1732,29 @@ FOOTER
 	close F;
 	unlink $fn_cfg;
 	rename "$fn_cfg.tmp", $fn_cfg;
+}
+
+sub command_dl
+{
+	$DL_LOAD_FLAGS = shift;
+	my $f = "blib/lib/Prima.pm";
+
+	open F, $f or die "cannot open $f:$!\n";
+	local $/;
+	my $ct = <F>;
+	close F;
+	
+	$ct =~ m/dl_load_flags\s*\{\s*0x0(\d)/;
+	return if $1 eq $DL_LOAD_FLAGS;
+
+	print "Setting dl_load_flags=$DL_LOAD_FLAGS in $f\n";
+	$ct =~ s/(dl_load_flags\s*\{\s*)0x00/${1}0x0$DL_LOAD_FLAGS/;
+	# open_rw(\*F, $f);
+	open F, "> $f.tmp" or die "Cannot open $f.tmp:$!";
+	print F $ct;
+	close F;
+	unlink $f;
+	rename "$f.tmp", $f;
 }
 
 sub command_bindist
@@ -2014,7 +2021,7 @@ sub install
 		"$5\$(DEST$6)$7$8".
 		"\n\t\$(NOECHO) \$(ABSPERL) $0 --postinstall ".
 			"dest=\$(DEST$3) lib=\$($3) bin=\$($6) ".
-			"dl=$DL_LOAD_FLAGS slib=$cygwin_fake_Slib\n\n"
+			"slib=$cygwin_fake_Slib\n\n"
 	]xgse;
 
 	$END .= <<BAD_MAKEFILE if $n != 3;
@@ -2028,6 +2035,8 @@ BAD_MAKEFILE
 
 	return $t;
 }
+
+sub linkext { shift->SUPER::linkext .  "\t\$(NOECHO) \$(ABSPERL) $0 --dl $DL_LOAD_FLAGS\n\n" }
 
 WriteMakefile(
 	NAME              => 'Prima',

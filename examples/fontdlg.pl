@@ -28,11 +28,12 @@
 package fontdlg;
 
 =pod 
-=item NAME
 
-An alternate font selection window
+=head1 NAME
 
-=item FEATURES
+examples/fontdlg.pl - An alternate font selection window
+
+=head1 FEATURES
 
 Demonstrates Prima font API and its usage.
 
@@ -57,6 +58,7 @@ use Prima::Application name => "Font Dialog";
 use Prima::Lists;
 use Prima::Sliders;
 use Prima::Buttons;
+use Encode;
 
 # try to use perl5.8 glyph names
 eval "use charnames qw(:full);";
@@ -290,8 +292,7 @@ onClick   => sub {
 			$p-> font-> direction(0);
 
 			my $m = $p-> get_font;
-			my $xtext = ( $m-> {firstChar} < 128) ? "ÁMg" : 
-				join('', map { chr($_+$m-> {firstChar})} 51,52,0x430,0x431,0x440);
+			my $xtext = Encode::decode('latin1', "\x{c5}Mg"); 
 			my $s = $size[1] - $m-> {height} - $m-> {externalLeading} - 20;
 			my $w = $p-> get_text_width($xtext) + 66;
 			$p-> textOutBaseline(1);

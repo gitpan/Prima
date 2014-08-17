@@ -87,6 +87,12 @@ static int img_gif_error_code = 0;
 #define MakeMapObject GifMakeMapObject
 #define FreeMapObject GifFreeMapObject
 
+#if (GIFLIB_MAJOR == 5 && GIFLIB_MINOR >= 1) || (GIFLIB_MAJOR > 5)
+#define GIF_ERROR_ARG_51 ,&img_gif_error_code
+#else
+#define GIF_ERROR_ARG_51
+#endif
+
 static int
 GifLastError()
 {
@@ -115,6 +121,7 @@ EGifPutExtensionLast(GifFileType * GifFile,
 
 #else
 #define GIF_ERROR_ARG
+#define GIF_ERROR_ARG_51
 #endif
 #define GIF_CALL        img_gif_error_code = 
 #define GIF_CALL_FAILED img_gif_error_code != GIF_OK
@@ -363,7 +370,7 @@ load( PImgCodec instance, PImgLoadFileInstance fi)
 
    /* Reopen file if rewind requested */
    if ( fi-> frame <= l-> passed) {
-      DGifCloseFile( l-> gft);
+      DGifCloseFile( l-> gft GIF_ERROR_ARG_51);
       l-> gft = NULL;
       if ( req_seek( fi-> req, 0, SEEK_SET)) {
          snprintf( fi-> errbuf, 256, "Can't rewind GIF stream, seek() error:%s", strerror(req_error( fi-> req)));
@@ -522,7 +529,7 @@ static void
 close_load( PImgCodec instance, PImgLoadFileInstance fi)
 {
    LoadRec * l = ( LoadRec *) fi-> instance;
-   if ( l-> gft) DGifCloseFile( l-> gft);
+   if ( l-> gft) DGifCloseFile( l-> gft GIF_ERROR_ARG_51);
    free( l);
 }   
 
@@ -751,7 +758,7 @@ save( PImgCodec instance, PImgSaveFileInstance fi)
 static void
 close_save( PImgCodec instance, PImgSaveFileInstance fi)
 {
-   EGifCloseFile(( GifFileType *) fi-> instance);
+   EGifCloseFile(( GifFileType *) fi-> instance GIF_ERROR_ARG_51);
 }   
 
 void 

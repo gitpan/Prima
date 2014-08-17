@@ -239,9 +239,9 @@ sub font_pick
 	# scale dimensions
 	my $res = $options{resolution} ? $options{resolution} : $m2-> {yDeviceRes};
 	if ( $bySize) {
-		$dest-> {height} = int( $dest-> {size} * $res / 72.27 + 0.5); 
+		$dest-> {height} = int(( 1 + $m2->{internalLeading}/$m2->{size} ) * $dest-> {size} * $res / 72.27 + 0.5);
 	} else {
-		$dest-> {size} = int( $dest-> {height} * 72.27 / $res + 0.5);
+		$dest-> {size} = $dest-> {height} * ( 1 - $m2->{internalLeading}/$m2->{height} ) * 72.27 / $res;
 	}
 	my $a = $dest-> {height} / $m2-> {height};
 	my %muls = %$m2;
@@ -250,14 +250,15 @@ sub font_pick
 	my $ds   = $dest-> {style} & fs::StruckOut;
 	my $dw   = $dest-> {width};
 	$muls{$_} = int ( $muls{$_} * $a + 0.5) for
-	qw( height ascent descent width maximalWidth internalLeading externalLeading);
+	qw( height ascent descent width maximalWidth internalLeading externalLeading );
 	delete $muls{size};
 	my $enc = $dest-> {encoding};
 	$dest-> {$_}     = $muls{$_} for keys %muls;
+	$dest-> {referenceWidth} = $m2->{maximalWidth} * $a;
 	$dest-> {encoding} = $enc;
 	$dest-> {style} |= fs::Underlined if $du;
 	$dest-> {style} |= fs::StruckOut if $ds;
-	$dest-> {width} = $dw if $dw != 0;
+	$dest->{ maximalWidth} = $dest-> {width} = $dw if $dw != 0;
 	$dest-> {charheight} = $charheight; 
 	return $dest;
 }

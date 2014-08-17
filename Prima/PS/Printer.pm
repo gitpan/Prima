@@ -56,7 +56,7 @@ Also contains convenience classes (File, LPR, Pipe) for non-GUI use.
 	} elsif ( $print_in_file) {
 		$x = Prima::PS::File-> create( file => 'out.ps');
 	} else {
-		$x = Prima::PS::LPR-> create( args => '-Pcolorprinter');
+		$x = Prima::PS::LPR-> create( args => '-d colorprinter');
 	}
 	$x-> begin_doc;
 	$x-> font-> size( 300);
@@ -94,6 +94,7 @@ sub profile_default
 			resolution     => 300,
 			page           => 'A4',
 			copies         => 1,
+			isEPS          => 0,
 			scaling        => 1,
 			portrait       => 1,
 			useDeviceFonts => 1,
@@ -197,7 +198,7 @@ sub import_printers
 		}
 		$self-> {$slot}-> {$n} = deepcopy( $self-> {defaultData});
 		$self-> {$slot}-> {$n}-> {spoolerType} = lpr;
-		$self-> {$slot}-> {$n}-> {spoolerData} = "-P$_";
+		$self-> {$slot}-> {$n}-> {spoolerData} = "-d $_";
 		push @ret, $n;
 	}
 	return @ret;
@@ -271,6 +272,7 @@ sub data
 	$self-> SUPER::resolution( $p-> {resolution}, $p-> {resolution}) 
 		if exists $dd-> {resolution};
 	$self-> scale( $p-> {scaling}, $p-> {scaling}) if exists $dd-> {scaling};
+	$self-> isEPS( $p-> {isEPS}) if exists $dd-> {isEPS};
 	$self-> reversed( $p-> {portrait} ? 0 : 1) if exists $dd-> {portrait};
 	$self-> pageSize( 
 		@{exists($pageSizes{$p-> {page}}) ? 
@@ -508,7 +510,7 @@ sub options
 	if ( 0 == @_) {
 		return qw(
 			Color Resolution PaperSize Copies Scaling Orientation
-			UseDeviceFonts UseDeviceFontsOnly
+			UseDeviceFonts UseDeviceFontsOnly EPS
 		), keys %{$self->{data}->{devParms}};
 	} elsif ( 1 == @_) {
 		# get value
@@ -520,6 +522,8 @@ sub options
 			return $d->{portrait} ? 'Portrait' : 'Landscape'
 		} elsif ( $v eq 'Color') {
 			return $d->{color} ? 'Color' : 'Monochrome'
+		} elsif ( $v eq 'EPS') {
+			return $d->{isEPS} ? '1' : '0'
 		} else {
 			$v = 'page' if $v eq 'PaperSize';
 			$v = lcfirst $v;
