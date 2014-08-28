@@ -4,7 +4,7 @@
       "Dmitry Karasik <dmitry@karasik.eu.org>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "ExtUtils::MakeMaker version 6.66, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "ExtUtils::MakeMaker version 6.98, CPAN::Meta::Converter version 2.141520",
    "license" : [
       "freebsd"
    ],
@@ -44,12 +44,12 @@
          "requires" : {}
       }
    },
-   "release_status" : "stable",
+   "release_status" : "testing",
    "resources" : {
       "homepage" : "http://www.prima.eu.org/",
       "repository" : {
          "url" : "http://github.com/dk/Prima"
       }
    },
-   "version" : "1.40"
+   "version" : "1.40_1"
 }
